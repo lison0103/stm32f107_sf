@@ -56,20 +56,28 @@ void uart_init(u32 bound){
 	USART_InitTypeDef USART_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
 	 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);	//GPIOB时钟
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);	//GPIOB时钟
         RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);          //使能USART3
+        
+        //重映射USART3
+        GPIO_PinRemapConfig(GPIO_FullRemap_USART3,ENABLE);        
+        
  	USART_DeInit(USART3);  //复位串口3
-	 //USART3_TX   PB.10
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10; //PB.10
+        
+        
+	 //USART3_TX   PD.8
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8; //PD.8
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//复用推挽输出
-    GPIO_Init(GPIOB, &GPIO_InitStructure); //初始化PB10
+    GPIO_Init(GPIOD, &GPIO_InitStructure); //初始化PD.8
    
-    //USART3_RX	  PB.11
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+    //USART3_RX	  PD.9
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;//浮空输入
-    GPIO_Init(GPIOB, &GPIO_InitStructure);  //初始化PB11
+    GPIO_Init(GPIOD, &GPIO_InitStructure);  //初始化PD.9
 
+
+    
    //Usart3 NVIC 配置
 
     NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;

@@ -9,6 +9,7 @@
 #include "usb_conf.h" 
 #include "mb85rcxx.h"
 #include "ewdt.h"
+#include "spi.h"
 
  
 
@@ -88,14 +89,41 @@ void usb_device_test(void)
 
 }
 
+void spi1_test(void)
+{
+    u8 Master_Temp =0;
+    
+    SPI1_Init();
+    SPI1_SetSpeed(SPI_BaudRatePrescaler_256);
+
+   while(1)
+   { 
+#if 0
+       SPI1_ReadWriteByte(0x55); 
+       Master_Temp = SPI1_ReadWriteByte(0x00);
+#else
+       SPI1_WriteByte(0x55); 
+       Master_Temp = SPI1_ReadByte(0x00);
+#endif
+       printf("Master_Temp =%x\r\n",Master_Temp);
+       delay_ms(100); 
+   }
+
+}
 
 int main(void)
 {        
-
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//设置系统中断优先级分组2
-	delay_init();  //初始化延时函数
-//	uart_init(115200);		//初始化串口波特率为115200
-	LED_Init();					//初始化LED  
+        //设置系统中断优先级分组2
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+        
+        //初始化延时函数
+	delay_init();  
+        
+        //初始化串口波特率为115200
+	uart_init(115200);		
+        
+        //初始化LED  
+	LED_Init();					
         
         //外部看门狗初始化
 //        EWDT_Drv_pin_config();
@@ -109,7 +137,14 @@ int main(void)
           
         }  
         
+#if 1
+        //SPI双机通信测试
+        spi1_test();
+#else
+        //USB Device测试
         usb_device_test();
+#endif
+        
 }
 
 

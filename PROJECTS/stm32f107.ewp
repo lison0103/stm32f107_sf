@@ -309,6 +309,7 @@
           <state>$PROJ_DIR$\..\HARDWARE\LED</state>
           <state>$PROJ_DIR$\..\HARDWARE\MB85RCXX</state>
           <state>$PROJ_DIR$\..\HARDWARE\EWDT</state>
+          <state>$PROJ_DIR$\..\HARDWARE\SPI</state>
           <state>$PROJ_DIR$\..\MALLOC</state>
         </option>
         <option>
@@ -1960,6 +1961,9 @@
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\MB85RCXX\mb85rcxx.c</name>
     </file>
+    <file>
+      <name>$PROJ_DIR$\..\HARDWARE\SPI\spi.c</name>
+    </file>
   </group>
   <group>
     <name>MALLOC</name>
@@ -1977,9 +1981,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\SYSTEM\usart.c</name>
-      <excluded>
-        <configuration>Debug</configuration>
-      </excluded>
     </file>
   </group>
   <group>
