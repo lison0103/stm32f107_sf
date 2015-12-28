@@ -5,7 +5,7 @@
    
 
 //USB主机电源控制口
-#define USB_HOST_PWRCTRL 	PAout(15)	//PA15
+//#define USB_HOST_PWRCTRL 	PAout(15)	//PA15
    
 //USB OTG 底层IO初始化
 //pdev:USB OTG内核结构体指针
@@ -20,7 +20,7 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;				 
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		 
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;		
-    GPIO_Init(GPIOC, &GPIO_InitStructure);	
+    GPIO_Init(GPIOA, &GPIO_InitStructure);	
   
     GPIO_SetBits(GPIOA,GPIO_Pin_10);  
   
