@@ -310,6 +310,7 @@
           <state>$PROJ_DIR$\..\HARDWARE\MB85RCXX</state>
           <state>$PROJ_DIR$\..\HARDWARE\EWDT</state>
           <state>$PROJ_DIR$\..\HARDWARE\SPI</state>
+          <state>$PROJ_DIR$\..\HARDWARE\CAN</state>
           <state>$PROJ_DIR$\..\MALLOC</state>
         </option>
         <option>
@@ -1952,6 +1953,9 @@
   </group>
   <group>
     <name>HARDWARE</name>
+    <file>
+      <name>$PROJ_DIR$\..\HARDWARE\CAN\can.c</name>
+    </file>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\EWDT\ewdt.c</name>
     </file>
