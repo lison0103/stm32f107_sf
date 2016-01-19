@@ -2,7 +2,7 @@
 #include "delay.h"    
 #include "led.h"
 #include "mb85rcxx.h"
-
+#include "hw_test.h"
  
  
 int main(void)

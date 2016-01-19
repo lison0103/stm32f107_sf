@@ -54,23 +54,9 @@ void HW_TEST(void);
 #define EX_IN17     PEin(10)
 
 //OUTPUT
-#define GRL1     PCout(0)
-#define GRL2     PEout(2)
-#define GRL3     PEout(4)
-#define GRL4     PEout(5)
-#define GRL5     PEout(6)
-#define GRL6     PBout(8)
-#define GRL7     PBout(7)
-#define GRL8     PBout(4)
-#define GRL9     PBout(3)
+#define AUX1_CTR     PCout(0)
+#define SF_RL1_CTR     PEout(2)
 
-#define GSFR1     PDout(7)
-#define GSFR2     PDout(4)
-#define GSFR3     PDout(3)
-#define GSFR4     PDout(2)
-
-#define TRANS_CTRL1     PAout(15)
-#define TRANS_CTRL2     PCout(12)
 
 
 
