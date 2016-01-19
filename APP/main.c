@@ -18,10 +18,12 @@ int main(void)
         eep_init();
         if(MB85RCXX_Check())
         {
-//            printf("MB85RCXX_Check ß∞‹\n");
-          
+              ;
+                   
         }  
         
+        HW_TEST_INIT();
+        HW_TEST();
 
 }
 
