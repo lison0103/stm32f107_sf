@@ -1852,18 +1852,6 @@
   </configuration>
   <group>
     <name>APP</name>
-    <file>
-      <name>$PROJ_DIR$\..\APP\usb_bsp.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\APP\usbd_desc.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\APP\usbd_storage_msd.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\APP\usbd_usr.c</name>
-    </file>
   </group>
   <group>
     <name>FWLib</name>
@@ -1952,19 +1940,10 @@
   <group>
     <name>HARDWARE</name>
     <file>
-      <name>$PROJ_DIR$\..\HARDWARE\EWDT\ewdt.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\HARDWARE\LED\led.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\MB85RCXX\mb85rcxx.c</name>
-    </file>
-  </group>
-  <group>
-    <name>MALLOC</name>
-    <file>
-      <name>$PROJ_DIR$\..\MALLOC\malloc.c</name>
     </file>
   </group>
   <group>
@@ -1980,51 +1959,6 @@
       <excluded>
         <configuration>Debug</configuration>
       </excluded>
-    </file>
-  </group>
-  <group>
-    <name>USB Device</name>
-    <group>
-      <name>Class</name>
-      <group>
-        <name>MSC</name>
-        <file>
-          <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Class\msc\src\usbd_msc_bot.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Class\msc\src\usbd_msc_core.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Class\msc\src\usbd_msc_data.c</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Class\msc\src\usbd_msc_scsi.c</name>
-        </file>
-      </group>
-    </group>
-    <group>
-      <name>Library</name>
-      <file>
-        <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\src\usbd_core.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\src\usbd_ioreq.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\src\usbd_req.c</name>
-      </file>
-    </group>
-  </group>
-  <group>
-    <name>USB Drivers</name>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_core.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_dcd.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_dcd_int.c</name>
     </file>
   </group>
   <group>
