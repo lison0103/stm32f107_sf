@@ -68,29 +68,21 @@ void HW_TEST_INIT(void)
 //      GPIOE->ODR|=0XFF03;      
       
       //output
-//      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8; 
 //      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
-//      GPIO_Init(GPIOB , &GPIO_InitStruct);  
-
-      GPIOB->CRH&=0XFFFFFFF0; 
-      GPIOB->CRH|=0X00000003; 	 
-      GPIOB->ODR|=1<<8;      
       
-//      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_12; 
+//      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0; 
 //      GPIO_Init(GPIOC , &GPIO_InitStruct);  
 
-      GPIOC->CRL&=0XFFFFFF00; 
-      GPIOC->CRL|=0X00000033;
-      GPIOC->CRH&=0XFFF0FFFF; 
-      GPIOC->CRH|=0X00030000; 	 
-      GPIOC->ODR|=0X1003;      
+      GPIOC->CRL&=0XFFFFFFF0; 
+      GPIOC->CRL|=0X00000003;
+      GPIOC->ODR|=1<<0;      
       
-//      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_6; 
+//      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2; 
 //      GPIO_Init(GPIOE , &GPIO_InitStruct);  
       
-      GPIOE->CRL&=0XF0FF00FF; 
-      GPIOE->CRL|=0X03003300;	 
-      GPIOE->ODR|=0X004C;      
+      GPIOE->CRL&=0XFFFFF0FF; 
+      GPIOE->CRL|=0X00000300;	 
+      GPIOE->ODR|=1<<2;      
       
 
 }
@@ -126,14 +118,12 @@ void HW_TEST_INIT(void)
       
       
       //output
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8; 
       GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
-      GPIO_Init(GPIOB , &GPIO_InitStruct);  
           
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_12; 
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0; 
       GPIO_Init(GPIOC , &GPIO_InitStruct);        
       
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_6; 
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2; 
       GPIO_Init(GPIOE , &GPIO_InitStruct);  
 
 }
