@@ -33,6 +33,8 @@ USBD_Usr_cb_TypeDef USR_cb =
 //USB Device 用户自定义初始化函数
 void USBD_USR_Init(void)
 {
+                  //USB Device电源使能
+        GPIO_ResetBits(GPIOA,GPIO_Pin_10);
 	//printf("USBD_USR_Init\r\n");
 } 
 //USB Device 复位

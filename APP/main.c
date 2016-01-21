@@ -25,12 +25,15 @@ void usb_device_test(void)
 	u8 USB_STA;
 	u8 Divece_STA;
   
-        //USB Device电源使能
-        GPIO_ResetBits(GPIOA,GPIO_Pin_10);
+
 
  
  	printf("USB Connecting...\n");//提示正在建立连接 	    
 	USBD_Init(&USB_OTG_dev,USB_OTG_FS_CORE_ID,&USR_desc,&USBD_MSC_cb,&USR_cb);
+        
+        
+
+        
 	delay_ms(1800);	
 	while(1)
 	{	
@@ -202,7 +205,7 @@ int main(void)
           
         }  
         
-#if 1
+#if 0
         //SPI双机通信测试
         spi1_test();
 #else
