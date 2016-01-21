@@ -57,6 +57,8 @@ void HW_TEST(void);
 #define AUX1_CTR     PCout(0)
 #define SF_RL1_CTR     PEout(2)
 
+#define SF_RL1_WDT     PBout(9)
+
 
 
 
