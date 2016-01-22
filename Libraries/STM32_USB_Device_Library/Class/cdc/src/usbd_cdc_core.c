@@ -183,6 +183,10 @@ uint32_t APP_Rx_ptr_in  = 0;
 uint32_t APP_Rx_ptr_out = 0;
 uint32_t APP_Rx_length  = 0;
 
+/*****************/
+uint32_t USB_Recive_length  = 0;
+/****************/
+
 uint8_t  USB_Tx_State = 0;
 
 static uint32_t cdcCmd = 0xFF;
@@ -675,6 +679,8 @@ static uint8_t  usbd_cdc_DataOut (void *pdev, uint8_t epnum)
   /* Get the received data buffer and update the counter */
   USB_Rx_Cnt = ((USB_OTG_CORE_HANDLE*)pdev)->dev.out_ep[epnum].xfer_count;
   
+  USB_Recive_length = USB_Rx_Cnt;
+    
   /* USB data will be immediately processed, this allow next USB traffic being 
      NAKed till the end of the application Xfer */
   APP_FOPS.pIf_DataRx(USB_Rx_Buffer, USB_Rx_Cnt);
