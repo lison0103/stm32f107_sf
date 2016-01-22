@@ -81,6 +81,7 @@ int8_t STORAGE_GetCapacity (uint8_t lun, uint32_t *block_num, uint32_t *block_si
 	{
 		*block_size=512;  
 		*block_num=1024*2/512;	
+//                *block_num=1024*1024*12/512;
 	}	
 	return 0; 
 } 

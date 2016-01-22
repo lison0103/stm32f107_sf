@@ -5,11 +5,11 @@
 
 /******************************************************************************* 
 *******************************************************************************/
-#define	EEP_SDA_PORT	  GPIOA
-#define	EEP_SDA_PIN			GPIO_Pin_9
+#define	EEP_SDA_PORT	  GPIOE
+#define	EEP_SDA_PIN			GPIO_Pin_5
 
-#define	EEP_SCL_PORT		GPIOA
-#define	EEP_SCL_PIN			GPIO_Pin_10
+#define	EEP_SCL_PORT		GPIOE
+#define	EEP_SCL_PIN			GPIO_Pin_4
 
 #define EEP_SDA_SET()  						GPIO_WriteBit(EEP_SDA_PORT, EEP_SDA_PIN,Bit_SET)
 #define EEP_SDA_CLR()  						GPIO_WriteBit(EEP_SDA_PORT, EEP_SDA_PIN,Bit_RESET)
@@ -28,24 +28,26 @@ u16 EEPROM_WR_TIME=0;
 *******************************************************************************/
 void EEP_SDA_OUT(void)  
 {
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE );
+  
 	GPIO_InitTypeDef GPIO_InitStruct;
 	
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;             
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5;             
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;    
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_OD; 
 	
-	GPIO_Init(GPIOA , &GPIO_InitStruct);	
+	GPIO_Init(GPIOE , &GPIO_InitStruct);	
 }
 
 void EEP_SCL_OUT(void) 
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 	
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;             
+	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;             
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;   
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;   
 	
-	GPIO_Init(GPIOA , &GPIO_InitStruct);
+	GPIO_Init(GPIOE , &GPIO_InitStruct);
 }
 
 /******************************************************************************* 

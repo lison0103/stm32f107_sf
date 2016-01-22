@@ -24,20 +24,25 @@ void usb_device_test(void)
 	u8 tct=0;
 	u8 USB_STA;
 	u8 Divece_STA;
-  
-
-
+ 	        
  
  	printf("USB Connecting...\n");//提示正在建立连接 	    
 	USBD_Init(&USB_OTG_dev,USB_OTG_FS_CORE_ID,&USR_desc,&USBD_MSC_cb,&USR_cb);
         
-        
+
+//        delay_ms(200);
+// 	GPIO_SetBits(GPIOA,GPIO_Pin_10);  	//USB先断开
+//        
+//	delay_ms(300);
+//   	GPIO_ResetBits(GPIOA,GPIO_Pin_10);	//USB再次连接
 
         
 	delay_ms(1800);	
 	while(1)
 	{	
-		delay_ms(1);				  
+		delay_ms(1);	
+                
+                
 		if(USB_STA!=USB_STATUS_REG)//状态改变了 
 		{	 						   		  	   
 			if(USB_STATUS_REG&0x01)//正在写		  
@@ -71,7 +76,7 @@ void usb_device_test(void)
 		if(tct==200)
 		{
 			tct=0;
-			LED=1;
+//			LED=1;
 			LED=!LED;//提示系统在运行
                         
 //                        EWDT_TOOGLE();
@@ -198,12 +203,12 @@ int main(void)
 //        power_on_bsp_check();        
   
         //MB85RCXX初始化
-        eep_init();
-        if(MB85RCXX_Check())
-        {
-            printf("MB85RCXX_Check失败\n");
-          
-        }  
+//        eep_init();
+//        if(MB85RCXX_Check())
+//        {
+//            printf("MB85RCXX_Check失败\n");
+//          
+//        }  
         
 #if 0
         //SPI双机通信测试
