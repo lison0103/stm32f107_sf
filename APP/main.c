@@ -27,6 +27,7 @@ extern uint8_t USB_Rx_Buffer   [CDC_DATA_MAX_PACKET_SIZE];
 extern uint32_t APP_Rx_ptr_out;
 extern uint32_t APP_Rx_length;
 
+extern u8 sflag,inputnum;
  
 int main(void)
 {        
@@ -47,9 +48,14 @@ int main(void)
                    
         }  
 
-#if 0        
+#if 1        
         HW_TEST_INIT();
-        HW_TEST();
+//        HW_TEST();
+
+        
+        AUX1_CTR = 0;
+        SF_RL1_CTR = 0;
+        SF_RL1_WDT = 1;
 #endif
 
 
@@ -92,7 +98,9 @@ int main(void)
 //                          {
 //                              APP_Rx_Buffer[APP_Rx_ptr_in] = i + '0';
 //                              APP_Rx_ptr_in++;
-//                          }                          
+//                          }      
+                        
+                        HW_TEST();
                         
                           for(i = 0; i < USB_Recive_length; i++)
                           {
@@ -107,6 +115,7 @@ int main(void)
                           USB_Recive_length = 0;
                         
                           LED=!LED;
+                          SF_RL1_WDT=!SF_RL1_WDT;
                           tt=0;
                       } 
                       

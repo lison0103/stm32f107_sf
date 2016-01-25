@@ -132,16 +132,18 @@ void HW_TEST_INIT(void)
 }
 #endif
 
+u8 sflag,inputnum = 0;
+
 void HW_TEST(void)
 {
-    u8 sflag,t,inputnum = 0;
-  
-    AUX1_CTR = 0;
-    SF_RL1_CTR = 0;
-    SF_RL1_WDT = 1;
+//    u8 sflag,t,inputnum = 0;
+//  
+//    AUX1_CTR = 0;
+//    SF_RL1_CTR = 0;
+//    SF_RL1_WDT = 1;
     
-    while(1)
-    {
+//    while(1)
+//    {
         sflag = 0;
         inputnum = 0;        
 //        for(int i = 0;i < 28;i++)
@@ -438,14 +440,14 @@ void HW_TEST(void)
 
         
         
-        delay_ms(1);
-        t++;
-        if(t==200)
-        {
-            LED=!LED;
-            SF_RL1_WDT=!SF_RL1_WDT;
-            t=0;
-        }        
-        
-    }
+//        delay_ms(1);
+//        t++;
+//        if(t==200)
+//        {
+//            LED=!LED;
+//            SF_RL1_WDT=!SF_RL1_WDT;
+//            t=0;
+//        }        
+//        
+//    }
 }

@@ -138,7 +138,7 @@ void STM_EVAL_COMInit(COM_TypeDef COM, USART_InitTypeDef* USART_InitStruct)
   */
 static uint16_t VCP_Init(void)
 {
-  NVIC_InitTypeDef NVIC_InitStructure;
+//  NVIC_InitTypeDef NVIC_InitStructure;
   
   /* EVAL_COM1 default configuration */
   /* EVAL_COM1 configured as follow:
@@ -149,25 +149,25 @@ static uint16_t VCP_Init(void)
         - Hardware flow control disabled
         - Receive and transmit enabled
   */
-  USART_InitStructure.USART_BaudRate = 115200;
-  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-  USART_InitStructure.USART_StopBits = USART_StopBits_1;
-  USART_InitStructure.USART_Parity = USART_Parity_Odd;
-  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+//  USART_InitStructure.USART_BaudRate = 115200;
+//  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+//  USART_InitStructure.USART_StopBits = USART_StopBits_1;
+//  USART_InitStructure.USART_Parity = USART_Parity_Odd;
+//  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+//  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 
   /* Configure and enable the USART */
-  STM_EVAL_COMInit(COM1, &USART_InitStructure);
+//  STM_EVAL_COMInit(COM1, &USART_InitStructure);
 
   /* Enable the USART Receive interrupt */
-  USART_ITConfig(EVAL_COM1, USART_IT_RXNE, ENABLE);
+//  USART_ITConfig(EVAL_COM1, USART_IT_RXNE, ENABLE);
 
   /* Enable USART Interrupt */
-  NVIC_InitStructure.NVIC_IRQChannel = EVAL_COM1_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+//  NVIC_InitStructure.NVIC_IRQChannel = EVAL_COM1_IRQn;
+//  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+//  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+//  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+//  NVIC_Init(&NVIC_InitStructure);
   
   return USBD_OK;
 }
@@ -261,22 +261,22 @@ static uint16_t VCP_Ctrl (uint32_t Cmd, uint8_t* Buf, uint32_t Len)
   */
 static uint16_t VCP_DataTx (uint8_t* Buf, uint32_t Len)
 {
-  if (linecoding.datatype == 7)
-  {
-    APP_Rx_Buffer[APP_Rx_ptr_in] = USART_ReceiveData(EVAL_COM1) & 0x7F;
-  }
-  else if (linecoding.datatype == 8)
-  {
-    APP_Rx_Buffer[APP_Rx_ptr_in] = USART_ReceiveData(EVAL_COM1);
-  }
-  
-  APP_Rx_ptr_in++;
-  
-  /* To avoid buffer overflow */
-  if(APP_Rx_ptr_in == APP_RX_DATA_SIZE)
-  {
-    APP_Rx_ptr_in = 0;
-  }  
+//  if (linecoding.datatype == 7)
+//  {
+//    APP_Rx_Buffer[APP_Rx_ptr_in] = USART_ReceiveData(EVAL_COM1) & 0x7F;
+//  }
+//  else if (linecoding.datatype == 8)
+//  {
+//    APP_Rx_Buffer[APP_Rx_ptr_in] = USART_ReceiveData(EVAL_COM1);
+//  }
+//  
+//  APP_Rx_ptr_in++;
+//  
+//  /* To avoid buffer overflow */
+//  if(APP_Rx_ptr_in == APP_RX_DATA_SIZE)
+//  {
+//    APP_Rx_ptr_in = 0;
+//  }  
   
   return USBD_OK;
 }
@@ -298,13 +298,13 @@ static uint16_t VCP_DataTx (uint8_t* Buf, uint32_t Len)
   */
 static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
 {
-  uint32_t i;
-  
-  for (i = 0; i < Len; i++)
-  {
-    USART_SendData(EVAL_COM1, *(Buf + i) );
-    while(USART_GetFlagStatus(EVAL_COM1, USART_FLAG_TXE) == RESET); 
-  } 
+//  uint32_t i;
+//  
+//  for (i = 0; i < Len; i++)
+//  {
+//    USART_SendData(EVAL_COM1, *(Buf + i) );
+//    while(USART_GetFlagStatus(EVAL_COM1, USART_FLAG_TXE) == RESET); 
+//  } 
  
   return USBD_OK;
 }
@@ -318,96 +318,96 @@ static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
   */
 static uint16_t VCP_COMConfig(uint8_t Conf)
 {
-  if (Conf == DEFAULT_CONFIG)  
-  {
-    /* EVAL_COM1 default configuration */
-    /* EVAL_COM1 configured as follow:
-    - BaudRate = 115200 baud  
-    - Word Length = 8 Bits
-    - One Stop Bit
-    - Parity Odd
-    - Hardware flow control disabled
-    - Receive and transmit enabled
-    */
-    USART_InitStructure.USART_BaudRate = 115200;
-    USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-    USART_InitStructure.USART_StopBits = USART_StopBits_1;
-    USART_InitStructure.USART_Parity = USART_Parity_Odd;
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-    
-    /* Configure and enable the USART */
-    STM_EVAL_COMInit(COM1, &USART_InitStructure);
-    
-    /* Enable the USART Receive interrupt */
-    USART_ITConfig(EVAL_COM1, USART_IT_RXNE, ENABLE);
-  }
-  else
-  {
-    /* set the Stop bit*/
-    switch (linecoding.format)
-    {
-    case 0:
-      USART_InitStructure.USART_StopBits = USART_StopBits_1;
-      break;
-    case 1:
-      USART_InitStructure.USART_StopBits = USART_StopBits_1_5;
-      break;
-    case 2:
-      USART_InitStructure.USART_StopBits = USART_StopBits_2;
-      break;
-    default :
-      VCP_COMConfig(DEFAULT_CONFIG);
-      return (USBD_FAIL);
-    }
-    
-    /* set the parity bit*/
-    switch (linecoding.paritytype)
-    {
-    case 0:
-      USART_InitStructure.USART_Parity = USART_Parity_No;
-      break;
-    case 1:
-      USART_InitStructure.USART_Parity = USART_Parity_Even;
-      break;
-    case 2:
-      USART_InitStructure.USART_Parity = USART_Parity_Odd;
-      break;
-    default :
-      VCP_COMConfig(DEFAULT_CONFIG);
-      return (USBD_FAIL);
-    }
-    
-    /*set the data type : only 8bits and 9bits is supported */
-    switch (linecoding.datatype)
-    {
-    case 0x07:
-      /* With this configuration a parity (Even or Odd) should be set */
-      USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-      break;
-    case 0x08:
-      if (USART_InitStructure.USART_Parity == USART_Parity_No)
-      {
-        USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-      }
-      else 
-      {
-        USART_InitStructure.USART_WordLength = USART_WordLength_9b;
-      }
-      
-      break;
-    default :
-      VCP_COMConfig(DEFAULT_CONFIG);
-      return (USBD_FAIL);
-    }
-    
-    USART_InitStructure.USART_BaudRate = linecoding.bitrate;
-    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-    
-    /* Configure and enable the USART */
-    STM_EVAL_COMInit(COM1, &USART_InitStructure);
-  }
+//  if (Conf == DEFAULT_CONFIG)  
+//  {
+//    /* EVAL_COM1 default configuration */
+//    /* EVAL_COM1 configured as follow:
+//    - BaudRate = 115200 baud  
+//    - Word Length = 8 Bits
+//    - One Stop Bit
+//    - Parity Odd
+//    - Hardware flow control disabled
+//    - Receive and transmit enabled
+//    */
+//    USART_InitStructure.USART_BaudRate = 115200;
+//    USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+//    USART_InitStructure.USART_StopBits = USART_StopBits_1;
+//    USART_InitStructure.USART_Parity = USART_Parity_Odd;
+//    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+//    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+//    
+//    /* Configure and enable the USART */
+//    STM_EVAL_COMInit(COM1, &USART_InitStructure);
+//    
+//    /* Enable the USART Receive interrupt */
+//    USART_ITConfig(EVAL_COM1, USART_IT_RXNE, ENABLE);
+//  }
+//  else
+//  {
+//    /* set the Stop bit*/
+//    switch (linecoding.format)
+//    {
+//    case 0:
+//      USART_InitStructure.USART_StopBits = USART_StopBits_1;
+//      break;
+//    case 1:
+//      USART_InitStructure.USART_StopBits = USART_StopBits_1_5;
+//      break;
+//    case 2:
+//      USART_InitStructure.USART_StopBits = USART_StopBits_2;
+//      break;
+//    default :
+//      VCP_COMConfig(DEFAULT_CONFIG);
+//      return (USBD_FAIL);
+//    }
+//    
+//    /* set the parity bit*/
+//    switch (linecoding.paritytype)
+//    {
+//    case 0:
+//      USART_InitStructure.USART_Parity = USART_Parity_No;
+//      break;
+//    case 1:
+//      USART_InitStructure.USART_Parity = USART_Parity_Even;
+//      break;
+//    case 2:
+//      USART_InitStructure.USART_Parity = USART_Parity_Odd;
+//      break;
+//    default :
+//      VCP_COMConfig(DEFAULT_CONFIG);
+//      return (USBD_FAIL);
+//    }
+//    
+//    /*set the data type : only 8bits and 9bits is supported */
+//    switch (linecoding.datatype)
+//    {
+//    case 0x07:
+//      /* With this configuration a parity (Even or Odd) should be set */
+//      USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+//      break;
+//    case 0x08:
+//      if (USART_InitStructure.USART_Parity == USART_Parity_No)
+//      {
+//        USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+//      }
+//      else 
+//      {
+//        USART_InitStructure.USART_WordLength = USART_WordLength_9b;
+//      }
+//      
+//      break;
+//    default :
+//      VCP_COMConfig(DEFAULT_CONFIG);
+//      return (USBD_FAIL);
+//    }
+//    
+//    USART_InitStructure.USART_BaudRate = linecoding.bitrate;
+//    USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+//    USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+//    
+//    /* Configure and enable the USART */
+//    STM_EVAL_COMInit(COM1, &USART_InitStructure);
+//  }
   return USBD_OK;
 }
 
