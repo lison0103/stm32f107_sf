@@ -309,6 +309,7 @@
           <state>$PROJ_DIR$\..\HARDWARE\LED</state>
           <state>$PROJ_DIR$\..\HARDWARE\MB85RCXX</state>
           <state>$PROJ_DIR$\..\HARDWARE\EWDT</state>
+          <state>$PROJ_DIR$\..\HARDWARE\CAN</state>
           <state>$PROJ_DIR$\..\MALLOC</state>
           <state>$PROJ_DIR$\..\VCP\inc</state>
         </option>
@@ -1955,6 +1956,9 @@
   </group>
   <group>
     <name>HARDWARE</name>
+    <file>
+      <name>$PROJ_DIR$\..\HARDWARE\CAN\can.c</name>
+    </file>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\LED\led.c</name>
     </file>
