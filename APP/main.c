@@ -31,8 +31,8 @@ extern u8 sflag,inputnum;
  
 int main(void)
 {        
-  u8 tt,i;
-  u32 aa;
+  u8 tt,i = 0;
+  u32 aa = 0;
   
 //	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//设置系统中断优先级分组2
 	delay_init();  //初始化延时函数
