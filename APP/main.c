@@ -61,13 +61,13 @@ int main(void)
 
 #if 1
 
-	u8 a=0,t=0;
+	u8 a='a',t=0;
 	u8 cnt=0;
 	u8 canbuf_send[8],canbuf_recv[8];
 	u8 res;
         u8 can_rcv;
 	u8 mode=CAN_Mode_Normal;//CAN工作模式;CAN_Mode_Normal(0)：普通模式，CAN_Mode_LoopBack(1)：环回模式
-
+          
 	 	
    
 	CAN_Mode_Init(CAN1,CAN_SJW_2tq,CAN_BS2_5tq,CAN_BS1_3tq,20,mode);//CAN初始化环回模式,波特率200Kbps    
@@ -122,12 +122,19 @@ int main(void)
                       // CAN 每秒发送一次，并通过VCP发送给串口
                       if(aa == 1000)
                       {
-#if 1                        
+#if 1                     
+
                           for(i=0;i<8;i++)
                           {
-                            canbuf_send[i]= 'a' + i;//填充发送缓冲区
+                            canbuf_send[i]= a;//填充发送缓冲区
                             
 //                            printf("%s",canbuf_send[i]);	//显示数据
+                          }
+                          
+                          a++;
+                          if(a > 'z')
+                          {
+                              a = 'a';
                           }
                           res=Can_Send_Msg(CAN1,canbuf_send,8);//发送8个字节 
                           
@@ -136,6 +143,7 @@ int main(void)
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = 'C';
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = 'A';
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = 'N';
+                              APP_Rx_Buffer[APP_Rx_ptr_in++] = '1';
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = 'T';
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = 'X';
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = ':';   
@@ -157,6 +165,7 @@ int main(void)
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = 'C';
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = 'A';
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = 'N';
+                              APP_Rx_Buffer[APP_Rx_ptr_in++] = '1';
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = 'T';
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = 'X';
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = ':';
@@ -166,7 +175,7 @@ int main(void)
                                   APP_Rx_Buffer[APP_Rx_ptr_in] = canbuf_send[i];
                                   APP_Rx_ptr_in++;
                               }  
-                              
+                              delay_ms(1);
                               can_rcv=Can_Receive_Msg(CAN2,canbuf_recv);
                               if(can_rcv)//接收到有数据
                               {			
@@ -174,6 +183,7 @@ int main(void)
                                 APP_Rx_Buffer[APP_Rx_ptr_in++] = 'C';
                                 APP_Rx_Buffer[APP_Rx_ptr_in++] = 'A';
                                 APP_Rx_Buffer[APP_Rx_ptr_in++] = 'N';
+                                APP_Rx_Buffer[APP_Rx_ptr_in++] = '2';
                                 APP_Rx_Buffer[APP_Rx_ptr_in++] = 'R';
                                 APP_Rx_Buffer[APP_Rx_ptr_in++] = 'X';
                                 APP_Rx_Buffer[APP_Rx_ptr_in++] = ':';   
