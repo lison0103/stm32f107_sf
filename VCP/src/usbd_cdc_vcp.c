@@ -78,55 +78,55 @@ CDC_IF_Prop_TypeDef VCP_fops =
 };
 
 
-USART_TypeDef* COM_USART[COMn] = {EVAL_COM1}; 
-
-GPIO_TypeDef* COM_TX_PORT[COMn] = {EVAL_COM1_TX_GPIO_PORT};
-
-GPIO_TypeDef* COM_RX_PORT[COMn] = {EVAL_COM1_RX_GPIO_PORT};
-
-const uint32_t COM_USART_CLK[COMn] = {EVAL_COM1_CLK};
-
-const uint32_t COM_TX_PORT_CLK[COMn] = {EVAL_COM1_TX_GPIO_CLK};
- 
-const uint32_t COM_RX_PORT_CLK[COMn] = {EVAL_COM1_RX_GPIO_CLK};
-
-const uint16_t COM_TX_PIN[COMn] = {EVAL_COM1_TX_PIN};
-
-const uint16_t COM_RX_PIN[COMn] = {EVAL_COM1_RX_PIN};
- 
-DMA_InitTypeDef   sEEDMA_InitStructure; 
-
-void STM_EVAL_COMInit(COM_TypeDef COM, USART_InitTypeDef* USART_InitStruct)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-  /* Enable GPIO clock */
-  RCC_APB2PeriphClockCmd(COM_TX_PORT_CLK[COM] | COM_RX_PORT_CLK[COM] | RCC_APB2Periph_AFIO, ENABLE);
-
-  if (COM == COM1)
-  {
-    /* Enable the USART2 Pins Software Remapping */
-    GPIO_PinRemapConfig(GPIO_Remap_USART2, ENABLE);
-    RCC_APB1PeriphClockCmd(COM_USART_CLK[COM], ENABLE);
-  }
-
-  /* Configure USART Tx as alternate function push-pull */
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-  GPIO_InitStructure.GPIO_Pin = COM_TX_PIN[COM];
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(COM_TX_PORT[COM], &GPIO_InitStructure);
-
-  /* Configure USART Rx as input floating */
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_InitStructure.GPIO_Pin = COM_RX_PIN[COM];
-  GPIO_Init(COM_RX_PORT[COM], &GPIO_InitStructure);
-
-  /* USART configuration */
-  USART_Init(COM_USART[COM], USART_InitStruct);
-    
-  /* Enable USART */
-  USART_Cmd(COM_USART[COM], ENABLE);
-}
+//USART_TypeDef* COM_USART[COMn] = {EVAL_COM1}; 
+//
+//GPIO_TypeDef* COM_TX_PORT[COMn] = {EVAL_COM1_TX_GPIO_PORT};
+//
+//GPIO_TypeDef* COM_RX_PORT[COMn] = {EVAL_COM1_RX_GPIO_PORT};
+//
+//const uint32_t COM_USART_CLK[COMn] = {EVAL_COM1_CLK};
+//
+//const uint32_t COM_TX_PORT_CLK[COMn] = {EVAL_COM1_TX_GPIO_CLK};
+// 
+//const uint32_t COM_RX_PORT_CLK[COMn] = {EVAL_COM1_RX_GPIO_CLK};
+//
+//const uint16_t COM_TX_PIN[COMn] = {EVAL_COM1_TX_PIN};
+//
+//const uint16_t COM_RX_PIN[COMn] = {EVAL_COM1_RX_PIN};
+// 
+//DMA_InitTypeDef   sEEDMA_InitStructure; 
+//
+//void STM_EVAL_COMInit(COM_TypeDef COM, USART_InitTypeDef* USART_InitStruct)
+//{
+//  GPIO_InitTypeDef GPIO_InitStructure;
+//
+//  /* Enable GPIO clock */
+//  RCC_APB2PeriphClockCmd(COM_TX_PORT_CLK[COM] | COM_RX_PORT_CLK[COM] | RCC_APB2Periph_AFIO, ENABLE);
+//
+//  if (COM == COM1)
+//  {
+//    /* Enable the USART2 Pins Software Remapping */
+//    GPIO_PinRemapConfig(GPIO_Remap_USART2, ENABLE);
+//    RCC_APB1PeriphClockCmd(COM_USART_CLK[COM], ENABLE);
+//  }
+//
+//  /* Configure USART Tx as alternate function push-pull */
+//  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+//  GPIO_InitStructure.GPIO_Pin = COM_TX_PIN[COM];
+//  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+//  GPIO_Init(COM_TX_PORT[COM], &GPIO_InitStructure);
+//
+//  /* Configure USART Rx as input floating */
+//  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+//  GPIO_InitStructure.GPIO_Pin = COM_RX_PIN[COM];
+//  GPIO_Init(COM_RX_PORT[COM], &GPIO_InitStructure);
+//
+//  /* USART configuration */
+//  USART_Init(COM_USART[COM], USART_InitStruct);
+//    
+//  /* Enable USART */
+//  USART_Cmd(COM_USART[COM], ENABLE);
+//}
 
 
 /* Private functions ---------------------------------------------------------*/
@@ -417,19 +417,19 @@ static uint16_t VCP_COMConfig(uint8_t Conf)
   * @param  None.
   * @retval None.
   */
-void EVAL_COM_IRQHandler(void)
-{
-  if (USART_GetITStatus(EVAL_COM1, USART_IT_RXNE) != RESET)
-  {
-    /* Send the received data to the PC Host*/
-    VCP_DataTx (0,0);
-  }
-
-  /* If overrun condition occurs, clear the ORE flag and recover communication */
-  if (USART_GetFlagStatus(EVAL_COM1, USART_FLAG_ORE) != RESET)
-  {
-    (void)USART_ReceiveData(EVAL_COM1);
-  }
-}
+//void EVAL_COM_IRQHandler(void)
+//{
+//  if (USART_GetITStatus(EVAL_COM1, USART_IT_RXNE) != RESET)
+//  {
+//    /* Send the received data to the PC Host*/
+//    VCP_DataTx (0,0);
+//  }
+//
+//  /* If overrun condition occurs, clear the ORE flag and recover communication */
+//  if (USART_GetFlagStatus(EVAL_COM1, USART_FLAG_ORE) != RESET)
+//  {
+//    (void)USART_ReceiveData(EVAL_COM1);
+//  }
+//}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

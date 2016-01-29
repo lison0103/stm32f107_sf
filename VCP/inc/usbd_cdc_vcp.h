@@ -57,7 +57,7 @@ typedef struct
    The IRQ handler function is implemented in the usbd_cdc_vcp.c file. */
           
 
-#define EVAL_COM_IRQHandler            USART2_IRQHandler
+//#define EVAL_COM_IRQHandler            USART2_IRQHandler
 
 
 
