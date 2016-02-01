@@ -4,6 +4,7 @@
 #include "mb85rcxx.h"
 #include "hw_test.h"
 #include "can.h"
+#include "spi.h"
 
 #include "usbd_cdc_core.h"
 #include "usbd_usr.h"
@@ -28,7 +29,33 @@ extern uint32_t APP_Rx_ptr_out;
 extern uint32_t APP_Rx_length;
 
 extern u8 sflag,inputnum;
- 
+
+void spi1_test(void)
+{
+    u8 Master_Temp =0;
+    
+    SPI1_Init();
+    SPI1_SetSpeed(SPI_BaudRatePrescaler_256);
+
+   while(1)
+   { 
+     
+     HW_TEST();
+#if 0
+       SPI1_ReadWriteByte(0x55); 
+       Master_Temp = SPI1_ReadWriteByte(0x00);
+#else
+       SPI1_WriteByte(0x66); 
+       Master_Temp = SPI1_ReadByte(0x00);
+#endif
+       printf("Master_Temp =%x\r\n",Master_Temp);
+       delay_ms(100); 
+   }
+
+}
+
+u8 canbuf_send[8];
+
 int main(void)
 {        
   u8 tt,i = 0;
@@ -57,21 +84,21 @@ int main(void)
         SF_RL1_CTR = 0;
         SF_RL1_WDT = 1;
 #endif
-
+//        spi1_test();
 
 #if 1
 
 	u8 a='a',t=0;
 	u8 cnt=0;
-	u8 canbuf_send[8],canbuf_recv[8];
+	u8 canbuf_recv[8];
 	u8 res;
         u8 can_rcv;
 	u8 mode=CAN_Mode_Normal;//CAN工作模式;CAN_Mode_Normal(0)：普通模式，CAN_Mode_LoopBack(1)：环回模式
           
 	 	
    
-	CAN_Mode_Init(CAN1,CAN_SJW_2tq,CAN_BS2_5tq,CAN_BS1_3tq,20,mode);//CAN初始化环回模式,波特率200Kbps    
-        CAN_Mode_Init(CAN2,CAN_SJW_2tq,CAN_BS2_5tq,CAN_BS1_3tq,20,mode);//CAN初始化环回模式,波特率200Kbps            
+	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);//CAN初始化环回模式,波特率250Kbps    
+        CAN_Mode_Init(CAN2,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);//CAN初始化环回模式,波特率250Kbps            
 
         
           USBD_Init(&USB_OTG_dev,
@@ -124,19 +151,19 @@ int main(void)
                       {
 #if 1                     
 
-                          for(i=0;i<8;i++)
-                          {
-                            canbuf_send[i]= a;//填充发送缓冲区
-                            
-//                            printf("%s",canbuf_send[i]);	//显示数据
-                          }
+//                          for(i=0;i<8;i++)
+//                          {
+//                            canbuf_send[i]= a;//填充发送缓冲区
+//                            
+////                            printf("%s",canbuf_send[i]);	//显示数据
+//                          }
                           
-                          a++;
-                          if(a > 'z')
-                          {
-                              a = 'a';
-                          }
-                          res=Can_Send_Msg(CAN1,canbuf_send,8);//发送8个字节 
+//                          a++;
+//                          if(a > 'z')
+//                          {
+//                              a = 'a';
+//                          }
+                          res=Can_Send_Msg(CAN1,canbuf_send,4);//发送8个字节 
                           
                           if(res)
                           {
@@ -170,7 +197,7 @@ int main(void)
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = 'X';
                               APP_Rx_Buffer[APP_Rx_ptr_in++] = ':';
 
-                              for(i = 0; i < 8; i++)
+                              for(i = 0; i < 4; i++)
                               {
                                   APP_Rx_Buffer[APP_Rx_ptr_in] = canbuf_send[i];
                                   APP_Rx_ptr_in++;
