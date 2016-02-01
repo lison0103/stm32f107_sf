@@ -229,8 +229,15 @@ u8 Can_Send_Msg(CAN_TypeDef* CANx,u8* msg,u8 len)
 	TxMessage.Data[i]=msg[i];			          
 	mbox= CAN_Transmit(CANx, &TxMessage);   
 	i=0; 
-	while((CAN_TransmitStatus(CANx, mbox)==CAN_TxStatus_Failed)&&(i<0XFFF))i++;	//等待发送结束
-	if(i>=0XFFF)return 1;
+        delay_ms(1);
+	while((CAN_TransmitStatus(CANx, mbox)==CAN_TxStatus_Failed)&&(i<0XFFF))
+        {
+            i++;	//等待发送结束
+        }
+	if(i>=0XFFF)
+        {  
+            return 1;
+        }
 	return 0;	 
 }
 //can口接收数据查询

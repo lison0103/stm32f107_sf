@@ -44,7 +44,7 @@ int main(void)
         eep_init();
         if(MB85RCXX_Check())
         {
-              ;
+              delay_ms(1);
                    
         }  
 
