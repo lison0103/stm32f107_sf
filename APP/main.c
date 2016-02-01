@@ -203,7 +203,8 @@ int main(void)
                                   APP_Rx_ptr_in++;
                               }  
                               delay_ms(1);
-                              can_rcv=Can_Receive_Msg(CAN2,canbuf_recv);
+//                              can_rcv=Can_Receive_Msg(CAN2,canbuf_recv);
+                              can_rcv=Can_Receive_Msg(CAN1,canbuf_recv);
                               if(can_rcv)//接收到有数据
                               {			
 

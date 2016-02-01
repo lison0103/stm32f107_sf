@@ -66,10 +66,24 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
             CAN_FilterInitStructure.CAN_FilterNumber=0;	//过滤器0
             CAN_FilterInitStructure.CAN_FilterMode=CAN_FilterMode_IdMask; 	//屏蔽位模式
             CAN_FilterInitStructure.CAN_FilterScale=CAN_FilterScale_32bit; 	//32位宽 
-            CAN_FilterInitStructure.CAN_FilterIdHigh=0x0000;	//32位ID
-            CAN_FilterInitStructure.CAN_FilterIdLow=0x0000;
-            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0x0000;//32位MASK
-            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0x0000;
+            
+            //any id
+//            CAN_FilterInitStructure.CAN_FilterIdHigh=0x0000;	//32位ID
+//            CAN_FilterInitStructure.CAN_FilterIdLow=0x0000;
+//            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0x0000;//32位MASK
+//            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0x0000;
+            
+            //std id
+//            CAN_FilterInitStructure.CAN_FilterIdHigh=(0x10) << 5;	//32位ID
+//            CAN_FilterInitStructure.CAN_FilterIdLow=0x0000;
+//            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0xffff;//32位MASK
+//            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xfffc;
+            
+            //ext id
+            CAN_FilterInitStructure.CAN_FilterIdHigh=(u16)((0x1234) >> 13);	//32位ID
+            CAN_FilterInitStructure.CAN_FilterIdLow=(u16)(0x1234 << 3) | CAN_ID_EXT;
+            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0xffff;//32位MASK
+            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xfffc;            
             CAN_FilterInitStructure.CAN_FilterFIFOAssignment=CAN_Filter_FIFO0;//过滤器0关联到FIFO0
             CAN_FilterInitStructure.CAN_FilterActivation=ENABLE;//激活过滤器0
 
@@ -221,8 +235,9 @@ u8 Can_Send_Msg(CAN_TypeDef* CANx,u8* msg,u8 len)
 	u16 i=0;
 	CanTxMsg TxMessage;
 	TxMessage.StdId=0x12;			// 标准标识符 
-	TxMessage.ExtId=0x12;			// 设置扩展标示符 
-	TxMessage.IDE=CAN_Id_Standard; 	// 标准帧
+	TxMessage.ExtId=0x1314;			// 设置扩展标示符 
+//	TxMessage.IDE=CAN_Id_Standard; 	        // 标准帧
+        TxMessage.IDE=CAN_Id_Extended; 	        // ext id
 	TxMessage.RTR=CAN_RTR_Data;		// 数据帧
 	TxMessage.DLC=len;				// 要发送的数据长度
 	for(i=0;i<len;i++)
