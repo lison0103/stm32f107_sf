@@ -4,6 +4,8 @@
 void Hw_Test_Init(void);
 void Hw_Test1(void);
 void Hw_Test2(void);
+void spi1_test(void);
+void can1_can2_test(void);
 
 //#define EXTERNAL_INPUT_TEST
 

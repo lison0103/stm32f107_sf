@@ -2,8 +2,110 @@
 #include "delay.h"
 #include "hw_test.h"
 #include "led.h"
+#include "can.h"
+#include "spi.h"
+#include "usbd_cdc_vcp.h"
 
 
+u8 sflag,inputnum = 0;
+u8 passflag = 1;
+
+extern u8 canbuf_send[8];
+
+
+/******************************************************************************* 
+*******************************************************************************/
+u8 Master_Temp =0;
+
+void spi1_test(void)
+{  
+  
+    u8 t;
+    
+    SPI1_Init();
+//    SPI1_NVIC();
+//    SPI1_SetSpeed(SPI_BaudRatePrescaler_256);
+
+   while(1)
+   { 
+     
+#if 0
+       SPI1_ReadWriteByte(0x55); 
+       Master_Temp = SPI1_ReadWriteByte(0x00);
+#else
+       SPI1_WriteByte(0x66); 
+//       delay_ms(1);
+//       Master_Temp = SPI1_ReadByte(0x00);
+#endif
+       
+       delay_ms(10); 
+       
+       t++;
+       if(t == 50)
+       {
+             t = 0;
+             LED =! LED;
+             
+             Usb_Vcp_SendBuf(&Master_Temp, 1);                  
+         
+       }
+   }
+
+}
+
+/******************************************************************************* 
+*******************************************************************************/
+void can1_can2_test(void)
+{	
+  
+	u8 i=0;
+	u8 canbuf_send[8],canbuf_recv[8];
+	u8 res;
+        u8 can_rcv;
+	 	
+   
+        /** CAN1 init,baud rate 250Kbps **/
+	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);  
+        
+        /** CAN2 init,baud rate 250Kbps **/
+        /** note : use CAN2 , must CAN1 init **/
+        CAN_Mode_Init(CAN2,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);    
+
+	
+ 	while(1)
+	{
+          
+                /** CAN1 send **/
+                
+                for(i=0;i<8;i++)
+                {
+                  canbuf_send[i]=i;                
+                }
+                res=Can_Send_Msg(CAN1,canbuf_send,8);
+                
+                if(res)
+                  Usb_Vcp_SendBuf("Failed", 6);		
+                else 
+                  Usb_Vcp_SendBuf("OK", 2);	 										   
+
+
+                /** CAN2 receive **/
+		can_rcv=Can_Receive_Msg(CAN2,canbuf_recv);
+		if(can_rcv)
+		{			
+			
+ 			for(i=0;i<can_rcv;i++)
+			{									    
+                              Usb_Vcp_SendBuf(canbuf_recv, can_rcv);	
+ 			}
+		}                               
+		   
+	}
+
+}
+
+/******************************************************************************* 
+*******************************************************************************/
 void Hw_Test_Init(void)
 {
       RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE, ENABLE );
@@ -51,11 +153,6 @@ void Hw_Test_Init(void)
       SF_RL1_WDT = 1;
 
 }
-
-u8 sflag,inputnum = 0;
-u8 passflag = 1;
-
-extern u8 canbuf_send[8];
 
 
 void Hw_Test1(void)

@@ -12,24 +12,24 @@ void NVIC_Configuration(void)
 
 }
 
-static u32 CpuID[3];
-static u32 Lock_Code;
+
 
 
 u32 GetLockCode(void)
 {
-//获取CPU唯一ID
-CpuID[0]=*(vu32*)(0x1ffff7e8);
-CpuID[1]=*(vu32*)(0x1ffff7ec);
-CpuID[2]=*(vu32*)(0x1ffff7f0);
-//加密算法,很简单的加密算法
-Lock_Code=(CpuID[0]>>1)+(CpuID[1]>>2)+(CpuID[2]>>3);
-
-//printf("CpuID[0] = %x\r\n",CpuID[0]);
-//printf("CpuID[1] = %x\r\n",CpuID[1]);
-//printf("CpuID[2] = %x\r\n",CpuID[2]);
-
-return Lock_Code;
+  
+   u32 CpuID[3];
+   u32 Lock_Code;  
+  
+  /** acquire the cpu unique ID **/
+  CpuID[0]=*(vu32*)(0x1ffff7e8);
+  CpuID[1]=*(vu32*)(0x1ffff7ec);
+  CpuID[2]=*(vu32*)(0x1ffff7f0);
+  
+  /** encryption **/
+  Lock_Code=(CpuID[0]>>1)+(CpuID[1]>>2)+(CpuID[2]>>3);
+   
+  return Lock_Code;
 }
 
 

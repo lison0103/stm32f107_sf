@@ -1978,12 +1978,6 @@
     <file>
       <name>$PROJ_DIR$\..\SYSTEM\sys.c</name>
     </file>
-    <file>
-      <name>$PROJ_DIR$\..\SYSTEM\usart.c</name>
-      <excluded>
-        <configuration>Debug</configuration>
-      </excluded>
-    </file>
   </group>
   <group>
     <name>USB</name>

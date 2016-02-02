@@ -48,7 +48,7 @@ LINE_CODING linecoding =
   };
 
 
-USART_InitTypeDef USART_InitStructure;
+//USART_InitTypeDef USART_InitStructure;
 
 /* These are external variables imported from CDC core to be used for IN 
    transfer management. */
