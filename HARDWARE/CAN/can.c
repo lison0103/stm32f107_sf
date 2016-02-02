@@ -3,7 +3,7 @@
 #include "delay.h"
 //#include "usart.h"
 	 
-#include "usbd_cdc_core.h" 
+#include "usbd_cdc_vcp.h"
 
 extern uint32_t APP_Rx_ptr_in;
 extern uint8_t APP_Rx_Buffer   [APP_RX_DATA_SIZE];
@@ -164,30 +164,13 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
 void CAN1_RX0_IRQHandler(void)
 {
   	CanRxMsg RxMessage;
-	int i=0;
-        
-        
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = 'C';
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = 'A';
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = 'N';
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = 'R';
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = 'X';
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = ':';
-        
-    CAN_Receive(CAN1, 0, &RxMessage);
-	for(i=0;i<8;i++)
-        {
-//            printf("rxbuf[%d]:%d\r\n",i,RxMessage.Data[i]);
-            APP_Rx_Buffer[APP_Rx_ptr_in++] = RxMessage.Data[i];
-        }
+               
+        CAN_Receive(CAN1, 0, &RxMessage);
 
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = '\r';
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = '\n';
+        Usb_Vcp_SendBuf("CAN1RX:", 6);
+        Usb_Vcp_SendBuf(RxMessage.Data, RxMessage.DLC);
+        Usb_Vcp_SendBuf("\r\n", 2);
         
-        if(APP_Rx_ptr_in >= APP_RX_DATA_SIZE - 50)
-        {
-          APP_Rx_ptr_in = 0;
-        }
 }
 #endif
 
@@ -196,31 +179,12 @@ void CAN1_RX0_IRQHandler(void)
 void CAN2_RX0_IRQHandler(void)
 {
   	CanRxMsg RxMessage;
-	int i=0;
-        
-        
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = 'C';
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = 'A';
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = 'N';
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = 'R';
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = 'X';
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = ':';        
-        
-        
-    CAN_Receive(CAN2, 0, &RxMessage);
-	for(i=0;i<8;i++)
-        {
-//            printf("rxbuf[%d]:%d\r\n",i,RxMessage.Data[i]);
-            APP_Rx_Buffer[APP_Rx_ptr_in++] = RxMessage.Data[i];
-        }
-        
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = '\r';
-        APP_Rx_Buffer[APP_Rx_ptr_in++] = '\n'; 
-        
-        if(APP_Rx_ptr_in >= APP_RX_DATA_SIZE - 50)
-        {
-          APP_Rx_ptr_in = 0;
-        }        
+               
+        CAN_Receive(CAN2, 0, &RxMessage);
+
+        Usb_Vcp_SendBuf("CAN2RX:", 6);
+        Usb_Vcp_SendBuf(RxMessage.Data, RxMessage.DLC);
+        Usb_Vcp_SendBuf("\r\n", 2);       
 }
 #endif
 
@@ -258,16 +222,19 @@ u8 Can_Send_Msg(CAN_TypeDef* CANx,u8* msg,u8 len)
 //can口接收数据查询
 //buf:数据缓存区;	 
 //返回值:0,无数据被收到;
-//		 其他,接收的数据长度;
+//其他,接收的数据长度;
 u8 Can_Receive_Msg(CAN_TypeDef* CANx,u8 *buf)
 {		   		   
- 	u32 i;
-	CanRxMsg RxMessage;
-    if( CAN_MessagePending(CANx,CAN_FIFO0)==0)return 0;		//没有接收到数据,直接退出 
-    CAN_Receive(CANx, CAN_FIFO0, &RxMessage);//读取数据	
-    for(i=0;i<8;i++)
-    buf[i]=RxMessage.Data[i];  
-	return RxMessage.DLC;	
+      u32 i;
+      CanRxMsg RxMessage;
+      if( CAN_MessagePending(CANx,CAN_FIFO0)==0)return 0;		//没有接收到数据,直接退出 
+      
+      CAN_Receive(CANx, CAN_FIFO0, &RxMessage);//读取数据	
+      for(i=0;i<8;i++)
+      {
+          buf[i]=RxMessage.Data[i];  
+      }
+      return RxMessage.DLC;	
 }
 
 

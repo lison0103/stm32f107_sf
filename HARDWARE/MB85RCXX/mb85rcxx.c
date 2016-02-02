@@ -5,7 +5,7 @@
 
 /******************************************************************************* 
 *******************************************************************************/
-#define	EEP_SDA_PORT	  GPIOE
+#define	EEP_SDA_PORT	        GPIOE
 #define	EEP_SDA_PIN			GPIO_Pin_5
 
 #define	EEP_SCL_PORT		GPIOE
@@ -28,61 +28,63 @@ u16 EEPROM_WR_TIME=0;
 *******************************************************************************/
 void EEP_SDA_OUT(void)  
 {
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE );
-  
-	GPIO_InitTypeDef GPIO_InitStruct;
-	
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5;             
-  GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;    
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_OD; 
-	
-	GPIO_Init(GPIOE , &GPIO_InitStruct);	
+      RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE );
+      
+      GPIO_InitTypeDef GPIO_InitStruct;
+      
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5;             
+      GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;    
+      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_OD; 
+      
+      GPIO_Init(GPIOE , &GPIO_InitStruct);	
 }
 
 void EEP_SCL_OUT(void) 
 {
-	GPIO_InitTypeDef GPIO_InitStruct;
-	
-	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;             
-  GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;   
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;   
-	
-	GPIO_Init(GPIOE , &GPIO_InitStruct);
+      GPIO_InitTypeDef GPIO_InitStruct;
+      
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;             
+      GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;   
+      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;   
+      
+      GPIO_Init(GPIOE , &GPIO_InitStruct);
 }
 
 /******************************************************************************* 
 *******************************************************************************/
 void eep_start(void)	 
 { 
-  //scl和sda同时为高电平，
+  /** scl and sda high level at the same **/
   delay_us(6);
   EEP_SDA_SET();
   EEP_SCL_SET();
   
-  //时间>5us
+  /** delay > 5us **/
   delay_us(6); 
-  EEP_SDA_CLR(); //SDA置0
+  /** SDA set 0 **/
+  EEP_SDA_CLR(); 
 
-  //时间>5us
+  /** delay > 5us **/
   delay_us(6); 
-  EEP_SCL_CLR(); //SCL置0 
+  /** SCL set 0 **/
+  EEP_SCL_CLR(); 
 }
 
 void eep_stop(void)	
 {
-  //scl和sda同时为低电平，
+  /** scl and sda low level at the same **/
   EEP_SCL_CLR();  
   EEP_SDA_CLR(); 
-  //
+
   delay_us(5); 
 
-  //SCL置1
+  /** SCL set 1 **/
   EEP_SCL_SET(); 
   
-  //延时>5us
+  /** delay > 5us **/
   delay_us(10); 
 
-  //SDA置1
+  /** SDA set 1 **/
   EEP_SDA_SET(); 
 }
 
@@ -114,10 +116,10 @@ u8 eep_write(u8 d)
     delay_us(1); 
   }   
   
-  //转输入
+  /** turn input **/
   EEP_SDA_SET();
 
-  //ACK
+  /** ACK **/
   delay_us(3); 
   EEP_SCL_SET(); 
   delay_us(5); 
@@ -144,13 +146,13 @@ u8 eep_read(u8 ack)
   for (i = 0; i < 8; i++)	
   {
     delay_us(5);
-    EEP_SCL_SET();    //SCL=1
+    EEP_SCL_SET();    
 
     delay_us(5);
     d = d << 1;
     if(EEP_SDA_READ()) d++;		                  
  
-    EEP_SCL_CLR();   //SCK=0
+    EEP_SCL_CLR();   
   }
   
   if(ack==EEP_ACK)  
@@ -162,9 +164,9 @@ u8 eep_read(u8 ack)
     EEP_SDA_SET();     
   } 
       
-  delay_us(5);   //延时 5us 
+  delay_us(5);   
   EEP_SCL_SET();
-  delay_us(5);   //延时 5us 
+  delay_us(5);    
   EEP_SCL_CLR();   
   
   return d;
@@ -271,12 +273,16 @@ u8 eeprom_read(u16 addr,u16 len,u8 *dat)
 	return(err);   
 }
 
+
+/******************************************************************************* 
+*******************************************************************************/
 u8 MB85RCXX_Check(void)
 {
 	u8 temp;
 	eeprom_read(2047,1,&temp);	//2048		   
 	if(temp==0X55)return 0;		   
-	else//排除第一次初始化的情况
+        /** Rule out the first initialization **/
+	else
 	{       
                 temp = 0x55;
 		eeprom_write(2047,1,&temp);

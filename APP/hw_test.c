@@ -4,92 +4,7 @@
 #include "led.h"
 
 
-//#define INPUT(x,y) x##y
-
-#if 0
-
-void HW_TEST_INIT(void)
-{
-//      RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE, ENABLE );
-      
-      RCC->APB2ENR|=0X7D;
-
-      
-//      RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
-      GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);  
-  
-//      GPIO_InitTypeDef GPIO_InitStruct;
-
-      //input
-//      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_15;             
-//      GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;   
-//      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPU;       
-//      GPIO_Init(GPIOA , &GPIO_InitStruct);    
-      
-      GPIOA->CRH&=0X0FFFFF00; 
-      GPIOA->CRH|=0X80000088; 	 
-//      GPIOA->ODR|=0X8003;     
-
-      
-//      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_14 | GPIO_Pin_15;                  
-//      GPIO_Init(GPIOB , &GPIO_InitStruct);  
-
-      GPIOB->CRL&=0X00000000; 
-      GPIOB->CRL|=0X88888888;
-      GPIOB->CRH&=0X00FFFFFF; 
-      GPIOB->CRH|=0X88000000; 	 
-//      GPIOB->ODR|=0XC0FF;       
-
-//      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12;                  
-//      GPIO_Init(GPIOC , &GPIO_InitStruct);   
-      
-      GPIOC->CRL&=0X00FFFFFF; 
-      GPIOC->CRL|=0X88000000;
-      GPIOC->CRH&=0XFFF00000; 
-      GPIOC->CRH|=0X00088888; 	 
-//      GPIOC->ODR|=0X1FC0;
-
-//      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
-//      GPIO_Init(GPIOD , &GPIO_InitStruct);       
-
-      GPIOD->CRL&=0X000000FF; 
-      GPIOD->CRL|=0X88888800;
-      GPIOD->CRH&=0X00000000; 
-      GPIOD->CRH|=0X88888888; 	 
-//      GPIOD->ODR|=0XFFFC;
-      
-//      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
-//      GPIO_Init(GPIOE , &GPIO_InitStruct);   
-
-      GPIOE->CRL&=0X0FFFFF00; 
-      GPIOE->CRL|=0X80000088;
-      GPIOE->CRH&=0X00000000; 
-      GPIOE->CRH|=0X88888888; 	 
-//      GPIOE->ODR|=0XFF03;      
-      
-      //output
-//      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
-      
-//      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0; 
-//      GPIO_Init(GPIOC , &GPIO_InitStruct);  
-
-      GPIOC->CRL&=0XFFFFFFF0; 
-      GPIOC->CRL|=0X00000003;
-      GPIOC->ODR|=1<<0;      
-      
-//      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2; 
-//      GPIO_Init(GPIOE , &GPIO_InitStruct);  
-      
-      GPIOE->CRL&=0XFFFFF0FF; 
-      GPIOE->CRL|=0X00000300;	 
-      GPIOE->ODR|=1<<2;      
-      
-
-}
-
-#else
-
-void HW_TEST_INIT(void)
+void Hw_Test_Init(void)
 {
       RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE, ENABLE );
       
@@ -98,7 +13,7 @@ void HW_TEST_INIT(void)
   
       GPIO_InitTypeDef GPIO_InitStruct;
 
-      //input
+      /** input gpio **/
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_15;             
       GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;   
       GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;       
@@ -117,7 +32,7 @@ void HW_TEST_INIT(void)
       GPIO_Init(GPIOE , &GPIO_InitStruct);   
       
       
-      //output
+      /** output gpio **/
       GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
 
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9; 
@@ -128,37 +43,40 @@ void HW_TEST_INIT(void)
       
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2; 
       GPIO_Init(GPIOE , &GPIO_InitStruct);  
+      
+      
+      /** relay output init **/
+      AUX1_CTR = 0;
+      SF_RL1_CTR = 0;
+      SF_RL1_WDT = 1;
 
 }
-#endif
 
 u8 sflag,inputnum = 0;
 u8 passflag = 1;
 
 extern u8 canbuf_send[8];
 
-#if 1
-void HW_TEST(void)
-{
 
-        sflag = 0;
-        inputnum = 0;    
+void Hw_Test1(void)
+{  
         
         for(u8 i=0;i<4;i++)
         {
           canbuf_send[i]= 0x0;                 
         }
         
-//        /****test input,The actual test should be commented****/
-//        IN1 = IN2 = IN3 = IN4 = IN5 = IN6 =  IN7 = IN8 = IN9 = IN10 = IN11 = IN12 = IN13 = IN14 = IN15 = IN16 = IN17 /*= IN18*/ = 1;  
-//        IN9 = 1;
-//        IN19 = IN20 = IN21 = IN22 = IN23 = IN24 =  IN25 = IN26 = IN27 = IN28 = 1;
-//        /*****************************************************/
+        /**************************** test input *************
+        IN1 = IN2 = IN3 = IN4 = IN5 = IN6 =  IN7 = IN8 = IN9 = IN10 = IN11 = IN12 = IN13 = IN14 = IN15 = IN16 = IN17 = IN18 = 1;  
+        IN19 = IN20 = IN21 = IN22 = IN23 = IN24 =  IN25 = IN26 = IN27 = IN28 = 1;
+        *****************************************************/
         
+        /****test input,The actual test should be uncommented****/
         if(passflag && ( /*IN1 && IN2 && IN3 && IN4 && IN5 && IN6 && IN7 && IN8 && 
                         IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && */
                           IN17 && IN18 /*&& IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 */))
         {
+          
                 AUX1_CTR = 1;
                 SF_RL1_CTR = 1;
                 
@@ -175,11 +93,12 @@ void HW_TEST(void)
                 AUX1_CTR = 0; 
                 SF_RL1_CTR = 0;            
 
+                /****test input,The actual test should be commented****/
                 canbuf_send[0] = 0xff;
                 canbuf_send[1] = 0xff;
                 canbuf_send[2] = 0xfc;
                 canbuf_send[3] = 0x0f;
-        
+                /*****************************************************/
         
                   if ( !IN1 )
                   {
@@ -318,7 +237,8 @@ void HW_TEST(void)
 
                   } 
                   
-#if 0
+#if EXTERNAL_INPUT_TEST
+                  
                   if ( EX_IN1 )
                   {
                       inputnum = 29;
@@ -420,35 +340,13 @@ void HW_TEST(void)
                   
 #endif
                   
-        }
-        
-
-//        if ( inputnum == 0 )
-//        {
-//            AUX1_CTR = 0; 
-//            SF_RL1_CTR = 0;
-//        }
-//        else if ( sflag > 1 )
-//        {
-//            AUX1_CTR = 0; 
-//            SF_RL1_CTR = 0;
-//        }
-//        else if ( inputnum && ( inputnum % 2 ) )
-//        {
-//            AUX1_CTR = 1; 
-//        }
-//        else if ( inputnum )
-//        {
-//            SF_RL1_CTR = 1; 
-//        }
-        
+        }        
 
 }        
         
 
 
-#else
-void HW_TEST(void)
+void Hw_Test2(void)
 {
 //    u8 sflag,t,inputnum = 0;
 //  
@@ -460,13 +358,6 @@ void HW_TEST(void)
 //    {
         sflag = 0;
         inputnum = 0;        
-//        for(int i = 0;i < 28;i++)
-//        {
-//            if( INPUT( IN, 1 ) )
-//            {
-//                inputnum = i;
-//            }
-//        }
         
         if ( !IN1 )
         {
@@ -632,6 +523,9 @@ void HW_TEST(void)
             sflag++;
 
         } 
+
+#if EXTERNAL_INPUT_TEST        
+        
         if ( EX_IN1 )
         {
             inputnum = 29;
@@ -730,7 +624,7 @@ void HW_TEST(void)
             sflag++;
 
         }       
-        
+#endif        
 
         if ( inputnum == 0 )
         {
@@ -750,9 +644,7 @@ void HW_TEST(void)
         {
             SF_RL1_CTR = 1; 
         }
-        
-
-        
+               
         
 //        delay_ms(1);
 //        t++;
@@ -764,5 +656,5 @@ void HW_TEST(void)
 //        }        
 //        
 //    }
+        
 }
-#endif

@@ -3,9 +3,9 @@
 #include "sys.h"
 
 
-//LED端口定义
-#define LED PAout(2)	// PA2
+/** LED Port **/
+#define LED PAout(2)	
 
-void LED_Init(void); //初始化
+void LED_Init(void); 
  
 #endif

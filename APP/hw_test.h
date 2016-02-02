@@ -1,9 +1,11 @@
 #ifndef __HW_TEST_H
 #define __HW_TEST_H	
 
-void HW_TEST_INIT(void);
-void HW_TEST(void);
+void Hw_Test_Init(void);
+void Hw_Test1(void);
+void Hw_Test2(void);
 
+//#define EXTERNAL_INPUT_TEST
 
 //INPUT
 #define IN1     PEin(1)

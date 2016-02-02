@@ -65,53 +65,49 @@ void spi1_test(void)
 
 
 
-u8 canbuf_send[8];
+u8 canbuf_send[8]; 
 
 int main(void)
 {        
-  u8 tt,i = 0;
-  u32 aa = 0;
-  
-//	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);//设置系统中断优先级分组2
-	delay_init();  //初始化延时函数
-	LED_Init();					//初始化LED  
+    u8 tt = 0;
+    u32 aa = 0;
+       
+    u8 canbuf_recv[8];
+    u8 res;
+    u8 can_rcv;
+    /** CAN mode : CAN_Mode_Normal，CAN_Mode_LoopBack **/
+    u8 mode=CAN_Mode_Normal;
 
 
+        /** set system interrupt priority group 2 **/
+//	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+        
+        /** delay init **/
+	delay_init();  
+        
+        /** LED init **/
+	LED_Init();				 
   
-        //MB85RCXX初始化
+        /** MB85RCXX init **/
         eep_init();
         if(MB85RCXX_Check())
         {
-              delay_ms(1);
-                   
+              /** MB85RCXX check fail , do some things **/                   
         }  
+       
+        /** input and relay output test init **/
+        Hw_Test_Init();
 
-#if 1        
-        HW_TEST_INIT();
-//        HW_TEST();
+#if 1       	 	
+        /** CAN1 init,baud rate 250Kbps **/
+	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);  
+        
+        /** CAN2 init,baud rate 250Kbps **/
+        /** note : use CAN2 , must CAN1 init **/
+//        CAN_Mode_Init(CAN2,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);           
 
         
-        AUX1_CTR = 0;
-        SF_RL1_CTR = 0;
-        SF_RL1_WDT = 1;
-#endif
-        
-
-#if 1
-
-	u8 a='a',t=0;
-	u8 cnt=0;
-	u8 canbuf_recv[8];
-	u8 res;
-        u8 can_rcv;
-	u8 mode=CAN_Mode_Normal;//CAN工作模式;CAN_Mode_Normal(0)：普通模式，CAN_Mode_LoopBack(1)：环回模式
-          
-	 	
-   
-	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);//CAN初始化环回模式,波特率250Kbps    
-//        CAN_Mode_Init(CAN2,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);//CAN初始化环回模式,波特率250Kbps            
-
-        
+        /** USB VCP init **/
           USBD_Init(&USB_OTG_dev,
 #ifdef USE_USB_OTG_HS 
             USB_OTG_HS_CORE_ID,
@@ -122,25 +118,20 @@ int main(void)
             &USBD_CDC_cb, 
             &USR_cb);
           
-          
+          /** SPI1 init **/
 //          spi1_test();
+
           
           while(1)
           {
-                    delay_ms(1);
+            
+                      delay_ms(1);
                       tt++;
                       aa++;
                       
-                      //VCP把接收到的内容发回给串口
                       if(tt==200)
-                      {
-//                          for(i = 0; i < 8; i++)
-//                          {
-//                              APP_Rx_Buffer[APP_Rx_ptr_in] = i + '0';
-//                              APP_Rx_ptr_in++;
-//                          }      
-                        
-                          HW_TEST();
+                      {                       
+                          Hw_Test1();
                                                  
                           Usb_Vcp_RecvBufandSend();
                         
@@ -149,62 +140,40 @@ int main(void)
                           tt=0;
                       } 
                       
-                      // CAN 每秒发送一次，并通过VCP发送给串口
+                      
                       if(aa == 1000)
-                      {
-#if 1                     
+                      {         
+                        
+                          aa = 0;
 
-//                          for(i=0;i<8;i++)
-//                          {
-//                            canbuf_send[i]= a;//填充发送缓冲区
-//                            
-////                            printf("%s",canbuf_send[i]);	//显示数据
-//                          }
-                          
-//                          a++;
-//                          if(a > 'z')
-//                          {
-//                              a = 'a';
-//                          }
-                          res=Can_Send_Msg(CAN1,canbuf_send,4);//发送8个字节 
-                          
+                          /** CAN1 send data **/
+                          res=Can_Send_Msg(CAN1,canbuf_send,4);                          
                           if(res)
                           {
                              
                               Usb_Vcp_SendBuf("CAN1TX:fail\r\n", 13);
                               
-//                            printf("Failed");		//提示发送失败
                           }
                           else 
-                          {
-//                            printf("OK    ");	 		//提示发送成功	 
-                            
-                                                        
-                              Usb_Vcp_SendBuf("CAN1TX:", 7);
-                              
+                          {	 
+                                                                                   
+                              Usb_Vcp_SendBuf("CAN1TX:", 7);                             
                               Usb_Vcp_SendBuf(canbuf_send, 4); 
                               
                               delay_ms(1);
                               
-//                              can_rcv=Can_Receive_Msg(CAN2,canbuf_recv);
+                              /** CAN1 receive data **/
                               can_rcv=Can_Receive_Msg(CAN1,canbuf_recv);
-                              if(can_rcv)//接收到有数据
+                              if(can_rcv)
                               {			                                 
-                                  Usb_Vcp_SendBuf("CAN1RX:", 7);
-                                  
+                                  Usb_Vcp_SendBuf("CAN1RX:", 7);                                 
                                   Usb_Vcp_SendBuf(canbuf_recv, can_rcv);                                                                                               
                               }                              
                               
                               Usb_Vcp_SendBuf("\r\n\r\n", 4);                             
                               
-//                                if(APP_Rx_ptr_in >= APP_RX_DATA_SIZE - 50)
-//                                {
-//                                  APP_Rx_ptr_in = 0;
-//                                }
-                          }
-#endif                      
-                      aa = 0;
-                      
+                          }                      
+                                            
                       }
           
           }
@@ -217,46 +186,47 @@ int main(void)
 
 
 void can1_can2_test(void)
- {	 
-	u8 i=0,t=0;
-	u8 cnt=0;
+{	
+  
+	u8 i=0;
 	u8 canbuf_send[8],canbuf_recv[8];
 	u8 res;
         u8 can_rcv;
-	u8 mode=CAN_Mode_Normal;//CAN工作模式;CAN_Mode_Normal(0)：普通模式，CAN_Mode_LoopBack(1)：环回模式
-
 	 	
    
-	CAN_Mode_Init(CAN1,CAN_SJW_2tq,CAN_BS2_5tq,CAN_BS1_3tq,20,mode);//CAN初始化环回模式,波特率200Kbps    
-        CAN_Mode_Init(CAN2,CAN_SJW_2tq,CAN_BS2_5tq,CAN_BS1_3tq,20,mode);//CAN初始化环回模式,波特率200Kbps    
+        /** CAN1 init,baud rate 250Kbps **/
+	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);  
+        
+        /** CAN2 init,baud rate 250Kbps **/
+        /** note : use CAN2 , must CAN1 init **/
+        CAN_Mode_Init(CAN2,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);    
 
 	
  	while(1)
 	{
-                //CAN1发送
+          
+                /** CAN1 send **/
                 
                 for(i=0;i<8;i++)
                 {
-                  canbuf_send[i]=cnt+i;//填充发送缓冲区
-                  
-                  printf("%s",canbuf_send[i]);	//显示数据
+                  canbuf_send[i]=i;                
                 }
-                res=Can_Send_Msg(CAN1,canbuf_send,8);//发送8个字节 
+                res=Can_Send_Msg(CAN1,canbuf_send,8);
                 
                 if(res)
-                  printf("Failed");		//提示发送失败
+                  Usb_Vcp_SendBuf("Failed", 6);		
                 else 
-                  printf("OK    ");	 		//提示发送成功								   
+                  Usb_Vcp_SendBuf("OK", 2);	 										   
 
 
-                //CAN2接收  
+                //CAN2 receive  
 		can_rcv=Can_Receive_Msg(CAN2,canbuf_recv);
-		if(can_rcv)//接收到有数据
+		if(can_rcv)
 		{			
 			
  			for(i=0;i<can_rcv;i++)
 			{									    
-                              printf("%s",canbuf_recv[i]);	//显示数据
+                              Usb_Vcp_SendBuf(canbuf_recv, can_rcv);	
  			}
 		}                               
 		   
