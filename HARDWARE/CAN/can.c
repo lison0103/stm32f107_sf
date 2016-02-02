@@ -1,12 +1,14 @@
 #include "can.h"
 #include "led.h"
 #include "delay.h"
-//#include "usart.h"
-	 
+
+#ifdef GEC_SF_MASTER
+
 #include "usbd_cdc_vcp.h"
 
 extern uint32_t APP_Rx_ptr_in;
 extern uint8_t APP_Rx_Buffer   [APP_RX_DATA_SIZE];
+#endif
 
 //CAN初始化
 //tsjw:重新同步跳跃时间单元.范围:CAN_SJW_1tq~ CAN_SJW_4tq
@@ -32,10 +34,12 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
 
         if(CANx == CAN1)
         {
-            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);//使能PORTD时钟	                   											 
+            	                   											 
 
             RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);//使能CAN1时钟	
             
+#ifdef GEC_SF_MASTER            
+            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);//使能PORTD时钟
             
             GPIO_PinRemapConfig(GPIO_Remap2_CAN1, ENABLE);
 
@@ -47,6 +51,19 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
             GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
             GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;	//上拉输入
             GPIO_Init(GPIOD, &GPIO_InitStructure);			//初始化IO
+            
+#else            
+            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);//使能PORTA时钟	                   											 
+                       
+            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+            GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	//复用推挽
+            GPIO_Init(GPIOA, &GPIO_InitStructure);			//初始化IO
+            
+            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
+            GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;	//上拉输入
+            GPIO_Init(GPIOA, &GPIO_InitStructure);			//初始化IO            
+#endif            
             
             //CAN单元设置
             CAN_InitStructure.CAN_TTCM=DISABLE;			//非时间触发通信模式  
@@ -167,10 +184,11 @@ void CAN1_RX0_IRQHandler(void)
                
         CAN_Receive(CAN1, 0, &RxMessage);
 
+#ifdef GEC_SF_MASTER
         Usb_Vcp_SendBuf("CAN1RX:", 6);
         Usb_Vcp_SendBuf(RxMessage.Data, RxMessage.DLC);
         Usb_Vcp_SendBuf("\r\n", 2);
-        
+#endif
 }
 #endif
 
@@ -181,10 +199,11 @@ void CAN2_RX0_IRQHandler(void)
   	CanRxMsg RxMessage;
                
         CAN_Receive(CAN2, 0, &RxMessage);
-
+#ifdef GEC_SF_MASTER
         Usb_Vcp_SendBuf("CAN2RX:", 6);
         Usb_Vcp_SendBuf(RxMessage.Data, RxMessage.DLC);
-        Usb_Vcp_SendBuf("\r\n", 2);       
+        Usb_Vcp_SendBuf("\r\n", 2);      
+#endif
 }
 #endif
 

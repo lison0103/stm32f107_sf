@@ -1,9 +1,10 @@
 #include "spi.h"
 
-
-//以下是SPI模块的初始化代码，配置成主机模式，访问SD Card/W25X16/24L01/JF24C							  
+							  
 //SPI口初始化
 //这里针是对SPI1的初始化
+
+u8 Slave_Temp=0;
 
 SPI_InitTypeDef  SPI_InitStructure;
 
@@ -22,7 +23,11 @@ void SPI1_Init(void)
  	GPIO_SetBits(GPIOA,GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7);
 
 	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;  //设置SPI单向或者双向的数据模式:SPI设置为双线双向全双工
+#ifdef GEC_SF_MASTER
 	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;		//设置SPI工作模式:设置为主SPI
+#else
+        SPI_InitStructure.SPI_Mode = SPI_Mode_Slave;
+#endif
 	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;		//设置SPI的数据大小:SPI发送接收8位帧结构
 	SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;		//选择了串行时钟的稳态:时钟悬空高
 	SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;	//数据捕获于第二个时钟沿
@@ -106,9 +111,14 @@ extern u8 Master_Temp;
 void SPI1_IRQHandler(void)
 {
       if((SPI1->SR&1<<0)==1) 
-     {     
+     {    
+#ifdef GEC_SF_MASTER
           Master_Temp = SPI1_ReadByte(0x00); 
 //          SPI1_ReadWriteByte(0xaa); 
+#else
+          Slave_Temp = SPI1_ReadByte(0x00); 
+          SPI1_ReadWriteByte(0xaa); 
+#endif
      }  
 }
 

@@ -4,8 +4,10 @@
 #include "led.h"
 #include "can.h"
 #include "spi.h"
-#include "usbd_cdc_vcp.h"
 
+#ifdef GEC_SF_MASTER
+#include "usbd_cdc_vcp.h"
+#endif
 
 u8 sflag,inputnum = 0;
 u8 passflag = 1;
@@ -23,11 +25,16 @@ void spi1_test(void)
     u8 t;
     
     SPI1_Init();
-//    SPI1_NVIC();
+#ifdef GEC_SF_MASTER    
+#else
+    SPI1_NVIC();
+#endif
 //    SPI1_SetSpeed(SPI_BaudRatePrescaler_256);
 
    while(1)
    { 
+
+#ifdef GEC_SF_MASTER 
      
 #if 0
        SPI1_ReadWriteByte(0x55); 
@@ -49,12 +56,68 @@ void spi1_test(void)
              Usb_Vcp_SendBuf(&Master_Temp, 1);                  
          
        }
+       
+#else        
+         
+         t++; 
+         delay_ms(10);
+         if(t==20)
+         {
+             LED=!LED;
+             SF_RL2_WDT=!SF_RL2_WDT;
+             t=0;
+         }         
+         
+#endif
    }
 
 }
 
 /******************************************************************************* 
 *******************************************************************************/
+void can_test(void)
+ {	 
+	u8 i=0,t=0;
+	u8 canbuf[8];
+	u8 res;
+        u8 can_rcv;
+	u8 mode=CAN_Mode_Normal;
+
+	 	
+   
+	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);  
+
+	
+ 	while(1)
+	{
+         
+                for(i=0;i<8;i++)
+                {
+                  canbuf[i]=i;
+                }
+                
+                res=Can_Send_Msg(CAN1,canbuf,8);
+									   
+                               
+                can_rcv=Can_Receive_Msg(CAN1,canbuf);
+		if(can_rcv)//接收到有数据
+		{			
+			
+ 			for(i=0;i<can_rcv;i++)
+			{									    
+				
+ 			}
+		}
+		t++; 
+		delay_ms(10);
+		if(t==20)
+		{
+			LED=!LED;//提示系统正在运行	
+			t=0;
+		}		   
+	}
+}
+
 void can1_can2_test(void)
 {	
   
@@ -108,6 +171,8 @@ void can1_can2_test(void)
 *******************************************************************************/
 void Hw_Test_Init(void)
 {
+  
+#ifdef GEC_SF_MASTER
       RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE, ENABLE );
       
       RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
@@ -151,13 +216,51 @@ void Hw_Test_Init(void)
       AUX1_CTR = 0;
       SF_RL1_CTR = 0;
       SF_RL1_WDT = 1;
+      
+#else
+
+      RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE, ENABLE );
+      
+      RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
+      GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);  
+  
+      GPIO_InitTypeDef GPIO_InitStruct;
+
+      //input
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_15;             
+      GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;   
+      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;       
+      GPIO_Init(GPIOA , &GPIO_InitStruct);    
+      
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
+      GPIO_Init(GPIOB , &GPIO_InitStruct);        
+
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12;                  
+      GPIO_Init(GPIOC , &GPIO_InitStruct);   
+
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
+      GPIO_Init(GPIOD , &GPIO_InitStruct);       
+      
+      GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
+      GPIO_Init(GPIOE , &GPIO_InitStruct);   
+      
+      
+      //output
+      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;             
+      
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_4; 
+      GPIO_Init(GPIOE , &GPIO_InitStruct);  
+
+#endif      
 
 }
 
 
 void Hw_Test1(void)
 {  
-        
+
+#ifdef GEC_SF_MASTER
+  
         for(u8 i=0;i<4;i++)
         {
           canbuf_send[i]= 0x0;                 
@@ -437,14 +540,35 @@ void Hw_Test1(void)
                   
 #endif
                   
-        }        
+        }   
+        
+#else
 
+        if(passflag && ( /*IN1 && IN2 && IN3 && IN4 && IN5 && IN6 && IN7 && IN8 && 
+                        IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && */
+                          IN17 && IN18 /*&& IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 */))
+        {
+            AUX2_CTR = 1;
+            SF_RL2_CTR = 1;
+          
+        }
+        else
+        {
+            passflag = 0;
+            AUX2_CTR = 0; 
+            SF_RL2_CTR = 0;            
+        }        
+#endif
+        
 }        
         
 
 
 void Hw_Test2(void)
 {
+  
+#ifdef GEC_SF_MASTER
+  
 //    u8 sflag,t,inputnum = 0;
 //  
 //    AUX1_CTR = 0;
@@ -753,5 +877,317 @@ void Hw_Test2(void)
 //        }        
 //        
 //    }
+        
+#else
+
+  
+    AUX2_CTR = 0;
+    SF_RL2_CTR = 0;
+    SF_RL2_WDT = 1;
+    
+    while(1)
+    {
+        sflag = 0;
+        inputnum = 0;        
+        
+        if ( !IN1 )
+        {
+            inputnum = 1;
+            sflag++;
+        }
+        if ( !IN2 ) 
+        {       
+            inputnum = 2;
+            sflag++;
+        }
+        if ( !IN3 ) 
+        {                   
+            inputnum = 3;
+            sflag++;
+
+        }
+        if ( !IN4 ) 
+        {
+            inputnum = 4;
+            sflag++;
+        } 
+        if ( !IN5 ) 
+        {           
+            inputnum = 5;
+            sflag++;
+        }
+        if ( !IN6 ) 
+        {          
+            inputnum = 6;
+            sflag++;
+
+        }
+        if ( !IN7 ) 
+        {         
+            inputnum = 7;
+            sflag++;
+
+        }        
+        if ( !IN8 ) 
+        {         
+            inputnum = 8;
+            sflag++;
+
+        }
+        if ( IN9 ) 
+        {     
+            inputnum = 9;
+            sflag++;
+
+        }
+        if ( IN10 ) 
+        {                
+            inputnum = 10;
+            sflag++;
+
+        } 
+        if ( IN11 ) 
+        {          
+            inputnum = 11;
+            sflag++;
+
+        }
+        if ( IN12 ) 
+        {
+            inputnum = 12;
+            sflag++;
+
+        }
+        if ( IN13 ) 
+        {   
+            inputnum = 13;
+            sflag++;
+
+        }         
+        if ( IN14 ) 
+        {    
+            inputnum = 14;
+            sflag++;
+
+        }
+        if ( IN15 ) 
+        { 
+            inputnum = 15;
+            sflag++;
+
+        }
+        if ( IN16 ) 
+        {
+            inputnum = 16;
+            sflag++;
+
+        }    
+        if ( IN17 ) 
+        {          
+            inputnum = 17;
+            sflag++;
+
+        }
+        if ( IN18 ) 
+        {
+            inputnum = 18;
+            sflag++;
+
+        }
+        if ( IN19 ) 
+        {   
+            inputnum = 19;
+            sflag++;
+
+        }         
+        if ( IN20 ) 
+        {    
+            inputnum = 20;
+            sflag++;
+
+        }
+        if ( IN21 ) 
+        { 
+            inputnum = 21;
+            sflag++;
+
+        }
+        if ( IN22 ) 
+        {
+            inputnum = 22;
+            sflag++;
+
+        } 
+        if ( IN23 ) 
+        {
+            inputnum = 23;
+            sflag++;
+
+        }
+        if ( IN24 ) 
+        {   
+            inputnum = 24;
+            sflag++;
+
+        }         
+        if ( IN25 ) 
+        {    
+            inputnum = 25;
+            sflag++;
+
+        }
+        if ( IN26 ) 
+        { 
+            inputnum = 26;
+            sflag++;
+
+        }
+        if ( IN27 ) 
+        {
+            inputnum = 27;
+            sflag++;
+
+        }  
+        if ( IN28 ) 
+        {
+            inputnum = 28;
+            sflag++;
+
+        } 
+        if ( EX_IN1 )
+        {
+            inputnum = 29;
+            sflag++;
+        }
+        if ( EX_IN2 ) 
+        {       
+            inputnum = 30;
+            sflag++;
+        }
+        if ( EX_IN3 ) 
+        {                   
+            inputnum = 31;
+            sflag++;
+
+        }
+        if ( EX_IN4 ) 
+        {
+            inputnum = 32;
+            sflag++;
+        } 
+        if ( EX_IN5 ) 
+        {           
+            inputnum = 33;
+            sflag++;
+        }
+        if ( EX_IN6 ) 
+        {          
+            inputnum = 34;
+            sflag++;
+
+        }
+        if ( EX_IN7 ) 
+        {         
+            inputnum = 35;
+            sflag++;
+
+        }        
+        if ( EX_IN8 ) 
+        {         
+            inputnum = 36;
+            sflag++;
+
+        }
+        if ( EX_IN9 ) 
+        {     
+            inputnum = 37;
+            sflag++;
+
+        }
+        if ( EX_IN10 ) 
+        {                
+            inputnum = 38;
+            sflag++;
+
+        } 
+        if ( EX_IN11 ) 
+        {          
+            inputnum = 39;
+            sflag++;
+
+        }
+        if ( EX_IN12 ) 
+        {
+            inputnum = 40;
+            sflag++;
+
+        }
+        if ( EX_IN13 ) 
+        {   
+            inputnum = 41;
+            sflag++;
+
+        }         
+        if ( EX_IN14 ) 
+        {    
+            inputnum = 42;
+            sflag++;
+
+        }
+        if ( EX_IN15 ) 
+        { 
+            inputnum = 43;
+            sflag++;
+
+        }
+        if ( EX_IN16 ) 
+        {
+            inputnum = 44;
+            sflag++;
+
+        }    
+        if ( EX_IN17 ) 
+        {          
+            inputnum = 45;
+            sflag++;
+
+        }       
+        
+
+        if ( inputnum == 0 )
+        {
+            AUX2_CTR = 0; 
+            SF_RL2_CTR = 0;
+        }
+        else if ( sflag > 1 )
+        {
+            AUX2_CTR = 0; 
+            SF_RL2_CTR = 0;
+        }
+        else if ( inputnum && ( inputnum % 2 ) )
+        {
+            AUX2_CTR = 1; 
+        }
+        else if ( inputnum )
+        {
+            SF_RL2_CTR = 1; 
+        }
+        
+
+        
+        
+//        delay_ms(1);
+//        t++;
+//        if(t==200)
+//        {
+//            LED=!LED;
+//            SF_RL2_WDT=!SF_RL2_WDT;
+//            t=0;
+//        }        
+        
+    }
+
+
+#endif        
         
 }

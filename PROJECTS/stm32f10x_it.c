@@ -24,19 +24,22 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h" 
 
+#ifdef GEC_SF_MASTER    
+    
 #include "usb_core.h"
 #include "usbd_core.h"
-
-
 #include "usbd_cdc_core.h"
+    
+extern USB_OTG_CORE_HANDLE           USB_OTG_dev;
+extern uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);    
+#endif    
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-extern USB_OTG_CORE_HANDLE           USB_OTG_dev;
-extern uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);
+
 
 #ifdef USB_OTG_HS_DEDICATED_EP1_ENABLED 
 extern uint32_t USBD_OTG_EP1IN_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);
@@ -137,6 +140,7 @@ void OTG_HS_WKUP_IRQHandler(void)
   * @param  None
   * @retval None
   */
+#ifdef GEC_SF_MASTER
 #ifdef USE_USB_OTG_HS  
 void OTG_HS_IRQHandler(void)
 #else
@@ -145,7 +149,7 @@ void OTG_FS_IRQHandler(void)
 {
   USBD_OTG_ISR_Handler (&USB_OTG_dev);
 }
-
+#endif
 #ifdef USB_OTG_HS_DEDICATED_EP1_ENABLED 
 /**
   * @brief  This function handles EP1_IN Handler.

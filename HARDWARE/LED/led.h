@@ -4,7 +4,11 @@
 
 
 /** LED Port **/
-#define LED PAout(2)	
+#ifdef GEC_SF_MASTER
+#define LED PAout(2)
+#else
+#define LED PAout(1)
+#endif
 
 void LED_Init(void); 
  
