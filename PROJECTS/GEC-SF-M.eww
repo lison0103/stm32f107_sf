@@ -2,7 +2,7 @@
 
 <workspace>
   <project>
-    <path>$WS_DIR$\stm32f107.ewp</path>
+    <path>$WS_DIR$\GEC-SF-M.ewp</path>
   </project>
   <batchBuild/>
 </workspace>

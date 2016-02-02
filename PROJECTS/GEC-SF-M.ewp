@@ -70,16 +70,16 @@
         <option>
           <name>GRuntimeLibSelect</name>
           <version>0</version>
-          <state>1</state>
+          <state>2</state>
         </option>
         <option>
           <name>GRuntimeLibSelectSlave</name>
           <version>0</version>
-          <state>1</state>
+          <state>2</state>
         </option>
         <option>
           <name>RTDescription</name>
-          <state>Use the normal configuration of the C/C++ runtime library. No locale interface, C locale, no file descriptor support, no multibytes in printf and scanf, and no hex floats in strtod.</state>
+          <state>Use the full configuration of the C/C++ runtime library. Full locale interface, C locale, file descriptor support, multibytes in printf and scanf, and hex floats in strtod.</state>
         </option>
         <option>
           <name>OGProductVersion</name>
@@ -99,7 +99,7 @@
         </option>
         <option>
           <name>OGChipSelectEditMenu</name>
-          <state>STM32F103xB	ST STM32F103xB</state>
+          <state>STM32F107xC	ST STM32F107xC</state>
         </option>
         <option>
           <name>GenLowLevelInterface</name>
@@ -133,7 +133,7 @@
         </option>
         <option>
           <name>RTConfigPath2</name>
-          <state>$TOOLKIT_DIR$\INC\c\DLib_Config_Normal.h</state>
+          <state>$TOOLKIT_DIR$\INC\c\DLib_Config_Full.h</state>
         </option>
         <option>
           <name>GFPUCoreSlave</name>
@@ -165,7 +165,9 @@
         <option>
           <name>CCDefines</name>
           <state>USE_STDPERIPH_DRIVER</state>
-          <state>STM32F10X_MD</state>
+          <state>STM32F10X_CL</state>
+          <state>USE_USB_OTG_FS</state>
+          <state>GEC_SF_MASTER</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -297,12 +299,21 @@
           <state>$PROJ_DIR$</state>
           <state>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc</state>
           <state>$PROJ_DIR$\..\Libraries\CMSIS</state>
+          <state>$PROJ_DIR$\..\Libraries\STM32_ETH_Driver\inc</state>
+          <state>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Class\cdc\inc</state>
+          <state>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\inc</state>
+          <state>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\inc</state>
           <state>$PROJ_DIR$\..\App</state>
+          <state>$PROJ_DIR$\..\FATFS\src</state>
+          <state>$PROJ_DIR$\..\FATFS\exfuns</state>
           <state>$PROJ_DIR$\..\SYSTEM</state>
           <state>$PROJ_DIR$\..\HARDWARE\LED</state>
+          <state>$PROJ_DIR$\..\HARDWARE\MB85RCXX</state>
           <state>$PROJ_DIR$\..\HARDWARE\EWDT</state>
           <state>$PROJ_DIR$\..\HARDWARE\CAN</state>
           <state>$PROJ_DIR$\..\HARDWARE\SPI</state>
+          <state>$PROJ_DIR$\..\MALLOC</state>
+          <state>$PROJ_DIR$\..\VCP\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -581,7 +592,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>stm32f103_sf.hex</state>
+          <state>GEC-SF-M.hex</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -635,7 +646,7 @@
         </option>
         <option>
           <name>IlinkOutputFile</name>
-          <state>stm32f103_sf.out</state>
+          <state>GEC-SF-M.out</state>
         </option>
         <option>
           <name>IlinkDebugInfoEnable</name>
@@ -671,7 +682,7 @@
         </option>
         <option>
           <name>IlinkMapFile</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkLogFile</name>
@@ -695,11 +706,11 @@
         </option>
         <option>
           <name>IlinkIcfOverride</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>$TOOLKIT_DIR$\config\linker\ST\stm32f103xB.icf</state>
+          <state>$PROJ_DIR$\stm32f10x_flash.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
@@ -1848,6 +1859,18 @@
     <file>
       <name>$PROJ_DIR$\..\APP\hw_test.c</name>
     </file>
+    <file>
+      <name>$PROJ_DIR$\..\VCP\src\usb_bsp.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\VCP\src\usbd_cdc_vcp.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\VCP\src\usbd_desc.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\VCP\src\usbd_usr.c</name>
+    </file>
   </group>
   <group>
     <name>FWLib</name>
@@ -1856,7 +1879,7 @@
       <group>
         <name>Starup</name>
         <file>
-          <name>$PROJ_DIR$\..\Libraries\CMSIS\startup\startup_stm32f10x_md.s</name>
+          <name>$PROJ_DIR$\..\Libraries\CMSIS\startup\startup_stm32f10x_cl.s</name>
         </file>
       </group>
       <file>
@@ -1945,6 +1968,9 @@
       <name>$PROJ_DIR$\..\HARDWARE\LED\led.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\HARDWARE\MB85RCXX\mb85rcxx.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\HARDWARE\SPI\spi.c</name>
     </file>
   </group>
@@ -1956,6 +1982,42 @@
     <file>
       <name>$PROJ_DIR$\..\SYSTEM\sys.c</name>
     </file>
+  </group>
+  <group>
+    <name>USB</name>
+    <group>
+      <name>Class</name>
+      <group>
+        <name>CDC</name>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Class\cdc\src\usbd_cdc_core.c</name>
+        </file>
+      </group>
+    </group>
+    <group>
+      <name>Core</name>
+      <file>
+        <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\src\usbd_core.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\src\usbd_ioreq.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\src\usbd_req.c</name>
+      </file>
+    </group>
+    <group>
+      <name>Driver</name>
+      <file>
+        <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_core.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_dcd.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_dcd_int.c</name>
+      </file>
+    </group>
   </group>
   <group>
     <name>USER</name>
