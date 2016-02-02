@@ -10,6 +10,7 @@ u8 SPI1_ReadWriteByte(u8 TxData);//SPI总线读写一个字节
 
 void SPI1_WriteByte(u8 TxData);
 u8 SPI1_ReadByte(u8 TxData);
+void SPI1_NVIC(void);
 		 
 #endif
 

@@ -30,26 +30,48 @@ extern uint32_t APP_Rx_length;
 
 extern u8 sflag,inputnum;
 
+u8 Master_Temp =0;
+
 void spi1_test(void)
 {
-    u8 Master_Temp =0;
+    
+    u8 t;
     
     SPI1_Init();
-    SPI1_SetSpeed(SPI_BaudRatePrescaler_256);
+//    SPI1_NVIC();
+//    SPI1_SetSpeed(SPI_BaudRatePrescaler_256);
 
    while(1)
    { 
      
-     HW_TEST();
+//     HW_TEST();
 #if 0
        SPI1_ReadWriteByte(0x55); 
        Master_Temp = SPI1_ReadWriteByte(0x00);
 #else
        SPI1_WriteByte(0x66); 
-       Master_Temp = SPI1_ReadByte(0x00);
+//       delay_ms(1);
+//       Master_Temp = SPI1_ReadByte(0x00);
 #endif
-       printf("Master_Temp =%x\r\n",Master_Temp);
-       delay_ms(100); 
+       //       printf("Master_Temp =%x\r\n",Master_Temp);
+       
+
+       delay_ms(10); 
+       
+       t++;
+       if(t == 50)
+       {
+             t = 0;
+             LED =! LED;
+             
+             APP_Rx_Buffer[APP_Rx_ptr_in++] =  Master_Temp;                            
+             
+             if(APP_Rx_ptr_in >= APP_RX_DATA_SIZE - 50)
+             {
+               APP_Rx_ptr_in = 0;
+             }                  
+         
+       }
    }
 
 }
@@ -84,7 +106,7 @@ int main(void)
         SF_RL1_CTR = 0;
         SF_RL1_WDT = 1;
 #endif
-//        spi1_test();
+        
 
 #if 1
 
@@ -111,6 +133,8 @@ int main(void)
             &USBD_CDC_cb, 
             &USR_cb);
           
+          
+//          spi1_test();
           
           while(1)
           {

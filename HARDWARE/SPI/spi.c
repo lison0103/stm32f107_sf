@@ -32,9 +32,10 @@ void SPI1_Init(void)
 	SPI_InitStructure.SPI_CRCPolynomial = 7;	//CRC值计算的多项式
 	SPI_Init(SPI1, &SPI_InitStructure);  //根据SPI_InitStruct中指定的参数初始化外设SPIx寄存器
  
+        SPI_I2S_ITConfig(SPI1,SPI_I2S_IT_RXNE, ENABLE);
 	SPI_Cmd(SPI1, ENABLE); //使能SPI外设
 	
-	SPI1_ReadWriteByte(0xff);//启动传输		 
+//	SPI1_ReadWriteByte(0xff);//启动传输		 
 }   
 //SPI 速度设置函数
 //SpeedSet:
@@ -100,10 +101,28 @@ u8 SPI1_ReadByte(u8 TxData)
      return SPI1->DR;          //返回收到的数据        
 }
 
+extern u8 Master_Temp;
 
+void SPI1_IRQHandler(void)
+{
+      if((SPI1->SR&1<<0)==1) 
+     {     
+          Master_Temp = SPI1_ReadByte(0x00); 
+//          SPI1_ReadWriteByte(0xaa); 
+     }  
+}
 
-
-
+void SPI1_NVIC(void)
+{
+  
+  NVIC_InitTypeDef NVIC_InitStructure;
+  
+    NVIC_InitStructure.NVIC_IRQChannel = SPI1_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1 ;//抢占优先级1
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;		//子优先级1
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
+	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器
+}
 
 
 
