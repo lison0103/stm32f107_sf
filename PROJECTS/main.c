@@ -127,7 +127,7 @@ void Task_Loop(void)
           else 
           {	 
             
-              Usb_Vcp_SendBuf("CAN1TX:", 7);                             
+//              Usb_Vcp_SendBuf("CAN1TX:", 7);                             
               Usb_Vcp_SendBuf(canbuf_send, 4); 
               
               delay_ms(1);
@@ -136,11 +136,11 @@ void Task_Loop(void)
               can_rcv=Can_Receive_Msg(CAN1,canbuf_recv);
               if(can_rcv)
               {			                                 
-                  Usb_Vcp_SendBuf("CAN1RX:", 7);                                 
+//                  Usb_Vcp_SendBuf("CAN1RX:", 7);                                 
                   Usb_Vcp_SendBuf(canbuf_recv, can_rcv);                                                                                               
               }                              
               
-              Usb_Vcp_SendBuf("\r\n\r\n", 4);                             
+//              Usb_Vcp_SendBuf("\r\n\r\n", 4);                             
             
           }                      
         

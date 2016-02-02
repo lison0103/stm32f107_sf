@@ -250,6 +250,11 @@ void Hw_Test_Init(void)
       
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_4; 
       GPIO_Init(GPIOE , &GPIO_InitStruct);  
+      
+      /** relay output init **/
+      AUX2_CTR = 0;
+      SF_RL2_CTR = 0;
+      SF_RL2_WDT = 1;      
 
 #endif      
 
@@ -272,9 +277,9 @@ void Hw_Test1(void)
         *****************************************************/
         
         /****test input,The actual test should be uncommented****/
-        if(passflag && ( /*IN1 && IN2 && IN3 && IN4 && IN5 && IN6 && IN7 && IN8 && 
-                        IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && */
-                          IN17 && IN18 /*&& IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 */))
+        if(passflag && ( IN1 && IN2 && IN3 && IN4 && IN5 && IN6 && IN7 && IN8 && 
+                        IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && 
+                          IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 ))
         {
           
                 AUX1_CTR = 1;
@@ -294,10 +299,10 @@ void Hw_Test1(void)
                 SF_RL1_CTR = 0;            
 
                 /****test input,The actual test should be commented****/
-                canbuf_send[0] = 0xff;
-                canbuf_send[1] = 0xff;
-                canbuf_send[2] = 0xfc;
-                canbuf_send[3] = 0x0f;
+//                canbuf_send[0] = 0xff;
+//                canbuf_send[1] = 0xff;
+//                canbuf_send[2] = 0xfc;
+//                canbuf_send[3] = 0x0f;
                 /*****************************************************/
         
                   if ( !IN1 )
@@ -544,9 +549,9 @@ void Hw_Test1(void)
         
 #else
 
-        if(passflag && ( /*IN1 && IN2 && IN3 && IN4 && IN5 && IN6 && IN7 && IN8 && 
-                        IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && */
-                          IN17 && IN18 /*&& IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 */))
+        if(passflag && ( IN1 && IN2 && IN3 && IN4 && IN5 && IN6 && IN7 && IN8 && 
+                        IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && 
+                          IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 ))
         {
             AUX2_CTR = 1;
             SF_RL2_CTR = 1;
