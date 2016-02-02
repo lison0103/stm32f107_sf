@@ -10,23 +10,13 @@
 #include "usbd_usr.h"
 #include "usb_conf.h"
 #include "usbd_desc.h"
+#include "usbd_cdc_vcp.h"
 
 
 void can1_can2_test(void);
 
 
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
-
-//send 
-extern uint32_t APP_Rx_ptr_in;
-extern uint8_t APP_Rx_Buffer   [APP_RX_DATA_SIZE];
-
-//recvice
-extern uint32_t USB_Recive_length; 
-extern uint8_t USB_Rx_Buffer   [CDC_DATA_MAX_PACKET_SIZE];
-
-extern uint32_t APP_Rx_ptr_out;
-extern uint32_t APP_Rx_length;
 
 extern u8 sflag,inputnum;
 
@@ -64,17 +54,16 @@ void spi1_test(void)
              t = 0;
              LED =! LED;
              
-             APP_Rx_Buffer[APP_Rx_ptr_in++] =  Master_Temp;                            
-             
-             if(APP_Rx_ptr_in >= APP_RX_DATA_SIZE - 50)
-             {
-               APP_Rx_ptr_in = 0;
-             }                  
+            Usb_Vcp_SendBuf(&Master_Temp, 1);                  
          
        }
    }
 
 }
+
+
+
+
 
 u8 canbuf_send[8];
 
@@ -120,7 +109,7 @@ int main(void)
 	 	
    
 	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);//CAN初始化环回模式,波特率250Kbps    
-        CAN_Mode_Init(CAN2,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);//CAN初始化环回模式,波特率250Kbps            
+//        CAN_Mode_Init(CAN2,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);//CAN初始化环回模式,波特率250Kbps            
 
         
           USBD_Init(&USB_OTG_dev,
@@ -151,19 +140,9 @@ int main(void)
 //                              APP_Rx_ptr_in++;
 //                          }      
                         
-                        HW_TEST();
-                        
-                          for(i = 0; i < USB_Recive_length; i++)
-                          {
-                              APP_Rx_Buffer[APP_Rx_ptr_in] = USB_Rx_Buffer[i];
-                              APP_Rx_ptr_in++;
-                              
-                              if(APP_Rx_ptr_in >= APP_RX_DATA_SIZE - 50)
-                              {
-                                APP_Rx_ptr_in = 0;
-                              }
-                          }
-                          USB_Recive_length = 0;
+                          HW_TEST();
+                                                 
+                          Usb_Vcp_RecvBufandSend();
                         
                           LED=!LED;
                           SF_RL1_WDT=!SF_RL1_WDT;
@@ -191,20 +170,8 @@ int main(void)
                           
                           if(res)
                           {
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'C';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'A';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'N';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = '1';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'T';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'X';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = ':';   
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'f';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'a';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'i';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'l';                              
-                              
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = '\r';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = '\n';
+                             
+                              Usb_Vcp_SendBuf("CAN1TX:fail\r\n", 13);
                               
 //                            printf("Failed");		//提示发送失败
                           }
@@ -212,51 +179,28 @@ int main(void)
                           {
 //                            printf("OK    ");	 		//提示发送成功	 
                             
-                          
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'C';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'A';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'N';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = '1';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'T';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = 'X';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = ':';
-
-                              for(i = 0; i < 4; i++)
-                              {
-                                  APP_Rx_Buffer[APP_Rx_ptr_in] = canbuf_send[i];
-                                  APP_Rx_ptr_in++;
-                              }  
+                                                        
+                              Usb_Vcp_SendBuf("CAN1TX:", 7);
+                              
+                              Usb_Vcp_SendBuf(canbuf_send, 4); 
+                              
                               delay_ms(1);
+                              
 //                              can_rcv=Can_Receive_Msg(CAN2,canbuf_recv);
                               can_rcv=Can_Receive_Msg(CAN1,canbuf_recv);
                               if(can_rcv)//接收到有数据
-                              {			
-
-                                APP_Rx_Buffer[APP_Rx_ptr_in++] = 'C';
-                                APP_Rx_Buffer[APP_Rx_ptr_in++] = 'A';
-                                APP_Rx_Buffer[APP_Rx_ptr_in++] = 'N';
-                                APP_Rx_Buffer[APP_Rx_ptr_in++] = '2';
-                                APP_Rx_Buffer[APP_Rx_ptr_in++] = 'R';
-                                APP_Rx_Buffer[APP_Rx_ptr_in++] = 'X';
-                                APP_Rx_Buffer[APP_Rx_ptr_in++] = ':';   
-                                
-                                for(i=0;i<can_rcv;i++)
-                                {									    
-//                                    printf("%s",canbuf_recv[i]);	//显示数据
-                                    APP_Rx_Buffer[APP_Rx_ptr_in] = canbuf_recv[i];
-                                    APP_Rx_ptr_in++;
-                                }
+                              {			                                 
+                                  Usb_Vcp_SendBuf("CAN1RX:", 7);
+                                  
+                                  Usb_Vcp_SendBuf(canbuf_recv, can_rcv);                                                                                               
                               }                              
                               
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = '\r';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = '\n';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = '\r';
-                              APP_Rx_Buffer[APP_Rx_ptr_in++] = '\n';                              
+                              Usb_Vcp_SendBuf("\r\n\r\n", 4);                             
                               
-                                if(APP_Rx_ptr_in >= APP_RX_DATA_SIZE - 50)
-                                {
-                                  APP_Rx_ptr_in = 0;
-                                }
+//                                if(APP_Rx_ptr_in >= APP_RX_DATA_SIZE - 50)
+//                                {
+//                                  APP_Rx_ptr_in = 0;
+//                                }
                           }
 #endif                      
                       aa = 0;

@@ -39,6 +39,19 @@
 #include "usbd_cdc_core.h"
 #include "usbd_conf.h"
 
+//send 
+//extern uint32_t APP_Rx_ptr_in;
+//extern uint8_t APP_Rx_Buffer   [APP_RX_DATA_SIZE];
+
+//recvice
+extern uint32_t USB_Recive_length; 
+extern uint8_t USB_Rx_Buffer   [CDC_DATA_MAX_PACKET_SIZE];
+
+//extern uint32_t APP_Rx_ptr_out;
+//extern uint32_t APP_Rx_length;
+
+void Usb_Vcp_SendBuf(u8 *buf, u16 len);
+void Usb_Vcp_RecvBufandSend(void);
 
 /* Exported typef ------------------------------------------------------------*/
 /* The following structures groups all needed parameters to be configured for the 

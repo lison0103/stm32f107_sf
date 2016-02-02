@@ -33,7 +33,7 @@
 #include "usbd_cdc_vcp.h"
 #include "usb_conf.h"
 
-#include "sys.h"
+//#include "sys.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -431,5 +431,52 @@ static uint16_t VCP_COMConfig(uint8_t Conf)
 //    (void)USART_ReceiveData(EVAL_COM1);
 //  }
 //}
+
+
+/**
+  * @brief  Usb_Vcp_SendBuf
+  *         
+  * @param  buf , len.
+  * @retval None.
+  */
+void Usb_Vcp_SendBuf(u8 *buf, u16 len)
+{
+      u16 i;
+      
+      for(i = 0; i < len; i++)
+      {
+        APP_Rx_Buffer[APP_Rx_ptr_in++] = buf[i];
+        if(APP_Rx_ptr_in >= APP_RX_DATA_SIZE - 1)
+        {
+            APP_Rx_ptr_in = 0;
+        }
+      } 
+
+}
+
+
+/**
+  * @brief  Usb_Vcp_RecvBufandSend
+  *         
+  * @param  buf , len.
+  * @retval None.
+  */
+void Usb_Vcp_RecvBufandSend(void)
+{
+      u16 i;
+      
+      for(i = 0; i < USB_Recive_length; i++)
+      {
+        APP_Rx_Buffer[APP_Rx_ptr_in++] = USB_Rx_Buffer[i];
+        if(APP_Rx_ptr_in >= APP_RX_DATA_SIZE - 1)
+        {
+            APP_Rx_ptr_in = 0;
+        }
+      } 
+      
+      USB_Recive_length = 0;
+
+}
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
