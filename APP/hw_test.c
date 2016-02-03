@@ -15,63 +15,7 @@ u8 passflag = 1;
 extern u8 canbuf_send[8];
 
 
-/******************************************************************************* 
-*******************************************************************************/
-u8 Master_Temp =0;
 
-void spi1_test(void)
-{  
-  
-    u8 t;
-    
-    SPI1_Init();
-#ifdef GEC_SF_MASTER    
-#else
-    SPI1_NVIC();
-#endif
-//    SPI1_SetSpeed(SPI_BaudRatePrescaler_256);
-
-   while(1)
-   { 
-
-#ifdef GEC_SF_MASTER 
-     
-#if 0
-       SPI1_ReadWriteByte(0x55); 
-       Master_Temp = SPI1_ReadWriteByte(0x00);
-#else
-       SPI1_WriteByte(0x66); 
-//       delay_ms(1);
-//       Master_Temp = SPI1_ReadByte(0x00);
-#endif
-       
-       delay_ms(10); 
-       
-       t++;
-       if(t == 50)
-       {
-             t = 0;
-             LED =! LED;
-             
-             Usb_Vcp_SendBuf(&Master_Temp, 1);                  
-         
-       }
-       
-#else        
-         
-         t++; 
-         delay_ms(10);
-         if(t==20)
-         {
-             LED=!LED;
-             SF_RL2_WDT=!SF_RL2_WDT;
-             t=0;
-         }         
-         
-#endif
-   }
-
-}
 
 /******************************************************************************* 
 *******************************************************************************/
@@ -100,7 +44,7 @@ void can_test(void)
 									   
                                
                 can_rcv=Can_Receive_Msg(CAN1,canbuf);
-		if(can_rcv)//接收到有数据
+		if(can_rcv)
 		{			
 			
  			for(i=0;i<can_rcv;i++)
@@ -112,7 +56,7 @@ void can_test(void)
 		delay_ms(10);
 		if(t==20)
 		{
-			LED=!LED;//提示系统正在运行	
+			LED=!LED;	
 			t=0;
 		}		   
 	}
@@ -1195,4 +1139,61 @@ void Hw_Test2(void)
 
 #endif        
         
+}
+/******************************************************************************* 
+*******************************************************************************/
+u8 Master_Temp =0;
+
+void spi1_test(void)
+{  
+  
+    u8 t;
+    
+    SPI1_Init();
+#ifdef GEC_SF_MASTER    
+#else
+    SPI1_NVIC();
+#endif
+//    SPI1_SetSpeed(SPI_BaudRatePrescaler_256);
+
+   while(1)
+   { 
+
+#ifdef GEC_SF_MASTER 
+     
+#if 0
+       SPI1_ReadWriteByte(0x55); 
+       Master_Temp = SPI1_ReadWriteByte(0x00);
+#else
+       SPI1_WriteByte(0x66); 
+//       delay_ms(1);
+//       Master_Temp = SPI1_ReadByte(0x00);
+#endif
+       
+       delay_ms(10); 
+       
+       t++;
+       if(t == 50)
+       {
+             t = 0;
+             LED =! LED;
+             
+             Usb_Vcp_SendBuf(&Master_Temp, 1);                  
+         
+       }
+       
+#else        
+         
+         t++; 
+         delay_ms(10);
+         if(t==20)
+         {
+             LED=!LED;
+             SF_RL2_WDT=!SF_RL2_WDT;
+             t=0;
+         }         
+         
+#endif
+   }
+
 }

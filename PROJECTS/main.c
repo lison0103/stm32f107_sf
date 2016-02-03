@@ -6,8 +6,8 @@
 #include "spi.h"
 
 #ifdef GEC_SF_MASTER
-#include "mb85rcxx.h"
 
+#include "mb85rcxx.h"
 #include "usbd_cdc_core.h"
 #include "usbd_usr.h"
 #include "usb_conf.h"
@@ -64,8 +64,7 @@ void Bsp_Init(void)
 //            &USBD_CDC_cb, 
 //            &USR_cb);
           
-          /** SPI1 init **/
-//          spi1_test();
+
 
 #else
 
