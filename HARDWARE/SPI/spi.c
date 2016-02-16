@@ -1,8 +1,11 @@
 #include "spi.h"
 
 							  
-
-u8 Slave_Temp=0;
+#ifdef GEC_SF_MASTER
+extern u8 Master_Temp[10];
+#else
+extern u8 Slave_Temp[10];
+#endif
 
 SPI_InitTypeDef  SPI_InitStructure;
 
@@ -37,8 +40,7 @@ void SPI1_Init(void)
  
         SPI_I2S_ITConfig(SPI1,SPI_I2S_IT_RXNE, ENABLE);
 	SPI_Cmd(SPI1, ENABLE); 
-	
-//	SPI1_ReadWriteByte(0xff);//Æô¶¯´«Êä		 
+			 
 }   
 
 /** SPI SpeedSet:
@@ -102,18 +104,42 @@ u8 SPI1_ReadByte(u8 TxData)
      return SPI1->DR;                
 }
 
-extern u8 Master_Temp;
+extern u8 Master_Temp[10];
+
+u8 Recive_buf[20] = {0x00};
+u8 cnt,flag1,recv_len= 0;
 
 void SPI1_IRQHandler(void)
 {
-      if((SPI1->SR&1<<0)==1) 
-     {    
+//      if((SPI1->SR&1<<0)==1) 
+//     {    
+      if (SPI_I2S_GetITStatus(SPI1,SPI_I2S_IT_RXNE) != RESET)     
+      {
+          SPI_I2S_ClearITPendingBit(SPI1,SPI_I2S_IT_RXNE);
 #ifdef GEC_SF_MASTER
-          Master_Temp = SPI1_ReadByte(0x00); 
+          Master_Temp[0] = SPI1_ReadByte(0x00); 
 //          SPI1_ReadWriteByte(0xaa); 
 #else
-          Slave_Temp = SPI1_ReadByte(0x00); 
-          SPI1_ReadWriteByte(0xaa); 
+//          Recive_buf[cnt++] = SPI1_ReadByte(0x00); 
+//          if(Recive_buf[cnt - 3] == 0xAA && Recive_buf[cnt - 2] == 0x55)
+//          {
+//              flag1 = 1;
+//              recv_len = Recive_buf[cnt - 1];
+//          }
+//          if(flag1)
+//          {
+//              if(Recive_buf[cnt - 2] == 0x33 && Recive_buf[cnt - 1] == 0xCC)
+//              {
+//                  flag1 = 0;
+//                  SPI1_ReadWriteByte(0xaa);
+//              }              
+//          }
+//          if(cnt > 19)
+//          {
+//              cnt = 0;
+//          }
+          Slave_Temp[0] = SPI1_ReadByte(0x00); 
+          SPI1_ReadWriteByte(Slave_Temp[1]); 
 #endif
      }  
 }

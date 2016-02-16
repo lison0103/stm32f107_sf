@@ -16,6 +16,14 @@
 
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
 
+u8 R_SF_RL2_FB_CPU1 = 0;
+u8 Master_Temp[10] = 0;
+
+#else
+
+u8 Slave_Temp[10] = 0;
+u8 R_SF_RL1_FB_CPU2 = 0;
+
 #endif
 
 u8 canbuf_send[8]; 
@@ -35,6 +43,12 @@ void Bsp_Init(void)
         
         /** input and relay output test init **/
         Hw_Test_Init();
+        
+        /** spi communication init **/
+        SPI1_Init();
+
+        SPI1_NVIC();
+
 
 #ifdef GEC_SF_MASTER
         
@@ -92,6 +106,9 @@ void Task_Loop(void)
 {
 
 #ifdef GEC_SF_MASTER  
+  
+
+
       static u32 count1 = 0,count2 = 0;
       u8 canbuf_recv[8];
       u8 res;
@@ -100,6 +117,15 @@ void Task_Loop(void)
       delay_ms(1);
       count1++;
       count2++;
+      
+      if(count1 == 150)
+      {
+          if(SF_RL1_FB)
+            SPI1_ReadWriteByte(0x01);
+          else
+            SPI1_ReadWriteByte(0x00);
+          R_SF_RL2_FB_CPU1 = Master_Temp[0];
+      }
       
       if(count1==200)
       {                       
@@ -146,10 +172,21 @@ void Task_Loop(void)
       }
 #else
 
+      extern u8 R_SF_RL1_FB_CPU2;
+      
       static u32 count1 = 0;
       
       delay_ms(1);
       count1++;
+
+      if(count1 == 150)
+      {
+          if(SF_RL2_FB)
+            Slave_Temp[1] = 0x01;
+          else
+            Slave_Temp[1] = 0x00;
+          R_SF_RL1_FB_CPU2 = Slave_Temp[0];
+      }
       
       if(count1==200)
       {                       
@@ -167,7 +204,7 @@ int main(void)
     
     /** hardware init **/
     Bsp_Init();
-    
+//    spi1_test();
     while(1)
     {
       

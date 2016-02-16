@@ -64,6 +64,14 @@ void can1_can2_test(void);
 
 #define SF_RL1_WDT     PBout(9)
 
+//FEEDBACK
+#define SF_RL1_DRV_FB   PEin(3)
+#define SF_PWR_FB_CPU1   PBin(8)
+#define SF_RL1_FB       PCin(2)
+#define SF_RL2_FB_CPU1       PEin(6)
+
+#define AUX1_FB       PCin(1)
+
 #else
 
 //INPUT
@@ -120,7 +128,15 @@ void can1_can2_test(void);
 
 #define SF_RL2_WDT     PEout(0)
 
-#endif
+//FEEDBACK
+#define SF_RL2_DRV_FB   PEin(1)
+#define SF_PWR_FB_CPU2   PBin(9)
+#define SF_RL2_FB       PEin(5)
+#define SF_RL1_FB_CPU2       PBin(8)
+
+#define AUX2_FB       PEin(3)
+
+#endif  //GEC_SF_MASTER
 
 
-#endif
+#endif  //__HW_TEST_H

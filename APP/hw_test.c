@@ -7,6 +7,14 @@
 
 #ifdef GEC_SF_MASTER
 #include "usbd_cdc_vcp.h"
+
+extern u8 R_SF_RL2_FB_CPU1;
+extern u8 Master_Temp[10];
+
+#else
+
+extern u8 R_SF_RL1_FB_CPU2;
+
 #endif
 
 u8 sflag,inputnum = 0;
@@ -142,6 +150,18 @@ void Hw_Test_Init(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
       GPIO_Init(GPIOE , &GPIO_InitStruct);   
       
+      /** feedback gpio **/ 
+      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;       
+        
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;                  
+      GPIO_Init(GPIOB , &GPIO_InitStruct);        
+
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2;                  
+      GPIO_Init(GPIOC , &GPIO_InitStruct);       
+      
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_6;                  
+      GPIO_Init(GPIOE , &GPIO_InitStruct);        
+      
       
       /** output gpio **/
       GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
@@ -188,6 +208,14 @@ void Hw_Test_Init(void)
       GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
       GPIO_Init(GPIOE , &GPIO_InitStruct);   
       
+      /** feedback gpio **/ 
+      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;       
+        
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;                  
+      GPIO_Init(GPIOB , &GPIO_InitStruct);        
+ 
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_3 | GPIO_Pin_5;                  
+      GPIO_Init(GPIOE , &GPIO_InitStruct); 
       
       //output
       GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;             
@@ -210,6 +238,8 @@ void Hw_Test1(void)
 
 #ifdef GEC_SF_MASTER
   
+
+  
         for(u8 i=0;i<4;i++)
         {
           canbuf_send[i]= 0x0;                 
@@ -221,13 +251,31 @@ void Hw_Test1(void)
         *****************************************************/
         
         /****test input,The actual test should be uncommented****/
-        if(passflag && ( IN1 && IN2 && IN3 && IN4 && IN5 && IN6 && IN7 && IN8 && 
+        if(passflag /*&& ( IN1 && IN2 && IN3 && IN4 && IN5 && IN6 && IN7 && IN8 && 
                         IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && 
-                          IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 ))
+                          IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 )*/)
         {
-          
-                AUX1_CTR = 1;
-                SF_RL1_CTR = 1;
+                if(SF_RL1_DRV_FB && !SF_PWR_FB_CPU1 && SF_RL1_FB && AUX1_FB)
+                {
+//                    SPI1_ReadWriteByte(0x55); 
+//                    R_SF_RL2_FB_CPU1 = SPI1_ReadByte(0x00);
+                    
+                    if(SF_RL2_FB_CPU1 == R_SF_RL2_FB_CPU1)
+                    {
+                        AUX1_CTR = 1;
+                        SF_RL1_CTR = 1;  
+                        
+                        delay_ms(10);
+                        
+                        passflag = 2;
+                    }
+                }
+                
+                if(( passflag == 2 ) && ( SF_RL1_DRV_FB || SF_PWR_FB_CPU1 || SF_RL1_FB || AUX1_FB ))
+                {
+                    passflag = 0;                  
+                }                
+
                 
                 for(u8 i=0;i<3;i++)
                 {
@@ -492,14 +540,33 @@ void Hw_Test1(void)
         }   
         
 #else
-
-        if(passflag && ( IN1 && IN2 && IN3 && IN4 && IN5 && IN6 && IN7 && IN8 && 
+        
+        if(passflag /*&& ( IN1 && IN2 && IN3 && IN4 && IN5 && IN6 && IN7 && IN8 && 
                         IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && 
-                          IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 ))
+                          IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 )*/)
         {
-            AUX2_CTR = 1;
-            SF_RL2_CTR = 1;
           
+            if(SF_RL2_DRV_FB && !SF_PWR_FB_CPU2 && SF_RL2_FB && AUX2_FB)
+            {
+//                SPI1_ReadWriteByte(0x55); 
+//                R_SF_RL1_FB_CPU2 = SPI1_ReadByte(0x00);
+                
+                if(SF_RL1_FB_CPU2 == R_SF_RL1_FB_CPU2)
+                {
+                    AUX2_CTR = 1;
+                    SF_RL2_CTR = 1;  
+                    
+                    delay_ms(10);
+                    
+                    passflag = 2;
+                }
+            }
+            
+            if(( passflag == 2 ) && (SF_RL2_DRV_FB || SF_PWR_FB_CPU2 || SF_RL2_FB || AUX2_FB))
+            {
+                passflag = 0;                  
+            }   
+            
         }
         else
         {
@@ -1142,7 +1209,8 @@ void Hw_Test2(void)
 }
 /******************************************************************************* 
 *******************************************************************************/
-u8 Master_Temp =0;
+
+u8 Send_buf[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};
 
 void spi1_test(void)
 {  
@@ -1151,6 +1219,7 @@ void spi1_test(void)
     
     SPI1_Init();
 #ifdef GEC_SF_MASTER    
+    SPI1_NVIC();
 #else
     SPI1_NVIC();
 #endif
@@ -1165,9 +1234,29 @@ void spi1_test(void)
        SPI1_ReadWriteByte(0x55); 
        Master_Temp = SPI1_ReadWriteByte(0x00);
 #else
-       SPI1_WriteByte(0x66); 
+       if(Master_Temp[0] != 0xAA)
+       {
+           SPI1_WriteByte(0xaa);
+           SPI1_WriteByte(0x55);
+           SPI1_WriteByte(0x06);
+           for(u8 i = 0; i < 6; i++)
+           {
+              SPI1_WriteByte(Send_buf[i]);
+           }
+           SPI1_WriteByte(0x33);
+           SPI1_WriteByte(0xcc);       
+//       SPI1_WriteByte(0x66); 
 //       delay_ms(1);
-//       Master_Temp = SPI1_ReadByte(0x00);
+//          Master_Temp = SPI1_ReadByte(0x00);
+       }
+       else
+       {
+            Master_Temp[0] = 0;
+           for(u8 i = 0; i < 6; i++)
+           {
+              Send_buf[i] += 1;
+           }
+       }
 #endif
        
        delay_ms(10); 
@@ -1178,7 +1267,7 @@ void spi1_test(void)
              t = 0;
              LED =! LED;
              
-             Usb_Vcp_SendBuf(&Master_Temp, 1);                  
+             Usb_Vcp_SendBuf(&Master_Temp[0], 1);                  
          
        }
        
