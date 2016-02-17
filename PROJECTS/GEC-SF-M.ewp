@@ -313,6 +313,7 @@
           <state>$PROJ_DIR$\..\HARDWARE\CAN</state>
           <state>$PROJ_DIR$\..\HARDWARE\SPI</state>
           <state>$PROJ_DIR$\..\HARDWARE\TIMER</state>
+          <state>$PROJ_DIR$\..\HARDWARE\EXTI</state>
           <state>$PROJ_DIR$\..\MALLOC</state>
           <state>$PROJ_DIR$\..\VCP\inc</state>
         </option>
@@ -1967,6 +1968,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\EWDT\ewdt.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\HARDWARE\EXTI\exti.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\LED\led.c</name>

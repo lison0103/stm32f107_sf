@@ -5,10 +5,11 @@
 #include "can.h"
 #include "spi.h"
 #include "ewdt.h"
+#include "exti.h"
+#include "timer.h"
 
 #ifdef GEC_SF_MASTER
 
-#include "timer.h"
 
 #include "mb85rcxx.h"
 #include "usbd_cdc_core.h"
@@ -55,11 +56,14 @@ void Bsp_Init(void)
         /** ewdt init **/
         EWDT_Drv_pin_config();
 //        power_on_bsp_check();
-
-        /** 1000Khz的计数频率，计数到10为10us **/
-        TIM3_Int_Init(9,71);
+        
+        /** exti init **/
+        EXTIX_Init();
 
 #ifdef GEC_SF_MASTER
+        
+        /** TIM init 1000Khz，计数到10为10us **/
+        TIM3_Int_Init(9,71);
         
         /** MB85RCXX init **/
         eep_init();
@@ -90,7 +94,7 @@ void Bsp_Init(void)
 
 
 #else
-
+          TIM2_Int_Init(4999,71);
       
         
 #endif

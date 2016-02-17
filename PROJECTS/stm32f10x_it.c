@@ -101,7 +101,7 @@ void DebugMon_Handler(void)
 // 
 void SysTick_Handler(void)
 {
-    TimingDelay++;
+//    TimingDelay++;
 //    if(TimingDelay == 65)//37
 //    {
 //      PLUSE_OUT = 1;
