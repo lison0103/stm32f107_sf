@@ -5,8 +5,11 @@
 #include "can.h"
 #include "spi.h"
 
+
 #ifdef GEC_SF_MASTER
 #include "usbd_cdc_vcp.h"
+#include "usart.h"
+#include "crc16.h"
 
 extern u8 R_SF_RL2_FB_CPU1;
 extern u8 Master_Temp[10];
@@ -1285,4 +1288,47 @@ void spi1_test(void)
 #endif
    }
 
+}
+
+static u8 buff[300];
+
+void Comm_DisplayBoard(void)
+{
+#ifdef GEC_SF_MASTER 
+	u16 i=0,len=0,tlen=0;
+
+	len = BSP_USART_Receive(USART3,buff,0);
+	
+  if(len<5)
+  {
+    
+  }  
+	else if( ((buff[0]==1)||(buff[0]==2)) && (!MB_CRC16(buff, len)) )   	
+	{
+//		DB_Comm_Addr = buff[0];
+		switch(buff[1])                
+		{
+			case 3:                     
+//				tlen = modbus_slave_03();                       
+				break; 
+			case 16:	
+//				tlen = modbus_slave_16();
+				break;                    
+		}	
+		
+		if(tlen)	
+		{			
+			i = MB_CRC16(buff, tlen-2);
+			buff[tlen-1] = i>>8;
+			buff[tlen-2] = i;
+			BSP_USART_Send(USART3,buff,tlen);
+		}			
+
+	}		
+  //ÐÂ¸ñÊ½
+  else if( (buff[0]==0x11) && (!MB_CRC16(buff, len)) )
+  {
+    
+  }  
+#endif	
 }

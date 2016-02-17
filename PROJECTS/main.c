@@ -7,6 +7,7 @@
 #include "ewdt.h"
 #include "exti.h"
 #include "timer.h"
+#include "usart.h"
 
 #ifdef GEC_SF_MASTER
 
@@ -64,6 +65,9 @@ void Bsp_Init(void)
         
         /** TIM init 1000Khz，计数到10为10us **/
         TIM3_Int_Init(9,71);
+        
+        /** usart3 init **/
+        USART3_Init();
         
         /** MB85RCXX init **/
         eep_init();
@@ -199,6 +203,13 @@ void Task_Loop(void)
           }                      
         
       }
+      
+//      if(count3 == 500000)
+//      {
+//          count3 = 0;
+//          Comm_DisplayBoard();
+//      
+//      }
 #else
 
       extern u8 R_SF_RL1_FB_CPU2;

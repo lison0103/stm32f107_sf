@@ -314,6 +314,7 @@
           <state>$PROJ_DIR$\..\HARDWARE\SPI</state>
           <state>$PROJ_DIR$\..\HARDWARE\TIMER</state>
           <state>$PROJ_DIR$\..\HARDWARE\EXTI</state>
+          <state>$PROJ_DIR$\..\HARDWARE\USART</state>
           <state>$PROJ_DIR$\..\MALLOC</state>
           <state>$PROJ_DIR$\..\VCP\inc</state>
         </option>
@@ -1859,6 +1860,9 @@
   <group>
     <name>APP</name>
     <file>
+      <name>$PROJ_DIR$\..\APP\crc16.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\APP\hw_test.c</name>
     </file>
     <file>
@@ -1983,6 +1987,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\TIMER\timer.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\HARDWARE\USART\usart.c</name>
     </file>
   </group>
   <group>
