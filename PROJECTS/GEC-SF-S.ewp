@@ -1942,6 +1942,9 @@
       <name>$PROJ_DIR$\..\HARDWARE\CAN\can.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\HARDWARE\EWDT\ewdt.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\HARDWARE\LED\led.c</name>
     </file>
     <file>

@@ -10,6 +10,8 @@ static u16 fac_ms=0;
 
 void delay_init()	 
 {
+//        SysTick_Config(200);
+  
 	SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);	
 	fac_us=SystemCoreClock/8000000;	 
 	 

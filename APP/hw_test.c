@@ -175,6 +175,10 @@ void Hw_Test_Init(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2; 
       GPIO_Init(GPIOE , &GPIO_InitStruct);  
       
+      /** pluse out gpio **/
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5; 
+      GPIO_Init(GPIOC , &GPIO_InitStruct);        
+      
       
       /** relay output init **/
       AUX1_CTR = 0;
@@ -251,14 +255,12 @@ void Hw_Test1(void)
         *****************************************************/
         
         /****test input,The actual test should be uncommented****/
-        if(passflag /*&& ( IN1 && IN2 && IN3 && IN4 && IN5 && IN6 && IN7 && IN8 && 
+        if(passflag  /*&& ( !IN1 && !IN2 && !IN3 && !IN4 && !IN5 && !IN6 && !IN7 && !IN8 && 
                         IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && 
                           IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 )*/)
         {
                 if(SF_RL1_DRV_FB && !SF_PWR_FB_CPU1 && SF_RL1_FB && AUX1_FB)
                 {
-//                    SPI1_ReadWriteByte(0x55); 
-//                    R_SF_RL2_FB_CPU1 = SPI1_ReadByte(0x00);
                     
                     if(SF_RL2_FB_CPU1 == R_SF_RL2_FB_CPU1)
                     {
@@ -541,15 +543,13 @@ void Hw_Test1(void)
         
 #else
         
-        if(passflag /*&& ( IN1 && IN2 && IN3 && IN4 && IN5 && IN6 && IN7 && IN8 && 
+        if(passflag /*&& ( !IN1 && !IN2 && !IN3 && !IN4 && !IN5 && !IN6 && !IN7 && !IN8 && 
                         IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && 
                           IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 )*/)
         {
           
             if(SF_RL2_DRV_FB && !SF_PWR_FB_CPU2 && SF_RL2_FB && AUX2_FB)
             {
-//                SPI1_ReadWriteByte(0x55); 
-//                R_SF_RL1_FB_CPU2 = SPI1_ReadByte(0x00);
                 
                 if(SF_RL1_FB_CPU2 == R_SF_RL1_FB_CPU2)
                 {

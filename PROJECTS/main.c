@@ -4,8 +4,11 @@
 #include "hw_test.h"
 #include "can.h"
 #include "spi.h"
+#include "ewdt.h"
 
 #ifdef GEC_SF_MASTER
+
+#include "timer.h"
 
 #include "mb85rcxx.h"
 #include "usbd_cdc_core.h"
@@ -17,11 +20,12 @@
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
 
 u8 R_SF_RL2_FB_CPU1 = 0;
-u8 Master_Temp[10] = 0;
+u8 Master_Temp[10] = {0};
+u32 TimingDelay = 0;
 
 #else
 
-u8 Slave_Temp[10] = 0;
+u8 Slave_Temp[10] = {0};
 u8 R_SF_RL1_FB_CPU2 = 0;
 
 #endif
@@ -46,9 +50,14 @@ void Bsp_Init(void)
         
         /** spi communication init **/
         SPI1_Init();
-
         SPI1_NVIC();
+        
+        /** ewdt init **/
+        EWDT_Drv_pin_config();
+//        power_on_bsp_check();
 
+        /** 1000Khz的计数频率，计数到10为10us **/
+        TIM3_Int_Init(9,71);
 
 #ifdef GEC_SF_MASTER
         
@@ -90,11 +99,11 @@ void Bsp_Init(void)
 
 void LED_indicator(void)
 {
-	static u16 led_idr_cnt=0;	 
+	static u32 led_idr_cnt=0;	 
 	
 	led_idr_cnt++;
 	
-	if(led_idr_cnt >= 300)
+	if(led_idr_cnt >= 80000)
 	{
                 led_idr_cnt = 0;
 		LED=!LED;                
@@ -109,36 +118,52 @@ void Task_Loop(void)
   
 
 
-      static u32 count1 = 0,count2 = 0;
+      static u32 count1 = 0,count2 = 0,count3 = 0;
       u8 canbuf_recv[8];
       u8 res;
       u8 can_rcv;
   
-      delay_ms(1);
+//      delay_ms(1);
+      delay_us(1);
       count1++;
       count2++;
+      count3++;
       
-      if(count1 == 150)
+//      if(count3 == 25)
+//      {
+//          PLUSE_OUT = 1;
+//      }
+//      
+//      if(count3 == 44)
+//      {
+//          PLUSE_OUT = 0;
+//          count3 = 0;
+//      }      
+      
+      if(count1 == 150000)
       {
           if(SF_RL1_FB)
             SPI1_ReadWriteByte(0x01);
           else
             SPI1_ReadWriteByte(0x00);
+          
           R_SF_RL2_FB_CPU1 = Master_Temp[0];
       }
       
-      if(count1==200)
+      if(count1==200000)
       {                       
           Hw_Test1();
           
           Usb_Vcp_RecvBufandSend();
           
           SF_RL1_WDT=!SF_RL1_WDT;
+          EWDT_TOOGLE();
+          
           count1=0;
       } 
       
       
-      if(count2 == 1000)
+      if(count2 == 1000000)
       {         
         
           count2 = 0;
@@ -176,23 +201,26 @@ void Task_Loop(void)
       
       static u32 count1 = 0;
       
-      delay_ms(1);
+      delay_us(1);
       count1++;
 
-      if(count1 == 150)
+      if(count1 == 150000)
       {
           if(SF_RL2_FB)
             Slave_Temp[1] = 0x01;
           else
             Slave_Temp[1] = 0x00;
+          
           R_SF_RL1_FB_CPU2 = Slave_Temp[0];
       }
       
-      if(count1==200)
+      if(count1==200000)
       {                       
           Hw_Test1();     
           
           SF_RL2_WDT=!SF_RL2_WDT;
+          EWDT_TOOGLE();
+          
           count1=0;
       }      
       

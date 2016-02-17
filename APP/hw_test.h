@@ -72,6 +72,9 @@ void can1_can2_test(void);
 
 #define AUX1_FB       PCin(1)
 
+//PLUSE
+#define PLUSE_OUT       PCout(5)
+
 #else
 
 //INPUT

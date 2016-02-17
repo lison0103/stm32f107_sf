@@ -7,14 +7,18 @@
 
 void EWDT_Drv_pin_config(void)
 {
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_BKP | RCC_APB1Periph_PWR | RCC_APB2Periph_GPIOC, ENABLE );
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_BKP | RCC_APB1Periph_PWR | RCC_APB2Periph_GPIOA, ENABLE );
   
     GPIO_InitTypeDef GPIO_InitStruct;
     
     GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP; 
     GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+#ifdef GEC_SF_MASTER
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;
+#else
     GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
-    GPIO_Init(GPIOC , &GPIO_InitStruct);
+#endif
+    GPIO_Init(GPIOA , &GPIO_InitStruct);
 
 }
 
