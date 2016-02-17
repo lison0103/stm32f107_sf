@@ -7,7 +7,8 @@
 
 void EWDT_Drv_pin_config(void)
 {
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_BKP | RCC_APB1Periph_PWR | RCC_APB2Periph_GPIOA, ENABLE );
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_BKP | RCC_APB1Periph_PWR, ENABLE );
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
   
     GPIO_InitTypeDef GPIO_InitStruct;
     
