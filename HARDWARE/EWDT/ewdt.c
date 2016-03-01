@@ -2,6 +2,7 @@
 #include "sys.h"
 #include "delay.h"
 #include "ewdt.h"
+#include "esc_error_process.h"
 
 //min:1.12 typ:1.6 max:2.4
 
@@ -48,11 +49,17 @@ u8 ext_WDT_check(void)
   bkr_rst_flag = BKP_ReadBackupRegister(BKP_DR1);
   if(bkr_rst_flag == 0xfa01)
   {
+    /** 软件复位 **/
+//    if(RCC_GetFlagStatus(RCC_FLAG_SFTRST) == SET)
+//    {
+//        
+//    }
+    /** 引脚复位 **/
     if(RCC_GetFlagStatus(RCC_FLAG_PINRST) != SET)
     {
       write_bkp(BKP_DR1, 0);  
       RCC_ClearFlag();   
-//      EN_ERROR_SYS1 |= 0x01;
+      EN_ERROR_SYS1 |= 0x01;
     }   
   }  
   else
@@ -63,10 +70,15 @@ u8 ext_WDT_check(void)
     
     delay_ms(2000);    
     
-//    EN_ERROR_SYS1 |= 0x01;
+    EN_ERROR_SYS1 |= 0x01;
   }  
   
   write_bkp(BKP_DR1, 0);  
+  
+  if( EN_ERROR_SYS1&0x01 ) 
+  {
+      ESC_Error_Process();
+  }
   
   return(0);
 }  

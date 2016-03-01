@@ -318,6 +318,7 @@
           <state>$PROJ_DIR$\..\MALLOC</state>
           <state>$PROJ_DIR$\..\VCP\inc</state>
           <state>$PROJ_DIR$\..\SELFTEST\inc</state>
+          <state>$PROJ_DIR$\..\ESC\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1880,6 +1881,12 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\VCP\src\usbd_usr.c</name>
+    </file>
+  </group>
+  <group>
+    <name>ESC</name>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_error_process.c</name>
     </file>
   </group>
   <group>

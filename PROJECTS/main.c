@@ -61,7 +61,7 @@ void Bsp_Init(void)
         
         /** ewdt init **/
         EWDT_Drv_pin_config();
-        power_on_bsp_check();
+//        power_on_bsp_check();
         
         /** exti init **/
         EXTIX_Init();
