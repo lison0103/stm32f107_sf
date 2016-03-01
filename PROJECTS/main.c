@@ -7,11 +7,10 @@
 #include "ewdt.h"
 #include "exti.h"
 #include "timer.h"
-#include "usart.h"
 
 #ifdef GEC_SF_MASTER
 
-
+#include "usart.h"
 #include "mb85rcxx.h"
 #include "usbd_cdc_core_loopback.h"
 #include "usbd_usr.h"
@@ -114,7 +113,7 @@ void LED_indicator(void)
 	
 	led_idr_cnt++;
 	
-	if(led_idr_cnt >= 80000)
+	if(led_idr_cnt >= 300)
 	{
                 led_idr_cnt = 0;
 		LED=!LED;                
@@ -219,10 +218,11 @@ void Task_Loop(void)
       
       static u32 count1 = 0;
       
-      delay_us(1);
+//      delay_us(1);
+      delay_ms(1);
       count1++;
 
-      if(count1 == 150000)
+      if(count1 == 150)
       {
           if(SF_RL2_FB)
             Slave_Temp[1] = 0x01;
@@ -232,7 +232,7 @@ void Task_Loop(void)
           R_SF_RL1_FB_CPU2 = Slave_Temp[0];
       }
       
-      if(count1==200000)
+      if(count1==200)
       {                       
           Hw_Test1();     
           

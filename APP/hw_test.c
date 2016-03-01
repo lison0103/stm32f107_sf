@@ -52,7 +52,10 @@ void can_test(void)
                 }
                 
                 res=Can_Send_Msg(CAN1,canbuf,8);
-									   
+                if(res)
+                {                             
+                   /** send fail **/                            
+                }							   
                                
                 can_rcv=Can_Receive_Msg(CAN1,canbuf);
 		if(can_rcv)
@@ -72,7 +75,7 @@ void can_test(void)
 		}		   
 	}
 }
-
+#ifdef GEC_SF_MASTER
 void can1_can2_test(void)
 {	
   
@@ -121,7 +124,7 @@ void can1_can2_test(void)
 	}
 
 }
-
+#endif
 /******************************************************************************* 
 *******************************************************************************/
 void Hw_Test_Init(void)
@@ -1289,12 +1292,12 @@ void spi1_test(void)
    }
 
 }
-
+#ifdef GEC_SF_MASTER 
 static u8 buff[300];
 
 void Comm_DisplayBoard(void)
 {
-#ifdef GEC_SF_MASTER 
+
 	u16 i=0,len=0,tlen=0;
 
 	len = BSP_USART_Receive(USART3,buff,0);
@@ -1330,5 +1333,6 @@ void Comm_DisplayBoard(void)
   {
     
   }  
-#endif	
+	
 }
+#endif

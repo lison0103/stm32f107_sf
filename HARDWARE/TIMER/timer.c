@@ -12,10 +12,11 @@ u32 t_count = 0;
 //这里使用的是定时器3!
 void TIM3_Int_Init(u16 arr,u16 psc)
 {
+#ifdef GEC_SF_MASTER
         TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
 
-#ifdef GEC_SF_MASTER
+
         /** TIM3 **/
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE); //时钟使能
 
