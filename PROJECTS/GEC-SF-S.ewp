@@ -305,6 +305,7 @@
           <state>$PROJ_DIR$\..\HARDWARE\SPI</state>
           <state>$PROJ_DIR$\..\HARDWARE\EXTI</state>
           <state>$PROJ_DIR$\..\HARDWARE\TIMER</state>
+          <state>$PROJ_DIR$\..\SELFTEST\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1850,6 +1851,9 @@
     <file>
       <name>$PROJ_DIR$\..\APP\hw_test.c</name>
     </file>
+    <file>
+      <name>$PROJ_DIR$\..\APP\self_test.c</name>
+    </file>
   </group>
   <group>
     <name>FWLib</name>
@@ -1957,6 +1961,84 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\TIMER\timer.c</name>
+    </file>
+  </group>
+  <group>
+    <name>SELFTEST</name>
+    <group>
+      <name>inc</name>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\inc\check_instruction.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\inc\check_instruction_2.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\inc\clock_test.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\inc\config_test.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\inc\cpu_reg_test.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\inc\flag_test.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\inc\flash_test.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\inc\iec61508.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\inc\pc_test.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\inc\ram_test.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\inc\stack_test.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\inc\wdt_test.h</name>
+      </file>
+    </group>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\src\check_instruction.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\src\check_instruction_post.s</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\src\check_instruction_post_2.s</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\src\clock_test.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\src\config_test.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\src\cpu_reg_test.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\src\cpu_reg_test_post.s</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\src\flag_test.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\src\flash_test.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\src\pc_test.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\src\ram_test.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\src\wdt_test.c</name>
     </file>
   </group>
   <group>

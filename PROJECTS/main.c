@@ -7,6 +7,7 @@
 #include "ewdt.h"
 #include "exti.h"
 #include "timer.h"
+#include "self_test.h"
 
 #ifdef GEC_SF_MASTER
 
@@ -39,7 +40,9 @@ u8 canbuf_send[8];
 
 void Bsp_Init(void)
 {
-
+        /** stm32 self test **/
+        self_test();
+  
         /** set system interrupt priority group 2 **/
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
         
@@ -58,7 +61,7 @@ void Bsp_Init(void)
         
         /** ewdt init **/
         EWDT_Drv_pin_config();
-//        power_on_bsp_check();
+        power_on_bsp_check();
         
         /** exti init **/
         EXTIX_Init();
