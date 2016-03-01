@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    app.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-March-2012
+  * @version V1.2.0
+  * @date    09-November-2015
   * @brief   This file provides all the Application firmware functions.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -27,11 +27,10 @@
 
 /* Includes ------------------------------------------------------------------*/ 
 
-#include "usbd_cdc_core.h"
+#include "usbd_cdc_core_loopback.h"
 #include "usbd_usr.h"
-#include "usb_conf.h"
 #include "usbd_desc.h"
-
+#include "usbd_cdc_vcp.h"
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
   * @{
   */
@@ -78,7 +77,9 @@
 #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
    
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
-
+uint8_t Rxbuffer[64]; 
+__IO uint32_t receive_count =1;
+extern __IO uint32_t  data_sent;
 /**
   * @}
   */ 
@@ -103,15 +104,13 @@ __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
   */
 int main(void)
 {
-  __IO uint32_t i = 0;  
-
   /*!< At this stage the microcontroller clock setting is already configured, 
   this is done through SystemInit() function which is called from startup
   file (startup_stm32fxxx_xx.s) before to branch to application main.
   To reconfigure the default setting of SystemInit() function, refer to
   system_stm32fxxx.c file
   */  
- 
+  
   USBD_Init(&USB_OTG_dev,
 #ifdef USE_USB_OTG_HS 
             USB_OTG_HS_CORE_ID,
@@ -121,17 +120,27 @@ int main(void)
             &USR_desc, 
             &USBD_CDC_cb, 
             &USR_cb);
-  
+    
   /* Main loop */
   while (1)
   {
-    if (i++ == 0x100000)
-    {
-      STM_EVAL_LEDToggle(LED1);
-      STM_EVAL_LEDToggle(LED2);
-      STM_EVAL_LEDToggle(LED3);
-      STM_EVAL_LEDToggle(LED4);
-      i = 0;
+    /* wait data reception */
+    while (VCP_CheckDataReceived()==0);
+    
+    /* receive one character */
+    VCP_ReceiveData(&USB_OTG_dev,Rxbuffer, receive_count);
+    
+    /*Check to see if we have data yet */
+    if (receive_count  != 0)
+    {  
+      /* wait data sent */
+      while (VCP_CheckDataSent()==1); 
+      
+      /* send myTxBuffer */
+      VCP_SendData(&USB_OTG_dev, Rxbuffer, receive_count);
+      
+      /*INIT received byte count*/
+      receive_count =0;
     }
   }
 } 

@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    usb_conf.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-March-2012
+  * @version V1.2.0
+  * @date    09-November-2015
   * @brief   General low level driver configuration
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -30,32 +30,8 @@
 #define __USB_CONF__H__
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f10x.h"
 
- #include "stm32f10x.h"
-
-//typedef enum 
-//{
-//  COM1 = 0,
-//  COM2 = 1
-//} COM_TypeDef;
-
-/** @addtogroup STM3210C_EVAL_LOW_LEVEL_COM
-  * @{
-  */
-//#define COMn                             1
-
-/**
- * @brief Definition for COM port1, connected to USART2 (USART2 pins remapped on GPIOD)
- */ 
-//#define EVAL_COM1                        USART2
-//#define EVAL_COM1_CLK                    RCC_APB1Periph_USART2
-//#define EVAL_COM1_TX_PIN                 GPIO_Pin_5
-//#define EVAL_COM1_TX_GPIO_PORT           GPIOD
-//#define EVAL_COM1_TX_GPIO_CLK            RCC_APB2Periph_GPIOD
-//#define EVAL_COM1_RX_PIN                 GPIO_Pin_6
-//#define EVAL_COM1_RX_GPIO_PORT           GPIOD
-//#define EVAL_COM1_RX_GPIO_CLK            RCC_APB2Periph_GPIOD
-//#define EVAL_COM1_IRQn                   USART2_IRQn
 
 /** @addtogroup USB_OTG_DRIVER
   * @{
@@ -82,7 +58,7 @@
 *  when FS core is used.
 *******************************************************************************/
 #ifndef USE_USB_OTG_FS
- //#define USE_USB_OTG_FS
+/* #define USE_USB_OTG_FS */
 #endif /* USE_USB_OTG_FS */
 
 #ifdef USE_USB_OTG_FS 
@@ -107,15 +83,15 @@
 *     STM32 device datasheet.
 *******************************************************************************/
 #ifndef USE_USB_OTG_HS
- //#define USE_USB_OTG_HS
+/* #define USE_USB_OTG_HS */
 #endif /* USE_USB_OTG_HS */
 
 #ifndef USE_ULPI_PHY
- //#define USE_ULPI_PHY
+/* #define USE_ULPI_PHY */
 #endif /* USE_ULPI_PHY */
 
 #ifndef USE_EMBEDDED_PHY
- //#define USE_EMBEDDED_PHY
+/* #define USE_EMBEDDED_PHY */
 #endif /* USE_EMBEDDED_PHY */
 
 #ifdef USE_USB_OTG_HS 
@@ -154,57 +130,52 @@
 *       --> Txn should be configured with the minimum space of 16 words
 *  (v) The FIFO is used optimally when used TxFIFOs are allocated in the top 
 *       of the FIFO.Ex: use EP1 and EP2 as IN instead of EP1 and EP3 as IN ones.
-*   (vi) In HS case 12 FIFO locations should be reserved for internal DMA registers
+*   (vi) In HS case12 FIFO locations should be reserved for internal DMA registers
 *        so total FIFO size should be 1012 Only instead of 1024       
 *******************************************************************************/
  
 /****************** USB OTG HS CONFIGURATION **********************************/
 #ifdef USB_OTG_HS_CORE
  #define RX_FIFO_HS_SIZE                          512
- #define TX0_FIFO_HS_SIZE                          64
+ #define TX0_FIFO_HS_SIZE                         128
  #define TX1_FIFO_HS_SIZE                         372
- #define TX2_FIFO_HS_SIZE                          64
- #define TX3_FIFO_HS_SIZE                           0
- #define TX4_FIFO_HS_SIZE                           0
- #define TX5_FIFO_HS_SIZE                           0
+ #define TX2_FIFO_HS_SIZE                          0
+ #define TX3_FIFO_HS_SIZE                          0
+ #define TX4_FIFO_HS_SIZE                          0
+ #define TX5_FIFO_HS_SIZE                          0
 
-// #define USB_OTG_HS_SOF_OUTPUT_ENABLED
+/* #define USB_OTG_HS_SOF_OUTPUT_ENABLED */
 
  #ifdef USE_ULPI_PHY
   #define USB_OTG_ULPI_PHY_ENABLED
  #endif
  #ifdef USE_EMBEDDED_PHY 
    #define USB_OTG_EMBEDDED_PHY_ENABLED
-   /* wakeup is working only when HS core is configured in FS mode */
-   #define USB_OTG_HS_LOW_PWR_MGMT_SUPPORT
  #endif
- /* #define USB_OTG_HS_INTERNAL_DMA_ENABLED */ /* Be aware that enabling DMA mode will result in data being sent only by
-                                                  multiple of 4 packet sizes. This is due to the fact that USB DMA does
-                                                  not allow sending data from non word-aligned addresses.
-                                                  For this specific application, it is advised to not enable this option
-                                                  unless required. */
+/* #define USB_OTG_HS_INTERNAL_DMA_ENABLED */
  #define USB_OTG_HS_DEDICATED_EP1_ENABLED
+/* #define USB_OTG_HS_LOW_PWR_MGMT_SUPPORT */
 #endif
 
 /****************** USB OTG FS CONFIGURATION **********************************/
 #ifdef USB_OTG_FS_CORE
  #define RX_FIFO_FS_SIZE                          128
- #define TX0_FIFO_FS_SIZE                          32
+ #define TX0_FIFO_FS_SIZE                          64
  #define TX1_FIFO_FS_SIZE                         128
- #define TX2_FIFO_FS_SIZE                          32 
- #define TX3_FIFO_FS_SIZE                           0
+ #define TX2_FIFO_FS_SIZE                          0
+ #define TX3_FIFO_FS_SIZE                          0
 
-// #define USB_OTG_FS_LOW_PWR_MGMT_SUPPORT
-// #define USB_OTG_FS_SOF_OUTPUT_ENABLED
+/* #define USB_OTG_FS_LOW_PWR_MGMT_SUPPORT */
+/* #define USB_OTG_FS_SOF_OUTPUT_ENABLED */
 #endif
 
 /****************** USB OTG MISC CONFIGURATION ********************************/
 #define VBUS_SENSING_ENABLED
 
 /****************** USB OTG MODE CONFIGURATION ********************************/
-//#define USE_HOST_MODE
+/* #define USE_HOST_MODE */
 #define USE_DEVICE_MODE
-//#define USE_OTG_MODE
+/* #define USE_OTG_MODE */
 
 #ifndef USB_OTG_FS_CORE
  #ifndef USB_OTG_HS_CORE
@@ -222,7 +193,7 @@
  #ifndef USE_USB_OTG_FS
     #error  "USE_USB_OTG_HS or USE_USB_OTG_FS should be defined"
  #endif
-#else //USE_USB_OTG_HS
+#else /* USE_USB_OTG_HS */
  #ifndef USE_ULPI_PHY
   #ifndef USE_EMBEDDED_PHY
      #error  "USE_ULPI_PHY or USE_EMBEDDED_PHY should be defined"
@@ -257,7 +228,10 @@
   #define __packed    __packed
 #elif defined (__ICCARM__)     /* IAR Compiler */
   #define __packed    __packed
-#elif defined   ( __GNUC__ )   /* GNU Compiler */                        
+#elif defined   ( __GNUC__ )   /* GNU Compiler */ 
+#ifdef __packed
+#undef __packed
+#endif
   #define __packed    __attribute__ ((__packed__))
 #elif defined   (__TASKING__)  /* TASKING Compiler */
   #define __packed    __unaligned
@@ -298,7 +272,7 @@
   */ 
 
 
-#endif //__USB_CONF__H__
+#endif /*__USB_CONF__H__*/
 
 
 /**

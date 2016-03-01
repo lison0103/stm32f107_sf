@@ -102,9 +102,9 @@ void can1_can2_test(void)
                 res=Can_Send_Msg(CAN1,canbuf_send,8);
                 
                 if(res)
-                  Usb_Vcp_SendBuf("Failed", 6);		
+                  USB_VCP_SendBuf("Failed", 6);		
                 else 
-                  Usb_Vcp_SendBuf("OK", 2);	 										   
+                  USB_VCP_SendBuf("OK", 2);	 										   
 
 
                 /** CAN2 receive **/
@@ -114,7 +114,7 @@ void can1_can2_test(void)
 			
  			for(i=0;i<can_rcv;i++)
 			{									    
-                              Usb_Vcp_SendBuf(canbuf_recv, can_rcv);	
+                              USB_VCP_SendBuf(canbuf_recv, can_rcv);	
  			}
 		}                               
 		   
@@ -1270,7 +1270,7 @@ void spi1_test(void)
              t = 0;
              LED =! LED;
              
-             Usb_Vcp_SendBuf(&Master_Temp[0], 1);                  
+             USB_VCP_SendBuf(&Master_Temp[0], 1);                  
          
        }
        

@@ -2,14 +2,14 @@
   ******************************************************************************
   * @file    usb_bsp.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-March-2012
+  * @version V1.2.0
+  * @date    09-November-2015
   * @brief   This file is responsible to offer board support package and is 
   *          configurable by user.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usb_bsp.h"
-#include "usbd_conf.h"
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
 * @{
@@ -87,33 +86,30 @@
 
 /**
 * @brief  USB_OTG_BSP_Init
-*         Initilizes BSP configurations
+*         Initializes BSP configurations
 * @param  None
 * @retval None
 */
 
 void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
 {
-
-
   RCC_OTGFSCLKConfig(RCC_OTGFSCLKSource_PLLVCO_Div3);
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_OTG_FS, ENABLE) ;
   
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);	 
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
   
-    GPIO_InitTypeDef  GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;				 
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		 
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;		
-    GPIO_Init(GPIOA, &GPIO_InitStructure);	
+  GPIO_InitTypeDef  GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
   
-    GPIO_SetBits(GPIOA,GPIO_Pin_10);    
-  
+  GPIO_SetBits(GPIOA,GPIO_Pin_10);
   
 }
 /**
 * @brief  USB_OTG_BSP_EnableInterrupt
-*         Enabele USB Global interrupt
+*         Enable USB Global interrupt
 * @param  None
 * @retval None
 */
@@ -166,7 +162,6 @@ void USB_OTG_BSP_uDelay (const uint32_t usec)
   }
   while (1);
 }
-
 
 
 /**

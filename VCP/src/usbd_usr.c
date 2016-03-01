@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    usbd_usr.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-March-2012
+  * @version V1.2.0
+  * @date    09-November-2015
   * @brief   This file includes the user application layer
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_usr.h"
-#include "usbd_ioreq.h"
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
 * @{
@@ -112,18 +111,8 @@ USBD_Usr_cb_TypeDef USR_cb =
 * @retval None
 */
 void USBD_USR_Init(void)
-{  
-
-          //USB Device电源使能
-        GPIO_ResetBits(GPIOA,GPIO_Pin_10);
-        
-        
-#ifdef USE_USB_OTG_HS 
-
-#else
-
-#endif
-
+{    
+    GPIO_ResetBits(GPIOA,GPIO_Pin_10);
 }
 
 /**
@@ -134,18 +123,25 @@ void USBD_USR_Init(void)
 */
 void USBD_USR_DeviceReset(uint8_t speed )
 {
- switch (speed)
- {
-   case USB_OTG_SPEED_HIGH: 
-//     LCD_LOG_SetFooter ("     USB Device Library v1.1.0 [HS]" );
-     break;
-
+  switch (speed)
+  {
+  case USB_OTG_SPEED_HIGH: 
+#if ! defined (USE_STM32446_EVAL) && ! defined (USE_STM32469I_EVAL)
+//    printf ((uint8_t*)"     USB Device Library v1.2.0 [HS]" );
+#endif
+    break;
+    
   case USB_OTG_SPEED_FULL: 
-//     LCD_LOG_SetFooter ("     USB Device Library v1.1.0 [FS]" );
-     break;
- default:
-//     LCD_LOG_SetFooter ("     USB Device Library v1.1.0 [??]" );
- }
+#if ! defined (USE_STM32446_EVAL) && ! defined (USE_STM32469I_EVAL)
+//    printf ((uint8_t*)"     USB Device Library v1.2.0 [FS]" );
+#endif
+    break;
+  default:
+#if ! defined (USE_STM32446_EVAL) & ! defined (USE_STM32469I_EVAL)
+//    printf ((uint8_t*)"     USB Device Library v1.2.0 [??]" );
+#endif
+    break;
+  }
 }
 
 
@@ -153,11 +149,13 @@ void USBD_USR_DeviceReset(uint8_t speed )
 * @brief  USBD_USR_DeviceConfigured
 *         Displays the message on LCD on device configuration Event
 * @param  None
-* @retval Staus
+* @retval Status
 */
 void USBD_USR_DeviceConfigured (void)
 {
-//  LCD_UsrLog("> VCP Interface configured.\n");
+#if ! defined (USE_STM32446_EVAL) && ! defined (USE_STM32469I_EVAL)
+//  printf("> VCP Interface configured.\n");
+#endif
 }
 
 /**
@@ -168,8 +166,10 @@ void USBD_USR_DeviceConfigured (void)
 */
 void USBD_USR_DeviceSuspended(void)
 {
-//  LCD_UsrLog("> USB Device in Suspend Mode.\n");
+#if ! defined (USE_STM32446_EVAL) && ! defined (USE_STM32469I_EVAL)
+//  printf("> USB Device in Suspend Mode.\n");
   /* Users can do their application actions here for the USB-Reset */
+#endif
 }
 
 
@@ -181,8 +181,10 @@ void USBD_USR_DeviceSuspended(void)
 */
 void USBD_USR_DeviceResumed(void)
 {
-//    LCD_UsrLog("> USB Device in Idle Mode.\n");
+#if ! defined (USE_STM32446_EVAL) && ! defined (USE_STM32469I_EVAL)
+//  printf("> USB Device in Idle Mode.\n");
   /* Users can do their application actions here for the USB-Reset */
+#endif
 }
 
 
@@ -190,11 +192,13 @@ void USBD_USR_DeviceResumed(void)
 * @brief  USBD_USR_DeviceConnected
 *         Displays the message on LCD on device connection Event
 * @param  None
-* @retval Staus
+* @retval Status
 */
 void USBD_USR_DeviceConnected (void)
 {
-//  LCD_UsrLog("> USB Device Connected.\n");
+#if ! defined (USE_STM32446_EVAL) && ! defined (USE_STM32469I_EVAL)
+//  printf("> USB Device Connected.\n");
+#endif
 }
 
 
@@ -202,11 +206,14 @@ void USBD_USR_DeviceConnected (void)
 * @brief  USBD_USR_DeviceDisonnected
 *         Displays the message on LCD on device disconnection Event
 * @param  None
-* @retval Staus
+* @retval Status
 */
 void USBD_USR_DeviceDisconnected (void)
 {
-//  LCD_UsrLog("> USB Device Disconnected.\n");
+#if ! defined (USE_STM32446_EVAL) && ! defined (USE_STM32469I_EVAL)
+//  printf("> USB Device Disconnected.\n");
+#endif
+//    GPIO_SetBits(GPIOA,GPIO_Pin_10);
 }
 /**
 * @}

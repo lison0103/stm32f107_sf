@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    usbd_cdc_vcp.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-March-2012
+  * @version V1.2.0
+  * @date    30-June-2015
   * @brief   Header for usbd_cdc_vcp.c file.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -30,55 +30,23 @@
 #define __USBD_CDC_VCP_H
 
 /* Includes ------------------------------------------------------------------*/
-#ifdef STM32F2XX
- #include "stm32f2xx.h"
-#elif defined(STM32F10X_CL)
- #include "stm32f10x.h"
-#endif /* STM32F2XX */
-
-#include "usbd_cdc_core.h"
-#include "usbd_conf.h"
-
-//send 
-//extern uint32_t APP_Rx_ptr_in;
-//extern uint8_t APP_Rx_Buffer   [APP_RX_DATA_SIZE];
-
-//recvice
-extern uint32_t USB_Recive_length; 
-extern uint8_t USB_Rx_Buffer   [CDC_DATA_MAX_PACKET_SIZE];
-
-//extern uint32_t APP_Rx_ptr_out;
-//extern uint32_t APP_Rx_length;
-
-void Usb_Vcp_SendBuf(u8 *buf, u16 len);
-void Usb_Vcp_RecvBufandSend(void);
-
+#include "usbd_cdc_core_loopback.h"
+#include "string.h"
 /* Exported typef ------------------------------------------------------------*/
-/* The following structures groups all needed parameters to be configured for the 
-   ComPort. These parameters can modified on the fly by the host through CDC class
-   command class requests. */
-typedef struct
-{
-  uint32_t bitrate;
-  uint8_t  format;
-  uint8_t  paritytype;
-  uint8_t  datatype;
-}LINE_CODING;
-
 /* Exported constants --------------------------------------------------------*/
-/* The following define is used to route the USART IRQ handler to be used.
-   The IRQ handler function is implemented in the usbd_cdc_vcp.c file. */
-          
-
-//#define EVAL_COM_IRQHandler            USART2_IRQHandler
-
-
-
-#define DEFAULT_CONFIG                  0
-#define OTHER_CONFIG                    1
-
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
+/* send data function */
+void VCP_SendData( USB_OTG_CORE_HANDLE *pdev, uint8_t* pbuf, uint32_t  buf_len);
+uint32_t VCP_CheckDataSent (void);
+void VCP_ReceiveData(USB_OTG_CORE_HANDLE *pdev, uint8_t  *pbuf, uint32_t   buf_len);
+uint32_t VCP_CheckDataReceived(void);
+
+/** add by lison **/
+extern USB_OTG_CORE_HANDLE    USB_OTG_dev;
+extern uint8_t Rxbuffer[64];
+void USB_VCP_SendBuf(uint8_t* pbuf, uint32_t  buf_len);
+void USB_VCP_RecvBufandSend(void);
 
 #endif /* __USBD_CDC_VCP_H */
 

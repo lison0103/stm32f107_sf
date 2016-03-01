@@ -13,13 +13,16 @@
 
 
 #include "mb85rcxx.h"
-#include "usbd_cdc_core.h"
+#include "usbd_cdc_core_loopback.h"
 #include "usbd_usr.h"
 #include "usb_conf.h"
 #include "usbd_desc.h"
 #include "usbd_cdc_vcp.h"
 
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
+uint8_t Rxbuffer[64]; 
+__IO uint32_t receive_count =1;
+extern __IO uint32_t  data_sent;
 
 u8 R_SF_RL2_FB_CPU1 = 0;
 u8 Master_Temp[10] = {0};
@@ -85,15 +88,15 @@ void Bsp_Init(void)
 
         
         /** USB VCP init **/
-//          USBD_Init(&USB_OTG_dev,
-//#ifdef USE_USB_OTG_HS 
-//            USB_OTG_HS_CORE_ID,
-//#else            
-//            USB_OTG_FS_CORE_ID,
-//#endif  
-//            &USR_desc, 
-//            &USBD_CDC_cb, 
-//            &USR_cb);
+          USBD_Init(&USB_OTG_dev,
+#ifdef USE_USB_OTG_HS 
+            USB_OTG_HS_CORE_ID,
+#else            
+            USB_OTG_FS_CORE_ID,
+#endif  
+            &USR_desc, 
+            &USBD_CDC_cb, 
+            &USR_cb);
           
 
 
@@ -131,8 +134,8 @@ void Task_Loop(void)
       u8 res;
       u8 can_rcv;
   
-//      delay_ms(1);
-      delay_us(1);
+      delay_ms(1);
+//      delay_us(1);
       count1++;
       count2++;
       count3++;
@@ -148,7 +151,7 @@ void Task_Loop(void)
 //          count3 = 0;
 //      }      
       
-      if(count1 == 150000)
+      if(count1 == 150)
       {
           if(SF_RL1_FB)
             SPI1_ReadWriteByte(0x01);
@@ -158,11 +161,11 @@ void Task_Loop(void)
           R_SF_RL2_FB_CPU1 = Master_Temp[0];
       }
       
-      if(count1==200000)
+      if(count1==200)
       {                       
           Hw_Test1();
           
-          Usb_Vcp_RecvBufandSend();
+          USB_VCP_RecvBufandSend();
           
           SF_RL1_WDT=!SF_RL1_WDT;
           EWDT_TOOGLE();
@@ -171,7 +174,7 @@ void Task_Loop(void)
       } 
       
       
-      if(count2 == 1000000)
+      if(count2 == 1000)
       {         
         
           count2 = 0;
@@ -180,13 +183,13 @@ void Task_Loop(void)
           res=Can_Send_Msg(CAN1,canbuf_send,4);                          
           if(res)
           {                             
-              Usb_Vcp_SendBuf("CAN1TX:fail\r\n", 13);                             
+              USB_VCP_SendBuf("CAN1TX:fail\r\n", 13);                             
           }
           else 
           {	 
             
 //              Usb_Vcp_SendBuf("CAN1TX:", 7);                             
-              Usb_Vcp_SendBuf(canbuf_send, 4); 
+              USB_VCP_SendBuf(canbuf_send, 4); 
               
               delay_ms(1);
               
@@ -195,7 +198,7 @@ void Task_Loop(void)
               if(can_rcv)
               {			                                 
 //                  Usb_Vcp_SendBuf("CAN1RX:", 7);                                 
-                  Usb_Vcp_SendBuf(canbuf_recv, can_rcv);                                                                                               
+                  USB_VCP_SendBuf(canbuf_recv, can_rcv);                                                                                               
               }                              
               
 //              Usb_Vcp_SendBuf("\r\n\r\n", 4);                             

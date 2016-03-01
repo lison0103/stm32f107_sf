@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32fxxx_it.h 
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-March-2012
+  * @version V1.2.0
+  * @date    30-June-2015
   * @brief   This file contains the headers of the interrupt handlers.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -34,8 +34,10 @@
 #endif 
 
 /* Includes ------------------------------------------------------------------*/
-#include "usb_conf.h"
-
+#if ! defined (USE_STM32446_EVAL) && ! defined (USE_STM32469I_EVAL)
+#include "lcd_log.h"
+#endif
+#include "usbd_cdc_core_loopback.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
@@ -50,7 +52,8 @@ void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
-
+void OTG_FS_WKUP_IRQHandler(void);
+void OTG_FS_IRQHandler(void);
 #ifdef __cplusplus
 }
 #endif

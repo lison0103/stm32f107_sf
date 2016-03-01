@@ -2,15 +2,15 @@
   ******************************************************************************
   * @file    stm32fxxx_it.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    19-March-2012
+  * @version V1.2.0
+  * @date    09-November-2015
   * @brief   Main Interrupt Service Routines.
   *          This file provides all exceptions handler and peripherals interrupt
   *          service routine.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -29,13 +29,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32fxxx_it.h"
-#include "usb_core.h"
-#include "usbd_core.h"
-
-
-#include "usbd_cdc_core.h"
-
-
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -149,10 +142,11 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
+#if ! defined (USE_STM32446_EVAL) && ! defined (USE_STM32469I_EVAL)
   /* Information panel */
-
-  //LCD_DisplayStringLine( LCD_PIXEL_HEIGHT - 42, USER_INFORMATION[x]);  
-
+  LCD_SetTextColor(Green);
+  LCD_SetTextColor(LCD_LOG_DEFAULT_COLOR);
+#endif
 }
 
 /**
