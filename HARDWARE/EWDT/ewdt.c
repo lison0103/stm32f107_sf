@@ -4,6 +4,7 @@
 #include "ewdt.h"
 #include "esc_error_process.h"
 
+
 //min:1.12 typ:1.6 max:2.4
 
 void EWDT_Drv_pin_config(void)

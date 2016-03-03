@@ -306,6 +306,7 @@
           <state>$PROJ_DIR$\..\HARDWARE\EXTI</state>
           <state>$PROJ_DIR$\..\HARDWARE\TIMER</state>
           <state>$PROJ_DIR$\..\SELFTEST\inc</state>
+          <state>$PROJ_DIR$\..\ESC\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1853,6 +1854,12 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\APP\self_test.c</name>
+    </file>
+  </group>
+  <group>
+    <name>ESC</name>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_error_process.c</name>
     </file>
   </group>
   <group>
