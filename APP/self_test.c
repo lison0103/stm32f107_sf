@@ -54,12 +54,91 @@ int self_test(void)
   volatile type_testResult_t result = IEC61508_testFailed;   /* variable is located in the stack */
 //  STM_EVAL_LEDInit(LED1);
 
+/************************** flag register start *******************************/  
+  result = flag_test();
+  if (result != IEC61508_testPassed)
+  {
+    while(1);                            /* remains if FLAG test fails */
+  }  
+/************************** flag register end *********************************/
+  
+  
+  
+
+/**************************** PC test start *******************************/  
+  result = IEC61508_PCTest_POST();
+  if (result != IEC61508_testPassed)
+  {
+    while(1);                                      /* remains if PC test fails */
+  }  
+/**************************** PC test end *********************************/
+
+
+  
+/************************** flash test start *******************************/
+  
+  result = ((type_testResult_t)IEC61508_FLASHtest_POST());            /* test FLASH content */
+  result = ((type_testResult_t)IEC61508_FLASHtest_POST2());            /* test FLASH content */
+  /* TODO : insert correct CRC value to line 80 in iec61508_flash_test.h */
+  if (result != IEC61508_testPassed)
+  {
+         while (1);                    /* remains if Flash content is not consistent */
+  }
+
+  /* Flash test */
+  int count = 255;
+  result = IEC61508_FLASHtest_BIST (FLASH_CRC_Restart);
+  while( count-- )
+  {
+      result = IEC61508_FLASHtest_BIST (0);
+  }  
+/************************** flash test end *********************************/
+  
+  
+  
+/************** PROGRAM EXECUTION INSTRUCTION test start ********************/   
+   //Check_Instruction_Set();
+  //perip_64bitaccess();
+  /* Do the IEC61508 instruction tests */
+  if (iec61508_InstCheck_POST() == IEC61508_testFailed)
+  {
+      /* POST instruction test failed */  /*waitting for WATCHDOG to reset*/
+      while (1);
+  }
+/************** PROGRAM EXECUTION INSTRUCTION test end **********************/ 
+ 
+  
+/************************** CPU register test start ************************/  
+    /* Do the IEC61508 CPU register tests */   //ok
+//  _CPUregTestPOST();
+//  if (CPUregTestPOST_struct.testPassed == IEC61508_testFailed)
+//  {
+//      /* POST CPU register test failed */
+//      while (1);
+//  }
+/************************** CPU register test end **************************/ 
+
+  
+  
+/************************** RAM test start ***********************************/
+  /* test results */  //no ok  ->move to after Instruction Set check, then ok
+  result = ((type_testResult_t)IEC61508_RAMtest_BIST (0x20000100, 0x10000));
+  if (result != IEC61508_testPassed)
+  {
+        while (1);
+  }  
+/************************** RAM test end ***********************************/  
+  
+
+  
+#if 0  
+  
   result = flag_test();
   if (result != IEC61508_testPassed)
   {
     while(1);                            /* remains if FLAG test fails */
   }
-#if 0  
+  
   RCC_ClocksTypeDef RCC_Clocks;
   RCC_Configuration();//HSE - 8MHz
   RCC_GetClocksFreq(&RCC_Clocks); 

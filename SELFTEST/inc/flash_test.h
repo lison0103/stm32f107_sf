@@ -34,8 +34,9 @@ extern "C" {
 #define SIZE32K              0x00007FFF
 #define SIZE64K              0x0000FFFF
 #define SIZE128K             0x0001FFFF
-
-#define FLASHSIZE            SIZE128K
+#define SIZE256K             0x0003FFFF
+   
+#define FLASHSIZE            SIZE256K
 
 #define FLASH_SIGN1          1
 #define FLASH_SIGN2          2
@@ -58,7 +59,7 @@ extern "C" {
  * Status  : set to valid to run the test
  */
 /*  predefined               CRC32Val  , MemLenght, NextAddress, BlockSize,  Status; */
-#define ENTRY_FLASH_CRC    { 0x0A59B834, FLASHSIZE, (uint32_t) __STEXT, FLASHSIZE, FLASH_CRC_Valid }
+#define ENTRY_FLASH_CRC    { 0xEAE80F93, FLASHSIZE, (uint32_t) __STEXT, CRC_block_size, FLASH_CRC_Valid }
 /*!
  * @}
  */

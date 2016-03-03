@@ -48,7 +48,7 @@ typedef enum testStart_enum
 
 #define IEC61508_RAM_START    (0x20000000UL)    /*!< start address of RAM memory */
 #ifndef SRAM_SIZE
-#define SRAM_SIZE             (0x00004000UL)    /*!< size of RAM memory */
+#define SRAM_SIZE             (0x00010000UL)    /*!< size of RAM memory */
 #endif
 #define IEC61508_RAM_SIZE     SRAM_SIZE         /*!< size of RAM memory in kBytes */
   
@@ -72,7 +72,7 @@ typedef enum testStart_enum
 #define get_initial_sp              (*initial_sp)
 #define CORE_RAM_BASE_ADDR          IEC61508_RAM_START
 #define CORE_RAM_BASE_PTR           (volatile uint8_t *) CORE_RAM_BASE_ADDR
-#define CORE_RAM_MAX_BC             (1024 * 4 * 4)
+#define CORE_RAM_MAX_BC             (1024 * 4 * 4 * 4)
 #define CORE_RAM_R0_EXP             0x0
 #define CORE_RAM_R1_EXP             (~CORE_RAM_R0_EXP)
 #define PLINK_RAM_BASE_ADDR         (0x40012200UL)
@@ -82,8 +82,8 @@ typedef enum testStart_enum
 #define PLINK_RAM_R1_EXP            0xFF
 
 #define RAM_MEM_BASE         ((uint32_t) 0x20000000UL)  /**< RAM base address  */
-#define RAM_MEM_SIZE         ((uint32_t) 0x4000UL)      /**< RAM available address space  */
-#define RAM_MEM_END          ((uint32_t) 0x20003FFFUL)  /**< RAM end address  */
+#define RAM_MEM_SIZE         ((uint32_t) 0x10000UL)      /**< RAM available address space  */
+#define RAM_MEM_END          ((uint32_t) 0x2000FFFFUL)  /**< RAM end address  */
 #define RAM_MEM_BITS         ((uint32_t) 0x15UL)        /**< RAM used bits  */
 #define RAM_CODE_MEM_BASE    ((uint32_t) 0x10000000UL)  /**< RAM_CODE base address  */
 #define RAM_CODE_MEM_SIZE    ((uint32_t) 0x4000UL)      /**< RAM_CODE available address space  */

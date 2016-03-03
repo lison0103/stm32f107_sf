@@ -64,14 +64,14 @@ typedef PCTest_ReturnValues (*Exec_t)(Data_t *data);
 
 
   #ifndef FLASH_SIZE
-  #define FLASH_SIZE            (0x00020000UL)    /*!< size of FLASH memory */
+  #define FLASH_SIZE            (0x00040000UL)    /*!< size of FLASH memory */
   #endif
   #ifndef __INLINE
   #define __INLINE          inline                /*!< inline keyword for IAR Compiler. Only available in High optimization mode! */
   #endif
 
   #define FLASH_CRC_ADDR    0x000010BA            /* LENGTH = 0x20 */
-  #define __STEXT           0x100
+  #define __STEXT           0x00
   
 /* Flash test */
 typedef struct IEC61508_FlashSign

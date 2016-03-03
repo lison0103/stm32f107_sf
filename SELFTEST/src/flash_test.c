@@ -199,7 +199,7 @@ type_testResult_t IEC61508_FLASHtest_POST(void)
       Result = IEC61508_testPassed;
     }
   }
-
+  
   return(Result);
 }
 
