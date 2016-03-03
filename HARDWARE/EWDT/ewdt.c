@@ -77,7 +77,7 @@ u8 ext_WDT_check(void)
   
   if( EN_ERROR_SYS1&0x01 ) 
   {
-      ESC_Error_Process();
+      ESC_EWDT_Error_Process();
   }
   
   return(0);

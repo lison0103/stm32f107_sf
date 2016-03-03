@@ -11,6 +11,7 @@
 
 #ifdef GEC_SF_MASTER
 
+#include "esc_record_data.h"
 #include "usart.h"
 #include "mb85rcxx.h"
 #include "usbd_cdc_core_loopback.h"
@@ -79,7 +80,11 @@ void Bsp_Init(void)
         if(MB85RCXX_Check())
         {
               /** MB85RCXX check fail , do some things **/                   
-        }  
+        }
+        else
+        {
+            esc_data_check();
+        }
        	 	
         /** CAN1 init,baud rate 250Kbps **/
 	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);  

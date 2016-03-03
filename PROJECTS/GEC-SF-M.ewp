@@ -1888,6 +1888,9 @@
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_error_process.c</name>
     </file>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_record_data.c</name>
+    </file>
   </group>
   <group>
     <name>FWLib</name>
