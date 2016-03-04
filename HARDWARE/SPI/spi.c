@@ -39,9 +39,12 @@ void SPI1_Init(void)
 	SPI_InitStructure.SPI_CRCPolynomial = 7;	                        //CRC值计算的多项式
 	SPI_Init(SPI1, &SPI_InitStructure);                                     
  
+        //DMA 
         SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
         SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
+      
 //        SPI_I2S_ITConfig(SPI1,SPI_I2S_IT_RXNE, ENABLE);
+        
 	SPI_Cmd(SPI1, ENABLE); 
 			 
 }   
@@ -119,8 +122,13 @@ void SPI1_IRQHandler(void)
       if (SPI_I2S_GetITStatus(SPI1,SPI_I2S_IT_RXNE) != RESET)     
       {
           SPI_I2S_ClearITPendingBit(SPI1,SPI_I2S_IT_RXNE);
+          
+                while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
+      
+      DMA_Cmd(DMA1_Channel3, DISABLE);
+      DMA_Cmd(DMA1_Channel2, DISABLE);
 #ifdef GEC_SF_MASTER
-          Master_Temp[0] = SPI1_ReadByte(0x00); 
+//          Master_Temp[0] = SPI1_ReadByte(0x00); 
 //          SPI1_ReadWriteByte(0xaa); 
 #else
 //          Recive_buf[cnt++] = SPI1_ReadByte(0x00); 
@@ -158,6 +166,17 @@ void SPI1_NVIC(void)
       NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			
       NVIC_Init(&NVIC_InitStructure);	
       
+      NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel2_IRQn;
+      NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1 ;
+      NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;		
+      NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			
+      NVIC_Init(&NVIC_InitStructure);      
+      
+      NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel3_IRQn;
+      NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1 ;
+      NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;		
+      NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			
+      NVIC_Init(&NVIC_InitStructure);      
 }
 
 
@@ -235,6 +254,8 @@ void SPI1_DMA_Configuration( void )
   DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  //非存储器到存储器模式
   DMA_Init(DMA1_Channel2, &DMA_InitStructure);  //
   
+  DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, ENABLE);
+  
   DMA_DeInit(DMA1_Channel3);
   DMA_InitStructure.DMA_PeripheralBaseAddr = SPI1_DR_Addr;
   DMA_InitStructure.DMA_MemoryBaseAddr = (u32)SPI1_TX_Buff;
@@ -249,7 +270,13 @@ void SPI1_DMA_Configuration( void )
   DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
   DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  //
   DMA_Init(DMA1_Channel3, &DMA_InitStructure);  //  
-
+  
+  DMA_ITConfig(DMA1_Channel3, DMA_IT_TC, ENABLE);
+  
+#ifndef GEC_SF_MASTER   
+  DMA_Cmd(DMA1_Channel2, ENABLE);
+#endif
+  
 #else
   
     RCC->AHBENR |= 1<<0 ;                     //DMA1时钟使能
@@ -291,51 +318,6 @@ void SPI1_DMA_Configuration( void )
 #endif
 }
 
-u8 SPI1_TXonly( void )
-{
-
-	SPI1->CR1 &= ~( 1<<15 ) ;  //双向数据模式使能
-	SPI1->CR1 &= ~( 1<<10 ) ;  //配置为只发送模式，与全双工模式配置相同，区别在于发送第二个数据前程序有没有读接收缓冲器
-
-	DMA1_Channel3->CNDTR &= 0x0000   ;          //传输数量寄存器清零
-	DMA1_Channel3->CNDTR = buffersize ;         //传输数量设置为buffersize个
-
-	DMA1->IFCR = 0xF00 ;                         //清除通道3的标志位
-
-	while( ( SPI1->SR & 0x02 ) == 0 );			 //等待发送缓冲为空
-    
-	DMA1_Channel3->CCR |= 1 << 0 ;               //开启DMA通道3
-	
-	while( ( DMA1->ISR & 0x200 ) == 0 );		 //等待DMA传输完成
-
-	while( ( SPI1->SR & 0x02 ) == 0 );   		 //等待TXE为1
-
-	while( ( SPI1->SR & 0x80 ) == 1 );  		 //等待忙标志为0
-
-	DMA1_Channel3->CCR &= ~( 1 << 0 ) ;          //关闭DMA通道3
-
-}
-
-u8 SPI1_RXonly( void )
-{
-	SPI1->CR1 &= ~( 1<<15 ) ;                    //双向数据模式使能
-	SPI1->CR1 |=	1<<10   ;                    //SPI1主机配置为只接收模式
-
-	DMA1_Channel2->CNDTR &= 0x0000   ;           //传输数量寄存器清零
-	DMA1_Channel2->CNDTR = buffersize ;          //传输数量设置为buffersize个
-
-	DMA1->IFCR = 0xF0 ;                          //清除通道3的标志位
-
-	SPI1->DR;								     //接送前读一次SPI1->DR，保证接收缓冲区为空
-
-	DMA1_Channel2->CCR |= 1 << 0 ;               //开启DMA通道2
-	
-	while( ( DMA1->ISR & 0x20 ) == 0 );			 //等待DMA传输完成
-
-	DMA1_Channel2->CCR &= ~( 1 << 0 ) ;          //关闭DMA通道3
-
-}
-
 void SPI1_ReceiveSendByte( u16 num )
 {
   
@@ -352,16 +334,16 @@ void SPI1_ReceiveSendByte( u16 num )
       
       SPI1->DR ;						//接送前读一次SPI1->DR，保证接收缓冲区为空
       
-      while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == SET)
+      while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
       
       DMA_Cmd(DMA1_Channel3, ENABLE);
       DMA_Cmd(DMA1_Channel2, ENABLE);
       
-      while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-      
-      DMA_Cmd(DMA1_Channel3, DISABLE);
-      DMA_Cmd(DMA1_Channel2, DISABLE);
-      
+//      while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
+//      
+//      DMA_Cmd(DMA1_Channel3, DISABLE);
+//      DMA_Cmd(DMA1_Channel2, DISABLE);
+     
 #else  
       
 	DMA1_Channel2->CNDTR = 0x0000   ;           //传输数量寄存器清零
@@ -388,6 +370,42 @@ void SPI1_ReceiveSendByte( u16 num )
 }
 
 
+
+void DMA1_Channel2_IRQHandler(void)
+{
+
+      if ( ( DMA_GetITStatus( DMA1_IT_TC2 ) ) != RESET )
+      {
+          DMA_ClearITPendingBit(DMA1_IT_TC2);
+      #ifdef GEC_SF_MASTER  
+          DMA_Cmd(DMA1_Channel2, DISABLE);
+          
+      #else
+          SPI1_ReceiveSendByte(100);
+          
+      #endif
+      }
+
+}
+
+void DMA1_Channel3_IRQHandler(void)
+{
+      if ( ( DMA_GetITStatus( DMA1_IT_TC3 ) ) != RESET )
+      {
+        DMA_ClearITPendingBit(DMA1_IT_TC3);
+
+//          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
+  
+          DMA_Cmd(DMA1_Channel3, DISABLE);
+//          DMA_Cmd(DMA1_Channel2, DISABLE);   
+          
+
+          
+          
+
+      }
+
+}
 
 
 

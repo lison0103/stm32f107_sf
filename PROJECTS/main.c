@@ -61,8 +61,8 @@ void Bsp_Init(void)
         Hw_Test_Init();
         
         /** spi communication init **/
-//        SPI1_Init();
-//        SPI1_NVIC();
+        SPI1_Init();
+        SPI1_NVIC();
 //	SPI1_Configuration();
         SPI1_Init();
 	SPI1_DMA_Configuration();
@@ -77,7 +77,7 @@ void Bsp_Init(void)
 #ifdef GEC_SF_MASTER
         
         /** wait slave spi **/
-        delay_ms(100);
+//        delay_ms(100);
         
         /** TIM init 1000Khz，计数到10为10us **/
         TIM3_Int_Init(9,71);
@@ -174,7 +174,7 @@ u16 num;
           else
             SPI1_TX_Buff[0] = 0x00;
           
-          num = 512;
+          num = 100;
           SPI1_ReceiveSendByte(num);           
           R_SF_RL2_FB_CPU1 = SPI1_RX_Buff[0];
       }
@@ -255,7 +255,7 @@ u16 num;
           }
           
           num = 100;
-          SPI1_ReceiveSendByte(num);          
+//          SPI1_ReceiveSendByte(num);          
           
           R_SF_RL1_FB_CPU2 = SPI1_RX_Buff[0];
 //          R_SF_RL1_FB_CPU2 = Slave_Temp[0];
