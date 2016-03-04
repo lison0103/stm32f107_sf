@@ -19,9 +19,10 @@ void SPI1_Init(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;  
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
-        
                 
  	GPIO_SetBits(GPIOA,GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7);
+        
+        SPI_I2S_DeInit(SPI1);
 
 	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;      //设置SPI单向或者双向的数据模式:SPI设置为双线双向全双工
 #ifdef GEC_SF_MASTER
@@ -38,7 +39,9 @@ void SPI1_Init(void)
 	SPI_InitStructure.SPI_CRCPolynomial = 7;	                        //CRC值计算的多项式
 	SPI_Init(SPI1, &SPI_InitStructure);                                     
  
-        SPI_I2S_ITConfig(SPI1,SPI_I2S_IT_RXNE, ENABLE);
+        SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
+        SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
+//        SPI_I2S_ITConfig(SPI1,SPI_I2S_IT_RXNE, ENABLE);
 	SPI_Cmd(SPI1, ENABLE); 
 			 
 }   
@@ -158,11 +161,231 @@ void SPI1_NVIC(void)
 }
 
 
+/******************************************************************************/
 
 
 
+vu8 SPI1_TX_Buff[buffersize] = { 0 };
+vu8 SPI1_RX_Buff[buffersize] = { 0 };
+
+void SPI1_Configuration( void )
+{	 
+	RCC->APB2ENR |= 1<<2  ;       //PORTA时钟使能   
+	RCC->APB2ENR |= 1<<12 ;       //SPI1时钟使能 
+
+	GPIOA->CRL &= 0X000FFFFF ; 
+	GPIOA->CRL |= 0XBBB00000 ;    //PA567复用	    
+	GPIOA->ODR |= 7<<5 ;          //PA567上拉	
+	
+	SPI1->CR1 = 0x0000 ;          //SPI1->CR1复位
+		
+	SPI1->CR1 |= 0<<10 ;          //全双工模式	
+	SPI1->CR1 |= 1<<9  ;          //nss软件管理
+        
+#ifdef GEC_SF_MASTER        
+	SPI1->CR1 |= 1<<8  ;          //nss高电平 
+	SPI1->CR1 |= 1<<2  ;          //SPI主机
+#else
+	SPI1->CR1 &= ~(1<<8)  ;       //nss低电平 
+	SPI1->CR1 &= ~(1<<2)  ;       //SPI从机
+#endif
+	SPI1->CR1 |= 0<<11 ;          //数据格式:8bit	
+	SPI1->CR1 |= 1<<1  ;          //CPOL=1:空闲模式下SCK为高电平 
+	SPI1->CR1 |= 1<<0  ;          //CPHA=1:数据采样从第二个时钟沿开始  
+	SPI1->CR1 |= 7<<3  ;          //Fsck=Fcpu/256
+	SPI1->CR1 |= 0<<7  ;          //MSBfirst   
+	
+	SPI1->CR2 |= 1<<1  ;	      //发送缓冲区DMA使能
+	SPI1->CR2 |= 1<<0  ;	      //接收缓冲区DMA使能
+	
+	SPI1->CR1 |= 1<<6  ;          //SPI设备使能		 
+} 
+
+  
 
 
+/*******************************************************************************
+* Function Name  : SPI1_DMA_Configuration
+* Description    : 配置SPI1_RX的DMA通道2，SPI1_TX的DMA通道3
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+
+void SPI1_DMA_Configuration( void )
+{
+
+#if 1  
+    DMA_InitTypeDef     DMA_InitStructure;
+    
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+
+  DMA_DeInit(DMA1_Channel2);
+  DMA_InitStructure.DMA_PeripheralBaseAddr = SPI1_DR_Addr;//设置外设地址，注意PSIZE
+  DMA_InitStructure.DMA_MemoryBaseAddr = (u32)SPI1_RX_Buff;//设置DMA存储器地址，注意MSIZE
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC; //目的
+  DMA_InitStructure.DMA_BufferSize = buffersize; //传输数量设置为buffersize个
+  
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;//不执行外设地址增量模式
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;//存储器地址增量模式
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte; //外设数据宽度8bit
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte; //存储器数据宽度8bit
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;  //执行循环操作
+  DMA_InitStructure.DMA_Priority = DMA_Priority_High;//通道优先级高
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  //非存储器到存储器模式
+  DMA_Init(DMA1_Channel2, &DMA_InitStructure);  //
+  
+  DMA_DeInit(DMA1_Channel3);
+  DMA_InitStructure.DMA_PeripheralBaseAddr = SPI1_DR_Addr;
+  DMA_InitStructure.DMA_MemoryBaseAddr = (u32)SPI1_TX_Buff;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST; //目的
+  DMA_InitStructure.DMA_BufferSize = buffersize; //缓存长度
+  
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;//一个外设
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;//缓存地址增加
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte; //字节传输
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte; 
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal; 
+  DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  //
+  DMA_Init(DMA1_Channel3, &DMA_InitStructure);  //  
+
+#else
+  
+    RCC->AHBENR |= 1<<0 ;                     //DMA1时钟使能
+
+	/*------------------配置SPI1_RX_DMA通道Channel2---------------------*/
+
+    DMA1_Channel2->CCR &= ~( 1<<14 ) ;        //非存储器到存储器模式
+	DMA1_Channel2->CCR |=    2<<12   ;        //通道优先级高
+	DMA1_Channel2->CCR &= ~( 3<<10 ) ;        //存储器数据宽度8bit
+	DMA1_Channel2->CCR &= ~( 3<<8  ) ;        //外设数据宽度8bit
+	DMA1_Channel2->CCR |=    1<<7    ;        //存储器地址增量模式
+	DMA1_Channel2->CCR &= ~( 1<<6  ) ;        //不执行外设地址增量模式
+	DMA1_Channel2->CCR &= ~( 1<<5  ) ;        //执行循环操作
+	DMA1_Channel2->CCR &= ~( 1<<4  ) ;        //从外设读
+
+	DMA1_Channel2->CNDTR &= 0x0000   ;        //传输数量寄存器清零
+	DMA1_Channel2->CNDTR = buffersize ;       //传输数量设置为buffersize个
+
+	DMA1_Channel2->CPAR = SPI1_DR_Addr ;      //设置外设地址，注意PSIZE
+	DMA1_Channel2->CMAR = (u32)SPI1_RX_Buff ; //设置DMA存储器地址，注意MSIZE
+
+	/*------------------配置SPI1_TX_DMA通道Channel3---------------------*/
+
+	DMA1_Channel3->CCR &= ~( 1<<14 ) ;        //非存储器到存储器模式
+	DMA1_Channel3->CCR |=    0<<12   ;        //通道优先级最低
+	DMA1_Channel3->CCR &= ~( 3<<10 ) ;        //存储器数据宽度8bit
+	DMA1_Channel3->CCR &= ~( 3<<8 )  ;        //外设数据宽度8bit
+	DMA1_Channel3->CCR |=    1<<7    ;        //存储器地址增量模式
+	DMA1_Channel3->CCR &= ~( 1<<6 )  ;        //不执行外设地址增量模式
+	DMA1_Channel3->CCR &= ~( 1<<5 ) ;         //不执行循环操作
+	DMA1_Channel3->CCR |=    1<<4    ;        //从存储器读
+
+	DMA1_Channel3->CNDTR &= 0x0000   ;        //传输数量寄存器清零
+	DMA1_Channel3->CNDTR = buffersize ;       //传输数量设置为buffersize个
+	
+	DMA1_Channel3->CPAR = SPI1_DR_Addr ;      //设置外设地址，注意PSIZE
+	DMA1_Channel3->CMAR = (u32)SPI1_TX_Buff ; //设置DMA存储器地址，注意MSIZE	
+        
+#endif
+}
+
+u8 SPI1_TXonly( void )
+{
+
+	SPI1->CR1 &= ~( 1<<15 ) ;  //双向数据模式使能
+	SPI1->CR1 &= ~( 1<<10 ) ;  //配置为只发送模式，与全双工模式配置相同，区别在于发送第二个数据前程序有没有读接收缓冲器
+
+	DMA1_Channel3->CNDTR &= 0x0000   ;          //传输数量寄存器清零
+	DMA1_Channel3->CNDTR = buffersize ;         //传输数量设置为buffersize个
+
+	DMA1->IFCR = 0xF00 ;                         //清除通道3的标志位
+
+	while( ( SPI1->SR & 0x02 ) == 0 );			 //等待发送缓冲为空
+    
+	DMA1_Channel3->CCR |= 1 << 0 ;               //开启DMA通道3
+	
+	while( ( DMA1->ISR & 0x200 ) == 0 );		 //等待DMA传输完成
+
+	while( ( SPI1->SR & 0x02 ) == 0 );   		 //等待TXE为1
+
+	while( ( SPI1->SR & 0x80 ) == 1 );  		 //等待忙标志为0
+
+	DMA1_Channel3->CCR &= ~( 1 << 0 ) ;          //关闭DMA通道3
+
+}
+
+u8 SPI1_RXonly( void )
+{
+	SPI1->CR1 &= ~( 1<<15 ) ;                    //双向数据模式使能
+	SPI1->CR1 |=	1<<10   ;                    //SPI1主机配置为只接收模式
+
+	DMA1_Channel2->CNDTR &= 0x0000   ;           //传输数量寄存器清零
+	DMA1_Channel2->CNDTR = buffersize ;          //传输数量设置为buffersize个
+
+	DMA1->IFCR = 0xF0 ;                          //清除通道3的标志位
+
+	SPI1->DR;								     //接送前读一次SPI1->DR，保证接收缓冲区为空
+
+	DMA1_Channel2->CCR |= 1 << 0 ;               //开启DMA通道2
+	
+	while( ( DMA1->ISR & 0x20 ) == 0 );			 //等待DMA传输完成
+
+	DMA1_Channel2->CCR &= ~( 1 << 0 ) ;          //关闭DMA通道3
+
+}
+
+void SPI1_ReceiveSendByte( u16 num )
+{
+  
+#if   1
+      
+      DMA1_Channel2->CNDTR = 0x0000;	
+      DMA1_Channel2->CNDTR = num;
+      DMA1_Channel3->CNDTR = 0x0000;	
+      DMA1_Channel3->CNDTR = num;      
+      
+      
+      DMA_ClearFlag(DMA1_FLAG_GL3|DMA1_FLAG_TC3|DMA1_FLAG_HT3|DMA1_FLAG_TE3);
+      DMA_ClearFlag(DMA1_FLAG_GL2|DMA1_FLAG_TC2|DMA1_FLAG_HT2|DMA1_FLAG_TE2);
+      
+      SPI1->DR ;						//接送前读一次SPI1->DR，保证接收缓冲区为空
+      
+      while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == SET)
+      
+      DMA_Cmd(DMA1_Channel3, ENABLE);
+      DMA_Cmd(DMA1_Channel2, ENABLE);
+      
+      while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
+      
+      DMA_Cmd(DMA1_Channel3, DISABLE);
+      DMA_Cmd(DMA1_Channel2, DISABLE);
+      
+#else  
+      
+	DMA1_Channel2->CNDTR = 0x0000   ;           //传输数量寄存器清零
+	DMA1_Channel2->CNDTR = num ;         //传输数量设置为buffersize个
+
+	DMA1_Channel3->CNDTR = 0x0000   ;           //传输数量寄存器清零
+	DMA1_Channel3->CNDTR = num ;         //传输数量设置为buffersize个
+
+	DMA1->IFCR = 0xF0 ;                         //清除通道3的标志位
+	DMA1->IFCR = 0xF00 ;                        //清除通道3的标志位
+
+	SPI1->DR ;									//接送前读一次SPI1->DR，保证接收缓冲区为空
+
+	while( ( SPI1->SR & 0x02 ) == 0 ); //发送缓冲区非空
+	
+	DMA1_Channel3->CCR |= 1 << 0 ;              //开启DMA通道3
+	DMA1_Channel2->CCR |= 1 << 0 ;              //开启DMA通道2	
+
+	while( ( DMA1->ISR & 0x20 ) == 0 ); //通道2,即接收传输完成
+
+	DMA1_Channel3->CCR &= ~( 1 << 0 ) ;         //关闭DMA通道3
+	DMA1_Channel2->CCR &= ~( 1 << 0 ) ;         //关闭DMA通道2
+#endif
+}
 
 
 

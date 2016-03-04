@@ -9,6 +9,9 @@
 #include "timer.h"
 #include "self_test.h"
 
+extern vu8 SPI1_TX_Buff[buffersize] ;
+extern vu8 SPI1_RX_Buff[buffersize] ;
+
 #ifdef GEC_SF_MASTER
 
 #include "esc_record_data.h"
@@ -58,8 +61,11 @@ void Bsp_Init(void)
         Hw_Test_Init();
         
         /** spi communication init **/
+//        SPI1_Init();
+//        SPI1_NVIC();
+//	SPI1_Configuration();
         SPI1_Init();
-        SPI1_NVIC();
+	SPI1_DMA_Configuration();
         
         /** ewdt init **/
         EWDT_Drv_pin_config();
@@ -70,11 +76,14 @@ void Bsp_Init(void)
 
 #ifdef GEC_SF_MASTER
         
+        /** wait slave spi **/
+        delay_ms(100);
+        
         /** TIM init 1000Khz，计数到10为10us **/
         TIM3_Int_Init(9,71);
         
         /** usart3 init **/
-        USART3_Init();
+//        USART3_Init();
         
         /** MB85RCXX init **/
         eep_init();
@@ -129,10 +138,9 @@ void LED_indicator(void)
 	}   
 }
 
-
 void Task_Loop(void)
 {
-
+u16 num;
 #ifdef GEC_SF_MASTER  
   
 
@@ -162,11 +170,13 @@ void Task_Loop(void)
       if(count1 == 150)
       {
           if(SF_RL1_FB)
-            SPI1_ReadWriteByte(0x01);
+            SPI1_TX_Buff[0] = 0x01;
           else
-            SPI1_ReadWriteByte(0x00);
+            SPI1_TX_Buff[0] = 0x00;
           
-          R_SF_RL2_FB_CPU1 = Master_Temp[0];
+          num = 512;
+          SPI1_ReceiveSendByte(num);           
+          R_SF_RL2_FB_CPU1 = SPI1_RX_Buff[0];
       }
       
       if(count1==200)
@@ -234,11 +244,21 @@ void Task_Loop(void)
       if(count1 == 150)
       {
           if(SF_RL2_FB)
-            Slave_Temp[1] = 0x01;
+          {
+//            Slave_Temp[1] = 0x01;
+              SPI1_TX_Buff[0] = 0x01;
+          }
           else
-            Slave_Temp[1] = 0x00;
+          {
+//            Slave_Temp[1] = 0x00;
+              SPI1_TX_Buff[0] = 0x00;
+          }
           
-          R_SF_RL1_FB_CPU2 = Slave_Temp[0];
+          num = 100;
+          SPI1_ReceiveSendByte(num);          
+          
+          R_SF_RL1_FB_CPU2 = SPI1_RX_Buff[0];
+//          R_SF_RL1_FB_CPU2 = Slave_Temp[0];
       }
       
       if(count1==200)
@@ -259,7 +279,7 @@ int main(void)
     
     /** hardware init **/
     Bsp_Init();
-//    spi1_test();
+
     while(1)
     {
       
