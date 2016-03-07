@@ -5,6 +5,7 @@
 extern u8 Master_Temp[10];
 #else
 extern u8 Slave_Temp[10];
+extern u8 R_SF_RL1_FB_CPU2;
 #endif
 
 SPI_InitTypeDef  SPI_InitStructure;
@@ -184,8 +185,8 @@ void SPI1_NVIC(void)
 
 
 
-vu8 SPI1_TX_Buff[buffersize] = { 0 };
-vu8 SPI1_RX_Buff[buffersize] = { 0 };
+u8 SPI1_TX_Buff[buffersize] = { 0 };
+u8 SPI1_RX_Buff[buffersize] = { 0 };
 
 void SPI1_Configuration( void )
 {	 
@@ -249,7 +250,7 @@ void SPI1_DMA_Configuration( void )
   DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;//存储器地址增量模式
   DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte; //外设数据宽度8bit
   DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte; //存储器数据宽度8bit
-  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;  //执行循环操作
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;  //执行循环操作
   DMA_InitStructure.DMA_Priority = DMA_Priority_High;//通道优先级高
   DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  //非存储器到存储器模式
   DMA_Init(DMA1_Channel2, &DMA_InitStructure);  //
@@ -274,7 +275,16 @@ void SPI1_DMA_Configuration( void )
   DMA_ITConfig(DMA1_Channel3, DMA_IT_TC, ENABLE);
   
 #ifndef GEC_SF_MASTER   
-  DMA_Cmd(DMA1_Channel2, ENABLE);
+//  DMA_Cmd(DMA1_Channel2, DISABLE);
+//  DMA1_Channel2->CNDTR = 0x0000;	
+//  DMA1_Channel2->CNDTR = 500;
+//  DMA_ClearFlag(DMA1_FLAG_GL2|DMA1_FLAG_TC2|DMA1_FLAG_HT2|DMA1_FLAG_TE2);
+//  SPI1->DR ;
+//  DMA_Cmd(DMA1_Channel2, ENABLE);
+            while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+          DMA_Cmd(DMA1_Channel2, DISABLE);
+          DMA_Cmd(DMA1_Channel3, DISABLE);
+          SPI1_ReceiveSendByte(512);
 #endif
   
 #else
@@ -370,20 +380,31 @@ void SPI1_ReceiveSendByte( u16 num )
 }
 
 
-
+u8 flag = 0;
 void DMA1_Channel2_IRQHandler(void)
 {
 
       if ( ( DMA_GetITStatus( DMA1_IT_TC2 ) ) != RESET )
       {
-          DMA_ClearITPendingBit(DMA1_IT_TC2);
-      #ifdef GEC_SF_MASTER  
+          DMA_ClearFlag(DMA1_FLAG_GL2|DMA1_FLAG_TC2|DMA1_FLAG_HT2|DMA1_FLAG_TE2);
+          
+          
+          
+      #ifdef GEC_SF_MASTER
+          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
           DMA_Cmd(DMA1_Channel2, DISABLE);
+          DMA_Cmd(DMA1_Channel3, DISABLE);
           
       #else
-          SPI1_ReceiveSendByte(100);
+//          R_SF_RL1_FB_CPU2 = SPI1_RX_Buff[0];
+          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+          DMA_Cmd(DMA1_Channel2, DISABLE);
+          DMA_Cmd(DMA1_Channel3, DISABLE);
+          SPI1_ReceiveSendByte(512);
           
       #endif
+          
+          flag = 1;
       }
 
 }
@@ -392,11 +413,11 @@ void DMA1_Channel3_IRQHandler(void)
 {
       if ( ( DMA_GetITStatus( DMA1_IT_TC3 ) ) != RESET )
       {
-        DMA_ClearITPendingBit(DMA1_IT_TC3);
+        DMA_ClearFlag(DMA1_FLAG_GL3|DMA1_FLAG_TC3|DMA1_FLAG_HT3|DMA1_FLAG_TE3);
 
 //          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
   
-          DMA_Cmd(DMA1_Channel3, DISABLE);
+//          DMA_Cmd(DMA1_Channel3, DISABLE);
 //          DMA_Cmd(DMA1_Channel2, DISABLE);   
           
 

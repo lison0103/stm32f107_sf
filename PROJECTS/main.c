@@ -9,8 +9,8 @@
 #include "timer.h"
 #include "self_test.h"
 
-extern vu8 SPI1_TX_Buff[buffersize] ;
-extern vu8 SPI1_RX_Buff[buffersize] ;
+extern u8 SPI1_TX_Buff[buffersize] ;
+extern u8 SPI1_RX_Buff[buffersize] ;
 
 #ifdef GEC_SF_MASTER
 
@@ -64,7 +64,6 @@ void Bsp_Init(void)
         SPI1_Init();
         SPI1_NVIC();
 //	SPI1_Configuration();
-        SPI1_Init();
 	SPI1_DMA_Configuration();
         
         /** ewdt init **/
@@ -75,10 +74,7 @@ void Bsp_Init(void)
         EXTIX_Init();
 
 #ifdef GEC_SF_MASTER
-        
-        /** wait slave spi **/
-//        delay_ms(100);
-        
+                
         /** TIM init 1000Khz，计数到10为10us **/
         TIM3_Int_Init(9,71);
         
@@ -115,29 +111,136 @@ void Bsp_Init(void)
             &USBD_CDC_cb, 
             &USR_cb);
           
-
+        /** wait slave spi **/
+        delay_ms(1000);
 
 #else
           TIM2_Int_Init(4999,71);
       
-        
+            for(int i = 0;i < 512;i++)
+    {
+          SPI1_TX_Buff[i] = i%10;
+    }
 #endif
 
 }
-
+u8 test = 0;
 void LED_indicator(void)
 {
 	static u32 led_idr_cnt=0;	 
 	
 	led_idr_cnt++;
 	
-	if(led_idr_cnt >= 300)
+	if(led_idr_cnt >= 300 && test <= 1)
 	{
                 led_idr_cnt = 0;
 		LED=!LED;                
 	}   
 }
 
+
+#if 1
+u32 ms_count = 0;
+u16 i = 0;
+u16 num = 0;
+extern u8 flag;
+void Task_Loop(void)
+{
+    
+    
+    
+
+#ifdef GEC_SF_MASTER      
+    
+    ms_count++;
+    delay_ms(1);
+    
+    if( ms_count == 2000)
+    {
+        ms_count = 0;
+        
+        for( i = 0;i < 512;i++)
+        {
+              SPI1_TX_Buff[i] = i%10;
+        }
+        
+        num = i;
+        while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+        DMA_Cmd(DMA1_Channel2, DISABLE);
+        DMA_Cmd(DMA1_Channel3, DISABLE);
+        SPI1_ReceiveSendByte(num);
+    }
+
+    if ( flag == 1 )
+    {
+        flag = 0;
+        for(i = 0; i < 512; i++)
+        {
+            if(SPI1_TX_Buff[i] != SPI1_RX_Buff[i])
+            {
+                  test++;
+                  USB_VCP_SendBuf(SPI1_RX_Buff, 512);  
+                  break;
+            }
+        }  
+        if( test <= 0)
+        {
+            if(i == num) 
+              AUX1_CTR = 1;
+            else        
+              AUX1_CTR = 0;    
+        }
+        else
+        {
+            AUX1_CTR = 0;  
+        }        
+        
+    }
+    EWDT_TOOGLE();
+
+#else
+    
+    delay_ms(1);
+
+    
+    num = 512;
+//    SPI1_ReceiveSendByte(num);
+    if( flag == 1 )
+    {
+        flag = 0;
+        INTX_DISABLE();
+//        delay_ms(3000);
+        for(i = 0; i < 512; i++)
+        {
+            if(SPI1_TX_Buff[i] != SPI1_RX_Buff[i])
+            {
+                test++;
+                break;
+            }
+        }
+        INTX_ENABLE();
+        if( test <= 0)
+        {
+            if(i == num) 
+              AUX2_CTR = 1;
+            else        
+              AUX2_CTR = 0;    
+        }
+        else
+        {
+            AUX2_CTR = 0;  
+        }        
+        
+    }
+    EWDT_TOOGLE();
+    
+
+    
+    
+#endif
+
+}
+#else
 void Task_Loop(void)
 {
 u16 num;
@@ -174,7 +277,7 @@ u16 num;
           else
             SPI1_TX_Buff[0] = 0x00;
           
-          num = 100;
+          num = 10;
           SPI1_ReceiveSendByte(num);           
           R_SF_RL2_FB_CPU1 = SPI1_RX_Buff[0];
       }
@@ -254,7 +357,7 @@ u16 num;
               SPI1_TX_Buff[0] = 0x00;
           }
           
-          num = 100;
+          num = 10;
 //          SPI1_ReceiveSendByte(num);          
           
           R_SF_RL1_FB_CPU2 = SPI1_RX_Buff[0];
@@ -273,7 +376,7 @@ u16 num;
       
 #endif
 }
-
+#endif
 int main(void)
 {        
     

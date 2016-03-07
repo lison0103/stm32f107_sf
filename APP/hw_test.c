@@ -297,7 +297,7 @@ void Hw_Test1(void)
                 passflag = 0;
                 AUX1_CTR = 0; 
                 SF_RL1_CTR = 0;            
-
+passflag = 1;
                 /****test input,The actual test should be commented****/
 //                canbuf_send[0] = 0xff;
 //                canbuf_send[1] = 0xff;
@@ -576,9 +576,12 @@ void Hw_Test1(void)
         }
         else
         {
+
             passflag = 0;
             AUX2_CTR = 0; 
-            SF_RL2_CTR = 0;            
+            SF_RL2_CTR = 0;  
+            
+          passflag = 1;            
         }        
 #endif
         
