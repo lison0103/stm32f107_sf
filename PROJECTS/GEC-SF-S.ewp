@@ -1853,6 +1853,9 @@
       <name>$PROJ_DIR$\..\APP\hw_test.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\APP\initial_devices.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\APP\self_test.c</name>
     </file>
   </group>

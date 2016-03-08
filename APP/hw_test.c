@@ -1,32 +1,173 @@
-#include "sys.h"
 #include "delay.h"
 #include "hw_test.h"
 #include "led.h"
 #include "can.h"
 #include "spi.h"
-
+#include "ewdt.h"
 
 #ifdef GEC_SF_MASTER
 #include "usbd_cdc_vcp.h"
 #include "usart.h"
 #include "crc16.h"
 
-extern u8 R_SF_RL2_FB_CPU1;
-extern u8 Master_Temp[10];
+u8 R_SF_RL2_FB_CPU1;
 
 #else
 
-extern u8 R_SF_RL1_FB_CPU2;
+u8 R_SF_RL1_FB_CPU2;
 
 #endif
 
 u8 sflag,inputnum = 0;
 u8 passflag = 1;
 
-extern u8 canbuf_send[8];
+u8 canbuf_send[8];
 
+/******************************************************************************/
+u8 number = 0;
+u8 onetime = 0;
 
+u8 data_error = 0;
+u32 ms_count = 0;
 
+void spi1_test(void)
+{    
+
+  u16 i = 0;
+  u16 num = 512;
+  
+#ifdef GEC_SF_MASTER      
+    
+    ms_count++;
+    delay_ms(1);
+    
+    if( ms_count == 2000 && onetime == 0)
+    {
+        ms_count = 0;
+        onetime++;
+        number++;
+        if(number > 10)
+          number = 0;
+        for( i = 0;i < 512;i++)
+        {
+              SPI1_TX_Buff[i] = number;
+        }
+        
+        num = i;
+
+        SPI1_DMA_ReceiveSendByte(num);
+    }
+
+    if ( SPI_DMA_RECEIVE_FLAG == 1 )
+    {
+        SPI_DMA_RECEIVE_FLAG = 2;
+//        INTX_DISABLE();
+        for(i = 0; i < 512; i++)
+        {
+            if(SPI1_TX_Buff[i] != SPI1_RX_Buff[i])
+            {
+                  data_error++;
+                  USB_VCP_SendBuf(SPI1_RX_Buff, 512);  
+                  break;
+            }
+        }  
+//        INTX_ENABLE();
+        if( data_error <= 0)
+        {
+            if(i == num) 
+              AUX1_CTR = 1;
+            else        
+              AUX1_CTR = 0;    
+        }
+        else
+        {
+            AUX1_CTR = 0;  
+        }                 
+        
+    }
+    
+    if (ms_count >= 2000 && SPI_DMA_RECEIVE_FLAG == 2 )
+    {
+        ms_count = 0;
+        number++;
+        if(number > 10)
+          number = 0;
+        for( i = 0;i < 512;i++)
+        {
+              SPI1_TX_Buff[i] = number;
+        }
+        
+        num = i;
+
+        SPI1_DMA_ReceiveSendByte(num);     
+    
+    }
+    EWDT_TOOGLE();
+
+#else
+    
+    delay_ms(1);
+    if( onetime == 0)
+    {
+        onetime++;
+        number++;
+        if(number > 10)
+          number = 0;
+        for( i = 0;i < 512;i++)
+        {
+              SPI1_TX_Buff[i] = number;
+        }
+
+        SPI1_DMA_ReceiveSendByte(512);
+
+    }
+  
+    num = i;
+
+    if( SPI_DMA_RECEIVE_FLAG == 1 )
+    {
+        SPI_DMA_RECEIVE_FLAG = 0;
+        
+        INTX_DISABLE();
+        for(i = 0; i < 512; i++)
+        {
+            if(SPI1_TX_Buff[i] != SPI1_RX_Buff[i])
+            {
+                data_error++;
+                break;
+            }
+        }
+        INTX_ENABLE();
+        if( data_error <= 0)
+        {
+            if(i == num) 
+              AUX2_CTR = 1;
+            else        
+              AUX2_CTR = 0;    
+        }
+        else
+        {
+            AUX2_CTR = 0;  
+        }   
+          number++;
+          if(number > 10)
+              number = 0;          
+          for(int i = 0;i < 512;i++)
+          {
+              SPI1_TX_Buff[i] = number;
+          }         
+
+          SPI1_DMA_ReceiveSendByte(num);
+        
+    }
+    EWDT_TOOGLE();
+    
+
+    
+    
+#endif
+
+}
 
 /******************************************************************************* 
 *******************************************************************************/
@@ -297,7 +438,7 @@ void Hw_Test1(void)
                 passflag = 0;
                 AUX1_CTR = 0; 
                 SF_RL1_CTR = 0;            
-passflag = 1;
+
                 /****test input,The actual test should be commented****/
 //                canbuf_send[0] = 0xff;
 //                canbuf_send[1] = 0xff;
@@ -580,8 +721,7 @@ passflag = 1;
             passflag = 0;
             AUX2_CTR = 0; 
             SF_RL2_CTR = 0;  
-            
-          passflag = 1;            
+                       
         }        
 #endif
         
@@ -1219,82 +1359,6 @@ void Hw_Test2(void)
 /******************************************************************************* 
 *******************************************************************************/
 
-u8 Send_buf[] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};
-
-void spi1_test(void)
-{  
-  
-    u8 t;
-    
-    SPI1_Init();
-#ifdef GEC_SF_MASTER    
-    SPI1_NVIC();
-#else
-    SPI1_NVIC();
-#endif
-//    SPI1_SetSpeed(SPI_BaudRatePrescaler_256);
-
-   while(1)
-   { 
-
-#ifdef GEC_SF_MASTER 
-     
-#if 0
-       SPI1_ReadWriteByte(0x55); 
-       Master_Temp = SPI1_ReadWriteByte(0x00);
-#else
-       if(Master_Temp[0] != 0xAA)
-       {
-           SPI1_WriteByte(0xaa);
-           SPI1_WriteByte(0x55);
-           SPI1_WriteByte(0x06);
-           for(u8 i = 0; i < 6; i++)
-           {
-              SPI1_WriteByte(Send_buf[i]);
-           }
-           SPI1_WriteByte(0x33);
-           SPI1_WriteByte(0xcc);       
-//       SPI1_WriteByte(0x66); 
-//       delay_ms(1);
-//          Master_Temp = SPI1_ReadByte(0x00);
-       }
-       else
-       {
-            Master_Temp[0] = 0;
-           for(u8 i = 0; i < 6; i++)
-           {
-              Send_buf[i] += 1;
-           }
-       }
-#endif
-       
-       delay_ms(10); 
-       
-       t++;
-       if(t == 50)
-       {
-             t = 0;
-             LED =! LED;
-             
-             USB_VCP_SendBuf(&Master_Temp[0], 1);                  
-         
-       }
-       
-#else        
-         
-         t++; 
-         delay_ms(10);
-         if(t==20)
-         {
-             LED=!LED;
-             SF_RL2_WDT=!SF_RL2_WDT;
-             t=0;
-         }         
-         
-#endif
-   }
-
-}
 #ifdef GEC_SF_MASTER 
 static u8 buff[300];
 

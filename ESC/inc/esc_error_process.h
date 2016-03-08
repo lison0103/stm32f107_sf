@@ -9,6 +9,6 @@ extern int EscBuff[10];
 void ESC_EWDT_Error_Process(void);
 void ESC_Flash_Error_Process(void);
 void ESC_Fram_Error_Process(void);
-
+void ESC_SPI_Error_Process(void);
 
 #endif
