@@ -117,10 +117,10 @@ void Bsp_Init(void)
 #else
           TIM2_Int_Init(4999,71);
       
-            for(int i = 0;i < 512;i++)
-    {
-          SPI1_TX_Buff[i] = i%10;
-    }
+//            for(int i = 0;i < 512;i++)
+//    {
+//          SPI1_TX_Buff[i] = i%10;
+//    }
 #endif
 
 }
@@ -131,19 +131,21 @@ void LED_indicator(void)
 	
 	led_idr_cnt++;
 	
-	if(led_idr_cnt >= 300 && test <= 1)
+	if(led_idr_cnt >= 300 && test <= 0)
 	{
                 led_idr_cnt = 0;
 		LED=!LED;                
 	}   
 }
 
-
+extern u8 flag,number;
+u8 onetime = 0;
 #if 1
 u32 ms_count = 0;
 u16 i = 0;
 u16 num = 0;
-extern u8 flag;
+
+
 void Task_Loop(void)
 {
     
@@ -155,13 +157,16 @@ void Task_Loop(void)
     ms_count++;
     delay_ms(1);
     
-    if( ms_count == 2000)
+    if( ms_count == 2000 && onetime == 0)
     {
         ms_count = 0;
-        
+        onetime++;
+        number++;
+        if(number > 10)
+          number = 0;
         for( i = 0;i < 512;i++)
         {
-              SPI1_TX_Buff[i] = i%10;
+              SPI1_TX_Buff[i] = number;
         }
         
         num = i;
@@ -173,7 +178,8 @@ void Task_Loop(void)
 
     if ( flag == 1 )
     {
-        flag = 0;
+        flag = 2;
+        INTX_DISABLE();
         for(i = 0; i < 512; i++)
         {
             if(SPI1_TX_Buff[i] != SPI1_RX_Buff[i])
@@ -183,6 +189,7 @@ void Task_Loop(void)
                   break;
             }
         }  
+        INTX_ENABLE();
         if( test <= 0)
         {
             if(i == num) 
@@ -193,16 +200,54 @@ void Task_Loop(void)
         else
         {
             AUX1_CTR = 0;  
-        }        
+        } 
         
+       
+        
+        
+    }
+    
+    if (ms_count >= 2000 && flag == 2 )
+    {
+        ms_count = 0;
+        number++;
+        if(number > 10)
+          number = 0;
+        for( i = 0;i < 512;i++)
+        {
+              SPI1_TX_Buff[i] = number;
+        }
+        
+        num = i;
+//        SPI1_ReadWriteByte(0xff);
+        while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+        DMA_Cmd(DMA1_Channel2, DISABLE);
+        DMA_Cmd(DMA1_Channel3, DISABLE);
+        SPI1_ReceiveSendByte(num);     
+    
     }
     EWDT_TOOGLE();
 
 #else
     
     delay_ms(1);
+    if( onetime == 0)
+    {
+        onetime++;
+        number++;
+        if(number > 10)
+          number = 0;
+        for( i = 0;i < 512;i++)
+        {
+              SPI1_TX_Buff[i] = number;
+        }
+        while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+        DMA_Cmd(DMA1_Channel2, DISABLE);
+        DMA_Cmd(DMA1_Channel3, DISABLE);
+        SPI1_ReceiveSendByte(512);
 
-    
+    }
+  
     num = 512;
 //    SPI1_ReceiveSendByte(num);
     if( flag == 1 )
@@ -229,7 +274,18 @@ void Task_Loop(void)
         else
         {
             AUX2_CTR = 0;  
-        }        
+        }   
+          number++;
+          if(number > 10)
+              number = 0;          
+          for(int i = 0;i < 512;i++)
+          {
+              SPI1_TX_Buff[i] = number;
+          }         
+          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+          DMA_Cmd(DMA1_Channel2, DISABLE);
+          DMA_Cmd(DMA1_Channel3, DISABLE);
+          SPI1_ReceiveSendByte(512);
         
     }
     EWDT_TOOGLE();
@@ -277,7 +333,10 @@ u16 num;
           else
             SPI1_TX_Buff[0] = 0x00;
           
-          num = 10;
+          num = 512;
+          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+          DMA_Cmd(DMA1_Channel2, DISABLE);
+          DMA_Cmd(DMA1_Channel3, DISABLE);                   
           SPI1_ReceiveSendByte(num);           
           R_SF_RL2_FB_CPU1 = SPI1_RX_Buff[0];
       }
@@ -343,9 +402,20 @@ u16 num;
 //      delay_us(1);
       delay_ms(1);
       count1++;
-
-      if(count1 == 150)
+      
+      if( onetime == 0)
       {
+          onetime++;
+        
+          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+          DMA_Cmd(DMA1_Channel2, DISABLE);
+          DMA_Cmd(DMA1_Channel3, DISABLE);                   
+          SPI1_ReceiveSendByte(512);
+      }
+      if(count1 >= 150 && flag == 1)
+      {
+          flag = 0;
+          
           if(SF_RL2_FB)
           {
 //            Slave_Temp[1] = 0x01;
@@ -356,9 +426,12 @@ u16 num;
 //            Slave_Temp[1] = 0x00;
               SPI1_TX_Buff[0] = 0x00;
           }
-          
-          num = 10;
-//          SPI1_ReceiveSendByte(num);          
+        num = 512;  
+
+          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+          DMA_Cmd(DMA1_Channel2, DISABLE);
+          DMA_Cmd(DMA1_Channel3, DISABLE);                   
+          SPI1_ReceiveSendByte(num);                             
           
           R_SF_RL1_FB_CPU2 = SPI1_RX_Buff[0];
 //          R_SF_RL1_FB_CPU2 = Slave_Temp[0];

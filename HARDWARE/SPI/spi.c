@@ -46,8 +46,15 @@ void SPI1_Init(void)
       
 //        SPI_I2S_ITConfig(SPI1,SPI_I2S_IT_RXNE, ENABLE);
         
+        //CRC
+        SPI_CalculateCRC(SPI1, ENABLE);
+        
 	SPI_Cmd(SPI1, ENABLE); 
-			 
+        
+        #ifdef GEC_SF_MASTER
+            //发送时钟，开始传输
+//            SPI1_ReadWriteByte(0xff);        
+        #endif
 }   
 
 /** SPI SpeedSet:
@@ -277,14 +284,14 @@ void SPI1_DMA_Configuration( void )
 #ifndef GEC_SF_MASTER   
 //  DMA_Cmd(DMA1_Channel2, DISABLE);
 //  DMA1_Channel2->CNDTR = 0x0000;	
-//  DMA1_Channel2->CNDTR = 500;
+//  DMA1_Channel2->CNDTR = 512;
 //  DMA_ClearFlag(DMA1_FLAG_GL2|DMA1_FLAG_TC2|DMA1_FLAG_HT2|DMA1_FLAG_TE2);
 //  SPI1->DR ;
 //  DMA_Cmd(DMA1_Channel2, ENABLE);
-            while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-          DMA_Cmd(DMA1_Channel2, DISABLE);
-          DMA_Cmd(DMA1_Channel3, DISABLE);
-          SPI1_ReceiveSendByte(512);
+//            while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+//          DMA_Cmd(DMA1_Channel2, DISABLE);
+//          DMA_Cmd(DMA1_Channel3, DISABLE);
+//          SPI1_ReceiveSendByte(512);
 #endif
   
 #else
@@ -380,7 +387,7 @@ void SPI1_ReceiveSendByte( u16 num )
 }
 
 
-u8 flag = 0;
+u8 flag,number = 0;
 void DMA1_Channel2_IRQHandler(void)
 {
 
@@ -388,7 +395,12 @@ void DMA1_Channel2_IRQHandler(void)
       {
           DMA_ClearFlag(DMA1_FLAG_GL2|DMA1_FLAG_TC2|DMA1_FLAG_HT2|DMA1_FLAG_TE2);
           
-          
+          if( SPI_I2S_GetFlagStatus(SPI1, SPI_FLAG_CRCERR) != RESET)
+          {
+              SPI_I2S_ClearFlag(SPI1, SPI_FLAG_CRCERR);
+              //SPI CRC ERROR
+              while(1);
+          }
           
       #ifdef GEC_SF_MASTER
           while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
@@ -397,10 +409,12 @@ void DMA1_Channel2_IRQHandler(void)
           
       #else
 //          R_SF_RL1_FB_CPU2 = SPI1_RX_Buff[0];
-          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-          DMA_Cmd(DMA1_Channel2, DISABLE);
-          DMA_Cmd(DMA1_Channel3, DISABLE);
-          SPI1_ReceiveSendByte(512);
+//          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
+//          DMA_Cmd(DMA1_Channel2, DISABLE);
+//          DMA_Cmd(DMA1_Channel3, DISABLE);         
+//          
+//          
+//          SPI1_ReceiveSendByte(512);
           
       #endif
           
@@ -420,7 +434,12 @@ void DMA1_Channel3_IRQHandler(void)
 //          DMA_Cmd(DMA1_Channel3, DISABLE);
 //          DMA_Cmd(DMA1_Channel2, DISABLE);   
           
-
+          if( SPI_I2S_GetFlagStatus(SPI1, SPI_FLAG_CRCERR) != RESET)
+          {
+              SPI_I2S_ClearFlag(SPI1, SPI_FLAG_CRCERR);
+              //SPI CRC ERROR
+              while(1);
+          }
           
           
 
