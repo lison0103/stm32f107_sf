@@ -69,6 +69,8 @@ u16 uart3_rx_number=0,uart3_tx_number=0;	//,uart3_rx_counter
 void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *buff,uint32_t dir,uint32_t len)
 {
   DMA_InitTypeDef     DMA_InitStructure;
+  
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
   DMA_DeInit(DMA_Chx);
   DMA_InitStructure.DMA_PeripheralBaseAddr = DB;

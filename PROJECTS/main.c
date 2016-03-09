@@ -66,16 +66,16 @@ void Task_Loop(void)
 //      }
       if(count1 == 150)      
       {
-          SPI_DMA_RECEIVE_FLAG = 0;
-
-          if(SF_RL1_FB)
-            SPI1_TX_Buff[0] = 0x01;
-          else
-            SPI1_TX_Buff[0] = 0x00;
-                            
-          SPI1_DMA_ReceiveSendByte(num);     
-          
-          R_SF_RL2_FB_CPU1 = SPI1_RX_Buff[0];
+//          SPI_DMA_RECEIVE_FLAG = 0;
+//
+//          if(SF_RL1_FB)
+//            SPI1_TX_Buff[0] = 0x01;
+//          else
+//            SPI1_TX_Buff[0] = 0x00;
+//                            
+//          SPI1_DMA_ReceiveSendByte(num);     
+//          
+//          R_SF_RL2_FB_CPU1 = SPI1_RX_Buff[0];
       }
       
       if(count1==200)
@@ -124,12 +124,12 @@ void Task_Loop(void)
         
       }
       
-//      if(count3 == 500000)
-//      {
-//          count3 = 0;
-//          Comm_DisplayBoard();
-//      
-//      }
+      if(count3 == 500)
+      {
+          count3 = 0;
+          Comm_DisplayBoard();
+      
+      }
 #else
       
       static u32 count1 = 0;

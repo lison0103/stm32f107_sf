@@ -1892,6 +1892,9 @@
   <group>
     <name>ESC</name>
     <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_comm_db.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_error_process.c</name>
     </file>
     <file>

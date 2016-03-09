@@ -7,7 +7,6 @@ void Hw_Test1(void);
 void Hw_Test2(void);
 void spi1_test(void);
 void can1_can2_test(void);
-void Comm_DisplayBoard(void);
 
 extern u8 data_error;
 extern u8 canbuf_send[8];

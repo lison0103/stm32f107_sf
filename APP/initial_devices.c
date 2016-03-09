@@ -31,8 +31,8 @@ void Bsp_Init(void)
         Input_Output_PinInit();
         
         /** spi communication init **/
-        SPI1_Init();
-	SPI1_DMA_Configuration();
+//        SPI1_Init();
+//	SPI1_DMA_Configuration();
         
         /** ewdt init **/
         EWDT_Drv_pin_config();
@@ -47,7 +47,7 @@ void Bsp_Init(void)
         TIM3_Int_Init(9,71);
         
         /** usart3 init **/
-//        USART3_Init();
+        USART3_Init();
         
         /** MB85RCXX init **/
         eep_init();
