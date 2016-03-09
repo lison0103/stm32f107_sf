@@ -28,7 +28,7 @@ void Bsp_Init(void)
 	LED_Init();
         
         /** input and relay output test init **/
-        Hw_Test_Init();
+        Input_Output_PinInit();
         
         /** spi communication init **/
         SPI1_Init();
@@ -85,10 +85,6 @@ void Bsp_Init(void)
 #else
           TIM2_Int_Init(4999,71);
       
-//            for(int i = 0;i < 512;i++)
-//    {
-//          SPI1_TX_Buff[i] = i%10;
-//    }
 #endif
 
 }

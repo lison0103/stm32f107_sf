@@ -23,366 +23,6 @@ u8 passflag = 1;
 
 u8 canbuf_send[8];
 
-/******************************************************************************/
-u8 number = 0;
-u8 onetime = 0;
-
-u8 data_error = 0;
-u32 ms_count = 0;
-
-void spi1_test(void)
-{    
-
-  u16 i = 0;
-  u16 num = 512;
-  
-#ifdef GEC_SF_MASTER      
-    
-    ms_count++;
-    delay_ms(1);
-    
-    if( ms_count == 2000 && onetime == 0)
-    {
-        ms_count = 0;
-        onetime++;
-        number++;
-        if(number > 10)
-          number = 0;
-        for( i = 0;i < 512;i++)
-        {
-              SPI1_TX_Buff[i] = number;
-        }
-        
-        num = i;
-
-        SPI1_DMA_ReceiveSendByte(num);
-    }
-
-    if ( SPI_DMA_RECEIVE_FLAG == 1 )
-    {
-        SPI_DMA_RECEIVE_FLAG = 2;
-//        INTX_DISABLE();
-        for(i = 0; i < 512; i++)
-        {
-            if(SPI1_TX_Buff[i] != SPI1_RX_Buff[i])
-            {
-                  data_error++;
-                  USB_VCP_SendBuf(SPI1_RX_Buff, 512);  
-                  break;
-            }
-        }  
-//        INTX_ENABLE();
-        if( data_error <= 0)
-        {
-            if(i == num) 
-              AUX1_CTR = 1;
-            else        
-              AUX1_CTR = 0;    
-        }
-        else
-        {
-            AUX1_CTR = 0;  
-        }                 
-        
-    }
-    
-    if (ms_count >= 2000 && SPI_DMA_RECEIVE_FLAG == 2 )
-    {
-        ms_count = 0;
-        number++;
-        if(number > 10)
-          number = 0;
-        for( i = 0;i < 512;i++)
-        {
-              SPI1_TX_Buff[i] = number;
-        }
-        
-        num = i;
-
-        SPI1_DMA_ReceiveSendByte(num);     
-    
-    }
-    EWDT_TOOGLE();
-
-#else
-    
-    delay_ms(1);
-    if( onetime == 0)
-    {
-        onetime++;
-        number++;
-        if(number > 10)
-          number = 0;
-        for( i = 0;i < 512;i++)
-        {
-              SPI1_TX_Buff[i] = number;
-        }
-
-        SPI1_DMA_ReceiveSendByte(512);
-
-    }
-  
-    num = i;
-
-    if( SPI_DMA_RECEIVE_FLAG == 1 )
-    {
-        SPI_DMA_RECEIVE_FLAG = 0;
-        
-        INTX_DISABLE();
-        for(i = 0; i < 512; i++)
-        {
-            if(SPI1_TX_Buff[i] != SPI1_RX_Buff[i])
-            {
-                data_error++;
-                break;
-            }
-        }
-        INTX_ENABLE();
-        if( data_error <= 0)
-        {
-            if(i == num) 
-              AUX2_CTR = 1;
-            else        
-              AUX2_CTR = 0;    
-        }
-        else
-        {
-            AUX2_CTR = 0;  
-        }   
-          number++;
-          if(number > 10)
-              number = 0;          
-          for(int i = 0;i < 512;i++)
-          {
-              SPI1_TX_Buff[i] = number;
-          }         
-
-          SPI1_DMA_ReceiveSendByte(num);
-        
-    }
-    EWDT_TOOGLE();
-    
-
-    
-    
-#endif
-
-}
-
-/******************************************************************************* 
-*******************************************************************************/
-void can_test(void)
- {	 
-	u8 i=0,t=0;
-	u8 canbuf[8];
-	u8 res;
-        u8 can_rcv;
-	u8 mode=CAN_Mode_Normal;
-
-	 	
-   
-	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);  
-
-	
- 	while(1)
-	{
-         
-                for(i=0;i<8;i++)
-                {
-                  canbuf[i]=i;
-                }
-                
-                res=Can_Send_Msg(CAN1,canbuf,8);
-                if(res)
-                {                             
-                   /** send fail **/                            
-                }							   
-                               
-                can_rcv=Can_Receive_Msg(CAN1,canbuf);
-		if(can_rcv)
-		{			
-			
- 			for(i=0;i<can_rcv;i++)
-			{									    
-				
- 			}
-		}
-		t++; 
-		delay_ms(10);
-		if(t==20)
-		{
-			LED=!LED;	
-			t=0;
-		}		   
-	}
-}
-#ifdef GEC_SF_MASTER
-void can1_can2_test(void)
-{	
-  
-	u8 i=0;
-	u8 canbuf_send[8],canbuf_recv[8];
-	u8 res;
-        u8 can_rcv;
-	 	
-   
-        /** CAN1 init,baud rate 250Kbps **/
-	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);  
-        
-        /** CAN2 init,baud rate 250Kbps **/
-        /** note : use CAN2 , must CAN1 init **/
-        CAN_Mode_Init(CAN2,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);    
-
-	
- 	while(1)
-	{
-          
-                /** CAN1 send **/
-                
-                for(i=0;i<8;i++)
-                {
-                  canbuf_send[i]=i;                
-                }
-                res=Can_Send_Msg(CAN1,canbuf_send,8);
-                
-                if(res)
-                  USB_VCP_SendBuf("Failed", 6);		
-                else 
-                  USB_VCP_SendBuf("OK", 2);	 										   
-
-
-                /** CAN2 receive **/
-		can_rcv=Can_Receive_Msg(CAN2,canbuf_recv);
-		if(can_rcv)
-		{			
-			
- 			for(i=0;i<can_rcv;i++)
-			{									    
-                              USB_VCP_SendBuf(canbuf_recv, can_rcv);	
- 			}
-		}                               
-		   
-	}
-
-}
-#endif
-/******************************************************************************* 
-*******************************************************************************/
-void Hw_Test_Init(void)
-{
-  
-#ifdef GEC_SF_MASTER
-      RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE, ENABLE );
-      
-      RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
-      GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);  
-  
-      GPIO_InitTypeDef GPIO_InitStruct;
-
-      /** input gpio **/
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_15;             
-      GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;   
-      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;       
-      GPIO_Init(GPIOA , &GPIO_InitStruct);    
-      
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_14 | GPIO_Pin_15;                  
-      GPIO_Init(GPIOB , &GPIO_InitStruct);        
-
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12;                  
-      GPIO_Init(GPIOC , &GPIO_InitStruct);   
-
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
-      GPIO_Init(GPIOD , &GPIO_InitStruct);       
-      
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
-      GPIO_Init(GPIOE , &GPIO_InitStruct);   
-      
-      /** feedback gpio **/ 
-      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;       
-        
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;                  
-      GPIO_Init(GPIOB , &GPIO_InitStruct);        
-
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2;                  
-      GPIO_Init(GPIOC , &GPIO_InitStruct);       
-      
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_6;                  
-      GPIO_Init(GPIOE , &GPIO_InitStruct);        
-      
-      
-      /** output gpio **/
-      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
-
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9; 
-      GPIO_Init(GPIOB , &GPIO_InitStruct);       
-      
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0; 
-      GPIO_Init(GPIOC , &GPIO_InitStruct);        
-      
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2; 
-      GPIO_Init(GPIOE , &GPIO_InitStruct);  
-      
-      /** pluse out gpio **/
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5; 
-      GPIO_Init(GPIOC , &GPIO_InitStruct);        
-      
-      
-      /** relay output init **/
-      AUX1_CTR = 0;
-      SF_RL1_CTR = 0;
-      SF_RL1_WDT = 1;
-      
-#else
-
-      RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE, ENABLE );
-      
-      RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
-      GPIO_PinRemapConfig(GPIO_Remap_SWJ_JTAGDisable, ENABLE);  
-  
-      GPIO_InitTypeDef GPIO_InitStruct;
-
-      //input
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_15;             
-      GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;   
-      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;       
-      GPIO_Init(GPIOA , &GPIO_InitStruct);    
-      
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
-      GPIO_Init(GPIOB , &GPIO_InitStruct);        
-
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12;                  
-      GPIO_Init(GPIOC , &GPIO_InitStruct);   
-
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
-      GPIO_Init(GPIOD , &GPIO_InitStruct);       
-      
-      GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
-      GPIO_Init(GPIOE , &GPIO_InitStruct);   
-      
-      /** feedback gpio **/ 
-      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;       
-        
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;                  
-      GPIO_Init(GPIOB , &GPIO_InitStruct);        
- 
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_3 | GPIO_Pin_5;                  
-      GPIO_Init(GPIOE , &GPIO_InitStruct); 
-      
-      //output
-      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;             
-      
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_2 | GPIO_Pin_4; 
-      GPIO_Init(GPIOE , &GPIO_InitStruct);  
-      
-      /** relay output init **/
-      AUX2_CTR = 0;
-      SF_RL2_CTR = 0;
-      SF_RL2_WDT = 1;      
-
-#endif      
-
-}
-
 
 void Hw_Test1(void)
 {  
@@ -397,8 +37,8 @@ void Hw_Test1(void)
         }
         
         /**************************** test input *************
-        IN1 = IN2 = IN3 = IN4 = IN5 = IN6 =  IN7 = IN8 = IN9 = IN10 = IN11 = IN12 = IN13 = IN14 = IN15 = IN16 = IN17 = IN18 = 1;  
-        IN19 = IN20 = IN21 = IN22 = IN23 = IN24 =  IN25 = IN26 = IN27 = IN28 = 1;
+        IN1 = IN2 = IN3 = IN4 = IN5 = IN6 =  IN7 = IN8 =  0;  
+        IN9 = IN10 = IN11 = IN12 = IN13 = IN14 = IN15 = IN16 = IN17 = IN18 = IN19 = IN20 = IN21 = IN22 = IN23 = IN24 =  IN25 = IN26 = IN27 = IN28 = 1;
         *****************************************************/
         
         /****test input,The actual test should be uncommented****/
@@ -1356,6 +996,252 @@ void Hw_Test2(void)
 #endif        
         
 }
+/******************************************************************************* 
+*******************************************************************************/
+
+/******************************************************************************/
+u8 number = 0;
+u8 onetime = 0;
+
+u8 data_error = 0;
+u32 ms_count = 0;
+
+void spi1_test(void)
+{    
+
+  u16 i = 0;
+  u16 num = 512;
+  
+#ifdef GEC_SF_MASTER      
+    
+    ms_count++;
+    delay_ms(1);
+    
+    if( ms_count == 2000 && onetime == 0)
+    {
+        ms_count = 0;
+        onetime++;
+        number++;
+        if(number > 10)
+          number = 0;
+        for( i = 0;i < 512;i++)
+        {
+              SPI1_TX_Buff[i] = number;
+        }
+        
+        num = i;
+
+        SPI1_DMA_ReceiveSendByte(num);
+    }
+
+    if ( SPI_DMA_RECEIVE_FLAG == 1 )
+    {
+        SPI_DMA_RECEIVE_FLAG = 2;
+//        INTX_DISABLE();
+        for(i = 0; i < 512; i++)
+        {
+            if(SPI1_TX_Buff[i] != SPI1_RX_Buff[i])
+            {
+                  data_error++;
+                  USB_VCP_SendBuf(SPI1_RX_Buff, 512);  
+                  break;
+            }
+        }  
+//        INTX_ENABLE();
+        if( data_error <= 0)
+        {
+            if(i == num) 
+              AUX1_CTR = 1;
+            else        
+              AUX1_CTR = 0;    
+        }
+        else
+        {
+            AUX1_CTR = 0;  
+        }                 
+        
+    }
+    
+    if (ms_count >= 2000 && SPI_DMA_RECEIVE_FLAG == 2 )
+    {
+        ms_count = 0;
+        number++;
+        if(number > 10)
+          number = 0;
+        for( i = 0;i < 512;i++)
+        {
+              SPI1_TX_Buff[i] = number;
+        }
+        
+        num = i;
+
+        SPI1_DMA_ReceiveSendByte(num);     
+    
+    }
+    EWDT_TOOGLE();
+
+#else
+    
+    delay_ms(1);
+    if( onetime == 0)
+    {
+        onetime++;
+        number++;
+        if(number > 10)
+          number = 0;
+        for( i = 0;i < 512;i++)
+        {
+              SPI1_TX_Buff[i] = number;
+        }
+
+        SPI1_DMA_ReceiveSendByte(512);
+
+    }
+  
+    num = i;
+
+    if( SPI_DMA_RECEIVE_FLAG == 1 )
+    {
+        SPI_DMA_RECEIVE_FLAG = 0;
+        
+        INTX_DISABLE();
+        for(i = 0; i < 512; i++)
+        {
+            if(SPI1_TX_Buff[i] != SPI1_RX_Buff[i])
+            {
+                data_error++;
+                break;
+            }
+        }
+        INTX_ENABLE();
+        if( data_error <= 0)
+        {
+            if(i == num) 
+              AUX2_CTR = 1;
+            else        
+              AUX2_CTR = 0;    
+        }
+        else
+        {
+            AUX2_CTR = 0;  
+        }   
+          number++;
+          if(number > 10)
+              number = 0;          
+          for(int i = 0;i < 512;i++)
+          {
+              SPI1_TX_Buff[i] = number;
+          }         
+
+          SPI1_DMA_ReceiveSendByte(num);
+        
+    }
+    EWDT_TOOGLE();
+    
+
+    
+    
+#endif
+
+}
+
+/******************************************************************************* 
+*******************************************************************************/
+void can_test(void)
+ {	 
+	u8 i=0,t=0;
+	u8 canbuf[8];
+	u8 res;
+        u8 can_rcv;
+	u8 mode=CAN_Mode_Normal;
+
+	 	
+   
+	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);  
+
+	
+ 	while(1)
+	{
+         
+                for(i=0;i<8;i++)
+                {
+                  canbuf[i]=i;
+                }
+                
+                res=Can_Send_Msg(CAN1,canbuf,8);
+                if(res)
+                {                             
+                   /** send fail **/                            
+                }							   
+                               
+                can_rcv=Can_Receive_Msg(CAN1,canbuf);
+		if(can_rcv)
+		{			
+			
+ 			for(i=0;i<can_rcv;i++)
+			{									    
+				
+ 			}
+		}
+		t++; 
+		delay_ms(10);
+		if(t==20)
+		{
+			LED=!LED;	
+			t=0;
+		}		   
+	}
+}
+#ifdef GEC_SF_MASTER
+void can1_can2_test(void)
+{	
+  
+	u8 i=0;
+	u8 canbuf_send[8],canbuf_recv[8];
+	u8 res;
+        u8 can_rcv;
+	 	
+   
+        /** CAN1 init,baud rate 250Kbps **/
+	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);  
+        
+        /** CAN2 init,baud rate 250Kbps **/
+        /** note : use CAN2 , must CAN1 init **/
+        CAN_Mode_Init(CAN2,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);    
+
+	
+ 	while(1)
+	{
+          
+                /** CAN1 send **/
+                
+                for(i=0;i<8;i++)
+                {
+                  canbuf_send[i]=i;                
+                }
+                res=Can_Send_Msg(CAN1,canbuf_send,8);
+                
+                if(res)
+                  USB_VCP_SendBuf("Failed", 6);		
+                else 
+                  USB_VCP_SendBuf("OK", 2);	 										   
+
+
+                /** CAN2 receive **/
+		can_rcv=Can_Receive_Msg(CAN2,canbuf_recv);
+		if(can_rcv)
+		{			
+			
+ 			for(i=0;i<can_rcv;i++)
+			{									    
+                              USB_VCP_SendBuf(canbuf_recv, can_rcv);	
+ 			}
+		}                               
+		   
+	}
+
+}
+#endif
 /******************************************************************************* 
 *******************************************************************************/
 

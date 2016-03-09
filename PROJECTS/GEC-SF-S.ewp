@@ -1850,6 +1850,9 @@
   <group>
     <name>APP</name>
     <file>
+      <name>$PROJ_DIR$\..\APP\bsp_iocfg.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\APP\hw_test.c</name>
     </file>
     <file>

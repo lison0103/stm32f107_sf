@@ -1,5 +1,5 @@
 #include "timer.h"
-#include "hw_test.h"
+#include "bsp_iocfg.h"
 #include "sys.h"
 
 u8 count = 0;
