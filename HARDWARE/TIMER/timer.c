@@ -1,6 +1,9 @@
 #include "timer.h"
 #include "bsp_iocfg.h"
 #include "sys.h"
+#ifdef GEC_SF_MASTER
+#include "usart.h"
+#endif
 
 u8 count = 0;
 u32 t_count = 0;
@@ -107,6 +110,11 @@ void TIM2_IRQHandler(void)   //TIM3中断
           TIM_ClearITPendingBit(TIM2, TIM_IT_Update  );  //清除TIMx的中断待处理位:TIM 中断源 
 
           t_count++;
-        
+          
+          #ifdef GEC_SF_MASTER
+            #ifdef USING_USART3_OVERTIME
+              USART_ReceiveOvertimeProcess();
+            #endif
+          #endif
       }
 }

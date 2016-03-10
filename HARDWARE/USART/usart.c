@@ -5,7 +5,185 @@
 #include "stm32f10x_gpio.h" 
 #include "stm32f10x_dma.h" 
 
+  
 
+#ifdef USING_USART3_OVERTIME
+
+static int32_t USART3_ReceiveTimeCounter = 0;
+uint8_t USART3_receive_buf[USART3_BUF_SIZE],USART3_ready_buf[USART3_BUF_SIZE];
+__IO uint16_t USART3_receive_index=0; 
+__IO uint8_t USART3_ready_buf_ok = 0;
+__IO uint16_t USART3_ready_buf_len=0;
+
+void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity) 
+{
+  USART_InitTypeDef   USART_InitStruct;
+
+  switch (*(uint32_t*)&USARTx)
+  {
+
+    case USART3_BASE:
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3 , ENABLE); //USART3 时钟使能
+  		break;
+  }
+
+  USART_StructInit(&USART_InitStruct); //结构体参数初始化，默认值9600
+  USART_InitStruct.USART_BaudRate = baud;
+  USART_InitStruct.USART_WordLength = USART_WordLength_8b;
+  USART_InitStruct.USART_StopBits = USART_StopBits_1;
+  USART_InitStruct.USART_Parity = Parity;
+  USART_InitStruct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+  USART_InitStruct.USART_HardwareFlowControl =USART_HardwareFlowControl_None; 
+  USART_Init(USARTx , &USART_InitStruct); //USART1初始化
+  
+} 
+
+void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
+{
+  NVIC_InitTypeDef NVIC_InitStructure;
+
+  switch (*(uint32_t*)&USARTx)
+  {
+
+    default:
+      NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+      
+      break;
+  }
+  
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  /* Enable the USARTy Interrupt */  
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+}
+
+void USART3_Init(void)
+{
+
+	GPIO_InitTypeDef GPIO_InitStruct;
+					
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE); 
+
+  GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
+  GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOB , &GPIO_InitStruct);
+	
+  GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
+  GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOB , &GPIO_InitStruct);
+
+	
+	BSP_USART_Init(USART3, 19200, USART_Parity_No);//, ENABLE
+	
+	NVIC_Configuration_Usart(USART3);       	
+ 
+	USART_ClearFlag(USART3, USART_FLAG_TC);  
+	USART_Cmd(USART3,ENABLE);
+	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);				
+
+}
+
+ 
+void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
+{			
+
+	uint16_t i = 0;
+	for(i = 0; i < len; i++)
+	{
+    	USARTx->DR = (*(buff + i) & (uint16_t)0x01FF);
+		while (USART_GetFlagStatus(USARTx, USART_FLAG_TC) == RESET);
+	} 
+  
+}
+
+void USART3_ISR(void)
+{
+
+	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
+	{
+		USART3_ReceiveTimeCounter = USART3_RECEIVE_OVERTIME;
+		if(USART3_receive_index >= USART3_BUF_SIZE)
+			USART3_receive_index = 0;
+		
+		USART3_receive_buf[USART3_receive_index++] = (uint8_t)USART_ReceiveData(USART3);
+		
+	}
+		
+	if (USART_GetFlagStatus(USART3, USART_FLAG_ORE) != RESET)
+	{
+		(void)USART_ReceiveData(USART3);
+	}
+}
+
+void USART3_IRQHandler(void)
+{	 
+      USART3_ISR();
+}
+
+void USART_ReceiveOvertimeProcess(void)
+{
+	uint16_t i = 0;	
+
+	if(USART3_ReceiveTimeCounter>=SYSTEMTICK_PERIOD_MS)
+	{
+		USART3_ReceiveTimeCounter -= SYSTEMTICK_PERIOD_MS;
+
+		if(USART3_ReceiveTimeCounter<SYSTEMTICK_PERIOD_MS)
+		{
+			USART3_ready_buf_len = USART3_receive_index;
+
+			for(i = 0;i <= USART3_ready_buf_len; i ++)
+				USART3_ready_buf[i] = USART3_receive_buf[i];
+	
+			USART3_ready_buf_ok = 1;
+			USART3_receive_index=0;
+			USART3_ReceiveTimeCounter = 0;
+		}
+	}
+}
+
+uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
+{
+	uint8_t *pstr;
+	uint32_t i=0,len=0;
+	
+        if(USART3_ready_buf_ok)
+        {
+              switch (*(uint32_t*)&USARTx)
+              {		
+                  case USART3_BASE:
+                    
+                        pstr = USART3_ready_buf;					
+                        len = USART3_ready_buf_len; 
+                        USART3_ready_buf_len = 0;  
+                        break;			
+              }	   
+                    
+                    if(mlen && (mlen<len))
+                    {
+                            len = mlen;
+                    }
+                    
+                    if(len>500) len=0;
+              
+                    for(i=0;i<len;i++)
+                    {
+                            buff[i] = pstr[i];
+                    }		
+                    
+        }
+			
+	return(len);
+}
+
+/*************************************************************************************************** 
+***************************************************************************************************/ 
+
+
+#else
 
 //#define USART1_EN     	1
 //#define USART2_EN    			1
@@ -546,3 +724,4 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 
 /*************************************************************************************************** 
 ***************************************************************************************************/
+#endif

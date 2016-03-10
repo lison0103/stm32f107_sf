@@ -31,8 +31,8 @@ void Bsp_Init(void)
         Input_Output_PinInit();
         
         /** spi communication init **/
-//        SPI1_Init();
-//	SPI1_DMA_Configuration();
+        SPI1_Init();
+	SPI1_DMA_Configuration();
         
         /** ewdt init **/
         EWDT_Drv_pin_config();
@@ -43,11 +43,15 @@ void Bsp_Init(void)
 
 #ifdef GEC_SF_MASTER
                 
-        /** TIM init 1000Khz，计数到10为10us **/
+        /** TIM init 1000Khz，counting to 10 is 10us **/
         TIM3_Int_Init(9,71);
         
         /** usart3 init **/
         USART3_Init();
+        
+        /** timer for usart3 **/
+        /** TIM init 10khz, counting to 10 is 1ms **/
+        TIM2_Int_Init(9,7199);
         
         /** MB85RCXX init **/
         eep_init();
@@ -77,13 +81,14 @@ void Bsp_Init(void)
 #endif  
             &USR_desc, 
             &USBD_CDC_cb, 
-            &USR_cb);
+            &USR_cb);          
           
         /** wait slave spi **/
         delay_ms(200);
 
 #else
-          TIM2_Int_Init(4999,71);
+        /** TIM init 1000Khz，counting to 5000 is 5ms **/
+        TIM2_Int_Init(4999,71);
       
 #endif
 

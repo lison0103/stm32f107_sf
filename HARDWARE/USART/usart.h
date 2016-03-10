@@ -13,5 +13,26 @@ void USART3_Init(void);
 void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len);
 uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen);
 
+#define USING_USART3_OVERTIME 
+
+#ifndef USART3_BUF_SIZE
+#define USART3_BUF_SIZE                512             
+#endif
+
+#ifndef USART3_RECEIVE_OVERTIME
+#define USART3_RECEIVE_OVERTIME        30              
+#endif
+
+#ifndef SYSTEMTICK_PERIOD_MS
+#define SYSTEMTICK_PERIOD_MS            1
+#endif
+
+extern uint8_t USART3_ready_buf[];
+extern __IO uint8_t USART3_ready_buf_ok;
+extern __IO uint16_t USART3_ready_buf_len;
+void USART3_ISR(void);
+void USART_ReceiveOvertimeProcess(void);
+
+
 #endif 
 
