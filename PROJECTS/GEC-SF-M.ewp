@@ -319,6 +319,7 @@
           <state>$PROJ_DIR$\..\VCP\inc</state>
           <state>$PROJ_DIR$\..\SELFTEST\inc</state>
           <state>$PROJ_DIR$\..\ESC\inc</state>
+          <state>$PROJ_DIR$\..\SELFTEST\SelfTestLib</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -2053,6 +2054,12 @@
         <name>$PROJ_DIR$\..\SELFTEST\inc\stack_test.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLclockstart.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLparam.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\SELFTEST\inc\wdt_test.h</name>
       </file>
     </group>
@@ -2088,6 +2095,15 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\SELFTEST\src\ram_test.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLclockrun.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLclockstart.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLstartup.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\SELFTEST\src\wdt_test.c</name>
