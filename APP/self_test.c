@@ -62,9 +62,46 @@ int self_test(void)
   }  
 /************************** flag register end *********************************/
   
-  
-  
+/*************************** clock test start *********************************/   
+   RCC_ClocksTypeDef RCC_Clocks;
+  RCC_GetClocksFreq(&RCC_Clocks); 
+  RCC_Configuration();//HSE - 8MHz
+  RCC_GetClocksFreq(&RCC_Clocks); 
+  if (RCC_Clocks.SYSCLK_Frequency !=8000000)
+    while(1);
 
+  RCC_Config(); //PLL - 72MHz
+  RCC_GetClocksFreq(&RCC_Clocks); 
+  if (RCC_Clocks.SYSCLK_Frequency !=72000000)
+    while(1); 
+  
+ if (SysTick_Config(SystemCoreClock / 100))  // 1/100s = 10ms
+  { 
+    /* Capture error */ 
+    while (1);
+  }
+
+  RCC_cfg();
+  //STM_EVAL_LEDInit(LED1);
+//  Delay(0x1FFFFF);
+  IEC61508_initClockTest(100, 5);                      /* init clock test */
+//  result = IEC61508_Clocktest_PollHandler();           /* check evidence */
+  RCC_GetClocksFreq(&RCC_Clocks); 
+  Delay(0x1FFFFF);
+  
+  //因为独立看门狗使用的是LSI，所以最好程序启动的时候，使时钟源稳定:
+  /* LSI的启动*/
+  RCC_LSICmd(ENABLE);//打开LSI
+  while(RCC_GetFlagStatus(RCC_FLAG_LSIRDY)==RESET);    //等待直到LSI稳定 
+
+ /* Configure the system clocks */
+  RCC_Configuration();
+//  STM_EVAL_LEDInit(LED1);
+  RCC_GetClocksFreq(&RCC_Clocks);
+  Delay(0x1FFFFF);  
+/**************************** clock test end **********************************/
+  
+  
 /**************************** PC test start *******************************/  
   result = IEC61508_PCTest_POST();
   if (result != IEC61508_testPassed)

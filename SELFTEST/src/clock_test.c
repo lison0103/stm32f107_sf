@@ -143,7 +143,7 @@ void RCC_cfg()
     //使能预取指缓存
     FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
     //设置PLL时钟，为HSE的9倍频 8MHz * 9 = 72MHz
-//    RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
+    RCC_PLLConfig(RCC_PLLSource_PREDIV1, RCC_PLLMul_9);
     //使能PLL
     RCC_PLLCmd(ENABLE);
     //等待PLL准备就绪

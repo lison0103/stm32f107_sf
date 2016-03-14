@@ -51,7 +51,7 @@ void Bsp_Init(void)
         
         /** timer for usart3 **/
         /** TIM init 10khz, counting to 10 is 1ms **/
-        TIM2_Int_Init(9,7199);
+//        TIM2_Int_Init(9,7199);
         
         /** MB85RCXX init **/
         eep_init();

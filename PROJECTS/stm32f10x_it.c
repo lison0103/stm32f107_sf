@@ -36,6 +36,11 @@ extern uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);
 //#include "hw_test.h"
 //#include "sys.h"
 extern u32 TimingDelay;
+
+#include "iec61508.h"
+
+extern ClockTest_t ClockTest;
+
 #endif    
 
 /* Private typedef -----------------------------------------------------------*/
@@ -111,6 +116,46 @@ void SysTick_Handler(void)
 //      PLUSE_OUT = 0;
 //      TimingDelay = 0;
 //    } 
+  
+  ClockTest.baseTicks++;
+}
+
+/**
+  * @brief  This function handles TIM2 global interrupt request.
+  * @param  None
+  * @retval None
+  */
+void TIM2_IRQHandler(void)
+{
+   //unsigned char ReadValue;
+  //检测是否发生溢出更新事件
+  if ( TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET )
+  {
+    //清除TIM2的中断待处理位
+    TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);
+    if (ClockTest.baseTicks < 105 & ClockTest.baseTicks > 95)
+    {
+      ClockTest.baseTicks=0;
+      ClockTest.result=1;
+    }
+    else
+    {
+      ClockTest.baseTicks=0;
+      ClockTest.result=0;
+    }
+    
+    //ReadValue = GPIO_ReadOutputDataBit(GPIOA,GPIO_Pin_8);
+    if(ClockTest.result == 1)
+    {
+      //STM_EVAL_LEDOff(0);
+      //Delay(0x3FFFFF);
+    }
+    else
+    {
+      //STM_EVAL_LEDOn(0);
+      while(1);  //clock test wrong, watting for watchdog
+    }  
+  }
 }
 
 /**

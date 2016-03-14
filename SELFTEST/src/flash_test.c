@@ -178,7 +178,7 @@ uint32_t crc32(uint32_t crc, uint8_t ** const pp_src, uint32_t len)
   *pp_src = src;
   return(crc ^ 0xffffffffL);
 }
-
+extern uint32_t __checksum;
 type_testResult_t IEC61508_FLASHtest_POST(void)
 {
   FlashCRC_t   TestCRC;
@@ -194,7 +194,7 @@ type_testResult_t IEC61508_FLASHtest_POST(void)
   if (IEC61508_Flash_CRC_REF.Status == FLASH_CRC_Valid)
   {
     CRC32_Val = TestCRC.CRC32Val;
-    if (TestCRC.CRC32Val == IEC61508_Flash_CRC_REF.CRC32Val)
+    if (TestCRC.CRC32Val == __checksum)
     {
       Result = IEC61508_testPassed;
     }
