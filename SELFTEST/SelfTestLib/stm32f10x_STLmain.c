@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f10x_lib.h"
+//#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
 
@@ -153,7 +153,7 @@ void STL_DoRunTimeChecks(void)
         case EXT_SOURCE_FAIL:
           #ifdef STL_VERBOSE
           /* Loop until the end of current transmission */
-            while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+//            while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
             {
             }
             /* Re-config USART baudrate FOR 115200 bds with HSI clock (8MHz) */

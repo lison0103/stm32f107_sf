@@ -181,7 +181,25 @@ int self_test(void)
   }  
 /************************** RAM test end ***********************************/  
   
+      /*----------------------------------------------------------------------*/
+      /*------------------------- Stack overflow -----------------------------*/
+      /*----------------------------------------------------------------------*/
+   StackOverFlowPtrn[0] = 0xAAAAAAAAuL;
+   StackOverFlowPtrn[1] = 0xBBBBBBBBuL;
+   StackOverFlowPtrn[2] = 0xCCCCCCCCuL;
+   StackOverFlowPtrn[3] = 0xDDDDDDDDuL;
+  
+  
+      if (STL_CheckStack() != SUCCESS)
+      {
+          while(1);
+      }
+      else
+      {
 
+      }
+  
+  
   
 #if 0  
   

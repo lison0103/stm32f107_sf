@@ -2113,6 +2113,9 @@
       <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLcrc32.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLmain.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLstartup.c</name>
     </file>
     <file>

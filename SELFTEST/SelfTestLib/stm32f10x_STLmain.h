@@ -25,7 +25,7 @@
 /* Exported functions ------------------------------------------------------- */
 void STL_InitRunTimeChecks(void);
 void STL_DoRunTimeChecks(void);
-
+ErrorStatus STL_CheckStack(void);
 #endif /* __STL_MAIN_H */
 
 /******************* (C) COPYRIGHT 2007 STMicroelectronics *****END OF FILE****/
