@@ -2104,6 +2104,9 @@
       <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLclockstart.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLcpustartIARv5.s</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLcrc16.c</name>
     </file>
     <file>

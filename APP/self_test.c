@@ -161,7 +161,18 @@ int self_test(void)
  
   
 /************************** CPU register test start ************************/  
-    /* Do the IEC61508 CPU register tests */   //ok
+  
+  
+  if (STL_StartUpCPUTest() != CPUTEST_SUCCESS)
+  {
+      while(1);
+  }
+  else  /* Test OK */
+  {
+
+  }  
+  
+//    /* Do the IEC61508 CPU register tests */   //ok
 //  _CPUregTestPOST();
 //  if (CPUregTestPOST_struct.testPassed == IEC61508_testFailed)
 //  {
