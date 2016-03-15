@@ -45,6 +45,38 @@ static ErrorStatus RCC_Config64MHzOnHSI(void);
 ErrorStatus RCC_SwitchOffPLL(void);
 
 
+void rom_test(void)
+{
+
+  /*--------------------------------------------------------------------------*/
+  /*--------------------- Invariable memory CRC check ------------------------*/
+  /*--------------------------------------------------------------------------*/
+
+
+  
+      u32 TmpCRC;
+    /* Initialize the internal 32-bit CRC generator */
+    CRC_Init();
+    /* Compute the 32-bit crc of the whole Flash */
+    TmpCRC = CRC_CalcBlockCrc((uc32 *)ROM_START, (u32)ROM_SIZEinWORDS);
+    /* Store the inverted least significant byte of the CRC in the peripheral */
+    CRC_SetIDRegister(~((u8)TmpCRC));
+  
+
+  /* Regular 16-bit crc computation */
+
+  if(STL_crc16(CRC_INIT,(u8 *)ROM_START, ROM_SIZE) != REF_CRC16)
+  {
+      while(1);
+  }
+  else  /* Test OK */
+  {
+
+  }
+
+}
+
+
 /*******************************************************************************
 * Function Name  : FailSafePOR
 * Description    : Contains the Fail Safe routine executed in case of

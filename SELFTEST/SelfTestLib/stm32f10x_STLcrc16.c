@@ -42,7 +42,7 @@
 
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f10x_lib.h"
+//#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
 
@@ -105,6 +105,7 @@ u16 STL_crc16(u16 sum, uc8 *p, u32 len)
   while (len--)					
   {
     sum = crc16_table[(sum >> 8) ^ *p++] ^ (sum << 8);
+
   }
 
   CtrlFlowCntInv -= CRC16_TEST_CALLEE;

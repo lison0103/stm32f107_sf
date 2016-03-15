@@ -1,4 +1,4 @@
-/******************** (C) COPYRIGHT 2007 STMicroelectronics ********************
+ extern void rom_test(void);/******************** (C) COPYRIGHT 2007 STMicroelectronics ********************
 * File Name          : stm32f10x_STLstartup.h
 * Author             : MCD Application Team
 * Version            : V1.0
@@ -33,8 +33,8 @@ void STL_StartUp(void);
 void FailSafe(void);
 void FailSafeCPU(void);
 void STL_WDGSelfTest(void);
-
-
+void rom_test(void);
+ErrorStatus RCC_SwitchOffPLL(void);
 #endif /* __SELF_TEST_START_UP_H */
 
 /******************* (C) COPYRIGHT 2007 STMicroelectronics *****END OF FILE****/

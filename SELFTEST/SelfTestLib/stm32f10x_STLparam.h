@@ -187,7 +187,7 @@ allow to react more quickly */
 
 #ifdef __IAR_SYSTEMS_ICC__  /* IAR Compiler */
 
-#ifdef EWARMv5
+#ifdef EWARMv5  
 /* This is the IAR compiler entry point, usually executed right after reset */
   extern void __iar_program_start( void );
   extern u16 __checksum;

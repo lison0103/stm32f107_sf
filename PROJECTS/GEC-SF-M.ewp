@@ -168,6 +168,7 @@
           <state>STM32F10X_CL</state>
           <state>USE_USB_OTG_FS</state>
           <state>GEC_SF_MASTER</state>
+          <state>EWARMv5</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -344,7 +345,7 @@
         <option>
           <name>CCOptStrategy</name>
           <version>0</version>
-          <state>0</state>
+          <state>2</state>
         </option>
         <option>
           <name>CCOptLevelSlave</name>
@@ -748,7 +749,7 @@
         </option>
         <option>
           <name>IlinkUseExtraOptions</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>IlinkExtraOptions</name>
@@ -792,12 +793,12 @@
         </option>
         <option>
           <name>FillerEnd</name>
-          <state>0x0803ffff</state>
+          <state>0x0803FFFF</state>
         </option>
         <option>
           <name>CrcSize</name>
           <version>0</version>
-          <state>2</state>
+          <state>1</state>
         </option>
         <option>
           <name>CrcAlign</name>
@@ -908,7 +909,7 @@
         <option>
           <name>CrcAlgorithm</name>
           <version>0</version>
-          <state>2</state>
+          <state>1</state>
         </option>
         <option>
           <name>CrcUnitSize</name>
@@ -2101,6 +2102,15 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLclockstart.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLcrc16.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLcrc16Run.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLcrc32.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\SELFTEST\SelfTestLib\stm32f10x_STLstartup.c</name>

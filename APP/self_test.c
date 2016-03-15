@@ -33,9 +33,11 @@
 #include "config_test.h"
 #include "flag_test.h"
 
-
+#include "stm32f10x.h"
 #include "self_test.h"
-
+#include "stm32f10x_STLlib.h"
+   #include "stm32f10x_STLclassBvar.h"
+#include <stdio.h>
 //GPIO_InitTypeDef GPIO_InitStructure;
 
 extern IEC61508_InstCheck_struct InstCheckPOST_struct;
@@ -121,22 +123,27 @@ int self_test(void)
 
   
 /************************** flash test start *******************************/
-  
-  result = ((type_testResult_t)IEC61508_FLASHtest_POST());            /* test FLASH content */
-  result = ((type_testResult_t)IEC61508_FLASHtest_POST2());            /* test FLASH content */
-  /* TODO : insert correct CRC value to line 80 in iec61508_flash_test.h */
-  if (result != IEC61508_testPassed)
-  {
-         while (1);                    /* remains if Flash content is not consistent */
-  }
+//  u32 crc_value = REF_CRC16;
 
-  /* Flash test */
-  int count = 255;
-  result = IEC61508_FLASHtest_BIST (FLASH_CRC_Restart);
-  while( count-- )
-  {
-      result = IEC61508_FLASHtest_BIST (0);
-  }  
+
+    rom_test();
+  
+  
+//  result = ((type_testResult_t)IEC61508_FLASHtest_POST());            /* test FLASH content */
+//  result = ((type_testResult_t)IEC61508_FLASHtest_POST2());            /* test FLASH content */
+//  /* TODO : insert correct CRC value to line 80 in iec61508_flash_test.h */
+//  if (result != IEC61508_testPassed)
+//  {
+//         while (1);                    /* remains if Flash content is not consistent */
+//  }
+//
+//  /* Flash test */
+//  int count = 255;
+//  result = IEC61508_FLASHtest_BIST (FLASH_CRC_Restart);
+//  while( count-- )
+//  {
+//      result = IEC61508_FLASHtest_BIST (0);
+//  }  
 /************************** flash test end *********************************/
   
   
