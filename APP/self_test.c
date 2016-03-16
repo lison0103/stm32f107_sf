@@ -35,9 +35,11 @@
 
 #include "stm32f10x.h"
 #include "self_test.h"
+#ifdef GEC_SF_MASTER 
 #include "stm32f10x_STLlib.h"
-   #include "stm32f10x_STLclassBvar.h"
+#include "stm32f10x_STLclassBvar.h"
 #include <stdio.h>
+#endif
 //GPIO_InitTypeDef GPIO_InitStructure;
 
 extern IEC61508_InstCheck_struct InstCheckPOST_struct;
@@ -123,7 +125,7 @@ int self_test(void)
 
   
 /************************** flash test start *******************************/
-//  u32 crc_value = REF_CRC16;
+  u32 crc_value = REF_CRC16;
 
 
     rom_test();

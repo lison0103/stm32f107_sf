@@ -20,9 +20,46 @@ u8 R_SF_RL1_FB_CPU2;
 
 u8 sflag,inputnum = 0;
 u8 passflag = 1;
+u8 sfwdt_checkflag = 0;
 
 u8 canbuf_send[8];
 
+
+void SF_WDT_Check(void)
+{
+    EWDT_TOOGLE();
+    delay_ms(1000);
+    EWDT_TOOGLE();
+    delay_ms(800);
+    EWDT_TOOGLE(); 
+    
+#ifdef GEC_SF_MASTER    
+    if( !SF_RL1_FB )
+    {
+          passflag = 0;
+          sfwdt_checkflag = 0;
+    }
+    else
+    {
+        sfwdt_checkflag = 1;
+        SF_RL1_WDT=!SF_RL1_WDT;
+    }
+#else
+    if( !SF_RL2_FB )
+    {
+          passflag = 0;
+          sfwdt_checkflag = 0;
+    }       
+    else
+    {
+        sfwdt_checkflag = 1;
+        SF_RL2_WDT=!SF_RL2_WDT;
+    }
+#endif
+    
+    
+
+}
 
 void Hw_Test1(void)
 {  
@@ -42,25 +79,25 @@ void Hw_Test1(void)
         *****************************************************/
         
         /****test input,The actual test should be uncommented****/
-        if(passflag  && ( !IN1 && !IN2 && !IN3 && !IN4 && !IN5 && !IN6 && !IN7 && !IN8 && 
+        if(passflag  /*&& ( !IN1 && !IN2 && !IN3 && !IN4 && !IN5 && !IN6 && !IN7 && !IN8 && 
                         IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && 
-                          IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 ))
+                          IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 )*/)
         {
                 if(SF_RL1_DRV_FB && !SF_PWR_FB_CPU1 && SF_RL1_FB && AUX1_FB)
                 {
                     
-                    if(SF_RL2_FB_CPU1 == R_SF_RL2_FB_CPU1)
-                    {
+//                    if(SF_RL2_FB_CPU1 == R_SF_RL2_FB_CPU1)
+//                    {
                         AUX1_CTR = 1;
                         SF_RL1_CTR = 1;  
                         
                         delay_ms(10);
                         
-                        passflag = 2;
-                    }
-                }
-                
-                if(( passflag == 2 ) && ( SF_RL1_DRV_FB || SF_PWR_FB_CPU1 || SF_RL1_FB || AUX1_FB ))
+//                        passflag = 2;
+//                    }
+                        SF_WDT_Check();
+                }                
+                else if(( passflag == 2 ) && ( SF_RL1_DRV_FB || SF_PWR_FB_CPU1 || SF_RL1_FB || AUX1_FB ))
                 {
                     passflag = 0;                  
                 }                
@@ -330,26 +367,27 @@ void Hw_Test1(void)
         
 #else
         
-        if(passflag && ( !IN1 && !IN2 && !IN3 && !IN4 && !IN5 && !IN6 && !IN7 && !IN8 && 
+        if(passflag /*&& ( !IN1 && !IN2 && !IN3 && !IN4 && !IN5 && !IN6 && !IN7 && !IN8 && 
                         IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && 
-                          IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 ))
+                          IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 )*/)
         {
           
             if(SF_RL2_DRV_FB && !SF_PWR_FB_CPU2 && SF_RL2_FB && AUX2_FB)
             {
                 
-                if(SF_RL1_FB_CPU2 == R_SF_RL1_FB_CPU2)
-                {
+//                if(SF_RL1_FB_CPU2 == R_SF_RL1_FB_CPU2)
+//                {
                     AUX2_CTR = 1;
                     SF_RL2_CTR = 1;  
                     
                     delay_ms(10);
                     
-                    passflag = 2;
-                }
-            }
-            
-            if(( passflag == 2 ) && (SF_RL2_DRV_FB || SF_PWR_FB_CPU2 || SF_RL2_FB || AUX2_FB))
+//                    passflag = 2;
+//                }
+                    
+                    SF_WDT_Check();
+            }            
+            else if(( passflag == 2 ) && (SF_RL2_DRV_FB || SF_PWR_FB_CPU2 || SF_RL2_FB || AUX2_FB))
             {
                 passflag = 0;                  
             }   

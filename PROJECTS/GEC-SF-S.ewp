@@ -1860,6 +1860,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\APP\self_test.c</name>
+      <excluded>
+        <configuration>Debug</configuration>
+      </excluded>
     </file>
   </group>
   <group>
@@ -1978,6 +1981,9 @@
   </group>
   <group>
     <name>SELFTEST</name>
+    <excluded>
+      <configuration>Debug</configuration>
+    </excluded>
     <group>
       <name>inc</name>
       <file>

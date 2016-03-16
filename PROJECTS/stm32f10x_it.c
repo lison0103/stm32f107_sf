@@ -122,7 +122,7 @@ void SysTick_Handler(void)
   
 //  ClockTest.baseTicks++;
   
-  
+#ifdef GEC_SF_MASTER   
   /* Verify TickCounter integrity */
   if ((TickCounter ^ TickCounterInv) == 0xFFFFFFFFuL)
   {
@@ -219,6 +219,7 @@ void SysTick_Handler(void)
   #endif  /* STL_VERBOSE */
 //  FailSafePOR();
   }  
+#endif
 }
 
 /**
@@ -226,8 +227,10 @@ void SysTick_Handler(void)
   * @param  None
   * @retval None
   */
+  #ifdef GEC_SF_MASTER
 void TIM2_IRQHandler(void)
 {
+ 
    //unsigned char ReadValue;
   //检测是否发生溢出更新事件
   if ( TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET )
@@ -257,8 +260,9 @@ void TIM2_IRQHandler(void)
       while(1);  //clock test wrong, watting for watchdog
     }  
   }
-}
 
+}
+#endif
 /**
   * @brief  This function handles EXTI15_10_IRQ Handler.
   * @param  None

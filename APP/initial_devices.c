@@ -88,7 +88,7 @@ void Bsp_Init(void)
 
 #else
         /** TIM init 1000Khz£¬counting to 5000 is 5ms **/
-        TIM2_Int_Init(4999,71);
+//        TIM2_Int_Init(4999,71);
       
 #endif
 

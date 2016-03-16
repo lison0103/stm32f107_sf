@@ -63,3 +63,16 @@ void ESC_SPI_Error_Process(void)
 #endif
 
 }
+
+
+/** 进入故障处理子程序，断开安全继电器，
+扶梯停止运行，进入故障状态 **/
+void ESC_SafeRelay_Error_Process(void)
+{
+#ifdef GEC_SF_MASTER  
+    /** 断开安全继电器 **/
+    SF_RL1_CTR = 0;
+    SF_RL1_WDT = 0;
+#endif
+
+}
