@@ -8,6 +8,8 @@ void Hw_Test2(void);
 void spi1_test(void);
 void can1_can2_test(void);
 void SF_WDT_Check(void);
+void CPU_Exchange_Check_Data(void);
+void SF_CTR_Check(void);
 
 extern u8 data_error;
 extern u8 canbuf_send[8];

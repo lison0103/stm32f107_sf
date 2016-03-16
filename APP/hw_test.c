@@ -4,6 +4,7 @@
 #include "can.h"
 #include "spi.h"
 #include "ewdt.h"
+#include "esc_error_process.h"
 
 #ifdef GEC_SF_MASTER
 #include "usbd_cdc_vcp.h"
@@ -30,7 +31,7 @@ void SF_WDT_Check(void)
     EWDT_TOOGLE();
     delay_ms(1000);
     EWDT_TOOGLE();
-    delay_ms(800);
+    delay_ms(900);//>1.8s
     EWDT_TOOGLE(); 
     
 #ifdef GEC_SF_MASTER    
@@ -59,6 +60,126 @@ void SF_WDT_Check(void)
     
     
 
+}
+
+void CPU_Exchange_Check_Data(void)
+{
+    u16 num = 512;
+  
+          for(u16 n = 0; n < 512; n++)
+          {
+              SPI1_TX_Buff[n] = 0;
+          }
+    
+          SPI_DMA_RECEIVE_FLAG = 0;
+#ifdef GEC_SF_MASTER  
+          if(SF_RL1_DRV_FB)
+            SPI1_TX_Buff[0] = 0x01;
+         
+          if(SF_PWR_FB_CPU1)
+            SPI1_TX_Buff[1] = 0x01;
+          
+          if(SF_RL1_FB)
+            SPI1_TX_Buff[2] = 0x01;
+            
+          if(AUX1_FB)
+            SPI1_TX_Buff[3] = 0x01;
+      
+#else
+
+          if(SF_RL2_DRV_FB)
+            SPI1_TX_Buff[0] = 0x01;
+          
+          if(SF_PWR_FB_CPU2)
+            SPI1_TX_Buff[1] = 0x01; 
+          
+          if(SF_RL2_FB)
+            SPI1_TX_Buff[2] = 0x01;  
+          
+          if(AUX2_FB)
+            SPI1_TX_Buff[3] = 0x01;
+          
+#endif          
+          SPI1_TX_Buff[4] = sfwdt_checkflag;
+          
+          SPI1_TX_Buff[5] = canbuf_send[0];
+          SPI1_TX_Buff[6] = canbuf_send[1];
+          SPI1_TX_Buff[7] = canbuf_send[2];
+          SPI1_TX_Buff[8] = canbuf_send[3];
+          
+          SPI1_DMA_ReceiveSendByte(num);     
+          
+          if(SPI1_TX_Buff[4] == 1 && SPI1_RX_Buff[4] == 1)
+          {
+              passflag = 2;
+              sfwdt_checkflag = 0;
+          }
+          
+          if( passflag == 2 )
+          {
+              if( (SPI1_TX_Buff[0] != SPI1_RX_Buff[0]) || (SPI1_TX_Buff[1] != SPI1_RX_Buff[1]) 
+                 || (SPI1_TX_Buff[2] != SPI1_RX_Buff[2]) || (SPI1_TX_Buff[3] != SPI1_RX_Buff[3]) )
+              {
+                  EN_ERROR_SYS3++;
+                  if(EN_ERROR_SYS3 > 2)
+                  {
+                      EN_ERROR_SYS3 = 0;
+                      ESC_SafeRelay_Error_Process();
+                  }
+              }
+              else
+              {
+                  EN_ERROR_SYS3 = 0;
+              }
+          }
+          
+//          R_SF_RL2_FB_CPU1 = SPI1_RX_Buff[0];    
+}
+
+void SF_CTR_Check(void)
+{
+#ifdef GEC_SF_MASTER  
+      if(passflag)
+      {
+        SF_RL1_CTR = 0;
+        delay_us(150);
+        if(!SF_RL1_DRV_FB)
+        {
+            EN_ERROR_SYS2++;
+            if(EN_ERROR_SYS2 > 2)
+            {
+//                EN_ERROR_SYS2 = 0;
+                ESC_SafeRelay_Error_Process();
+            }
+        }
+        else
+        {
+            EN_ERROR_SYS2 = 0;
+        }
+        SF_RL1_CTR = 1;
+      }
+#else      
+          if(passflag)
+          {
+              SF_RL2_CTR = 0;
+              delay_us(150);
+              if(!SF_RL2_DRV_FB)
+              {
+                  EN_ERROR_SYS2++;
+                  if(EN_ERROR_SYS2 > 2)
+                  {
+//                      EN_ERROR_SYS2 = 0;
+                      ESC_SafeRelay_Error_Process();
+                      passflag = 0;
+                  }
+              }
+              else
+              {
+                  EN_ERROR_SYS2 = 0;
+              }
+              SF_RL2_CTR = 1;
+          }
+#endif
 }
 
 void Hw_Test1(void)

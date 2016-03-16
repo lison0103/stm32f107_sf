@@ -26,23 +26,28 @@ void LED_indicator(void)
 
 
 void Task_Loop(void)
-{
-  
-  u16 num = 512;
+{ 
   
 #ifdef GEC_SF_MASTER  
   
-      static u32 count1 = 0,count2 = 0,count3 = 0,count4 = 0;
+      static u16 Tms25Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
       u8 canbuf_recv[8];
       u8 res;
       u8 can_rcv;
   
       delay_ms(1);
 //      delay_us(1);
-      count1++;
-      count2++;
-      count3++;
-      count4++;
+      Tms25Counter++;
+      Tms50Counter++;
+      Tms100Counter++;
+      Tms500Counter++; 
+      Tms1000Counter++;   
+
+      if(Tms25Counter>=25) Tms25Counter=0;
+      if(Tms50Counter>=50) Tms50Counter=0;
+      if(Tms100Counter>=100) Tms100Counter=0;
+      if(Tms500Counter>=500) Tms500Counter=0;
+      if(Tms1000Counter>=1000) Tms1000Counter=0;
       
 //      if(count3 == 25)
 //      {
@@ -66,62 +71,12 @@ void Task_Loop(void)
 //                           
 //          SPI1_DMA_ReceiveSendByte(num);
 //      }
-      if(count1 == 150)      
+      if(Tms25Counter == 0)      
       {
-          SPI_DMA_RECEIVE_FLAG = 0;
-
-          if(SF_RL1_DRV_FB)
-            SPI1_TX_Buff[0] = 0x01;
-          else
-            SPI1_TX_Buff[0] = 0x00;
-          
-          if(SF_PWR_FB_CPU1)
-            SPI1_TX_Buff[1] = 0x01;
-          else
-            SPI1_TX_Buff[1] = 0x00;  
-          
-          if(SF_RL1_FB)
-            SPI1_TX_Buff[2] = 0x01;
-          else
-            SPI1_TX_Buff[2] = 0x00;   
-          
-          if(AUX1_FB)
-            SPI1_TX_Buff[3] = 0x01;
-          else
-            SPI1_TX_Buff[3] = 0x00;       
-          
-          SPI1_TX_Buff[4] = sfwdt_checkflag;
-          
-          SPI1_DMA_ReceiveSendByte(num);     
-          
-          if(SPI1_TX_Buff[4] == 1 && SPI1_RX_Buff[4] == 1)
-          {
-              passflag = 2;
-              sfwdt_checkflag = 0;
-          }
-          
-          if( passflag == 2 )
-          {
-              if( (SPI1_TX_Buff[0] != SPI1_RX_Buff[0]) || (SPI1_TX_Buff[1] != SPI1_RX_Buff[1]) 
-                 || (SPI1_TX_Buff[2] != SPI1_RX_Buff[2]) || (SPI1_TX_Buff[3] != SPI1_RX_Buff[3]) )
-              {
-                  EN_ERROR_SYS3++;
-                  if(EN_ERROR_SYS3 > 2)
-                  {
-                      EN_ERROR_SYS3 = 0;
-                      ESC_SafeRelay_Error_Process();
-                  }
-              }
-              else
-              {
-                  EN_ERROR_SYS3 = 0;
-              }
-          }
-          
-//          R_SF_RL2_FB_CPU1 = SPI1_RX_Buff[0];
+          CPU_Exchange_Check_Data();
       }
       
-      if(count1==200)
+      if(Tms50Counter == 0)
       {                       
           Hw_Test1();                   
           
@@ -130,40 +85,16 @@ void Task_Loop(void)
           SF_RL1_WDT=!SF_RL1_WDT;
           EWDT_TOOGLE();
           
-          count1=0;
       } 
       
-      if(count4 == 1000)
-      {
-          count4 = 0;
-          
-          if(passflag)
-          {
-              SF_RL1_CTR = 0;
-              delay_us(150);
-              if(!SF_RL1_DRV_FB)
-              {
-                  EN_ERROR_SYS2++;
-                  if(EN_ERROR_SYS2 > 2)
-                  {
-//                      EN_ERROR_SYS2 = 0;
-                      ESC_SafeRelay_Error_Process();
-                  }
-              }
-              else
-              {
-                  EN_ERROR_SYS2 = 0;
-              }
-              SF_RL1_CTR = 1;
-          }
+      if(Tms100Counter == 0)
+      {         
+          SF_CTR_Check();
       }
       
       
-      if(count2 == 1000)
-      {         
-        
-          count2 = 0;
-          
+      if(Tms1000Counter == 0)
+      {                  
           /** CAN1 send data **/
           res=Can_Send_Msg(CAN1,canbuf_send,4);                          
           if(res)
@@ -192,115 +123,52 @@ void Task_Loop(void)
         
       }
       
-      if(count3 == 500)
+      if(Tms500Counter == 0)
       {
-          count3 = 0;
-          Comm_DisplayBoard();
-      
+          Comm_DisplayBoard();      
       }
 #else
       
-      static u32 count1 = 0,count2 = 0;
+      static u16 Tms25Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
       
 //      delay_us(1);
       delay_ms(1);
-      count1++;
+      Tms25Counter++;
+      Tms50Counter++;
+      Tms100Counter++;
+      Tms500Counter++; 
+      Tms1000Counter++;   
+
+      if(Tms25Counter>=10) Tms25Counter=0;
+      if(Tms50Counter>=25) Tms50Counter=0;
+      if(Tms100Counter>=100) Tms100Counter=0;
+      if(Tms500Counter>=500) Tms500Counter=0;
+      if(Tms1000Counter>=1000) Tms1000Counter=0;
       
       if( onetime == 0)
       {
           onetime++;
                           
-          SPI1_DMA_ReceiveSendByte(num);
+          SPI1_DMA_ReceiveSendByte(512);
       }
-      if(count1 >= 150 && SPI_DMA_RECEIVE_FLAG == 1)
+      if( SPI_DMA_RECEIVE_FLAG == 1 )
       {
-          SPI_DMA_RECEIVE_FLAG = 0;          
-
-          if(SF_RL2_DRV_FB)
-            SPI1_TX_Buff[0] = 0x01;
-          else
-            SPI1_TX_Buff[0] = 0x00;
-          
-          if(SF_PWR_FB_CPU2)
-            SPI1_TX_Buff[1] = 0x01;
-          else
-            SPI1_TX_Buff[1] = 0x00;  
-          
-          if(SF_RL2_FB)
-            SPI1_TX_Buff[2] = 0x01;
-          else
-            SPI1_TX_Buff[2] = 0x00;   
-          
-          if(AUX2_FB)
-            SPI1_TX_Buff[3] = 0x01;
-          else
-            SPI1_TX_Buff[3] = 0x00;           
-          
-          SPI1_TX_Buff[4] = sfwdt_checkflag;
-          
-          SPI1_DMA_ReceiveSendByte(num);     
-          
-          if(SPI1_TX_Buff[4] == 1 && SPI1_RX_Buff[4] == 1)
-          {      
-              passflag = 2;
-              sfwdt_checkflag = 0;
-          }
-          
-          if( passflag == 2 )
-          {
-              if( (SPI1_TX_Buff[0] != SPI1_RX_Buff[0]) || (SPI1_TX_Buff[1] != SPI1_RX_Buff[1]) 
-                 || (SPI1_TX_Buff[2] != SPI1_RX_Buff[2]) || (SPI1_TX_Buff[3] != SPI1_RX_Buff[3]) )
-              {
-                  EN_ERROR_SYS3++;
-                  if(EN_ERROR_SYS3 > 2)
-                  {
-                      EN_ERROR_SYS3 = 0;
-                      ESC_SafeRelay_Error_Process();
-                  }
-              }
-              else
-              {
-                  EN_ERROR_SYS3 = 0;
-              }         
-          }
+            CPU_Exchange_Check_Data();
           
 //          R_SF_RL1_FB_CPU2 = SPI1_RX_Buff[0];
       }
       
-      if(count1==200)
+      if(Tms50Counter == 0)
       {                       
           Hw_Test1();   
                               
           SF_RL2_WDT=!SF_RL2_WDT;
           EWDT_TOOGLE();
-          
-          count1=0;
       } 
       
-      if(count2 == 1000)
-      {
-          count2 = 0;
-          
-          if(passflag)
-          {
-              SF_RL2_CTR = 0;
-              delay_us(150);
-              if(!SF_RL2_DRV_FB)
-              {
-                  EN_ERROR_SYS2++;
-                  if(EN_ERROR_SYS2 > 2)
-                  {
-//                      EN_ERROR_SYS2 = 0;
-                      ESC_SafeRelay_Error_Process();
-                      passflag = 0;
-                  }
-              }
-              else
-              {
-                  EN_ERROR_SYS2 = 0;
-              }
-              SF_RL2_CTR = 1;
-          }
+      if(Tms100Counter == 0)
+      {         
+          SF_CTR_Check();
       }      
       
 #endif
