@@ -209,8 +209,10 @@ void DMA1_Channel2_IRQHandler(void)
                 ESC_SPI_Error_Process();
               }
           }
-          EN_ERROR_SYS4 = 0;
-          
+          else
+          {
+              EN_ERROR_SYS4 = 0;
+          }
       #ifdef GEC_SF_MASTER
           while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
           DMA_Cmd(DMA1_Channel2, DISABLE);
@@ -252,14 +254,12 @@ void DMA1_Channel3_IRQHandler(void)
           if( SPI_I2S_GetFlagStatus(SPI1, SPI_FLAG_CRCERR) != RESET)
           {
               SPI_I2S_ClearFlag(SPI1, SPI_FLAG_CRCERR);
-              //SPI CRC ERROR
-              EN_ERROR_SYS4++;
-              if(EN_ERROR_SYS4 > 3)
-              {
-                ESC_SPI_Error_Process();
-              }
+
           }
-          EN_ERROR_SYS4 = 0;
+          else
+          {
+
+          }
           
           
 
