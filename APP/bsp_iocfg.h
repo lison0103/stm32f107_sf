@@ -58,21 +58,26 @@ void Input_Output_PinInit(void);
 #define EX_IN17     PEin(10)
 
 //OUTPUT
-#define AUX1_CTR     PCout(0)
-#define SF_RL1_CTR     PEout(2)
+#define AUX_CTR     PCout(0)
+#define SF_RL_CTR     PEout(2)
 
-#define SF_RL1_WDT     PBout(9)
+#define SF_RL_WDT     PBout(9)
 
 //FEEDBACK
-#define SF_RL1_DRV_FB   PEin(3)
-#define SF_PWR_FB_CPU1   PBin(8)
-#define SF_RL1_FB       PCin(2)
+#define SF_RL_DRV_FB   PEin(3)
+#define SF_PWR_FB_CPU   PBin(8)
+#define SF_RL_FB       PCin(2)
+
 #define SF_RL2_FB_CPU1       PEin(6)
 
-#define AUX1_FB       PCin(1)
+#define AUX_FB       PCin(1)
 
 //PLUSE
 #define PLUSE_OUT       PCout(5)
+
+//EWDT
+#define SF_EWDT_TOOGLE() 	GPIOB->ODR ^= 0X0200
+
 
 #else
 
@@ -125,18 +130,22 @@ void Input_Output_PinInit(void);
 #define EX_IN17     PAin(4)
 
 //OUTPUT
-#define AUX2_CTR     PEout(4)
-#define SF_RL2_CTR     PEout(2)
+#define AUX_CTR     PEout(4)
+#define SF_RL_CTR     PEout(2)
 
-#define SF_RL2_WDT     PEout(0)
+#define SF_RL_WDT     PEout(0)
 
 //FEEDBACK
-#define SF_RL2_DRV_FB   PEin(1)
-#define SF_PWR_FB_CPU2   PBin(9)
-#define SF_RL2_FB       PEin(5)
+#define SF_RL_DRV_FB   PEin(1)
+#define SF_PWR_FB_CPU   PBin(9)
+#define SF_RL_FB       PEin(5)
+
 #define SF_RL1_FB_CPU2       PBin(8)
 
-#define AUX2_FB       PEin(3)
+#define AUX_FB       PEin(3)
+
+//EWDT
+#define SF_EWDT_TOOGLE() 	GPIOE->ODR ^= 0X0001
 
 #endif  //GEC_SF_MASTER
 

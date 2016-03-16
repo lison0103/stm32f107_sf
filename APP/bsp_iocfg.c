@@ -61,9 +61,9 @@ void Input_Output_PinInit(void)
       
       
       /** relay output init **/
-      AUX1_CTR = 0;
-      SF_RL1_CTR = 0;
-      SF_RL1_WDT = 1;
+      AUX_CTR = 0;
+      SF_RL_CTR = 0;
+      SF_RL_WDT = 1;
       
 #else
 
@@ -108,9 +108,9 @@ void Input_Output_PinInit(void)
       GPIO_Init(GPIOE , &GPIO_InitStruct);  
       
       /** relay output init **/
-      AUX2_CTR = 0;
-      SF_RL2_CTR = 0;
-      SF_RL2_WDT = 1;      
+      AUX_CTR = 0;
+      SF_RL_CTR = 0;
+      SF_RL_WDT = 1;     
 
 #endif      
 

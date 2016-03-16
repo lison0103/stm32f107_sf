@@ -3,8 +3,8 @@
 #include "sys.h"
 #include "bsp_iocfg.h"
 
-void Hw_Test1(void);
-void Hw_Test2(void);
+void Input_Check(void);
+void Input_Check2(void);
 void spi1_test(void);
 void can1_can2_test(void);
 void SF_WDT_Check(void);
@@ -14,7 +14,7 @@ void SF_CTR_Check(void);
 extern u8 data_error;
 extern u8 canbuf_send[8];
 extern u8 onetime;
-extern u8 passflag;
+extern u8 switch_flag;
 extern u8 sfwdt_checkflag;
 
 #ifdef GEC_SF_MASTER

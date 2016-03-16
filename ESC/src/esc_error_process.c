@@ -8,14 +8,11 @@ int EscBuff[10] = {0};
 扶梯停止运行，进入故障状态，等待故障人工复位。**/
 void ESC_EWDT_Error_Process(void)
 {
-#ifdef GEC_SF_MASTER  
+ 
     /** 断开安全继电器 **/
-    SF_RL1_CTR = 0;
-    SF_RL1_WDT = 0;
-#else
-    SF_RL2_CTR = 0;
-    SF_RL2_WDT = 0;    
-#endif    
+    SF_RL_CTR = 0;
+    SF_RL_WDT = 0;
+   
     while(1)
     {
         /** 在故障处理子程序中死循环 **/
@@ -35,14 +32,11 @@ void ESC_EWDT_Error_Process(void)
 断开安全继电器，扶梯停止运行，进入故障状态，等待故障复位 **/
 void ESC_Flash_Error_Process(void)
 {
-#ifdef GEC_SF_MASTER  
+ 
     /** 断开安全继电器 **/
-    SF_RL1_CTR = 0;
-    SF_RL1_WDT = 0;  
-#else
-    SF_RL2_CTR = 0;
-    SF_RL2_WDT = 0;     
-#endif
+    SF_RL_CTR = 0;
+    SF_RL_WDT = 0;  
+
 }
 
 
@@ -52,8 +46,8 @@ void ESC_Fram_Error_Process(void)
 {
 #ifdef GEC_SF_MASTER  
     /** 断开安全继电器 **/
-    SF_RL1_CTR = 0;
-    SF_RL1_WDT = 0;    
+    SF_RL_CTR = 0;
+    SF_RL_WDT = 0;    
 #endif    
 
 }
@@ -62,14 +56,10 @@ void ESC_Fram_Error_Process(void)
 扶梯停止运行，进入故障状态 **/
 void ESC_SPI_Error_Process(void)
 {
-#ifdef GEC_SF_MASTER  
+  
     /** 断开安全继电器 **/
-    SF_RL1_CTR = 0;
-    SF_RL1_WDT = 0;
-#else
-    SF_RL2_CTR = 0;
-    SF_RL2_WDT = 0;     
-#endif
+    SF_RL_CTR = 0;
+    SF_RL_WDT = 0;
 
 }
 
@@ -78,13 +68,9 @@ void ESC_SPI_Error_Process(void)
 扶梯停止运行，进入故障状态 **/
 void ESC_SafeRelay_Error_Process(void)
 {
-#ifdef GEC_SF_MASTER  
+ 
     /** 断开安全继电器 **/
-    SF_RL1_CTR = 0;
-    SF_RL1_WDT = 0;
-#else
-    SF_RL2_CTR = 0;
-    SF_RL2_WDT = 0;     
-#endif
+    SF_RL_CTR = 0;
+    SF_RL_WDT = 0;
 
 }

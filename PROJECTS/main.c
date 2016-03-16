@@ -5,6 +5,10 @@
 
 u32 TimingDelay = 0;
 
+u8 canbuf_recv[8];
+u8 res;
+u8 can_rcv;
+
 #else
 
 #endif
@@ -28,15 +32,10 @@ void LED_indicator(void)
 void Task_Loop(void)
 { 
   
-#ifdef GEC_SF_MASTER  
-  
       static u16 Tms25Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
-      u8 canbuf_recv[8];
-      u8 res;
-      u8 can_rcv;
-  
+      static u32 comm_timeout = 0;
+      
       delay_ms(1);
-//      delay_us(1);
       Tms25Counter++;
       Tms50Counter++;
       Tms100Counter++;
@@ -47,7 +46,10 @@ void Task_Loop(void)
       if(Tms50Counter>=50) Tms50Counter=0;
       if(Tms100Counter>=100) Tms100Counter=0;
       if(Tms500Counter>=500) Tms500Counter=0;
-      if(Tms1000Counter>=1000) Tms1000Counter=0;
+      if(Tms1000Counter>=1000) Tms1000Counter=0;      
+  
+#ifdef GEC_SF_MASTER  
+  
       
 //      if(count3 == 25)
 //      {
@@ -78,11 +80,11 @@ void Task_Loop(void)
       
       if(Tms50Counter == 0)
       {                       
-          Hw_Test1();                   
+          Input_Check();                   
           
           USB_VCP_RecvBufandSend();
           
-          SF_RL1_WDT=!SF_RL1_WDT;
+          SF_EWDT_TOOGLE();
           EWDT_TOOGLE();
           
       } 
@@ -103,8 +105,7 @@ void Task_Loop(void)
           }
           else 
           {	 
-            
-//              Usb_Vcp_SendBuf("CAN1TX:", 7);                             
+                                       
               USB_VCP_SendBuf(canbuf_send, 4); 
               
               delay_ms(1);
@@ -112,12 +113,9 @@ void Task_Loop(void)
               /** CAN1 receive data **/
               can_rcv=Can_Receive_Msg(CAN1,canbuf_recv);
               if(can_rcv)
-              {			                                 
-//                  Usb_Vcp_SendBuf("CAN1RX:", 7);                                 
+              {			                                                                 
                   USB_VCP_SendBuf(canbuf_recv, can_rcv);                                                                                               
-              }                              
-              
-//              Usb_Vcp_SendBuf("\r\n\r\n", 4);                             
+              }                                                                       
             
           }                      
         
@@ -127,23 +125,9 @@ void Task_Loop(void)
       {
           Comm_DisplayBoard();      
       }
-#else
       
-      static u16 Tms25Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
-      static u32 comm_timeout = 0;
-//      delay_us(1);
-      delay_ms(1);
-      Tms25Counter++;
-      Tms50Counter++;
-      Tms100Counter++;
-      Tms500Counter++; 
-      Tms1000Counter++;   
+#else
 
-      if(Tms25Counter>=10) Tms25Counter=0;
-      if(Tms50Counter>=25) Tms50Counter=0;
-      if(Tms100Counter>=100) Tms100Counter=0;
-      if(Tms500Counter>=500) Tms500Counter=0;
-      if(Tms1000Counter>=1000) Tms1000Counter=0;
       
       if( onetime == 0)
       {
@@ -162,17 +146,15 @@ void Task_Loop(void)
           {
                 comm_timeout = 0;
                 
-                CPU_Exchange_Data_Check();
-              
-//                R_SF_RL1_FB_CPU2 = SPI1_RX_Buff[0];
+                CPU_Exchange_Data_Check();              
           }
       }
       
       if( Tms50Counter == 0 )
       {                       
-          Hw_Test1();   
+          Input_Check();   
                               
-          SF_RL2_WDT=!SF_RL2_WDT;
+          SF_EWDT_TOOGLE();
           EWDT_TOOGLE();
       } 
       

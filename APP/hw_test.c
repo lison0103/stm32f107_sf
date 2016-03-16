@@ -15,12 +15,12 @@ u8 R_SF_RL2_FB_CPU1;
 
 #else
 
-u8 R_SF_RL1_FB_CPU2;
+u8 R_SF_RL_FB_CPU2;
 
 #endif
 
 u8 sflag,inputnum = 0;
-u8 passflag = 1;
+u8 switch_flag = 1;
 u8 sfwdt_checkflag = 0;
 
 u8 canbuf_send[8];
@@ -34,31 +34,17 @@ void SF_WDT_Check(void)
     delay_ms(900);//>1.8s
     EWDT_TOOGLE(); 
     
-#ifdef GEC_SF_MASTER    
-    if( !SF_RL1_FB )
+   
+    if( !SF_RL_FB )
     {
-          passflag = 0;
+          switch_flag = 0;
           sfwdt_checkflag = 0;
     }
     else
     {
         sfwdt_checkflag = 1;
-        SF_RL1_WDT=!SF_RL1_WDT;
-    }
-#else
-    if( !SF_RL2_FB )
-    {
-          passflag = 0;
-          sfwdt_checkflag = 0;
-    }       
-    else
-    {
-        sfwdt_checkflag = 1;
-        SF_RL2_WDT=!SF_RL2_WDT;
-    }
-#endif
-    
-    
+        SF_EWDT_TOOGLE();
+    }   
 
 }
 
@@ -72,34 +58,19 @@ void CPU_Exchange_Data_Check(void)
           }
     
           SPI_DMA_RECEIVE_FLAG = 0;
-#ifdef GEC_SF_MASTER  
-          if(SF_RL1_DRV_FB)
+ 
+          if(SF_RL_DRV_FB)
             SPI1_TX_Buff[0] = 0x01;
          
-          if(SF_PWR_FB_CPU1)
+          if(SF_PWR_FB_CPU)
             SPI1_TX_Buff[1] = 0x01;
           
-          if(SF_RL1_FB)
+          if(SF_RL_FB)
             SPI1_TX_Buff[2] = 0x01;
             
-          if(AUX1_FB)
+          if(AUX_FB)
             SPI1_TX_Buff[3] = 0x01;
-      
-#else
-
-          if(SF_RL2_DRV_FB)
-            SPI1_TX_Buff[0] = 0x01;
-          
-          if(SF_PWR_FB_CPU2)
-            SPI1_TX_Buff[1] = 0x01; 
-          
-          if(SF_RL2_FB)
-            SPI1_TX_Buff[2] = 0x01;  
-          
-          if(AUX2_FB)
-            SPI1_TX_Buff[3] = 0x01;
-          
-#endif          
+               
           SPI1_TX_Buff[4] = sfwdt_checkflag;
           
           SPI1_TX_Buff[5] = canbuf_send[0];
@@ -111,11 +82,19 @@ void CPU_Exchange_Data_Check(void)
           
           if(SPI1_TX_Buff[4] == 1 && SPI1_RX_Buff[4] == 1)
           {
-              passflag = 2;
+              switch_flag = 2;
               sfwdt_checkflag = 0;
           }
+          else if( sfwdt_checkflag == 1)
+          {
+              EN_ERROR_SYS3++;
+              if(EN_ERROR_SYS3 > 2)
+              {  
+                  ESC_SafeRelay_Error_Process();
+              }
+          }
           
-          if( passflag == 2 )
+          if( switch_flag == 2 )
           {
               if( (SPI1_TX_Buff[0] != SPI1_RX_Buff[0]) || (SPI1_TX_Buff[1] != SPI1_RX_Buff[1]) 
                  || (SPI1_TX_Buff[2] != SPI1_RX_Buff[2]) || (SPI1_TX_Buff[3] != SPI1_RX_Buff[3]) )
@@ -132,23 +111,21 @@ void CPU_Exchange_Data_Check(void)
                   EN_ERROR_SYS3 = 0;
               }
           }
-          
-//          R_SF_RL2_FB_CPU1 = SPI1_RX_Buff[0];    
+             
 }
 
 void SF_CTR_Check(void)
 {
-#ifdef GEC_SF_MASTER  
-      if(passflag == 2)
+ 
+      if(switch_flag == 2)
       {
-        SF_RL1_CTR = 0;
+        SF_RL_CTR = 0;
         delay_us(150);
-        if(!SF_RL1_DRV_FB)
+        if(!SF_RL_DRV_FB)
         {
             EN_ERROR_SYS2++;
             if(EN_ERROR_SYS2 > 2)
             {
-//                EN_ERROR_SYS2 = 0;
                 ESC_SafeRelay_Error_Process();
             }
         }
@@ -156,37 +133,13 @@ void SF_CTR_Check(void)
         {
             EN_ERROR_SYS2 = 0;
         }
-        SF_RL1_CTR = 1;
+        SF_RL_CTR = 1;
       }
-#else      
-          if(passflag == 2)
-          {
-              SF_RL2_CTR = 0;
-              delay_us(150);
-              if(!SF_RL2_DRV_FB)
-              {
-                  EN_ERROR_SYS2++;
-                  if(EN_ERROR_SYS2 > 2)
-                  {
-//                      EN_ERROR_SYS2 = 0;
-                      ESC_SafeRelay_Error_Process();
-                      passflag = 0;
-                  }
-              }
-              else
-              {
-                  EN_ERROR_SYS2 = 0;
-              }
-              SF_RL2_CTR = 1;
-          }
-#endif
+
 }
 
-void Hw_Test1(void)
+void Input_Check(void)
 {  
-
-#ifdef GEC_SF_MASTER
-  
 
   
         for(u8 i=0;i<4;i++)
@@ -200,42 +153,38 @@ void Hw_Test1(void)
         *****************************************************/
         
         /****test input,The actual test should be uncommented****/
-        if(passflag  /*&& ( !IN1 && !IN2 && !IN3 && !IN4 && !IN5 && !IN6 && !IN7 && !IN8 && 
+        if(switch_flag  /*&& ( !IN1 && !IN2 && !IN3 && !IN4 && !IN5 && !IN6 && !IN7 && !IN8 && 
                         IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && 
                           IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 )*/)
         {
-                if(SF_RL1_DRV_FB && !SF_PWR_FB_CPU1 && SF_RL1_FB && AUX1_FB)
+                if(SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB && AUX_FB)
                 {
                     
-//                    if(SF_RL2_FB_CPU1 == R_SF_RL2_FB_CPU1)
-//                    {
-                        AUX1_CTR = 1;
-                        SF_RL1_CTR = 1;  
+                        AUX_CTR = 1;
+                        SF_RL_CTR = 1;  
                         
-                        delay_ms(10);
+                        delay_ms(1);
                         
-//                        passflag = 2;
-//                    }
                         SF_WDT_Check();
                 }                
-                else if(( passflag == 2 ) && ( SF_RL1_DRV_FB || SF_PWR_FB_CPU1 || SF_RL1_FB || AUX1_FB ))
+                else if(( switch_flag == 2 ) && ( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || AUX_FB ))
                 {
-                    passflag = 0;                  
+                    switch_flag = 0;                  
                 }                
 
                 
                 for(u8 i=0;i<3;i++)
                 {
-                  canbuf_send[i]= 0xff;                 
+                    canbuf_send[i]= 0xff;                 
                 }
                 canbuf_send[3] = 0x0f;
           
         }
         else
         {
-                passflag = 0;
-                AUX1_CTR = 0; 
-                SF_RL1_CTR = 0;            
+                switch_flag = 0;
+                AUX_CTR = 0; 
+                SF_RL_CTR = 0;            
 
                 /****test input,The actual test should be commented****/
 //                canbuf_send[0] = 0xff;
@@ -244,8 +193,8 @@ void Hw_Test1(void)
 //                canbuf_send[3] = 0x0f;
                 /*****************************************************/
         
-                  if ( !IN1 )
-                  {
+                  if ( !IN1 ) 
+                  { 
                       canbuf_send[0] |= 1 << 0;                 
                   }
                   if ( !IN2 ) 
@@ -486,58 +435,19 @@ void Hw_Test1(void)
                   
         }   
         
-#else
-        
-        if(passflag /*&& ( !IN1 && !IN2 && !IN3 && !IN4 && !IN5 && !IN6 && !IN7 && !IN8 && 
-                        IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && 
-                          IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 )*/)
-        {
-          
-            if(SF_RL2_DRV_FB && !SF_PWR_FB_CPU2 && SF_RL2_FB && AUX2_FB)
-            {
-                
-//                if(SF_RL1_FB_CPU2 == R_SF_RL1_FB_CPU2)
-//                {
-                    AUX2_CTR = 1;
-                    SF_RL2_CTR = 1;  
-                    
-                    delay_ms(10);
-                    
-//                    passflag = 2;
-//                }
-                    
-                    SF_WDT_Check();
-            }            
-            else if(( passflag == 2 ) && (SF_RL2_DRV_FB || SF_PWR_FB_CPU2 || SF_RL2_FB || AUX2_FB))
-            {
-                passflag = 0;                  
-            }   
-            
-        }
-        else
-        {
-
-            passflag = 0;
-            AUX2_CTR = 0; 
-            SF_RL2_CTR = 0;  
-                       
-        }        
-#endif
         
 }        
         
 
 
-void Hw_Test2(void)
+void Input_Check2(void)
 {
-  
-#ifdef GEC_SF_MASTER
   
 //    u8 sflag,t,inputnum = 0;
 //  
-//    AUX1_CTR = 0;
-//    SF_RL1_CTR = 0;
-//    SF_RL1_WDT = 1;
+//    AUX_CTR = 0;
+//    SF_RL_CTR = 0;
+//    SF_RL_WDT = 1;
     
 //    while(1)
 //    {
@@ -813,21 +723,21 @@ void Hw_Test2(void)
 
         if ( inputnum == 0 )
         {
-            AUX1_CTR = 0; 
-            SF_RL1_CTR = 0;
+            AUX_CTR = 0; 
+            SF_RL_CTR = 0;
         }
         else if ( sflag > 1 )
         {
-            AUX1_CTR = 0; 
-            SF_RL1_CTR = 0;
+            AUX_CTR = 0; 
+            SF_RL_CTR = 0;
         }
         else if ( inputnum && ( inputnum % 2 ) )
         {
-            AUX1_CTR = 1; 
+            AUX_CTR = 1; 
         }
         else if ( inputnum )
         {
-            SF_RL1_CTR = 1; 
+            SF_RL_CTR = 1; 
         }
                
         
@@ -836,323 +746,12 @@ void Hw_Test2(void)
 //        if(t==200)
 //        {
 //            LED=!LED;
-//            SF_RL1_WDT=!SF_RL1_WDT;
+//            SF_RL_WDT=!SF_RL_WDT;
 //            t=0;
 //        }        
 //        
 //    }
-        
-#else
-
-  
-    AUX2_CTR = 0;
-    SF_RL2_CTR = 0;
-    SF_RL2_WDT = 1;
-    
-    while(1)
-    {
-        sflag = 0;
-        inputnum = 0;        
-        
-        if ( !IN1 )
-        {
-            inputnum = 1;
-            sflag++;
-        }
-        if ( !IN2 ) 
-        {       
-            inputnum = 2;
-            sflag++;
-        }
-        if ( !IN3 ) 
-        {                   
-            inputnum = 3;
-            sflag++;
-
-        }
-        if ( !IN4 ) 
-        {
-            inputnum = 4;
-            sflag++;
-        } 
-        if ( !IN5 ) 
-        {           
-            inputnum = 5;
-            sflag++;
-        }
-        if ( !IN6 ) 
-        {          
-            inputnum = 6;
-            sflag++;
-
-        }
-        if ( !IN7 ) 
-        {         
-            inputnum = 7;
-            sflag++;
-
-        }        
-        if ( !IN8 ) 
-        {         
-            inputnum = 8;
-            sflag++;
-
-        }
-        if ( IN9 ) 
-        {     
-            inputnum = 9;
-            sflag++;
-
-        }
-        if ( IN10 ) 
-        {                
-            inputnum = 10;
-            sflag++;
-
-        } 
-        if ( IN11 ) 
-        {          
-            inputnum = 11;
-            sflag++;
-
-        }
-        if ( IN12 ) 
-        {
-            inputnum = 12;
-            sflag++;
-
-        }
-        if ( IN13 ) 
-        {   
-            inputnum = 13;
-            sflag++;
-
-        }         
-        if ( IN14 ) 
-        {    
-            inputnum = 14;
-            sflag++;
-
-        }
-        if ( IN15 ) 
-        { 
-            inputnum = 15;
-            sflag++;
-
-        }
-        if ( IN16 ) 
-        {
-            inputnum = 16;
-            sflag++;
-
-        }    
-        if ( IN17 ) 
-        {          
-            inputnum = 17;
-            sflag++;
-
-        }
-        if ( IN18 ) 
-        {
-            inputnum = 18;
-            sflag++;
-
-        }
-        if ( IN19 ) 
-        {   
-            inputnum = 19;
-            sflag++;
-
-        }         
-        if ( IN20 ) 
-        {    
-            inputnum = 20;
-            sflag++;
-
-        }
-        if ( IN21 ) 
-        { 
-            inputnum = 21;
-            sflag++;
-
-        }
-        if ( IN22 ) 
-        {
-            inputnum = 22;
-            sflag++;
-
-        } 
-        if ( IN23 ) 
-        {
-            inputnum = 23;
-            sflag++;
-
-        }
-        if ( IN24 ) 
-        {   
-            inputnum = 24;
-            sflag++;
-
-        }         
-        if ( IN25 ) 
-        {    
-            inputnum = 25;
-            sflag++;
-
-        }
-        if ( IN26 ) 
-        { 
-            inputnum = 26;
-            sflag++;
-
-        }
-        if ( IN27 ) 
-        {
-            inputnum = 27;
-            sflag++;
-
-        }  
-        if ( IN28 ) 
-        {
-            inputnum = 28;
-            sflag++;
-
-        } 
-        if ( EX_IN1 )
-        {
-            inputnum = 29;
-            sflag++;
-        }
-        if ( EX_IN2 ) 
-        {       
-            inputnum = 30;
-            sflag++;
-        }
-        if ( EX_IN3 ) 
-        {                   
-            inputnum = 31;
-            sflag++;
-
-        }
-        if ( EX_IN4 ) 
-        {
-            inputnum = 32;
-            sflag++;
-        } 
-        if ( EX_IN5 ) 
-        {           
-            inputnum = 33;
-            sflag++;
-        }
-        if ( EX_IN6 ) 
-        {          
-            inputnum = 34;
-            sflag++;
-
-        }
-        if ( EX_IN7 ) 
-        {         
-            inputnum = 35;
-            sflag++;
-
-        }        
-        if ( EX_IN8 ) 
-        {         
-            inputnum = 36;
-            sflag++;
-
-        }
-        if ( EX_IN9 ) 
-        {     
-            inputnum = 37;
-            sflag++;
-
-        }
-        if ( EX_IN10 ) 
-        {                
-            inputnum = 38;
-            sflag++;
-
-        } 
-        if ( EX_IN11 ) 
-        {          
-            inputnum = 39;
-            sflag++;
-
-        }
-        if ( EX_IN12 ) 
-        {
-            inputnum = 40;
-            sflag++;
-
-        }
-        if ( EX_IN13 ) 
-        {   
-            inputnum = 41;
-            sflag++;
-
-        }         
-        if ( EX_IN14 ) 
-        {    
-            inputnum = 42;
-            sflag++;
-
-        }
-        if ( EX_IN15 ) 
-        { 
-            inputnum = 43;
-            sflag++;
-
-        }
-        if ( EX_IN16 ) 
-        {
-            inputnum = 44;
-            sflag++;
-
-        }    
-        if ( EX_IN17 ) 
-        {          
-            inputnum = 45;
-            sflag++;
-
-        }       
-        
-
-        if ( inputnum == 0 )
-        {
-            AUX2_CTR = 0; 
-            SF_RL2_CTR = 0;
-        }
-        else if ( sflag > 1 )
-        {
-            AUX2_CTR = 0; 
-            SF_RL2_CTR = 0;
-        }
-        else if ( inputnum && ( inputnum % 2 ) )
-        {
-            AUX2_CTR = 1; 
-        }
-        else if ( inputnum )
-        {
-            SF_RL2_CTR = 1; 
-        }
-        
-
-        
-        
-//        delay_ms(1);
-//        t++;
-//        if(t==200)
-//        {
-//            LED=!LED;
-//            SF_RL2_WDT=!SF_RL2_WDT;
-//            t=0;
-//        }        
-        
-    }
-
-
-#endif        
+              
         
 }
 /******************************************************************************* 
@@ -1210,13 +809,13 @@ void spi1_test(void)
         if( data_error <= 0)
         {
             if(i == num) 
-              AUX1_CTR = 1;
+              AUX_CTR = 1;
             else        
-              AUX1_CTR = 0;    
+              AUX_CTR = 0;    
         }
         else
         {
-            AUX1_CTR = 0;  
+            AUX_CTR = 0;  
         }                 
         
     }
@@ -1276,13 +875,13 @@ void spi1_test(void)
         if( data_error <= 0)
         {
             if(i == num) 
-              AUX2_CTR = 1;
+              AUX_CTR = 1;
             else        
-              AUX2_CTR = 0;    
+              AUX_CTR = 0;    
         }
         else
         {
-            AUX2_CTR = 0;  
+            AUX_CTR = 0;  
         }   
           number++;
           if(number > 10)
