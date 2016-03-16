@@ -7,6 +7,8 @@ extern int EscBuff[10];
 #define EN_ERROR_SYS1 EscBuff[0]
 #define EN_ERROR_SYS2 EscBuff[1]
 #define EN_ERROR_SYS3 EscBuff[2]
+#define EN_ERROR_SYS4 EscBuff[3]
+
 
 void ESC_EWDT_Error_Process(void);
 void ESC_Flash_Error_Process(void);

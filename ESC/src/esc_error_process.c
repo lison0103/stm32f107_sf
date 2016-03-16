@@ -12,6 +12,9 @@ void ESC_EWDT_Error_Process(void)
     /** 断开安全继电器 **/
     SF_RL1_CTR = 0;
     SF_RL1_WDT = 0;
+#else
+    SF_RL2_CTR = 0;
+    SF_RL2_WDT = 0;    
 #endif    
     while(1)
     {
@@ -35,7 +38,10 @@ void ESC_Flash_Error_Process(void)
 #ifdef GEC_SF_MASTER  
     /** 断开安全继电器 **/
     SF_RL1_CTR = 0;
-    SF_RL1_WDT = 0;    
+    SF_RL1_WDT = 0;  
+#else
+    SF_RL2_CTR = 0;
+    SF_RL2_WDT = 0;     
 #endif
 }
 
@@ -47,7 +53,7 @@ void ESC_Fram_Error_Process(void)
 #ifdef GEC_SF_MASTER  
     /** 断开安全继电器 **/
     SF_RL1_CTR = 0;
-    SF_RL1_WDT = 0;
+    SF_RL1_WDT = 0;    
 #endif    
 
 }
@@ -60,6 +66,9 @@ void ESC_SPI_Error_Process(void)
     /** 断开安全继电器 **/
     SF_RL1_CTR = 0;
     SF_RL1_WDT = 0;
+#else
+    SF_RL2_CTR = 0;
+    SF_RL2_WDT = 0;     
 #endif
 
 }
@@ -73,6 +82,9 @@ void ESC_SafeRelay_Error_Process(void)
     /** 断开安全继电器 **/
     SF_RL1_CTR = 0;
     SF_RL1_WDT = 0;
+#else
+    SF_RL2_CTR = 0;
+    SF_RL2_WDT = 0;     
 #endif
 
 }

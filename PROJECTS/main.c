@@ -73,7 +73,7 @@ void Task_Loop(void)
 //      }
       if(Tms25Counter == 0)      
       {
-          CPU_Exchange_Check_Data();
+          CPU_Exchange_Data_Check();
       }
       
       if(Tms50Counter == 0)
@@ -130,7 +130,7 @@ void Task_Loop(void)
 #else
       
       static u16 Tms25Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
-      
+      static u32 comm_timeout = 0;
 //      delay_us(1);
       delay_ms(1);
       Tms25Counter++;
@@ -151,14 +151,24 @@ void Task_Loop(void)
                           
           SPI1_DMA_ReceiveSendByte(512);
       }
-      if( SPI_DMA_RECEIVE_FLAG == 1 )
+      if( Tms25Counter == 0 )
       {
-            CPU_Exchange_Check_Data();
-          
-//          R_SF_RL1_FB_CPU2 = SPI1_RX_Buff[0];
+          comm_timeout++;
+          if(comm_timeout > 100)
+          {
+              ESC_SPI_Error_Process();
+          }
+          if( SPI_DMA_RECEIVE_FLAG == 1 )
+          {
+                comm_timeout = 0;
+                
+                CPU_Exchange_Data_Check();
+              
+//                R_SF_RL1_FB_CPU2 = SPI1_RX_Buff[0];
+          }
       }
       
-      if(Tms50Counter == 0)
+      if( Tms50Counter == 0 )
       {                       
           Hw_Test1();   
                               
@@ -166,7 +176,7 @@ void Task_Loop(void)
           EWDT_TOOGLE();
       } 
       
-      if(Tms100Counter == 0)
+      if( Tms100Counter == 0 )
       {         
           SF_CTR_Check();
       }      

@@ -62,7 +62,7 @@ void SF_WDT_Check(void)
 
 }
 
-void CPU_Exchange_Check_Data(void)
+void CPU_Exchange_Data_Check(void)
 {
     u16 num = 512;
   
@@ -139,7 +139,7 @@ void CPU_Exchange_Check_Data(void)
 void SF_CTR_Check(void)
 {
 #ifdef GEC_SF_MASTER  
-      if(passflag)
+      if(passflag == 2)
       {
         SF_RL1_CTR = 0;
         delay_us(150);
@@ -159,7 +159,7 @@ void SF_CTR_Check(void)
         SF_RL1_CTR = 1;
       }
 #else      
-          if(passflag)
+          if(passflag == 2)
           {
               SF_RL2_CTR = 0;
               delay_us(150);
