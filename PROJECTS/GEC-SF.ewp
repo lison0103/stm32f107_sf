@@ -1030,7 +1030,7 @@
         </option>
         <option>
           <name>OGLastSavedByProductVersion</name>
-          <state></state>
+          <state>6.50.1.4445</state>
         </option>
         <option>
           <name>GeneralEnableMisra</name>
@@ -1076,12 +1076,12 @@
         </option>
         <option>
           <name>RTConfigPath2</name>
-          <state></state>
+          <state>$TOOLKIT_DIR$\INC\c\DLib_Config_Normal.h</state>
         </option>
         <option>
           <name>GFPUCoreSlave</name>
           <version>20</version>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>GBECoreSlave</name>
@@ -1220,7 +1220,7 @@
         </option>
         <option>
           <name>OutputFile</name>
-          <state></state>
+          <state>$FILE_BNAME$.o</state>
         </option>
         <option>
           <name>CCLibConfigHeader</name>
@@ -1265,7 +1265,7 @@
         </option>
         <option>
           <name>CCOptLevelSlave</name>
-          <state>1</state>
+          <state>3</state>
         </option>
         <option>
           <name>CompilerMisraRules98</name>
@@ -1465,7 +1465,7 @@
         </option>
         <option>
           <name>AOutputFile</name>
-          <state></state>
+          <state>$FILE_BNAME$.o</state>
         </option>
         <option>
           <name>AMultibyteSupport</name>
@@ -1569,7 +1569,7 @@
         </option>
         <option>
           <name>IlinkOutputFile</name>
-          <state>###Unitialized###</state>
+          <state>GEC-SF.out</state>
         </option>
         <option>
           <name>IlinkDebugInfoEnable</name>
@@ -2179,7 +2179,7 @@
           <state>$PROJ_DIR$\..\VCP\inc</state>
           <state>$PROJ_DIR$\..\SELFTEST\inc</state>
           <state>$PROJ_DIR$\..\ESC\inc</state>
-          <state>$PROJ_DIR$\..\SELFTEST\SelfTestLib</state>
+          <state>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -3929,6 +3929,54 @@
       <excluded>
         <configuration>GEC-SF-S</configuration>
       </excluded>
+    </file>
+  </group>
+  <group>
+    <name>SafetyTest</name>
+    <group>
+      <name>SelfTestLib</name>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLclockrun.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLclockstart.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLcpurunIARv5.s</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLcpustartIARv5.s</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLcrc16.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLcrc16Run.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLcrc32.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLcrc32Run.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLfullRamMc.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLmain.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLstartup.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLtranspRamMc.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLtranspRamMx.c</name>
+      </file>
+    </group>
+    <file>
+      <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLparam.h</name>
     </file>
   </group>
   <group>
