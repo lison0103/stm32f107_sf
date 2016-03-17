@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f10x_lib.h"
+//#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 
 #define ALLOC_GLOBALS
@@ -38,7 +38,7 @@
 /* Private functions ---------------------------------------------------------*/
 #ifdef STL_VERBOSE_POR
   static void STL_VerbosePORInit(void);
-  static void USART_Configuration(void);
+//  static void USART_Configuration(void);
 #endif  /* STL_VERBOSE_POR */
 
 static ErrorStatus RCC_Config64MHzOnHSI(void);
@@ -55,13 +55,13 @@ static ErrorStatus RCC_SwitchOffPLL(void);
 *******************************************************************************/
 void FailSafePOR(void)
 {
-  SysTick_ITConfig(DISABLE);
+//  SysTick_ITConfig(DISABLE);
   #ifdef STL_VERBOSE_POR
   printf(" >>>>>>>>>> POR FailSafe Mode <<<<<<<<<<\n\r");
   #endif  /* STL_VERBOSE_POR */
   while(1)
   {
-    NVIC_GenerateSystemReset();
+    NVIC_SystemReset();
   }
 }
 
@@ -364,42 +364,42 @@ void STL_VerbosePORInit(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void USART_Configuration(void)
-{
-  USART_InitTypeDef USART_InitStructure;
-
-  USART_DeInit(USART1);
-
-/* USART1 configuration ------------------------------------------------------*/
-  /* USART1 configured as follow:
-        - BaudRate = 115200 baud
-        - Word Length = 8 Bits
-        - One Stop Bit
-        - No parity
-        - Hardware flow control disabled (RTS and CTS signals)
-        - Receive and transmit enabled
-        - USART Clock disabled
-        - USART CPOL: Clock is active low
-        - USART CPHA: Data is captured on the middle
-        - USART LastBit: The clock pulse of the last data bit is not output to
-                         the SCLK pin
-  */
-  USART_InitStructure.USART_BaudRate = 115200uL;
-  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-  USART_InitStructure.USART_StopBits = USART_StopBits_1;
-  USART_InitStructure.USART_Parity = USART_Parity_No;
-  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-  USART_InitStructure.USART_Clock = USART_Clock_Disable;
-  USART_InitStructure.USART_CPOL = USART_CPOL_Low;
-  USART_InitStructure.USART_CPHA = USART_CPHA_2Edge;
-  USART_InitStructure.USART_LastBit = USART_LastBit_Disable;
-
-  USART_Init(USART1, &USART_InitStructure);
-
-  /* Enable USART1 */
-  USART_Cmd(USART1, ENABLE);
-}
+//void USART_Configuration(void)
+//{
+//  USART_InitTypeDef USART_InitStructure;
+//
+//  USART_DeInit(USART1);
+//
+///* USART1 configuration ------------------------------------------------------*/
+//  /* USART1 configured as follow:
+//        - BaudRate = 115200 baud
+//        - Word Length = 8 Bits
+//        - One Stop Bit
+//        - No parity
+//        - Hardware flow control disabled (RTS and CTS signals)
+//        - Receive and transmit enabled
+//        - USART Clock disabled
+//        - USART CPOL: Clock is active low
+//        - USART CPHA: Data is captured on the middle
+//        - USART LastBit: The clock pulse of the last data bit is not output to
+//                         the SCLK pin
+//  */
+//  USART_InitStructure.USART_BaudRate = 115200uL;
+//  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+//  USART_InitStructure.USART_StopBits = USART_StopBits_1;
+//  USART_InitStructure.USART_Parity = USART_Parity_No;
+//  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+//  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+//  USART_InitStructure.USART_Clock = USART_Clock_Disable;
+//  USART_InitStructure.USART_CPOL = USART_CPOL_Low;
+//  USART_InitStructure.USART_CPHA = USART_CPHA_2Edge;
+//  USART_InitStructure.USART_LastBit = USART_LastBit_Disable;
+//
+//  USART_Init(USART1, &USART_InitStructure);
+//
+//  /* Enable USART1 */
+//  USART_Cmd(USART1, ENABLE);
+//}
 
 #endif  /* STL_VERBOSE_POR */
 
@@ -429,7 +429,7 @@ ErrorStatus RCC_Config64MHzOnHSI(void)
   FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 
   /* PLLCLK = 4MHz * 16 = 64 MHz */
-  RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_16);
+//  RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_16);
   /* Enable PLL */
   RCC_PLLCmd(ENABLE);
 
@@ -570,7 +570,7 @@ void STL_WDGSelfTest(void)
       #ifdef STL_VERBOSE_POR
         printf("... WWDG reset, re-start WDG test ... \r\n");
       #endif  /* STL_VERBOSE_POR */
-      NVIC_GenerateSystemReset();
+      NVIC_SystemReset();
     }
     else  /* If IWDG only was set, continue the test with WWDG test*/
     {
@@ -610,7 +610,7 @@ void STL_WDGSelfTest(void)
           #ifdef STL_VERBOSE_POR
             printf("...Unexpected Flag configuration, re-start WDG test... \r\n");
           #endif  /* STL_VERBOSE_POR */
-          NVIC_GenerateSystemReset();
+          NVIC_SystemReset();
         } /* End of Unexpected Flag configuration */
       } /* End of normal test sequence */
     } /* End of partial WDG test (IWDG test done) */

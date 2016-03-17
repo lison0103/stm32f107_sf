@@ -25,8 +25,19 @@
 #define __SELFTEST_PARAM_H
 
 /* Includes ------------------------------------------------------------------*/
+#include "sys.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
+
+#define U8_MAX     ((u8)255)
+#define S8_MAX     ((s8)127)
+#define S8_MIN     ((s8)-128)
+#define U16_MAX    ((u16)65535u)
+#define S16_MAX    ((s16)32767)
+#define S16_MIN    ((s16)-32768)
+#define U32_MAX    ((u32)4294967295uL)
+#define S32_MAX    ((s32)2147483647)
+#define S32_MIN    ((s32)2147483648uL)
 
 /* This is for having self-diagnostic messages reported on a PC via UART */
 #define STL_VERBOSE_POR     /* During Power-on phase only*/

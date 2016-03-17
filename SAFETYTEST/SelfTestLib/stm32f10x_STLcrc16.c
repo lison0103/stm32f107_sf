@@ -42,7 +42,7 @@
 
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f10x_lib.h"
+//#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
 

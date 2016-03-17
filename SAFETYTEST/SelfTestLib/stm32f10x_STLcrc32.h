@@ -24,7 +24,7 @@
 #define __STM32F10x_STL_CRC32_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f10x_lib.h"
+//#include "stm32f10x_lib.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -38,20 +38,20 @@ of a previous CRC for instance */
 
 /* CR is the Control Register. It contains the CRC reset bit (other bits are
 reserved). The CRC reset value is 0xFFFFFFFF */
-typedef struct
-{
-  vu32  DR;
-  vu8   IDR;
-  vu8   RESERVED0;
-  vu16  RESERVED1;
-  vu32  CR;
-  vu32  RESERVED2;
-} CRC_TypeDef;
-#define CRC                 ((CRC_TypeDef *) (0x40023000uL))
+//typedef struct
+//{
+//  vu32  DR;
+//  vu8   IDR;
+//  vu8   RESERVED0;
+//  vu16  RESERVED1;
+//  vu32  CR;
+//  vu32  RESERVED2;
+//} CRC_TypeDef;
+//#define CRC                 ((CRC_TypeDef *) (0x40023000uL))
 
 #define CRC_RESET           ((u32)0x00000001uL)
 
-#define RCC_AHBPeriph_CRC   ((u32)0x00000040uL)
+//#define RCC_AHBPeriph_CRC   ((u32)0x00000040uL)
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */

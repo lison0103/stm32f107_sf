@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f10x_lib.h"
+//#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
 
@@ -71,7 +71,7 @@ ClockStatus STL_ClockStartUpTest(void)
       STL_SysTickInit();  /* Start SysTick timer to measure HSI then HSE */
 
       /* Wait Systick underflow before measurement */
-      while (SysTick_GetFlagStatus(SysTick_FLAG_COUNT) == RESET)
+      while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
       {
       }
       /*-------------- Reference Measurement ---------------------------------*/
@@ -86,10 +86,10 @@ ClockStatus STL_ClockStartUpTest(void)
       {
         RTC_SetCounter(0);                            /* Reset RTC */
         RTC_WaitForLastTask();
-        SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset SysTick counter */
+        SysTick->VAL =0X00;//SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset SysTick counter */
 
         /* Wait Systick underflow before measurement */
-        while (SysTick_GetFlagStatus(SysTick_FLAG_COUNT) == RESET)
+        while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
         {
         }
 
@@ -284,9 +284,9 @@ void STL_SysTickInit(void)
   CtrlFlowCnt += SYSTICK_INIT_CALLEE;
 
   SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);
-  SysTick_SetReload(SYSTICK_TB_START);          /* Set reload rate (Ref period) */
-  SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset counter */
-  SysTick_CounterCmd(SysTick_Counter_Enable);   /* Start down-counting */
+  SysTick->LOAD = ((u32)16000uL);//SysTick_SetReload(SYSTICK_TB_START);          /* Set reload rate (Ref period) */
+  SysTick->VAL =0X00;//SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset counter */
+  SysTick->CTRL|=SysTick_CTRL_ENABLE_Msk ;//SysTick_CounterCmd(SysTick_Counter_Enable);   /* Start down-counting */
 
   CtrlFlowCntInv -= SYSTICK_INIT_CALLEE;
 

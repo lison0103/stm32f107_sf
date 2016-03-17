@@ -20,7 +20,7 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f10x_lib.h"
+//#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
 
@@ -42,23 +42,23 @@
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void STL_SysTickRTCSync(void)
-{
-
-  /* Initializes the Systick for run-time clock measurement */
-  SysTick_CounterCmd(SysTick_Counter_Disable);  /* Stop SysTick timer */
-  SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset counter */
-  /* Set reload rate. Corresponds to reference period for clock measurement */
-  SysTick_SetReload(SYSTICK_TB_RUN);
-  /* Enable the SysTick Interrupt */
-  SysTick_ITConfig(ENABLE);
-
-  /* Reset RTC */
-  RTC_SetCounter(0);
-  /* Start down-counting */
-  SysTick_CounterCmd(SysTick_Counter_Enable);
-
-}
+//void STL_SysTickRTCSync(void)
+//{
+//
+//  /* Initializes the Systick for run-time clock measurement */
+//  SysTick_CounterCmd(SysTick_Counter_Disable);  /* Stop SysTick timer */
+//  SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset counter */
+//  /* Set reload rate. Corresponds to reference period for clock measurement */
+//  SysTick_SetReload(SYSTICK_TB_RUN);
+//  /* Enable the SysTick Interrupt */
+//  SysTick_ITConfig(ENABLE);
+//
+//  /* Reset RTC */
+//  RTC_SetCounter(0);
+//  /* Start down-counting */
+//  SysTick_CounterCmd(SysTick_Counter_Enable);
+//
+//}
 
 
 /*******************************************************************************
