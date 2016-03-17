@@ -2608,7 +2608,7 @@
         </option>
         <option>
           <name>IlinkUseExtraOptions</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkExtraOptions</name>
@@ -3764,6 +3764,7 @@
     <file>
       <name>$PROJ_DIR$\..\APP\self_test.c</name>
       <excluded>
+        <configuration>GEC-SF-M</configuration>
         <configuration>GEC-SF-S</configuration>
       </excluded>
     </file>
@@ -3933,6 +3934,7 @@
   <group>
     <name>SELFTEST</name>
     <excluded>
+      <configuration>GEC-SF-M</configuration>
       <configuration>GEC-SF-S</configuration>
     </excluded>
     <group>

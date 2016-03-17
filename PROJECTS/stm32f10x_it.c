@@ -37,12 +37,6 @@ extern uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);
 //#include "sys.h"
 extern u32 TimingDelay;
 
-#include "iec61508.h"
-
-extern ClockTest_t ClockTest;
-
-#include "stm32f10x_STLlib.h"
-#include "stm32f10x_STLclassBvar.h"
 
 #endif    
 
@@ -122,104 +116,6 @@ void SysTick_Handler(void)
   
 //  ClockTest.baseTicks++;
   
-#ifdef GEC_SF_MASTER   
-  /* Verify TickCounter integrity */
-  if ((TickCounter ^ TickCounterInv) == 0xFFFFFFFFuL)
-  {
-    TickCounter++;
-    TickCounterInv = ~TickCounter;
-
-    if (TickCounter >= SYSTICK_20ms_TB)
-    {
-        u32 RamTestResult;
-
-      /* Reset timebase counter */
-      TickCounter = 0;
-      TickCounterInv = 0xFFFFFFFF;
-
-      /* Set Flag read in main loop */
-      TimeBaseFlag = 0xAAAAAAAA;
-      TimeBaseFlagInv = 0x55555555;
-
-      if ((CurrentHSEPeriod ^ CurrentHSEPeriodInv) == 0xFFFFFFFFuL)
-      {
-        ISRCtrlFlowCnt += MEASPERIOD_ISR_CALLER;
-        CurrentHSEPeriod = STL_MeasurePeriod();
-        CurrentHSEPeriodInv = ~CurrentHSEPeriod;
-        ISRCtrlFlowCntInv -= MEASPERIOD_ISR_CALLER;
-      }
-      else  /* Class B Error on CurrentHSEPeriod */
-      {
-      #ifdef STL_VERBOSE
-        printf("\n\r Class B Error on CurrentHSEPeriod \n\r");
-      #endif  /* STL_VERBOSE */
-      }
-
-//      ISRCtrlFlowCnt += RAM_MARCHC_ISR_CALLER;
-//      RamTestResult = STL_TranspMarchC();
-//      ISRCtrlFlowCntInv -= RAM_MARCHC_ISR_CALLER;
-
-//      ISRCtrlFlowCnt += RAM_MARCHX_ISR_CALLER;
-//      RamTestResult = STL_TranspMarchX();
-//      ISRCtrlFlowCntInv -= RAM_MARCHX_ISR_CALLER;
-
-//      switch ( RamTestResult )
-//      {
-//        case TEST_RUNNING:
-//          break;
-//        case TEST_OK:
-//          #ifdef STL_VERBOSE
-////            printf("\n\r Full RAM verified (Run-time)\n\r");
-//            GPIO_WriteBit(GPIOC, GPIO_Pin_7, (BitAction)(1-GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_7)));
-//          #endif  /* STL_VERBOSE */
-//          break;
-//        case TEST_FAILURE:
-//        case CLASS_B_DATA_FAIL:
-//        default:
-//          #ifdef STL_VERBOSE
-//            printf("\n\r >>>>>>>>>>>>>>>>>>>  RAM Error (March C- Run-time check)\n\r");
-//          #endif  /* STL_VERBOSE */
-//          FailSafePOR();
-//          break;
-//      } /* End of the switch */
-
-      /* Do we reached the end of RAM test? */
-      /* Verify 1st ISRCtrlFlowCnt integrity */
-//      if ((ISRCtrlFlowCnt ^ ISRCtrlFlowCntInv) == 0xFFFFFFFFuL)
-//      {
-//        if (RamTestResult == TEST_OK)
-//        {
-//          if (ISRCtrlFlowCnt != RAM_TEST_COMPLETED)
-//          {
-//          #ifdef STL_VERBOSE
-//            printf("\n\r Control Flow error (RAM test) \n\r");
-//          #endif  /* STL_VERBOSE */
-//          FailSafePOR();
-//          }
-//          else  /* Full RAM was scanned */
-//          {
-//            ISRCtrlFlowCnt = 0;
-//            ISRCtrlFlowCntInv = 0xFFFFFFFF;
-//          }
-//        } /* End of RAM completed if*/
-//      } /* End of control flow monitoring */
-//      else
-//      {
-//      #ifdef STL_VERBOSE
-////        printf("\n\r Control Flow error in ISR \n\r");
-//      #endif  /* STL_VERBOSE */
-////      FailSafePOR();
-//      }
-    } /* End of the 20 ms timebase interrupt */
-  }
-  else  /* Class error on TickCounter */
-  {
-  #ifdef STL_VERBOSE
-//    printf("\n\r Class B Error on TickCounter\n\r");
-  #endif  /* STL_VERBOSE */
-//  FailSafePOR();
-  }  
-#endif
 }
 
 /**
@@ -231,35 +127,7 @@ void SysTick_Handler(void)
 void TIM2_IRQHandler(void)
 {
  
-   //unsigned char ReadValue;
-  //检测是否发生溢出更新事件
-  if ( TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET )
-  {
-    //清除TIM2的中断待处理位
-    TIM_ClearITPendingBit(TIM2 , TIM_FLAG_Update);
-    if (ClockTest.baseTicks < 105 & ClockTest.baseTicks > 95)
-    {
-      ClockTest.baseTicks=0;
-      ClockTest.result=1;
-    }
-    else
-    {
-      ClockTest.baseTicks=0;
-      ClockTest.result=0;
-    }
-    
-    //ReadValue = GPIO_ReadOutputDataBit(GPIOA,GPIO_Pin_8);
-    if(ClockTest.result == 1)
-    {
-      //STM_EVAL_LEDOff(0);
-      //Delay(0x3FFFFF);
-    }
-    else
-    {
-      //STM_EVAL_LEDOn(0);
-      while(1);  //clock test wrong, watting for watchdog
-    }  
-  }
+
 
 }
 #endif

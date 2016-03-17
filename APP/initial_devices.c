@@ -16,7 +16,7 @@ void Bsp_Init(void)
   
 #ifdef GEC_SF_MASTER
         /** stm32 self test **/
-        self_test();
+//        self_test();
 #endif
         /** set system interrupt priority group 2 **/
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
