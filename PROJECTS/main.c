@@ -1,5 +1,6 @@
 #include "initial_devices.h"
 #include "esc_error_process.h"
+#include "safety_test.h"
 
 #ifdef GEC_SF_MASTER
 
@@ -169,7 +170,7 @@ void Task_Loop(void)
 
 int main(void)
 {        
-    
+    Safety_test();
     /** hardware init **/
     Bsp_Init();
 

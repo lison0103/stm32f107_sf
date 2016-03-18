@@ -26,6 +26,9 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#define SysTick_Counter_Disable        ((u32)0xFFFFFFFE)
+#define SysTick_Counter_Enable         ((u32)0x00000001)
+#define SysTick_Counter_Clear          ((u32)0x00000000)
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -42,23 +45,25 @@
 * Output         : None
 * Return         : None
 *******************************************************************************/
-//void STL_SysTickRTCSync(void)
-//{
-//
-//  /* Initializes the Systick for run-time clock measurement */
+void STL_SysTickRTCSync(void)
+{
+
+  /* Initializes the Systick for run-time clock measurement */
 //  SysTick_CounterCmd(SysTick_Counter_Disable);  /* Stop SysTick timer */
 //  SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset counter */
 //  /* Set reload rate. Corresponds to reference period for clock measurement */
 //  SysTick_SetReload(SYSTICK_TB_RUN);
 //  /* Enable the SysTick Interrupt */
 //  SysTick_ITConfig(ENABLE);
-//
-//  /* Reset RTC */
-//  RTC_SetCounter(0);
-//  /* Start down-counting */
+    SysTick_Config(SYSTICK_TB_RUN);
+  
+  /* Reset RTC */
+  RTC_SetCounter(0);
+  /* Start down-counting */
 //  SysTick_CounterCmd(SysTick_Counter_Enable);
-//
-//}
+  SysTick->CTRL |= SysTick_Counter_Enable;
+
+}
 
 
 /*******************************************************************************

@@ -40,7 +40,7 @@
 #define S32_MIN    ((s32)2147483648uL)
 
 /* This is for having self-diagnostic messages reported on a PC via UART */
-#define STL_VERBOSE_POR     /* During Power-on phase only*/
+//#define STL_VERBOSE_POR     /* During Power-on phase only*/
 #define STL_VERBOSE         /* During main program execution */
 
 /* These are the direct and inverted data (pattern) used during the RAM
@@ -229,7 +229,7 @@ allow to react more quickly */
   #define CLASS_B_START ((u32 *)(&__ICFEDIT_region_CLASSB_start__))
   #define CLASS_B_END ((u32 *)(&__ICFEDIT_region_CLASSB_end__))
   
-  #define GotoCompilerStartUp() __iar_program_start();
+  #define GotoCompilerStartUp() Reset_Handler();//__iar_program_start();
 
   #define REF_CRC16 __checksum
 #else

@@ -11,12 +11,14 @@ __IO uint32_t receive_count =1;
 
 #endif
 
+
 void Bsp_Init(void)
 {
   
 #ifdef GEC_SF_MASTER
         /** stm32 self test **/
 //        self_test();
+//        RCC_Configuration();
 #endif
         /** set system interrupt priority group 2 **/
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);

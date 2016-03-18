@@ -111,7 +111,7 @@ void STL_StartUp(void)
   }
 
   CtrlFlowCnt += WDG_TEST_CALLER;
-  STL_WDGSelfTest();
+//  STL_WDGSelfTest();
   CtrlFlowCntInv -= WDG_TEST_CALLER;
 
   /*--------------------------------------------------------------------------*/

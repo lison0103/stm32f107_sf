@@ -2628,11 +2628,11 @@
         </option>
         <option>
           <name>IlinkOverrideProgramEntryLabel</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkProgramEntryLabelSelect</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkProgramEntryLabel</name>
@@ -3760,6 +3760,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\APP\initial_devices.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\APP\safety_test.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\APP\self_test.c</name>
