@@ -55,13 +55,45 @@ void STL_SysTickRTCSync(void)
 //  SysTick_SetReload(SYSTICK_TB_RUN);
 //  /* Enable the SysTick Interrupt */
 //  SysTick_ITConfig(ENABLE);
-    SysTick_Config(SYSTICK_TB_RUN);
+  RCC_ClocksTypeDef RCC_Clocks;
+  RCC_GetClocksFreq(&RCC_Clocks);
+  SysTick->CTRL &= SysTick_Counter_Disable;
+  SysTick->VAL = SysTick_Counter_Clear;
+
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+
+  /* Allow access to BKP Domain */
+  PWR_BackupAccessCmd(ENABLE);
+
+  /* Reset Backup Domain */
+  BKP_DeInit();
+
+  /* Enable LSI */
+  RCC_LSICmd(ENABLE);
   
+  RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); /* Select LSI as RTC Clock Source */
+
+  RCC_RTCCLKCmd(ENABLE);                  /* Start RTC counter */
+
+ /* Wait for RTC registers synchronization */
+  RTC_WaitForSynchro();
+
+  /* Wait until last write operation on RTC registers has finished */
+  RTC_WaitForLastTask();
+
+  RTC_SetPrescaler(0);    /* Do not prescale to have the highest precision */
+  
+SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);  
+//SysTick->LOAD = SYSTICK_2_ms_PLL;//SysTick_SetReload(SYSTICK_TB_START);          /* Set reload rate (Ref period) */
+//  SysTick->VAL =0X00;//SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset counter */
+//  SysTick->CTRL|=SysTick_CTRL_ENABLE_Msk ;
+SysTick_Config(SYSTICK_TB_RUN);
+//SysTick->VAL = SysTick_Counter_Clear;
   /* Reset RTC */
   RTC_SetCounter(0);
   /* Start down-counting */
 //  SysTick_CounterCmd(SysTick_Counter_Enable);
-  SysTick->CTRL |= SysTick_Counter_Enable;
+//  SysTick->CTRL |= SysTick_Counter_Enable;
 
 }
 

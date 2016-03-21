@@ -1,6 +1,8 @@
 #include "initial_devices.h"
 #include "esc_error_process.h"
 #include "safety_test.h"
+#include "stm32f10x_STLlib.h"
+#include "stm32f10x_STLclassBvar.h"
 
 #ifdef GEC_SF_MASTER
 
@@ -33,16 +35,18 @@ void LED_indicator(void)
 void Task_Loop(void)
 { 
   
-      static u16 Tms25Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
+      static u16 Tms10Counter=0,Tms25Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
       static u32 comm_timeout = 0;
       
       delay_ms(1);
+      Tms10Counter++;
       Tms25Counter++;
       Tms50Counter++;
       Tms100Counter++;
       Tms500Counter++; 
       Tms1000Counter++;   
 
+      if(Tms10Counter>=10) Tms10Counter=0;
       if(Tms25Counter>=25) Tms25Counter=0;
       if(Tms50Counter>=50) Tms50Counter=0;
       if(Tms100Counter>=100) Tms100Counter=0;
@@ -74,6 +78,11 @@ void Task_Loop(void)
 //                           
 //          SPI1_DMA_ReceiveSendByte(num);
 //      }
+      
+     
+          STL_DoRunTimeChecks();
+
+      
       if(Tms25Counter == 0)      
       {
           CPU_Exchange_Data_Check();
@@ -170,7 +179,7 @@ void Task_Loop(void)
 
 int main(void)
 {        
-    Safety_test();
+//    Safety_test();
     /** hardware init **/
     Bsp_Init();
 

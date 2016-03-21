@@ -11,7 +11,7 @@
 #include "exti.h"
 #include "timer.h"
 #include "self_test.h"
-
+#include "safety_test.h"
 
 #ifdef GEC_SF_MASTER
 

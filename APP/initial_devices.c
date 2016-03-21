@@ -1,4 +1,6 @@
 #include "initial_devices.h"
+#include "stm32f10x_STLlib.h"
+#include "stm32f10x_STLclassBvar.h"
 
 #ifdef GEC_SF_MASTER
 
@@ -18,7 +20,7 @@ void Bsp_Init(void)
 #ifdef GEC_SF_MASTER
         /** stm32 self test **/
 //        self_test();
-//        RCC_Configuration();
+        RCC_Configuration();
 #endif
         /** set system interrupt priority group 2 **/
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
@@ -87,6 +89,9 @@ void Bsp_Init(void)
           
         /** wait slave spi **/
         delay_ms(200);
+        
+        /* Self test routines initialization ---------------------------------------*/
+        STL_InitRunTimeChecks();
 
 #else
         /** TIM init 1000Khz£¬counting to 5000 is 5ms **/

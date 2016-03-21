@@ -6,7 +6,7 @@
 static u8  fac_us=0;
 static u16 fac_ms=0;
 
-
+#if 0
 
 void delay_init()	 
 {
@@ -16,7 +16,7 @@ void delay_init()
 	fac_us=SystemCoreClock/8000000;	 
 	 
 	fac_ms=(u16)fac_us*1000;   
-}								    
+}	
 
 /** delay nus **/		    								   
 void delay_us(u32 nus)
@@ -68,10 +68,34 @@ void delay_ms(u16 nms)
             }
         }
 } 
+#else
 
+void delay_init()	 
+{
+ 
+}
 
-
-
+//粗延时函数，微秒
+void delay_us(u32 nus)
+{    
+   u16 i=0;  
+   while(nus--)
+   {
+      i=10;  //自己定义
+      while(i--) ;    
+   }
+}
+//毫秒级的延时
+void delay_ms(u16 nms)
+{    
+   u16 i=0;  
+   while(nms--)
+   {
+      i=12000;  //自己定义
+      while(i--) ;    
+   }
+}
+#endif
 
 
 

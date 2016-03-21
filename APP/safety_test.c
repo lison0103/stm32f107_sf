@@ -4,6 +4,7 @@
 #include "sys.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
+#include "initial_devices.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -12,8 +13,9 @@
 static u32 RamPntr;
 
 /* Private function prototypes -----------------------------------------------*/
-static void RCC_Configuration(void);
+void RCC_Configuration(void);
 int Safety_test(void);
+void LED_indicator1(void);
 
 /* Private functions ---------------------------------------------------------*/
 /*******************************************************************************
@@ -46,6 +48,8 @@ int Safety_test(void)
   /* NVIC configuration ------------------------------------------------------*/
 //  NVIC_Configuration();
 
+  LED_Init();
+  
   /* Self test routines initialization ---------------------------------------*/
   STL_InitRunTimeChecks();
 
@@ -53,9 +57,9 @@ int Safety_test(void)
   {
     /* This is where the main self-test routines are executed ----------------*/
     STL_DoRunTimeChecks();
-
+LED_indicator1();
     /* This is to monitor transparent RAM test activity */
-    RamPntr = (u32)(p_RunTimeRamChk) - 0x20000000;
+//    RamPntr = (u32)(p_RunTimeRamChk) - 0x20000000;
 //    printf("RamPntr= %d\r", RamPntr);
 
     /* Test if PB.09 level is low (Key push-button on Eval Board pressed) */
@@ -76,6 +80,18 @@ int Safety_test(void)
 
 }
 
+void LED_indicator1(void)
+{
+	static u32 led_idr_cnt=0;	 
+	
+	led_idr_cnt++;
+	
+	if(led_idr_cnt >= 100000 && data_error <= 0)
+	{
+                led_idr_cnt = 0;
+		LED=!LED;                
+	}   
+}
 
 /*******************************************************************************
 * Function Name  : RCC_Configuration

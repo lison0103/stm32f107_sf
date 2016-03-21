@@ -193,9 +193,9 @@ void STL_DoRunTimeChecks(void)
       switch ( RomTest )
       {
         case TEST_RUNNING:
-          #ifdef STL_VERBOSE
+//          #ifdef STL_VERBOSE
             CtrlFlowCntInv -= FLASH_TEST_CALLER;
-          #endif /* STL_VERBOSE */
+//          #endif /* STL_VERBOSE */
           break;
 
         case TEST_OK:
@@ -291,6 +291,20 @@ ClockStatus STL_MainClockTest(void)
     ClockStatus Result = TEST_ONGOING; /* In case of unexpected exit */
 
   CtrlFlowCnt += CLOCK_TEST_CALLEE;
+  
+  
+//          RTC_SetCounter(0);                            /* Reset RTC */
+//        RTC_WaitForLastTask();
+//        SysTick->VAL =0X00;//SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset SysTick counter */
+//
+//        /* Wait Systick underflow before measurement */
+//        while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
+//        {
+//        }
+//        
+//        /*-------------------- HSE Measurement -------------------------------*/
+//        CurrentHSEPeriod = RTC_GetCounter();   /* HSE frequency measurement */
+//        CurrentHSEPeriodInv = ~CurrentHSEPeriod;   /* Redundant storage */
 
   if ((CurrentHSEPeriod ^ CurrentHSEPeriodInv) == 0xFFFFFFFFuL)
   {
