@@ -23,6 +23,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h" 
+#include "stm32f10x_STLlib.h"
+#include "stm32f10x_STLclassBvar.h"
+
 
 #ifdef GEC_SF_MASTER    
     
@@ -30,8 +33,7 @@
 #include "usbd_core.h"
 #include "usbd_cdc_core.h"
 
-#include "stm32f10x_STLlib.h"
-#include "stm32f10x_STLclassBvar.h"
+
     
 extern USB_OTG_CORE_HANDLE           USB_OTG_dev;
 extern uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);   
@@ -210,19 +212,6 @@ void SysTick_Handler(void)
   
 }
 
-/**
-  * @brief  This function handles TIM2 global interrupt request.
-  * @param  None
-  * @retval None
-  */
-  #ifdef GEC_SF_MASTER
-void TIM2_IRQHandler(void)
-{
- 
-
-
-}
-#endif
 /**
   * @brief  This function handles EXTI15_10_IRQ Handler.
   * @param  None

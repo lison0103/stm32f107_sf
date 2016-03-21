@@ -17,11 +17,11 @@ __IO uint32_t receive_count =1;
 void Bsp_Init(void)
 {
   
-#ifdef GEC_SF_MASTER
+
         /** stm32 self test **/
 //        self_test();
         RCC_Configuration();
-#endif
+
         /** set system interrupt priority group 2 **/
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
         
@@ -55,7 +55,7 @@ void Bsp_Init(void)
         
         /** timer for usart3 **/
         /** TIM init 10khz, counting to 10 is 1ms **/
-//        TIM2_Int_Init(9,7199);
+        TIM2_Int_Init(9,7199);
         
         /** MB85RCXX init **/
         eep_init();
@@ -90,13 +90,14 @@ void Bsp_Init(void)
         /** wait slave spi **/
         delay_ms(200);
         
-        /* Self test routines initialization ---------------------------------------*/
-        STL_InitRunTimeChecks();
 
 #else
         /** TIM init 1000Khz£¬counting to 5000 is 5ms **/
-//        TIM2_Int_Init(4999,71);
+        TIM2_Int_Init(4999,71);
       
 #endif
+        
+        /* Self test routines initialization ---------------------------------------*/
+        STL_InitRunTimeChecks();
 
 }

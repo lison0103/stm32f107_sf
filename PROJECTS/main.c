@@ -80,7 +80,7 @@ void Task_Loop(void)
 //      }
       
      
-          STL_DoRunTimeChecks();
+      STL_DoRunTimeChecks();
 
       
       if(Tms25Counter == 0)      
@@ -138,6 +138,8 @@ void Task_Loop(void)
       
 #else
 
+      STL_DoRunTimeChecks();
+
       
       if( onetime == 0)
       {
@@ -157,7 +159,7 @@ void Task_Loop(void)
                 comm_timeout = 0;
                 
                 CPU_Exchange_Data_Check();              
-          }
+          }          
       }
       
       if( Tms50Counter == 0 )

@@ -29,11 +29,12 @@ u8 canbuf_send[8];
 void SF_WDT_Check(void)
 {
     EWDT_TOOGLE();
-    delay_ms(1000);
+    delay_ms(600);
     EWDT_TOOGLE();
-    delay_ms(900);//>1.8s
+    delay_ms(600);
     EWDT_TOOGLE(); 
-    
+    delay_ms(700);//>1.8s
+    EWDT_TOOGLE();    
    
     if( !SF_RL_FB )
     {

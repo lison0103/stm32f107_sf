@@ -2968,6 +2968,7 @@
           <name>CCDefines</name>
           <state>USE_STDPERIPH_DRIVER</state>
           <state>STM32F10X_MD</state>
+          <state>EWARMv5</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -3548,7 +3549,7 @@
         </option>
         <option>
           <name>IlinkUseExtraOptions</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkExtraOptions</name>
@@ -3580,7 +3581,7 @@
         </option>
         <option>
           <name>DoFill</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>FillerByte</name>
@@ -3592,7 +3593,7 @@
         </option>
         <option>
           <name>FillerEnd</name>
-          <state>0x0803FFFF</state>
+          <state>0x0801FFFF</state>
         </option>
         <option>
           <name>CrcSize</name>
@@ -3822,6 +3823,15 @@
         <name>Starup</name>
         <file>
           <name>$PROJ_DIR$\..\Libraries\CMSIS\startup\startup_stm32f10x_cl.s</name>
+          <excluded>
+            <configuration>GEC-SF-S</configuration>
+          </excluded>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\CMSIS\startup\startup_stm32f10x_md.s</name>
+          <excluded>
+            <configuration>GEC-SF-M</configuration>
+          </excluded>
         </file>
       </group>
       <file>

@@ -10,7 +10,7 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-static u32 RamPntr;
+//static u32 RamPntr;
 
 /* Private function prototypes -----------------------------------------------*/
 void RCC_Configuration(void);
@@ -118,8 +118,11 @@ void RCC_Configuration(void)
     FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
 
     /* PLLCLK = 8MHz * 9 = 72 MHz */
+#ifdef GEC_SF_MASTER
     RCC_PLLConfig(RCC_PLLSource_PREDIV1, RCC_PLLMul_9);
-
+#else
+    RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
+#endif
     /* Enable PLL */
     RCC_PLLCmd(ENABLE);
 
@@ -137,8 +140,8 @@ void RCC_Configuration(void)
     }
 
   /* Enable USART1, GPIOA and GPIOC clocks */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA |
-                         RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOC , ENABLE);
+//  RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA |
+//                         RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOC , ENABLE);
 
 }
 
