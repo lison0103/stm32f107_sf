@@ -1,31 +1,58 @@
- 
+/*******************************************************************************
+* File Name          : mb85rcxx.c
+* Author             : lison
+* Version            : V1.0
+* Date               : 03/22/2016
+* Description        : 
+*                      
+*******************************************************************************/
+
+/* Includes ------------------------------------------------------------------*/
 #include "mb85rcxx.h"
 #include "stm32f10x_gpio.h"
 #include "delay.h" 
 
-/******************************************************************************* 
-*******************************************************************************/
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
 #define	EEP_SDA_PORT	        GPIOE
 #define	EEP_SDA_PIN			GPIO_Pin_5
 
 #define	EEP_SCL_PORT		GPIOE
 #define	EEP_SCL_PIN			GPIO_Pin_4
 
-#define EEP_SDA_SET()  						GPIO_WriteBit(EEP_SDA_PORT, EEP_SDA_PIN,Bit_SET)
-#define EEP_SDA_CLR()  						GPIO_WriteBit(EEP_SDA_PORT, EEP_SDA_PIN,Bit_RESET)
-#define EEP_SDA_READ() 						GPIO_ReadInputDataBit(EEP_SDA_PORT, EEP_SDA_PIN)
+#define EEP_SDA_SET()  		GPIO_WriteBit(EEP_SDA_PORT, EEP_SDA_PIN,Bit_SET)
+#define EEP_SDA_CLR()  		GPIO_WriteBit(EEP_SDA_PORT, EEP_SDA_PIN,Bit_RESET)
+#define EEP_SDA_READ() 		GPIO_ReadInputDataBit(EEP_SDA_PORT, EEP_SDA_PIN)
 
-#define EEP_SCL_SET()  						GPIO_WriteBit(EEP_SCL_PORT, EEP_SCL_PIN, Bit_SET)
-#define EEP_SCL_CLR()  						GPIO_WriteBit(EEP_SCL_PORT, EEP_SCL_PIN, Bit_RESET)
+#define EEP_SCL_SET()  		GPIO_WriteBit(EEP_SCL_PORT, EEP_SCL_PIN, Bit_SET)
+#define EEP_SCL_CLR()  		GPIO_WriteBit(EEP_SCL_PORT, EEP_SCL_PIN, Bit_RESET)
 
 #define EEP_ACK       0
 #define EEP_NACK      1
 #define EEP_ERROR     1
 
+#define MB85RC16        2047
+#define MB85RC64        8191
+
+#define MB85RCXX_TYPE     MB85RC16
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
+
 u16 EEPROM_WR_TIME=0;
 
-/******************************************************************************* 
-*******************************************************************************/
+
+
+/*******************************************************************************
+* Function Name  : EEP_SDA_OUT
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/ 
 void EEP_SDA_OUT(void)  
 {
       RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE );
@@ -39,6 +66,15 @@ void EEP_SDA_OUT(void)
       GPIO_Init(GPIOE , &GPIO_InitStruct);	
 }
 
+/*******************************************************************************
+* Function Name  : EEP_SCL_OUT
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void EEP_SCL_OUT(void) 
 {
       GPIO_InitTypeDef GPIO_InitStruct;
@@ -50,7 +86,14 @@ void EEP_SCL_OUT(void)
       GPIO_Init(GPIOE , &GPIO_InitStruct);
 }
 
-/******************************************************************************* 
+/*******************************************************************************
+* Function Name  : eep_start
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
 *******************************************************************************/
 void eep_start(void)	 
 { 
@@ -70,6 +113,15 @@ void eep_start(void)
   EEP_SCL_CLR(); 
 }
 
+/*******************************************************************************
+* Function Name  : eep_stop
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void eep_stop(void)	
 {
   /** scl and sda low level at the same **/
@@ -88,6 +140,15 @@ void eep_stop(void)
   EEP_SDA_SET(); 
 }
 
+/*******************************************************************************
+* Function Name  : eep_write
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 u8 eep_write(u8 d)		
 {
   u8 i;
@@ -135,7 +196,16 @@ u8 eep_write(u8 d)
   
   return(i);
 }
-      
+
+/*******************************************************************************
+* Function Name  : eep_read
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 u8 eep_read(u8 ack)	 
 {
   u8 d=0, i;
@@ -172,7 +242,14 @@ u8 eep_read(u8 ack)
   return d;
 } 
 
-/******************************************************************************* 
+/*******************************************************************************
+* Function Name  : eep_init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
 *******************************************************************************/
 void eep_init(void)
 {
@@ -183,7 +260,14 @@ void eep_init(void)
   EEP_SCL_SET();  
 }
 
-/******************************************************************************* 
+/*******************************************************************************
+* Function Name  : eeprom_data_write1
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
 *******************************************************************************/
 uint8_t eeprom_data_write1(u16 addr,u16 len,u8 *dat)
 {
@@ -219,6 +303,15 @@ uint8_t eeprom_data_write1(u16 addr,u16 len,u8 *dat)
   return(err);
 }
 
+/*******************************************************************************
+* Function Name  : eeprom_write
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 u8 eeprom_write(u16 addr,u16 len,u8 *dat)
 {
 	u8 ucCounter=0,err=0;
@@ -235,7 +328,14 @@ u8 eeprom_write(u16 addr,u16 len,u8 *dat)
 	return(err); 
 }
 
-/******************************************************************************* 
+/*******************************************************************************
+* Function Name  : eeprom_data_read1
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
 *******************************************************************************/
 uint8_t eeprom_data_read1(u16 addr, u16 len, u8 *dat)
 {
@@ -271,6 +371,15 @@ uint8_t eeprom_data_read1(u16 addr, u16 len, u8 *dat)
 	return(err);                                                                                              
 }
 
+/*******************************************************************************
+* Function Name  : eeprom_read
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 u8 eeprom_read(u16 addr,u16 len,u8 *dat)
 {
 	u8 ucCounter=0,err=0;
@@ -288,7 +397,14 @@ u8 eeprom_read(u16 addr,u16 len,u8 *dat)
 }
 
 
-/******************************************************************************* 
+/*******************************************************************************
+* Function Name  : MB85RCXX_Check
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
 *******************************************************************************/
 u8 MB85RCXX_Check(void)
 {
@@ -307,5 +423,7 @@ u8 MB85RCXX_Check(void)
 
 }
 
-/******************************************************************************* 
-*******************************************************************************/
+
+/******************************  END OF FILE  *********************************/
+
+

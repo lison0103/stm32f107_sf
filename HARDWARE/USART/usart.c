@@ -1,20 +1,49 @@
-#include "usart.h" 
+/*******************************************************************************
+* File Name          : usart.c
+* Author             : lison
+* Version            : V1.0
+* Date               : 03/22/2016
+* Description        : 
+*                      
+*******************************************************************************/
 
+/* Includes ------------------------------------------------------------------*/
+#include "usart.h" 
 #include "stm32f10x_usart.h" 
 #include "stm32f10x_rcc.h" 
 #include "stm32f10x_gpio.h" 
-#include "stm32f10x_dma.h" 
+#include "stm32f10x_dma.h"
 
-  
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
 
 #ifdef USING_USART3_OVERTIME
-
 static int32_t USART3_ReceiveTimeCounter = 0;
 uint8_t USART3_receive_buf[USART3_BUF_SIZE],USART3_ready_buf[USART3_BUF_SIZE];
 __IO uint16_t USART3_receive_index=0; 
 __IO uint8_t USART3_ready_buf_ok = 0;
 __IO uint16_t USART3_ready_buf_len=0;
+#endif
 
+
+
+
+#ifdef USING_USART3_OVERTIME
+
+
+/*******************************************************************************
+* Function Name  : EXTIX_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity) 
 {
   USART_InitTypeDef   USART_InitStruct;
@@ -38,6 +67,15 @@ void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity)
   
 } 
 
+/*******************************************************************************
+* Function Name  : EXTIX_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
 {
   NVIC_InitTypeDef NVIC_InitStructure;
@@ -58,6 +96,15 @@ void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
   NVIC_Init(&NVIC_InitStructure);
 }
 
+/*******************************************************************************
+* Function Name  : EXTIX_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void USART3_Init(void)
 {
 
@@ -86,7 +133,15 @@ void USART3_Init(void)
 
 }
 
- 
+/*******************************************************************************
+* Function Name  : EXTIX_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/ 
 void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
 {			
 
@@ -99,6 +154,15 @@ void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
   
 }
 
+/*******************************************************************************
+* Function Name  : EXTIX_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void USART3_ISR(void)
 {
 
@@ -123,6 +187,16 @@ void USART3_IRQHandler(void)
       USART3_ISR();
 }
 
+
+/*******************************************************************************
+* Function Name  : EXTIX_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void USART_ReceiveOvertimeProcess(void)
 {
 	uint16_t i = 0;	
@@ -145,6 +219,16 @@ void USART_ReceiveOvertimeProcess(void)
 	}
 }
 
+
+/*******************************************************************************
+* Function Name  : EXTIX_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 {
 	uint8_t *pstr;
@@ -179,11 +263,13 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 	return(len);
 }
 
-/*************************************************************************************************** 
-***************************************************************************************************/ 
+
+
+
 
 
 #else
+
 
 //#define USART1_EN     	1
 //#define USART2_EN    			1
@@ -241,9 +327,16 @@ u8 uart3_rx_buff[512],uart3_rx_data[512],uart3_tx_buff[512];
 u16 uart3_rx_number=0,uart3_tx_number=0;	//,uart3_rx_counter
 #endif
 
-/******************************************************************************* 
-*******************************************************************************/ //收发控制
-//DMA设置
+
+/*******************************************************************************
+* Function Name  : DMA_Configuration_USART
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *buff,uint32_t dir,uint32_t len)
 {
   DMA_InitTypeDef     DMA_InitStructure;
@@ -266,6 +359,16 @@ void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *b
   DMA_Init(DMA_Chx, &DMA_InitStructure);  //
 }
 
+
+/*******************************************************************************
+* Function Name  : BSP_USART_DMA_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff) // 
 {
   switch (*(uint32_t*)&USARTx)
@@ -304,6 +407,16 @@ void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff)
   }      
 }
 
+
+/*******************************************************************************
+* Function Name  : BSP_USART_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity) //, FunctionalState DMAState
 {
   USART_InitTypeDef   USART_InitStruct;
@@ -437,6 +550,16 @@ void USART3_IRQHandler(void)
 #endif	
 }
 
+
+/*******************************************************************************
+* Function Name  : NVIC_Configuration_Usart
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
 {
   NVIC_InitTypeDef NVIC_InitStructure;
@@ -464,8 +587,15 @@ void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
   NVIC_Init(&NVIC_InitStructure);
 }
  
-/*************************************************************************************************** 
-***************************************************************************************************/  
+/*******************************************************************************
+* Function Name  : USART1_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/ 
 void USART1_Init(void)
 {
 #ifdef USART1_EN
@@ -526,7 +656,15 @@ void USART1_Init(void)
 #endif
 }
 
-/////////////////////////////////////////////////////////////	//////////////////////////////////////
+/*******************************************************************************
+* Function Name  : USART2_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void USART2_Init(void)
 {
 #ifdef USART2_EN
@@ -560,7 +698,15 @@ void USART2_Init(void)
 #endif
 }
 
-/////////////////////////////////////////////////////////////	//////////////////////////////////////
+/*******************************************************************************
+* Function Name  : USART3_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void USART3_Init(void)
 {
 #ifdef USART3_EN
@@ -612,8 +758,15 @@ void USART3_Init(void)
 #endif
 }
 
-/*************************************************************************************************** 
-***************************************************************************************************/  
+/*******************************************************************************
+* Function Name  : BSP_USART_Send
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
 {
 	u32 i;
@@ -676,8 +829,15 @@ void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
 	}			
 }
 
-/*************************************************************************************************** 
-***************************************************************************************************/  
+/*******************************************************************************
+* Function Name  : BSP_USART_Receive
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/ 
 uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 {
 	uint8_t *pstr;
@@ -722,6 +882,10 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 	return(len);
 }
 
-/*************************************************************************************************** 
-***************************************************************************************************/
+
 #endif
+
+
+/******************************  END OF FILE  *********************************/
+
+

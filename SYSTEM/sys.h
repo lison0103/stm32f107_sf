@@ -1,9 +1,22 @@
+/*******************************************************************************
+* File Name          : sys.h
+* Author             : lison
+* Version            : V1.0
+* Date               : 03/22/2016
+* Description        : 
+*			          
+*******************************************************************************/
+
+/* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __SYS_H
 #define __SYS_H	
+
+/* Includes ------------------------------------------------------------------*/
 #include "stm32f10x.h"
 
-																	    
-	 
+/* Exported types ------------------------------------------------------------*/
+/* Exported constants --------------------------------------------------------*/
+/* Exported macro ------------------------------------------------------------*/
 /** Bit operating **/
 /** IO port operations macros **/
 #define BITBAND(addr, bitnum) ((addr & 0xF0000000)+0x2000000+((addr &0xFFFFF)<<5)+(bitnum<<2)) 
@@ -49,12 +62,9 @@
 #define PGout(n)   BIT_ADDR(GPIOG_ODR_Addr,n)  /** OUTPUT **/ 
 #define PGin(n)    BIT_ADDR(GPIOG_IDR_Addr,n)  /** INPUT **/
 
-
-
+/* Exported functions ------------------------------------------------------- */
 void NVIC_Configuration(void);
 u32 GetLockCode(void);		
- 
-
 //以下为汇编函数
 void WFI_SET(void);	//执行WFI指令
 void INTX_DISABLE(void);//关闭所有中断
@@ -62,4 +72,14 @@ void INTX_ENABLE(void);	//开启所有中断
 void MSR_MSP(u32 addr);	//设置堆栈地址
 
 
-#endif
+#endif  /* __SYS_H */
+
+
+/******************************  END OF FILE  *********************************/
+
+
+
+
+
+
+

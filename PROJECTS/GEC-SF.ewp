@@ -2163,7 +2163,6 @@
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Class\cdc\inc</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\inc</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\inc</state>
-          <state>$PROJ_DIR$\..\App</state>
           <state>$PROJ_DIR$\..\FATFS\src</state>
           <state>$PROJ_DIR$\..\FATFS\exfuns</state>
           <state>$PROJ_DIR$\..\SYSTEM</state>
@@ -2179,6 +2178,7 @@
           <state>$PROJ_DIR$\..\VCP\inc</state>
           <state>$PROJ_DIR$\..\ESC\inc</state>
           <state>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib</state>
+          <state>$PROJ_DIR$\..\BSP</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -3103,7 +3103,7 @@
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Class\cdc\inc</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\inc</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\inc</state>
-          <state>$PROJ_DIR$\..\App</state>
+          <state>$PROJ_DIR$\..\BSP</state>
           <state>$PROJ_DIR$\..\FATFS\src</state>
           <state>$PROJ_DIR$\..\FATFS\exfuns</state>
           <state>$PROJ_DIR$\..\SYSTEM</state>
@@ -3744,31 +3744,21 @@
     </settings>
   </configuration>
   <group>
-    <name>APP</name>
+    <name>BSP</name>
     <file>
-      <name>$PROJ_DIR$\..\APP\bsp_iocfg.c</name>
+      <name>$PROJ_DIR$\..\BSP\bsp_iocfg.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\APP\crc16.c</name>
-      <excluded>
-        <configuration>GEC-SF-S</configuration>
-      </excluded>
+      <name>$PROJ_DIR$\..\BSP\crc16.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\APP\hw_test.c</name>
+      <name>$PROJ_DIR$\..\BSP\hw_test.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\APP\initial_devices.c</name>
+      <name>$PROJ_DIR$\..\BSP\initial_devices.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\APP\safety_test.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\APP\self_test.c</name>
-      <excluded>
-        <configuration>GEC-SF-M</configuration>
-        <configuration>GEC-SF-S</configuration>
-      </excluded>
+      <name>$PROJ_DIR$\..\BSP\safety_test.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\VCP\src\usb_bsp.c</name>
@@ -3843,6 +3833,10 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_adc.c</name>
+        <excluded>
+          <configuration>GEC-SF-M</configuration>
+          <configuration>GEC-SF-S</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_bkp.c</name>
@@ -3852,15 +3846,27 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_cec.c</name>
+        <excluded>
+          <configuration>GEC-SF-M</configuration>
+          <configuration>GEC-SF-S</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_crc.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dac.c</name>
+        <excluded>
+          <configuration>GEC-SF-M</configuration>
+          <configuration>GEC-SF-S</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dbgmcu.c</name>
+        <excluded>
+          <configuration>GEC-SF-M</configuration>
+          <configuration>GEC-SF-S</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_dma.c</name>
@@ -3873,12 +3879,20 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_fsmc.c</name>
+        <excluded>
+          <configuration>GEC-SF-M</configuration>
+          <configuration>GEC-SF-S</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_gpio.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_i2c.c</name>
+        <excluded>
+          <configuration>GEC-SF-M</configuration>
+          <configuration>GEC-SF-S</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_iwdg.c</name>
@@ -3894,6 +3908,10 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_sdio.c</name>
+        <excluded>
+          <configuration>GEC-SF-M</configuration>
+          <configuration>GEC-SF-S</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_spi.c</name>

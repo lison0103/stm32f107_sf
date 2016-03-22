@@ -1,17 +1,44 @@
+/*******************************************************************************
+* File Name          : timer.c
+* Author             : lison
+* Version            : V1.0
+* Date               : 03/22/2016
+* Description        : 
+*                      
+*******************************************************************************/
+
+/* Includes ------------------------------------------------------------------*/
 #include "timer.h"
 #include "bsp_iocfg.h"
 #include "sys.h"
+#include "stm32f10x_STLlib.h"
+#include "stm32f10x_STLclassBvar.h"
+
 #ifdef GEC_SF_MASTER
 #include "usart.h"
 #endif
 
-#include "stm32f10x_STLlib.h"
-#include "stm32f10x_STLclassBvar.h"
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
 
 u8 count = 0;
 u32 t_count = 0;
 
 
+
+/*******************************************************************************
+* Function Name  : TIM4_Int_Init
+* Description    : 
+*                  
+* Input          : arr: Automatic reload value
+*                  psc: Pre clock divisor
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void TIM4_Int_Init(u16 arr,u16 psc)
 {
         TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
@@ -43,11 +70,15 @@ void TIM4_Int_Init(u16 arr,u16 psc)
 }
 
 
-//通用定时器中断初始化
-//这里时钟选择为APB1的2倍，而APB1为36M
-//arr：自动重装值。
-//psc：时钟预分频数
-//这里使用的是定时器3!
+/*******************************************************************************
+* Function Name  : TIM3_Int_Init
+* Description    : 
+*                  
+* Input          : arr: Automatic reload value
+*                  psc: Pre clock divisor
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void TIM3_Int_Init(u16 arr,u16 psc)
 {
 #ifdef GEC_SF_MASTER
@@ -83,6 +114,15 @@ void TIM3_Int_Init(u16 arr,u16 psc)
 							 
 }
 
+/*******************************************************************************
+* Function Name  : TIM2_Int_Init
+* Description    : 
+*                  
+* Input          : arr: Automatic reload value
+*                  psc: Pre clock divisor
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void TIM2_Int_Init(u16 arr,u16 psc)
 {
         TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
@@ -267,3 +307,10 @@ void TIM2_IRQHandler(void)   //TIM2中断
           #endif
       }
 }
+
+
+
+/******************************  END OF FILE  *********************************/
+
+
+

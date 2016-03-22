@@ -201,6 +201,7 @@ allow to react more quickly */
 /* This is the IAR compiler entry point, usually executed right after reset */
   extern void __iar_program_start( void );
   extern u16 __checksum;
+  extern void Reset_Handler( void );
 /* The 4 variables here above are set by IAR linker */
   extern u32 __ICFEDIT_region_ROM_start__;
   extern u32 __ICFEDIT_region_ROM_end__;

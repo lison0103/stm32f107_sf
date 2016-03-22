@@ -1,14 +1,30 @@
+/*******************************************************************************
+* File Name          : bsp_iocfg.h
+* Author             : lison
+* Version            : V1.0
+* Date               : 03/22/2016
+* Description        : 
+*			          
+*******************************************************************************/
+
+/* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __BSP_IOCFG_H
 #define __BSP_IOCFG_H
 
+/* Includes ------------------------------------------------------------------*/
 #include "sys.h"
 
+/* Exported types ------------------------------------------------------------*/
+/* Exported constants --------------------------------------------------------*/
+/* Exported macro ------------------------------------------------------------*/
+//#define EXTERNAL_INPUT_TEST
+
+/* Exported functions ------------------------------------------------------- */
 void Input_Output_PinInit(void);
 
 
-//#define EXTERNAL_INPUT_TEST
-
 #ifdef GEC_SF_MASTER
+
 //INPUT
 #define IN1     PEin(1)
 #define IN2     PEin(0)
@@ -147,6 +163,13 @@ void Input_Output_PinInit(void);
 //EWDT
 #define SF_EWDT_TOOGLE() 	GPIOE->ODR ^= 0X0001
 
-#endif  //GEC_SF_MASTER
+#endif  /* GEC_SF_MASTER */
 
-#endif
+
+#endif /* __BSP_IOCFG_H */
+
+
+/******************************  END OF FILE  *********************************/
+
+
+

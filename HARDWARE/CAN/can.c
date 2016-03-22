@@ -1,15 +1,39 @@
+/*******************************************************************************
+* File Name          : can.c
+* Author             : lison
+* Version            : V1.0
+* Date               : 03/22/2016
+* Description        : 
+*                      
+*******************************************************************************/
+
+/* Includes ------------------------------------------------------------------*/
 #include "can.h"
 #include "led.h"
 #include "delay.h"
 
 #ifdef GEC_SF_MASTER
-
 #include "usbd_cdc_vcp.h"
-
-extern uint32_t APP_Rx_ptr_in;
-extern uint8_t APP_Rx_Buffer   [APP_RX_DATA_SIZE];
 #endif
 
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
+
+
+
+/*******************************************************************************
+* Function Name  : CAN_Mode_Init
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 /** CAN init
 tsjw:CAN_SJW_1tq~ CAN_SJW_4tq
 tbs2:CAN_BS2_1tq~CAN_BS2_8tq;
@@ -172,7 +196,17 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
 #endif        
 	return 0;
 }   
- 
+
+
+/*******************************************************************************
+* Function Name  : CAN1_RX0_IRQHandler
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 #if CAN1_RX0_INT_ENABLE	//enable CAN1 RX0 interrupt
 			    
 void CAN1_RX0_IRQHandler(void)
@@ -189,6 +223,16 @@ void CAN1_RX0_IRQHandler(void)
 }
 #endif
 
+
+/*******************************************************************************
+* Function Name  : CAN2_RX0_IRQHandler
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 #if CAN2_RX0_INT_ENABLE	//enable CAN2 RX0 interrupt
 			    
 void CAN2_RX0_IRQHandler(void)
@@ -204,6 +248,17 @@ void CAN2_RX0_IRQHandler(void)
 }
 #endif
 
+
+
+/*******************************************************************************
+* Function Name  : Can_Send_Msg
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 /** CAN send data
 len:data len(max len is 8)				     
 msg:Data Pointer.
@@ -235,6 +290,17 @@ u8 Can_Send_Msg(CAN_TypeDef* CANx,u8* msg,u8 len)
         }
 	return 0;	 
 }
+
+
+/*******************************************************************************
+* Function Name  : Can_Receive_Msg
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 /** CAN receive data
 buf:data cache;	 
 return:0,no data receive;
@@ -253,6 +319,9 @@ u8 Can_Receive_Msg(CAN_TypeDef* CANx,u8 *buf)
       }
       return RxMessage.DLC;	
 }
+
+
+/******************************  END OF FILE  *********************************/
 
 
 

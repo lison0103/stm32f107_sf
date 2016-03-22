@@ -26,24 +26,12 @@
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
 
-
-#ifdef GEC_SF_MASTER    
-    
+#ifdef GEC_SF_MASTER      
 #include "usb_core.h"
 #include "usbd_core.h"
 #include "usbd_cdc_core.h"
-
-
-    
-extern USB_OTG_CORE_HANDLE           USB_OTG_dev;
-extern uint32_t USBD_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);   
-
-//#include "hw_test.h"
-//#include "sys.h"
-extern u32 TimingDelay;
-
-
-#endif    
+#include "usb_dcd_int.h"
+#endif   
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -51,12 +39,19 @@ extern u32 TimingDelay;
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 
+#ifdef GEC_SF_MASTER
+extern USB_OTG_CORE_HANDLE           USB_OTG_dev; 
+extern u32 TimingDelay;
 
 #ifdef USB_OTG_HS_DEDICATED_EP1_ENABLED 
 extern uint32_t USBD_OTG_EP1IN_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);
 extern uint32_t USBD_OTG_EP1OUT_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);
 #endif
- 
+
+#endif
+
+
+
 void NMI_Handler(void)
 {
 }
@@ -108,6 +103,9 @@ void DebugMon_Handler(void)
 // 
 void SysTick_Handler(void)
 {
+  
+#if 0
+  
   /* Verify TickCounter integrity */
   if ((TickCounter ^ TickCounterInv) == 0xFFFFFFFFuL)
   {
@@ -205,7 +203,7 @@ void SysTick_Handler(void)
   FailSafePOR();
   }
 
-
+#endif
 
 
 

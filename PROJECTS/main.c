@@ -1,23 +1,43 @@
+/*******************************************************************************
+* File Name          : main.c
+* Author             : lison
+* Version            : V1.0
+* Date               : 03/22/2016
+* Description        : 
+*                      
+*******************************************************************************/
+
+/* Includes ------------------------------------------------------------------*/
 #include "initial_devices.h"
 #include "esc_error_process.h"
 #include "safety_test.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
 
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
+
 #ifdef GEC_SF_MASTER
-
 u32 TimingDelay = 0;
-
 u8 canbuf_recv[8];
 u8 res;
 u8 can_rcv;
-
-#else
-
 #endif
  
 
-
+/*******************************************************************************
+* Function Name  : LED_indicator
+* Description    : 
+*                  
+* Input          : None
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void LED_indicator(void)
 {
 	static u32 led_idr_cnt=0;	 
@@ -32,6 +52,15 @@ void LED_indicator(void)
 }
 
 
+/*******************************************************************************
+* Function Name  : Task_Loop
+* Description    : 
+*                  
+* Input          : None
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void Task_Loop(void)
 { 
   
@@ -54,18 +83,7 @@ void Task_Loop(void)
       if(Tms1000Counter>=1000) Tms1000Counter=0;      
   
 #ifdef GEC_SF_MASTER  
-  
-      
-//      if(count3 == 25)
-//      {
-//          PLUSE_OUT = 1;
-//      }
-//      
-//      if(count3 == 44)
-//      {
-//          PLUSE_OUT = 0;
-//          count3 = 0;
-//      }      
+          
 
 //      if( onetime == 0)
 //      {
@@ -179,21 +197,20 @@ void Task_Loop(void)
 }
 
 
+/*******************************************************************************
+* Function Name  : main
+* Description    : 
+*                  
+* Input          : None
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
 int main(void)
 {        
 //    Safety_test();
     /** hardware init **/
-    Bsp_Init();
-    
-    /** test delay **/
-//  RCC_ClocksTypeDef RCC_Clocks;
-//  RCC_GetClocksFreq(&RCC_Clocks);    
-//    for(u32 i = 0; i<1000000;i++)
-//    {
-//        PLUSE_OUT = !PLUSE_OUT;
-//        delay_us(100);
-////        delay_ms(10);
-//    }
+    Bsp_Init();    
     
     while(1)
     {
@@ -229,3 +246,8 @@ void assert_failed(uint8_t* file, uint32_t line)
 /**
   * @}
   */
+
+/******************************  END OF FILE  *********************************/
+
+
+
