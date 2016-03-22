@@ -184,7 +184,17 @@ int main(void)
 //    Safety_test();
     /** hardware init **/
     Bsp_Init();
-
+    
+    /** test delay **/
+//  RCC_ClocksTypeDef RCC_Clocks;
+//  RCC_GetClocksFreq(&RCC_Clocks);    
+//    for(u32 i = 0; i<1000000;i++)
+//    {
+//        PLUSE_OUT = !PLUSE_OUT;
+//        delay_us(100);
+////        delay_ms(10);
+//    }
+    
     while(1)
     {
 //      spi1_test();

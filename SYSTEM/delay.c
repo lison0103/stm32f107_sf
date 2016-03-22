@@ -6,7 +6,7 @@
 static u8  fac_us=0;
 static u16 fac_ms=0;
 
-#if 0
+#if 1
 
 void delay_init()	 
 {
@@ -81,7 +81,7 @@ void delay_us(u32 nus)
    u16 i=0;  
    while(nus--)
    {
-      i=10;  //自己定义
+      i=6;  //自己定义
       while(i--) ;    
    }
 }
@@ -91,7 +91,7 @@ void delay_ms(u16 nms)
    u16 i=0;  
    while(nms--)
    {
-      i=12000;  //自己定义
+      i=8000;  //自己定义
       while(i--) ;    
    }
 }
