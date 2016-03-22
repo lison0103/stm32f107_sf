@@ -23,6 +23,7 @@
 //#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
+#include "timer.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -55,11 +56,13 @@ void STL_SysTickRTCSync(void)
 //  SysTick_SetReload(SYSTICK_TB_RUN);
 //  /* Enable the SysTick Interrupt */
 //  SysTick_ITConfig(ENABLE);
+  
+#if 0
   RCC_ClocksTypeDef RCC_Clocks;
   RCC_GetClocksFreq(&RCC_Clocks);
   SysTick->CTRL &= SysTick_Counter_Disable;
   SysTick->VAL = SysTick_Counter_Clear;
-
+#endif
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 
   /* Allow access to BKP Domain */
@@ -82,18 +85,26 @@ void STL_SysTickRTCSync(void)
   RTC_WaitForLastTask();
 
   RTC_SetPrescaler(0);    /* Do not prescale to have the highest precision */
-  
+
+#if 0  
 SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);  
 //SysTick->LOAD = SYSTICK_2_ms_PLL;//SysTick_SetReload(SYSTICK_TB_START);          /* Set reload rate (Ref period) */
 //  SysTick->VAL =0X00;//SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset counter */
 //  SysTick->CTRL|=SysTick_CTRL_ENABLE_Msk ;
 SysTick_Config(SYSTICK_TB_RUN);
 //SysTick->VAL = SysTick_Counter_Clear;
+#endif
+
+    /** TIM4 init 10khz, counting to 20 is 2ms **/
+    TIM4_Int_Init(19,7199);
+
   /* Reset RTC */
   RTC_SetCounter(0);
   /* Start down-counting */
 //  SysTick_CounterCmd(SysTick_Counter_Enable);
 //  SysTick->CTRL |= SysTick_Counter_Enable;
+
+  
 
 }
 
