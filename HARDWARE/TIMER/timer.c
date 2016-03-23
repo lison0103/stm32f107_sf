@@ -208,8 +208,8 @@ void TIM4_IRQHandler(void)   //TIM4ÖÐ¶Ï
                   break;
                 case TEST_OK:
                   #ifdef STL_VERBOSE
-        //            printf("\n\r Full RAM verified (Run-time)\n\r");
-                    GPIO_WriteBit(GPIOC, GPIO_Pin_7, (BitAction)(1-GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_7)));
+//                    printf("\n\r Full RAM verified (Run-time)\n\r");
+//                    GPIO_WriteBit(GPIOC, GPIO_Pin_7, (BitAction)(1-GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_7)));
                   #endif  /* STL_VERBOSE */
                   break;
                 case TEST_FAILURE:

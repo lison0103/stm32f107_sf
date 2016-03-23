@@ -13,6 +13,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
+#define DEBUG_PRINTF    1
+
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -59,11 +61,43 @@ u32 GetLockCode(void)
   CpuID[1]=*(vu32*)(0x1ffff7ec);
   CpuID[2]=*(vu32*)(0x1ffff7f0);
   
+  printf("\r\nSerial Number:%08X%08X%08X\r\n",CpuID[0],CpuID[1],CpuID[2]);
+  
   /** encryption **/
   Lock_Code=(CpuID[0]>>1)+(CpuID[1]>>2)+(CpuID[2]>>3);
    
   return Lock_Code;
 }
+
+#ifdef GEC_SF_MASTER
+/*******************************************************************************
+* Function Name  : fputc
+* Description    : 
+*                  
+* Input          : None
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/  
+#if DEBUG_PRINTF
+int fputc(int ch, FILE *f)
+{   
+  
+        USB_VCP_SendBuf((u8 *)(&ch), 1);
+
+	return ch;
+}
+
+#else
+
+int fputc(int ch, FILE *f)
+{      
+      return ch;
+}
+
+#endif
+
+#endif
 
 
 //THUMB指令不支持汇编内联

@@ -116,12 +116,12 @@ uint32_t VCP_CheckDataReceived(void)
 
 /* usb vcp send data */
 void USB_VCP_SendBuf(uint8_t* pbuf, uint32_t  buf_len)
-{
-      /* wait data sent */
-//      while (VCP_CheckDataSent()==1); 
-      
+{      
       /* send myTxBuffer */
       VCP_SendData(&USB_OTG_dev, pbuf, buf_len);
+      
+      /* wait data sent */
+      while (VCP_CheckDataSent()==0);       
 }
 
 /* usb vcp receive data and send data */

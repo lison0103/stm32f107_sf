@@ -1063,9 +1063,9 @@ void can1_can2_test(void)
                 res=Can_Send_Msg(CAN1,canbuf_send,8);
                 
                 if(res)
-                  USB_VCP_SendBuf("Failed", 6);		
+                  printf("Failed\r\n");		
                 else 
-                  USB_VCP_SendBuf("OK", 2);	 										   
+                  printf("OK\r\n");	 										   
 
 
                 /** CAN2 receive **/

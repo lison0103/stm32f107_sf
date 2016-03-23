@@ -157,7 +157,7 @@ void STL_DoRunTimeChecks(void)
 //            {
 //            }
             /* Re-config USART baudrate FOR 115200 bds with HSI clock (8MHz) */
-            USART1->BRR = 0x45u;
+//            USART1->BRR = 0x45u;
             printf("\n\r Clock Source failure (Run-time)\n\r");
           #endif /* STL_VERBOSE */
           FailSafePOR();

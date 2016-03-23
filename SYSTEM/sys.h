@@ -13,6 +13,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x.h"
+#include "stdio.h"
+#ifdef GEC_SF_MASTER
+#include "usbd_cdc_vcp.h"
+#endif
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/

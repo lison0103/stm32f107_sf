@@ -128,8 +128,8 @@ void Task_Loop(void)
           /** CAN1 send data **/
           res=Can_Send_Msg(CAN1,canbuf_send,4);                          
           if(res)
-          {                             
-              USB_VCP_SendBuf("CAN1TX:fail\r\n", 13);                             
+          {                               
+              printf("CAN1TX:fail\r\n");
           }
           else 
           {	 
