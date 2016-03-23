@@ -121,6 +121,12 @@ void Bsp_Init(void)
         /* Self test routines initialization ---------------------------------------*/
         STL_InitRunTimeChecks();
 
+        /* systick timer , 5ms interrupt */
+ 	if(SysTick_Config(SystemCoreClock / 200))
+        {
+          /* Capture error */
+          while (1);
+        }
 }
 
 /*******************************************************************************

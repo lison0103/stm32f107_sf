@@ -23,8 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h" 
-#include "stm32f10x_STLlib.h"
-#include "stm32f10x_STLclassBvar.h"
+
 
 #ifdef GEC_SF_MASTER      
 #include "usb_core.h"
@@ -38,10 +37,10 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-
+    
+extern u32 TimingDelay;    
 #ifdef GEC_SF_MASTER
 extern USB_OTG_CORE_HANDLE           USB_OTG_dev; 
-extern u32 TimingDelay;
 
 #ifdef USB_OTG_HS_DEDICATED_EP1_ENABLED 
 extern uint32_t USBD_OTG_EP1IN_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);
@@ -104,109 +103,7 @@ void DebugMon_Handler(void)
 void SysTick_Handler(void)
 {
   
-#if 0
-  
-  /* Verify TickCounter integrity */
-  if ((TickCounter ^ TickCounterInv) == 0xFFFFFFFFuL)
-  {
-    TickCounter++;
-    TickCounterInv = ~TickCounter;
-
-    if (TickCounter >= SYSTICK_20ms_TB)
-    {
-        u32 RamTestResult;
-
-      /* Reset timebase counter */
-      TickCounter = 0;
-      TickCounterInv = 0xFFFFFFFF;
-
-      /* Set Flag read in main loop */
-      TimeBaseFlag = 0xAAAAAAAA;
-      TimeBaseFlagInv = 0x55555555;
-
-      if ((CurrentHSEPeriod ^ CurrentHSEPeriodInv) == 0xFFFFFFFFuL)
-      {
-        ISRCtrlFlowCnt += MEASPERIOD_ISR_CALLER;
-        CurrentHSEPeriod = STL_MeasurePeriod();
-        CurrentHSEPeriodInv = ~CurrentHSEPeriod;
-        ISRCtrlFlowCntInv -= MEASPERIOD_ISR_CALLER;
-      }
-      else  /* Class B Error on CurrentHSEPeriod */
-      {
-      #ifdef STL_VERBOSE
-        printf("\n\r Class B Error on CurrentHSEPeriod \n\r");
-      #endif  /* STL_VERBOSE */
-      }
-
-      ISRCtrlFlowCnt += RAM_MARCHC_ISR_CALLER;
-      RamTestResult = STL_TranspMarchC();
-      ISRCtrlFlowCntInv -= RAM_MARCHC_ISR_CALLER;
-
-//      ISRCtrlFlowCnt += RAM_MARCHX_ISR_CALLER;
-//      RamTestResult = STL_TranspMarchX();
-//      ISRCtrlFlowCntInv -= RAM_MARCHX_ISR_CALLER;
-
-      switch ( RamTestResult )
-      {
-        case TEST_RUNNING:
-          break;
-        case TEST_OK:
-          #ifdef STL_VERBOSE
-//            printf("\n\r Full RAM verified (Run-time)\n\r");
-//            GPIO_WriteBit(GPIOC, GPIO_Pin_7, (BitAction)(1-GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_7)));
-          #endif  /* STL_VERBOSE */
-          break;
-        case TEST_FAILURE:
-        case CLASS_B_DATA_FAIL:
-        default:
-          #ifdef STL_VERBOSE
-            printf("\n\r >>>>>>>>>>>>>>>>>>>  RAM Error (March C- Run-time check)\n\r");
-          #endif  /* STL_VERBOSE */
-          FailSafePOR();
-          break;
-      } /* End of the switch */
-
-      /* Do we reached the end of RAM test? */
-      /* Verify 1st ISRCtrlFlowCnt integrity */
-      if ((ISRCtrlFlowCnt ^ ISRCtrlFlowCntInv) == 0xFFFFFFFFuL)
-      {
-        if (RamTestResult == TEST_OK)
-        {
-          if (ISRCtrlFlowCnt != RAM_TEST_COMPLETED)
-          {
-          #ifdef STL_VERBOSE
-            printf("\n\r Control Flow error (RAM test) \n\r");
-          #endif  /* STL_VERBOSE */
-          FailSafePOR();
-          }
-          else  /* Full RAM was scanned */
-          {
-            ISRCtrlFlowCnt = 0;
-            ISRCtrlFlowCntInv = 0xFFFFFFFF;
-          }
-        } /* End of RAM completed if*/
-      } /* End of control flow monitoring */
-      else
-      {
-      #ifdef STL_VERBOSE
-        printf("\n\r Control Flow error in ISR \n\r");
-      #endif  /* STL_VERBOSE */
-      FailSafePOR();
-      }
-    } /* End of the 20 ms timebase interrupt */
-  }
-  else  /* Class error on TickCounter */
-  {
-  #ifdef STL_VERBOSE
-    printf("\n\r Class B Error on TickCounter\n\r");
-  #endif  /* STL_VERBOSE */
-  FailSafePOR();
-  }
-
-#endif
-
-
-
+      TimingDelay++;
   
 }
 

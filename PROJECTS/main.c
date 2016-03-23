@@ -18,11 +18,14 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+static u16 Tms10Counter=0,Tms25Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
+static u32 comm_timeout = 0;
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-#ifdef GEC_SF_MASTER
 u32 TimingDelay = 0;
+#ifdef GEC_SF_MASTER
 u8 canbuf_recv[8];
 u8 res;
 u8 can_rcv;
@@ -44,7 +47,7 @@ void LED_indicator(void)
 	
 	led_idr_cnt++;
 	
-	if(led_idr_cnt >= 300 && data_error <= 0)
+	if(led_idr_cnt >= 100 && data_error <= 0)
 	{
                 led_idr_cnt = 0;
 		LED=!LED;                
@@ -62,26 +65,20 @@ void LED_indicator(void)
 * Return         : None
 *******************************************************************************/
 void Task_Loop(void)
-{ 
-  
-      static u16 Tms10Counter=0,Tms25Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
-      static u32 comm_timeout = 0;
-      
-      delay_ms(1);
-      Tms10Counter++;
-      Tms25Counter++;
-      Tms50Counter++;
-      Tms100Counter++;
-      Tms500Counter++; 
-      Tms1000Counter++;   
+{          
 
-      if(Tms10Counter>=10) Tms10Counter=0;
-      if(Tms25Counter>=25) Tms25Counter=0;
-      if(Tms50Counter>=50) Tms50Counter=0;
-      if(Tms100Counter>=100) Tms100Counter=0;
-      if(Tms500Counter>=500) Tms500Counter=0;
-      if(Tms1000Counter>=1000) Tms1000Counter=0;      
+      if(++Tms10Counter>=2) Tms10Counter=0;
+      if(++Tms25Counter>=5) Tms25Counter=0;
+      if(++Tms50Counter>=10) Tms50Counter=0;
+      if(++Tms100Counter>=20) Tms100Counter=0;
+      if(++Tms500Counter>=100) Tms500Counter=0;
+      if(++Tms1000Counter>=200) Tms1000Counter=0;      
+
+      
+      /* self check */
+      STL_DoRunTimeChecks();
   
+      
 #ifdef GEC_SF_MASTER  
           
 
@@ -97,9 +94,6 @@ void Task_Loop(void)
 //          SPI1_DMA_ReceiveSendByte(num);
 //      }
       
-     
-      STL_DoRunTimeChecks();
-
       
       if(Tms25Counter == 0)      
       {
@@ -123,7 +117,7 @@ void Task_Loop(void)
       }
       
       
-      if(Tms1000Counter == 0)
+      if(Tms500Counter == 0)
       {                  
           /** CAN1 send data **/
           res=Can_Send_Msg(CAN1,canbuf_send,4);                          
@@ -149,14 +143,11 @@ void Task_Loop(void)
         
       }
       
-      if(Tms500Counter == 0)
-      {
-          Comm_DisplayBoard();      
-      }
+
+      Comm_DisplayBoard();      
+
       
 #else
-
-      STL_DoRunTimeChecks();
 
       
       if( onetime == 0)
@@ -209,12 +200,17 @@ void Task_Loop(void)
 int main(void)
 {        
 //    Safety_test();
+  
     /** hardware init **/
     Bsp_Init();    
     
     while(1)
     {
-//      spi1_test();
+      
+        /* 5ms */
+        while ( !TimingDelay );
+        TimingDelay = 0;
+        
         Task_Loop();
         LED_indicator();
            
