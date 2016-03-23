@@ -108,9 +108,7 @@ void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
 void USART3_Init(void)
 {
 
-	GPIO_InitTypeDef GPIO_InitStruct;
-					
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE); 
+	GPIO_InitTypeDef GPIO_InitStruct;					
 
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
@@ -603,8 +601,6 @@ void USART1_Init(void)
 
 	#ifdef USART1_REMAP_EN		
 	GPIO_PinRemapConfig(GPIO_Remap_USART1, ENABLE);
-	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE); 
 
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6;
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
@@ -616,7 +612,6 @@ void USART1_Init(void)
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB , &GPIO_InitStruct);
 	#else					
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); 
 
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
@@ -669,8 +664,6 @@ void USART2_Init(void)
 {
 #ifdef USART2_EN
 	GPIO_InitTypeDef GPIO_InitStruct;
-	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); 
 
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2;
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
@@ -716,8 +709,6 @@ void USART3_Init(void)
   
 	#ifdef USART3_REMAP_EN		
 	GPIO_PinRemapConfig(GPIO_PartialRemap_USART3, ENABLE);
-	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE); 
 
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
@@ -728,8 +719,7 @@ void USART3_Init(void)
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOC , &GPIO_InitStruct);
-	#else					
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE); 
+	#else					 
 
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
   GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 

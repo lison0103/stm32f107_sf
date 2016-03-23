@@ -41,6 +41,7 @@
 /* Exported functions ------------------------------------------------------- */
 void Bsp_Init(void);
 void RCC_Configuration(void);
+void NVIC_Configuration(void);
 
 
 #ifdef GEC_SF_MASTER

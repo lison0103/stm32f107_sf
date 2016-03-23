@@ -55,8 +55,7 @@ u16 EEPROM_WR_TIME=0;
 *******************************************************************************/ 
 void EEP_SDA_OUT(void)  
 {
-      RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE, ENABLE );
-      
+    
       GPIO_InitTypeDef GPIO_InitStruct;
       
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5;             

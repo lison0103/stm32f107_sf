@@ -2165,7 +2165,6 @@
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\inc</state>
           <state>$PROJ_DIR$\..\FATFS\src</state>
           <state>$PROJ_DIR$\..\FATFS\exfuns</state>
-          <state>$PROJ_DIR$\..\SYSTEM</state>
           <state>$PROJ_DIR$\..\HARDWARE\LED</state>
           <state>$PROJ_DIR$\..\HARDWARE\MB85RCXX</state>
           <state>$PROJ_DIR$\..\HARDWARE\EWDT</state>
@@ -3106,7 +3105,6 @@
           <state>$PROJ_DIR$\..\BSP</state>
           <state>$PROJ_DIR$\..\FATFS\src</state>
           <state>$PROJ_DIR$\..\FATFS\exfuns</state>
-          <state>$PROJ_DIR$\..\SYSTEM</state>
           <state>$PROJ_DIR$\..\HARDWARE\LED</state>
           <state>$PROJ_DIR$\..\HARDWARE\MB85RCXX</state>
           <state>$PROJ_DIR$\..\HARDWARE\EWDT</state>
@@ -3752,6 +3750,9 @@
       <name>$PROJ_DIR$\..\BSP\crc16.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\BSP\delay.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\BSP\hw_test.c</name>
     </file>
     <file>
@@ -3759,6 +3760,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\BSP\safety_test.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\BSP\sys.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\VCP\src\usb_bsp.c</name>
@@ -4006,15 +4010,6 @@
     </group>
     <file>
       <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLparam.h</name>
-    </file>
-  </group>
-  <group>
-    <name>SYSTEM</name>
-    <file>
-      <name>$PROJ_DIR$\..\SYSTEM\delay.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\SYSTEM\sys.c</name>
     </file>
   </group>
   <group>

@@ -39,11 +39,11 @@ __IO uint32_t receive_count =1;
 void Bsp_Init(void)
 {
   
-        /** RCC  Configuration **/
-        RCC_Configuration();
-
         /** set system interrupt priority group 2 **/
-	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+	NVIC_Configuration();
+        
+        /** RCC  Configuration **/
+        RCC_Configuration();        
         
         /** delay init **/
 	delay_init();  
@@ -134,13 +134,13 @@ void RCC_Configuration(void)
 {
 
     /* HCLK = SYSCLK */
-    RCC_HCLKConfig(RCC_SYSCLK_Div1);  // Done already?
+    RCC_HCLKConfig(RCC_SYSCLK_Div1);  
 
     /* PCLK2 = HCLK */
-    RCC_PCLK2Config(RCC_HCLK_Div1);// Done already?
+    RCC_PCLK2Config(RCC_HCLK_Div1);
 
     /* PCLK1 = HCLK/2 */
-    RCC_PCLK1Config(RCC_HCLK_Div2); // Done already?
+    RCC_PCLK1Config(RCC_HCLK_Div2); 
 
     /* Flash 2 wait state */
     FLASH_SetLatency(FLASH_Latency_2);
@@ -169,9 +169,52 @@ void RCC_Configuration(void)
     {
     }
 
-  /* Enable USART1, GPIOA and GPIOC clocks */
-//  RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA |
-//                         RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOC , ENABLE);
+    
+    /* Enable GPIO and Peripherals clocks */   
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_BKP | RCC_APB1Periph_PWR, ENABLE );
+    
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_CAN1 , ENABLE);    
+    
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM2
+                           |RCC_APB1Periph_TIM4 ,
+                            ENABLE);  
+                                        
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO | RCC_APB2Periph_SPI1, ENABLE);
+  
+    RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOA
+                           |RCC_APB2Periph_GPIOB
+                           |RCC_APB2Periph_GPIOC
+                           |RCC_APB2Periph_GPIOD
+                           |RCC_APB2Periph_GPIOE ,
+                           ENABLE); 
+  
+
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 | RCC_AHBPeriph_CRC, ENABLE); 
+  
+    #ifdef GEC_SF_MASTER
+      RCC_APB1PeriphClockCmd( RCC_APB1Periph_CAN2 , ENABLE);    
+      RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM3 , ENABLE);   
+    #endif
+}
+
+
+/*******************************************************************************
+* Function Name  : NVIC_Configuration
+* Description    : 
+*                  
+* Input          : None
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void NVIC_Configuration(void)
+{
+  
+    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
+    
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	
+    
+//    INTX_ENABLE();
 
 }
 

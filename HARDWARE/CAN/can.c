@@ -50,18 +50,13 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
 	CAN_FilterInitTypeDef  	CAN_FilterInitStructure;
 #if CAN1_RX0_INT_ENABLE || CAN2_RX0_INT_ENABLE
 	NVIC_InitTypeDef  		NVIC_InitStructure;
-#endif
-        
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+#endif       
 
         if(CANx == CAN1)
         {
-            	                   											 
-
-            RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);	
+            	                   											 	
             
 #ifdef GEC_SF_MASTER            
-            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
             
             GPIO_PinRemapConfig(GPIO_Remap2_CAN1, ENABLE);
 
@@ -73,8 +68,7 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
             GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;	
             GPIO_Init(GPIOD, &GPIO_InitStructure);			
             
-#else            
-            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);                   											 
+#else                              											 
                        
             GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
             GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -130,12 +124,8 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 tsjw,u8 tbs2,u8 tbs1,u16 brp,u8 mode)
             
         }
         else if(CANx == CAN2)
-        {
-            RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);                  											 
-
-            RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN2, ENABLE);	
+        {                  											 	
             
-
             GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
             GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
             GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;	

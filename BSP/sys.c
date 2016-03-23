@@ -20,26 +20,6 @@
 /* Private functions ---------------------------------------------------------*/
 
 
-/*******************************************************************************
-* Function Name  : NVIC_Configuration
-* Description    : 
-*                  
-* Input          : None
-*                 
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void NVIC_Configuration(void)
-{
-  
-    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
-    
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	
-    
-    INTX_ENABLE();
-
-}
-
 
 /*******************************************************************************
 * Function Name  : GetLockCode

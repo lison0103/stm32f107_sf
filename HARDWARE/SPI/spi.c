@@ -37,11 +37,8 @@ u8 SPI_DMA_RECEIVE_FLAG = 0;
 *******************************************************************************/
 void SPI1_Init(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
-        
-        SPI_InitTypeDef  SPI_InitStructure;
-  
-	RCC_APB2PeriphClockCmd(	RCC_APB2Periph_GPIOA|RCC_APB2Periph_SPI1, ENABLE );	
+	GPIO_InitTypeDef GPIO_InitStructure;        
+        SPI_InitTypeDef  SPI_InitStructure;	
  
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;  
@@ -97,9 +94,7 @@ void SPI1_DMA_Configuration( void )
 {  
       DMA_InitTypeDef     DMA_InitStructure;
       
-      NVIC_InitTypeDef NVIC_InitStructure;
-      
-      RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+      NVIC_InitTypeDef NVIC_InitStructure;   
       
       DMA_DeInit(DMA1_Channel2);
       DMA_InitStructure.DMA_PeripheralBaseAddr = SPI1_DR_Addr;//设置外设地址，注意PSIZE

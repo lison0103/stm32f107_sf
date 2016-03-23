@@ -67,7 +67,6 @@
 #define PGin(n)    BIT_ADDR(GPIOG_IDR_Addr,n)  /** INPUT **/
 
 /* Exported functions ------------------------------------------------------- */
-void NVIC_Configuration(void);
 u32 GetLockCode(void);		
 //以下为汇编函数
 void WFI_SET(void);	//执行WFI指令
