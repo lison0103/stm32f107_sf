@@ -206,9 +206,11 @@ void CAN1_RX0_IRQHandler(void)
         CAN_Receive(CAN1, 0, &RxMessage);
 
 #ifdef GEC_SF_MASTER
+  #if DEBUG_PRINTF 
         printf("CAN1RX:");
         Usb_Vcp_SendBuf(RxMessage.Data, RxMessage.DLC);
         printf("\r\n");
+  #endif
 #endif
 }
 #endif
@@ -231,9 +233,11 @@ void CAN2_RX0_IRQHandler(void)
                
         CAN_Receive(CAN2, 0, &RxMessage);
 #ifdef GEC_SF_MASTER
+     #if DEBUG_PRINTF 
         printf("CAN1RX:");
         Usb_Vcp_SendBuf(RxMessage.Data, RxMessage.DLC);
         printf("\r\n");     
+     #endif
 #endif
 }
 #endif

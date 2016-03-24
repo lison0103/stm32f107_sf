@@ -122,21 +122,25 @@ void Task_Loop(void)
           /** CAN1 send data **/
           res=Can_Send_Msg(CAN1,canbuf_send,4);                          
           if(res)
-          {                               
-              printf("CAN1TX:fail\r\n");
+          {        
+              #if DEBUG_PRINTF 
+                printf("CAN1TX:fail\r\n");
+              #endif
           }
           else 
           {	 
-                                       
-              USB_VCP_SendBuf(canbuf_send, 4); 
-              
+              #if DEBUG_PRINTF                         
+                USB_VCP_SendBuf(canbuf_send, 4); 
+              #endif
               delay_ms(1);
               
               /** CAN1 receive data **/
               can_rcv=Can_Receive_Msg(CAN1,canbuf_recv);
               if(can_rcv)
-              {			                                                                 
-                  USB_VCP_SendBuf(canbuf_recv, can_rcv);                                                                                               
+              {		
+                  #if DEBUG_PRINTF 
+                    USB_VCP_SendBuf(canbuf_recv, can_rcv);
+                  #endif
               }                                                                       
             
           }                      

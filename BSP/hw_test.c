@@ -866,7 +866,9 @@ void spi1_test(void)
             if(SPI1_TX_Buff[i] != SPI1_RX_Buff[i])
             {
                   data_error++;
-                  USB_VCP_SendBuf(SPI1_RX_Buff, 512);  
+                  #if DEBUG_PRINTF 
+                    USB_VCP_SendBuf(SPI1_RX_Buff, 512);
+                  #endif
                   break;
             }
         }  
@@ -1062,11 +1064,12 @@ void can1_can2_test(void)
                 }
                 res=Can_Send_Msg(CAN1,canbuf_send,8);
                 
-                if(res)
-                  printf("Failed\r\n");		
+                #if DEBUG_PRINTF
+                if(res)                   
+                    printf("Failed\r\n");		
                 else 
-                  printf("OK\r\n");	 										   
-
+                    printf("OK\r\n");	 										   
+                #endif
 
                 /** CAN2 receive **/
 		can_rcv=Can_Receive_Msg(CAN2,canbuf_recv);
@@ -1074,8 +1077,10 @@ void can1_can2_test(void)
 		{			
 			
  			for(i=0;i<can_rcv;i++)
-			{									    
+			{	
+                            #if DEBUG_PRINTF 
                               USB_VCP_SendBuf(canbuf_recv, can_rcv);	
+                            #endif
  			}
 		}                               
 		   
