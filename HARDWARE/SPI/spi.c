@@ -199,7 +199,7 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
 
 /*******************************************************************************
 * Function Name  : DMA1_Channel2_IRQHandler
-* Description    : 
+* Description    : receive
 * Input          : None
 * Output         : None
 * Return         : None
@@ -247,7 +247,7 @@ void DMA1_Channel2_IRQHandler(void)
 }
 /*******************************************************************************
 * Function Name  : DMA1_Channel3_IRQHandler
-* Description    : 
+* Description    : send
 * Input          : None
 * Output         : None
 * Return         : None

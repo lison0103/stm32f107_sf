@@ -111,7 +111,18 @@ void CPU_Exchange_Data_Check(void)
           SPI1_TX_Buff[8] = canbuf_send[3];
           
           SPI1_DMA_ReceiveSendByte(num);     
-          
+
+          printf("SPI1_RX_Buff :  \n");
+          for( u8 cnt = 0; cnt < 5; cnt++ )
+          {
+            printf(" %01d \n",SPI1_RX_Buff[cnt]);
+          }
+          printf("    SPI1_TX_Buff :  \n");
+          for( u8 cnt = 0; cnt < 5; cnt++ )
+          {
+            printf(" %01d \n",SPI1_TX_Buff[cnt]);
+          }
+              
           if(SPI1_TX_Buff[4] == 1 && SPI1_RX_Buff[4] == 1)
           {
               switch_flag = 2;
@@ -123,6 +134,7 @@ void CPU_Exchange_Data_Check(void)
               if(EN_ERROR_SYS3 > 2)
               {  
                   ESC_SafeRelay_Error_Process();
+                  printf("CPU_Exchange_Data_Check1 error \n");
               }
           }
           
@@ -136,6 +148,7 @@ void CPU_Exchange_Data_Check(void)
                   {
                       EN_ERROR_SYS3 = 0;
                       ESC_SafeRelay_Error_Process();
+                      printf("CPU_Exchange_Data_Check2 error \n");
                   }
               }
               else
@@ -167,6 +180,7 @@ void SF_CTR_Check(void)
             EN_ERROR_SYS2++;
             if(EN_ERROR_SYS2 > 2)
             {
+                printf("SF_CTR_Check error \n");
                 ESC_SafeRelay_Error_Process();
             }
         }
@@ -219,7 +233,8 @@ void Input_Check(void)
                 }                
                 else if(( switch_flag == 2 ) && ( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || AUX_FB ))
                 {
-                    switch_flag = 0;                  
+                    switch_flag = 0; 
+                    printf("Input_Check error \n");
                 }                
 
                 

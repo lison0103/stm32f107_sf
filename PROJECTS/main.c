@@ -67,12 +67,12 @@ void LED_indicator(void)
 void Task_Loop(void)
 {          
 
-      if(++Tms10Counter>=2) Tms10Counter=0;
-      if(++Tms25Counter>=5) Tms25Counter=0;
-      if(++Tms50Counter>=10) Tms50Counter=0;
-      if(++Tms100Counter>=20) Tms100Counter=0;
-      if(++Tms500Counter>=100) Tms500Counter=0;
-      if(++Tms1000Counter>=200) Tms1000Counter=0;      
+      if( ++Tms10Counter>=2 ) Tms10Counter=0;
+      if( ++Tms25Counter>=5 ) Tms25Counter=0;
+      if( ++Tms50Counter>=10 ) Tms50Counter=0;
+      if( ++Tms100Counter>=20 ) Tms100Counter=0;
+      if( ++Tms500Counter>=100 ) Tms500Counter=0;
+      if( ++Tms1000Counter>=200 ) Tms1000Counter=0;      
 
       
       /* self check */
@@ -95,12 +95,12 @@ void Task_Loop(void)
 //      }
       
       
-      if(Tms25Counter == 0)      
+      if( Tms25Counter == 0 )      
       {
           CPU_Exchange_Data_Check();
       }
       
-      if(Tms50Counter == 0)
+      if( Tms50Counter == 0 )
       {                       
           Input_Check();                   
           
@@ -111,20 +111,20 @@ void Task_Loop(void)
           
       } 
       
-      if(Tms100Counter == 0)
+      if( Tms100Counter == 0 )
       {         
           SF_CTR_Check();
       }
       
       
-      if(Tms500Counter == 0)
+      if( Tms500Counter == 0 )
       {                  
           /** CAN1 send data **/
           res=Can_Send_Msg(CAN1,canbuf_send,4);                          
           if(res)
           {        
               #if DEBUG_PRINTF 
-                printf("CAN1TX:fail\r\n");
+//                printf("CAN1TX:fail\r\n");
               #endif
           }
           else 
@@ -147,9 +147,10 @@ void Task_Loop(void)
         
       }
       
-
-      Comm_DisplayBoard();      
-
+      if( Tms1000Counter == 0 )
+      {
+          Comm_DisplayBoard();      
+      }
       
 #else
 
@@ -163,7 +164,7 @@ void Task_Loop(void)
       if( Tms25Counter == 0 )
       {
           comm_timeout++;
-          if(comm_timeout > 100)
+          if( comm_timeout > 100 )
           {
               ESC_SPI_Error_Process();
           }

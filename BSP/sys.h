@@ -66,6 +66,14 @@
 #define PGout(n)   BIT_ADDR(GPIOG_ODR_Addr,n)  /** OUTPUT **/ 
 #define PGin(n)    BIT_ADDR(GPIOG_IDR_Addr,n)  /** INPUT **/
 
+
+/* if not use usb debug ,this macro should be 0 */
+#ifdef GEC_SF_MASTER
+#define DEBUG_PRINTF    1
+#else
+#define DEBUG_PRINTF    0
+#endif
+
 /* Exported functions ------------------------------------------------------- */
 u32 GetLockCode(void);		
 //以下为汇编函数

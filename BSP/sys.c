@@ -13,14 +13,6 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-
-/* if not use usb debug ,this macro should be 0 */
-#ifdef GEC_SF_MASTER
-#define DEBUG_PRINTF    0
-#else
-#define DEBUG_PRINTF    0
-#endif
-
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
