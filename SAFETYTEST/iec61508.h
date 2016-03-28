@@ -18,6 +18,26 @@ extern "C"
 {
 #endif /* __cplusplus */
 
+typedef enum testResult_enum
+{
+  IEC61508_testFailed     = 0,              /*!< test result failed replacement */
+  IEC61508_testPassed     = 1,              /*!< test result passed replacement */
+  IEC61508_testInProgress = 2               /*!< test is still in progress replacement */
+} type_testResult_t;
+
+typedef enum testState_enum
+{
+  IEC61508_stateDone       = 0,             /*!< test is done replacement */
+  IEC61508_statePending    = 1,             /*!< test is pending replacement */
+  IEC61508_stateInProgress = 2              /*!< test is still in progress replacement */
+} type_testState_t;
+
+typedef enum testStart_enum
+{
+  IEC61508_stop  = 0,                       /*!< test command stop */
+  IEC61508_start = 1                        /*!< test command start */
+} type_testStart_t;  
+  
 
 /*	User configuration	*/
   

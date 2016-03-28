@@ -13,7 +13,6 @@
 #include "stm32f10x_STLclassBvar.h"
 #include "check_instruction.h"
 #include "check_instruction_2.h"
-#include "ram_test.h"
 #include "pc_test.h"
 #include "flag_test.h"
 #include "config_test.h"
@@ -46,7 +45,7 @@ void Bsp_Init(void)
 {
   
         /* self test ---------------------------------------------------------*/
-        Safety_test();
+        Safety_test_init();
   
         /** set system interrupt priority group 2 **/
 	NVIC_Configuration();
@@ -210,6 +209,9 @@ void RCC_Configuration(void)
       RCC_APB1PeriphClockCmd( RCC_APB1Periph_CAN2 , ENABLE);    
       RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM3 , ENABLE);   
     #endif
+      
+    /* Enable CSS */
+    RCC_ClockSecuritySystemCmd(ENABLE);
 }
 
 

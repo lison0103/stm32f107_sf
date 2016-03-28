@@ -117,12 +117,17 @@ _DMB_Arithmetic
 ;     LDR R1, [R0, #0x0c]          ; 读取IAR，同时解除nIRQ信号
 ;     DSB                          ;确保内存访问结束，并且没有其他的指令运行
 
-  LDR  R1, =InstCheckPOST_struct     /*COUNT*/
-  LDRB R0, [R1]                      /*LDRB*/
+_DMB_Arithmetic_test_pass
+  LDR  R1, =InstCheckPOST_struct     
+  B     _DMB_Arithmetic_test_exit
+ 
+_DMB_Arithmetic_test_fail  
+  LDR  R1, =InstCheckPOST_struct 
+  
+_DMB_Arithmetic_test_exit  
+  LDRB R0, [R1]                      
   ADD  R0,R0,#0x01
   STR  R0, [R1]
-
-_DMB_Arithmetic_test_fail
 ;/* Pop the stack back */
   pop {r0-r12,r14}
 ;/* Branch back */
@@ -163,9 +168,9 @@ _CMP_Arithmetic
 ;CBZ <Rn>, <label>
 
   LDR R0, =300
-  MOV R1, #7
-  SDIV.W R2, R0, R1   ;则R2= 300/7 =44
-  MOV R4, #44
+  MOV R1, #5
+  SDIV.W R2, R0, R1   ;则R2= 300/5 =60
+  MOV R4, #60
   CMP R4, R2
   bne _CMP_Arithmetic_test_fail
 
@@ -216,13 +221,18 @@ _CMP_Arithmetic
   MOV R1, #0xaa55
   TEQ R0, R1                 /*TEQ*/
   bne _CMP_Arithmetic_test_fail
-  
-  LDR  R1, =InstCheckPOST_struct     /*COUNT*/
-  LDRB R0, [R1]                      /*LDRB*/
-  ADD  R0,R0,#0x01
-  STR  R0, [R1]
+
+_CMP_Arithmetic_test_pass
+  LDR  R1, =InstCheckPOST_struct 
+  B     _CMP_Arithmetic_test_exit
 
 _CMP_Arithmetic_test_fail
+  LDR  R1, =InstCheckPOST_struct+4
+  
+_CMP_Arithmetic_test_exit  
+  LDRB R0, [R1]                      
+  ADD  R0,R0,#0x01
+  STR  R0, [R1]
 ;/* Pop the stack back */
   pop {r0-r12,r14}
 ;/* Branch back */
@@ -343,12 +353,17 @@ _BIT_Arithmetic
 ;  ADD R1, R1, R2, LSL #3
   SUB R1, R1, R2, LSR#2        /*R1=R1-R2*4*/
 
+_BIT_Arithmetic_test_pass
   LDR  R1, =InstCheckPOST_struct     /*COUNT*/
+  B     _BIT_Arithmetic_test_exit
+  
+_BIT_Arithmetic_test_fail
+  LDR  R1, =InstCheckPOST_struct+4     
+  
+_BIT_Arithmetic_test_exit  
   LDRB R0, [R1]                      /*LDRB*/
   ADD  R0,R0,#0x01
   STR  R0, [R1]
-
-_BIT_Arithmetic_test_fail
 ;/* Restore the APSR */
   msr APSR, r3
 ;/* Pop the stack back */
@@ -483,13 +498,18 @@ _STMDB_LDMIA
   bne     _stmdb_ldmia_test_fail
   cmp     r3,r1
   bne     _stmdb_ldmia_test_fail  
-   
+
+_stmdb_ldmia_test_pass
   LDR  R1, =InstCheckPOST_struct     /*COUNT*/
+  B     _stmdb_ldmia_test_exit
+  
+_stmdb_ldmia_test_fail
+  LDR  R1, =InstCheckPOST_struct+4     /*COUNT*/  
+   
+_stmdb_ldmia_test_exit  
   LDRB R0, [R1]                      /*LDRB*/
   ADD  R0,R0,#0x01
   STR  R0, [R1]
-
-_stmdb_ldmia_test_fail
 ;/* Restore the APSR */
   msr APSR, r3
 ;/* Pop the stack back */

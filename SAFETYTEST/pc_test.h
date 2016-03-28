@@ -13,7 +13,7 @@
 #define __cb_pc_
 
 #include "iec61508.h"
-#include "ram_test.h"
+
 
 type_testResult_t IEC61508_PCTest_POST(void);
 type_testResult_t IEC61508_PCTest_BIST(void);

@@ -114,16 +114,6 @@ void RCC_Configuration_72M(void)
      {} 
 } 
 
-     /* Enable FSMC, GPIOD, GPIOE, GPIOF, GPIOG and AFIO clocks */ 
-     //使能外围接口总线时钟，注意各外设的隶属情况，不同芯片的分配不同，到时候查手册就可以 
-  //RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE); 
-
-  //RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE | 
-  //                        RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG | 
-  //                        RCC_APB2Periph_AFIO, ENABLE); 
-  /* Enable GPIOA, GPIOD, RCC_APB2Periph_GPIO_KEY_BUTTON and AFIO clocks */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOD |
-                         RCC_APB2Periph_AFIO, ENABLE);
   RCC_ClockSecuritySystemCmd(ENABLE);//使能或者失能时钟安全系统
 }
 
@@ -170,9 +160,6 @@ void RCC_Configuration_8M(void)
     {}
   }
 
-  /* Enable GPIOA, GPIOD, RCC_APB2Periph_GPIO_KEY_BUTTON and AFIO clocks */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOD |
-                         RCC_APB2Periph_AFIO, ENABLE);
   RCC_ClockSecuritySystemCmd(ENABLE);//使能或者失能时钟安全系统
 }
 

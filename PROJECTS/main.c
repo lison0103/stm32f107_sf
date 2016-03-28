@@ -77,6 +77,8 @@ void Task_Loop(void)
       
       /* self check */
       STL_DoRunTimeChecks();
+      
+      Safety_test_run();
   
       
 #ifdef GEC_SF_MASTER  

@@ -538,7 +538,7 @@ void STL_WDGSelfTest(void)
    || (RCC_GetFlagStatus(RCC_FLAG_LPWRRST) == SET)  /* or Low Power reset */
    || ((RCC_GetFlagStatus(RCC_FLAG_PINRST) == SET)  /* or triggered by */
     && (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) == RESET)  /* external pin solely */
-    && (RCC_GetFlagStatus(RCC_FLAG_WWDGRST) == RESET)))
+    ))
   {
     #ifdef STL_VERBOSE_POR
       printf("... Power-on or software reset, testing IWDG ... \r\n");
@@ -546,7 +546,7 @@ void STL_WDGSelfTest(void)
 
     /* Enable write access to IWDG_PR and IWDG_RLR registers */
     IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
-    /* IWDG clock: 32KHz(LSI) / 4 = 8KHz */
+    /* IWDG clock: 40KHz(LSI) / 4 = 8KHz max:0xFFF / 4095    Tout = ((4*2^prer)*count) / 40 */
     IWDG_SetPrescaler(IWDG_Prescaler_4);
     /* Set counter reload value to 1 (125µs */
     IWDG_SetReload(1);
@@ -563,7 +563,6 @@ void STL_WDGSelfTest(void)
   {
     /* If WWDG only was set, re-start the complete test (indicates a reset triggered by safety routines */
     if ((RCC_GetFlagStatus(RCC_FLAG_PINRST)  == SET)
-     && (RCC_GetFlagStatus(RCC_FLAG_WWDGRST) == SET)
      && (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) == RESET))
     {
       RCC_ClearFlag();
@@ -575,44 +574,24 @@ void STL_WDGSelfTest(void)
     else  /* If IWDG only was set, continue the test with WWDG test*/
     {
       if ((RCC_GetFlagStatus(RCC_FLAG_PINRST)  == SET)
-       && (RCC_GetFlagStatus(RCC_FLAG_WWDGRST) == RESET)
        && (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) == SET))
-      { /* If IWDG only was set, test WWDG*/
-        #ifdef STL_VERBOSE_POR
-          printf("... IWDG reset from test or application, testing WWDG\r\n");
-        #endif  /* STL_VERBOSE_POR */
-
-        /* Enable WWDG clock */
-        RCC_APB1PeriphClockCmd(RCC_APB1Periph_WWDG, ENABLE);
-        /* WWDG clock counter = (PCLK1/4096)/8 = 976 Hz */
-        WWDG_SetPrescaler(WWDG_Prescaler_1);
-        /* Set Window close to timeout */
-        WWDG_SetWindowValue(0x40);
-        /* Enable WWDG and set counter to 0x7F to force directly a reset */
-        WWDG_Enable(0x7F);
-        while(1);
+      { 
+//          RCC_ClearFlag();
+          #ifdef STL_VERBOSE_POR
+            printf("... WWDG reset, WDG test completed ... \r\n");
+          #endif  /* STL_VERBOSE_POR */
 
       }
       else  /* If both flags are set, means that watchdog test is completed */
       {
-        if ((RCC_GetFlagStatus(RCC_FLAG_PINRST)  == SET)
-         && (RCC_GetFlagStatus(RCC_FLAG_WWDGRST) == SET)
-         && (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) == SET))
-        {
-          RCC_ClearFlag();
-          #ifdef STL_VERBOSE_POR
-            printf("... WWDG reset, WDG test completed ... \r\n");
-          #endif  /* STL_VERBOSE_POR */
-        }
-        else  /* Unexpected Flag configuration, re-start WDG test */
-        {
+
           RCC_ClearFlag();
           #ifdef STL_VERBOSE_POR
             printf("...Unexpected Flag configuration, re-start WDG test... \r\n");
           #endif  /* STL_VERBOSE_POR */
           NVIC_SystemReset();
-        } /* End of Unexpected Flag configuration */
-      } /* End of normal test sequence */
+      } /* End of Unexpected Flag configuration */
+
     } /* End of partial WDG test (IWDG test done) */
   } /* End of part where 1 or 2 Watchdog flags are set */
 }

@@ -174,12 +174,17 @@ Tbbreturn  ;label
   ;BKPT  16位的立即数
   ;功能：用于产生软件断点中断，执行时中断正常指令，进入相应的调试子程序
 
-  LDR  R1, =InstCheckPOST_struct     /*COUNT*/
-  LDRB R0, [R1]                      /*LDRB*/
-  ADD  R0,R0,#0x01
-  STR  R0, [R1]
+_TBB_Arithmetic_test_pass
+  LDR  R1, =InstCheckPOST_struct     
+  B    _TBB_Arithmetic_test_exit
 
 _TBB_Arithmetic_test_fail
+  LDR  R1, =InstCheckPOST_struct+4     
+  
+_TBB_Arithmetic_test_exit  
+  LDRB R0, [R1]                      
+  ADD  R0,R0,#0x01
+  STR  R0, [R1]
 ;/* Pop the stack back */
   pop {r0-r12,r14}
 ;/* Branch back */
@@ -269,12 +274,17 @@ _ITT_Arithmetic
   CMP R3, #8
   bne _ITT_Arithmetic_test_fail
 
+_ITT_Arithmetic_test_pass
   LDR  R1, =InstCheckPOST_struct     /*COUNT*/
+  B    _ITT_Arithmetic_test_exit
+  
+_ITT_Arithmetic_test_fail
+  LDR  R1, =InstCheckPOST_struct+4     /*COUNT*/
+  
+_ITT_Arithmetic_test_exit
   LDRB R0, [R1]                      /*LDRB*/
   ADD  R0,R0,#0x01
   STR  R0, [R1]
-
-_ITT_Arithmetic_test_fail
 ;/* Pop the stack back */
   pop {r0-r12,r14}
 ;/* Branch back */

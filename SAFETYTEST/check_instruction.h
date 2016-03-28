@@ -1,7 +1,7 @@
 #ifndef __CHECK_INS_H
 #define __CHECK_INS_H
 #include "iec61508.h"
-#include "ram_test.h"
+
 //__no_init int  b@0x1510;
 //extern char a; 
 __no_init int a @0x1500;

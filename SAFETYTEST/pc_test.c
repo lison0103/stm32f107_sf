@@ -10,7 +10,7 @@
 */
 #include <stdint.h>
 #include "iec61508.h"
-#include "ram_test.h"
+
 
 #include "pc_test.h"
 
