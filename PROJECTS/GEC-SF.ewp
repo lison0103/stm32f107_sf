@@ -2177,6 +2177,7 @@
           <state>$PROJ_DIR$\..\VCP\inc</state>
           <state>$PROJ_DIR$\..\ESC\inc</state>
           <state>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib</state>
+          <state>$PROJ_DIR$\..\SAFETYTEST\</state>
           <state>$PROJ_DIR$\..\BSP</state>
         </option>
         <option>
@@ -2870,16 +2871,16 @@
         <option>
           <name>GRuntimeLibSelect</name>
           <version>0</version>
-          <state>1</state>
+          <state>2</state>
         </option>
         <option>
           <name>GRuntimeLibSelectSlave</name>
           <version>0</version>
-          <state>1</state>
+          <state>2</state>
         </option>
         <option>
           <name>RTDescription</name>
-          <state>Use the normal configuration of the C/C++ runtime library. No locale interface, C locale, no file descriptor support, no multibytes in printf and scanf, and no hex floats in strtod.</state>
+          <state>Use the full configuration of the C/C++ runtime library. Full locale interface, C locale, file descriptor support, multibytes in printf and scanf, and hex floats in strtod.</state>
         </option>
         <option>
           <name>OGProductVersion</name>
@@ -2933,7 +2934,7 @@
         </option>
         <option>
           <name>RTConfigPath2</name>
-          <state>$TOOLKIT_DIR$\INC\c\DLib_Config_Normal.h</state>
+          <state>$TOOLKIT_DIR$\INC\c\DLib_Config_Full.h</state>
         </option>
         <option>
           <name>GFPUCoreSlave</name>
@@ -3117,6 +3118,7 @@
           <state>$PROJ_DIR$\..\VCP\inc</state>
           <state>$PROJ_DIR$\..\ESC\inc</state>
           <state>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib</state>
+          <state>$PROJ_DIR$\..\SAFETYTEST\</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -3999,6 +4001,9 @@
         <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLmain.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLparam.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLstartup.c</name>
       </file>
       <file>
@@ -4009,7 +4014,22 @@
       </file>
     </group>
     <file>
-      <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLparam.h</name>
+      <name>$PROJ_DIR$\..\SAFETYTEST\check_instruction.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SAFETYTEST\check_instruction_post.s</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SAFETYTEST\check_instruction_post_2.s</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SAFETYTEST\config_test.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SAFETYTEST\flag_test.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\SAFETYTEST\pc_test.c</name>
     </file>
   </group>
   <group>

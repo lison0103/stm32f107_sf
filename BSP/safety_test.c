@@ -14,6 +14,13 @@
 #include "stm32f10x_STLclassBvar.h"
 #include "initial_devices.h"
 
+#include "check_instruction.h"
+#include "check_instruction_2.h"
+#include "ram_test.h"
+#include "pc_test.h"
+#include "flag_test.h"
+#include "config_test.h"
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -33,56 +40,53 @@ void LED_indicator1(void);
 int Safety_test(void)
 {
 
-  /* System Clocks Configuration ---------------------------------------------*/
-  RCC_Configuration();
+        volatile type_testResult_t result = IEC61508_testFailed;   /* variable is located in the stack */
+        
+        result = flag_test();
+        if (result != IEC61508_testPassed)
+        {
+          while(1);                            /* remains if FLAG test fails */
+        }
+        
+        RCC_ClocksTypeDef RCC_Clocks;
+        RCC_Configuration_8M();//HSE - 8MHz
+        RCC_GetClocksFreq(&RCC_Clocks); 
+        if (RCC_Clocks.SYSCLK_Frequency !=8000000)
+        {
+          while(1);
+        }
+        
+        RCC_Configuration_72M(); //PLL - 72MHz
+        RCC_GetClocksFreq(&RCC_Clocks); 
+        if (RCC_Clocks.SYSCLK_Frequency !=72000000)
+        {
+          while(1);
+        }
+        
+         /* Configure PA.00 in interrupt mode */
+        EXTI0_Config();
+        /* Generate software interrupt: simulate a falling edge applied on EXTI0 line */
+        EXTI_GenerateSWInterrupt(EXTI_Line0);//中断函数中加入标志 IEC61508_testPassed，判断成功触发
+       
+        result = IEC61508_PCTest_POST();
+        if (result != IEC61508_testPassed)
+        {
+          while(1);                                      /* remains if PC test fails */
+        }        
 
-  /* LED configuration ------------------------------------------------------*/
-  LED_Init();
-  
-  /* Self test routines initialization ---------------------------------------*/
-  STL_InitRunTimeChecks();
-
-  while(1)
-  {
-    /* This is where the main self-test routines are executed ----------------*/
-    STL_DoRunTimeChecks();
-
-    LED_indicator1();
-    
-    /* This is to monitor transparent RAM test activity */
-//    RamPntr = (u32)(p_RunTimeRamChk) - 0x20000000;
-//    printf("RamPntr= %d\r", RamPntr);
-
-    /* Test if PB.09 level is low (Key push-button on Eval Board pressed) */
-//    if (GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_9) == 0x00)
-//    {
-//      /* WWDG configuration --------------------------------------------------------*/
-//      /* Enable WWDG clock */
-//      RCC_APB1PeriphClockCmd(RCC_APB1Periph_WWDG, ENABLE);
-//      /* WWDG clock counter = (PCLK1/4096)/8 = 244 Hz (~4 ms)  */
-//      WWDG_SetPrescaler(WWDG_Prescaler_8);
-//      /* Set Window value to 0x7F */
-//      WWDG_SetWindowValue(0x7F);
-//      /* Enable WWDG and set counter value to 0x7F, WWDG timeout = ~4 ms * 64 = 262 ms */
-//      WWDG_Enable(0x7F);
-//    }
-
-  } /* while(1) */
+        /* Do the IEC61508 instruction tests */
+        if (iec61508_InstCheck_POST() == IEC61508_testFailed)
+        {
+            /* POST instruction test failed */  /*waitting for WATCHDOG to reset*/
+            while (1);
+        }
+        
+        
+        return 0;
 
 }
 
-void LED_indicator1(void)
-{
-	static u32 led_idr_cnt=0;	 
-	
-	led_idr_cnt++;
-	
-	if(led_idr_cnt >= 100000 && data_error <= 0)
-	{
-                led_idr_cnt = 0;
-		LED=!LED;                
-	}   
-}
+
 
 
 /******************************  END OF FILE  *********************************/

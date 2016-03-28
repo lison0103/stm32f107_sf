@@ -10,6 +10,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "exti.h"
 #include "timer.h"
+#include "ram_test.h"
+#include "pc_test.h"
+#include "flag_test.h"
+#include "config_test.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -116,6 +120,8 @@ void EXTI0_IRQHandler(void)
     {
         EXTI_ClearFlag(EXTI_Line0);
         EXTI_ClearITPendingBit(EXTI_Line0);
+        
+//        result = IEC61508_testPassed;
         
         in2_counter = TIM_GetCounter(TIM2); 
         TIM_SetCounter(TIM2, 0);

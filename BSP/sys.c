@@ -47,7 +47,7 @@ u32 GetLockCode(void)
   return Lock_Code;
 }
 
-#ifdef GEC_SF_MASTER
+//#ifdef GEC_SF_MASTER
 /*******************************************************************************
 * Function Name  : fputc
 * Description    : 
@@ -75,7 +75,7 @@ int fputc(int ch, FILE *f)
 
 #endif
 
-#endif
+//#endif
 
 
 //THUMB指令不支持汇编内联

@@ -11,6 +11,12 @@
 #include "initial_devices.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
+#include "check_instruction.h"
+#include "check_instruction_2.h"
+#include "ram_test.h"
+#include "pc_test.h"
+#include "flag_test.h"
+#include "config_test.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -39,11 +45,14 @@ __IO uint32_t receive_count =1;
 void Bsp_Init(void)
 {
   
+        /* self test ---------------------------------------------------------*/
+        Safety_test();
+  
         /** set system interrupt priority group 2 **/
 	NVIC_Configuration();
         
         /** RCC  Configuration **/
-        RCC_Configuration();        
+        RCC_Configuration();                
         
         /** delay init **/
 	delay_init();  
