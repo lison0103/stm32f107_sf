@@ -117,10 +117,10 @@ void Bsp_Init(void)
       
 #endif  /* GEC_SF_MASTER */
         
-#if STL_SELF_TEST        
+        
         /* Self test routines initialization ---------------------------------------*/
         STL_InitRunTimeChecks();
-#endif
+
         /* systick timer , 5ms interrupt */
  	if(SysTick_Config(SystemCoreClock / 200))
         {

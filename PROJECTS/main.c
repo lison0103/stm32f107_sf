@@ -18,8 +18,8 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-static u16 Tms10Counter=0,Tms20Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
-static u32 comm_timeout = 100;
+static u16 Tms10Counter=0,Tms25Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
+static u32 comm_timeout = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -68,41 +68,43 @@ void Task_Loop(void)
 {          
 
       if( ++Tms10Counter>=2 ) Tms10Counter=0;
-      if( ++Tms20Counter>=4 ) Tms20Counter=0;
+      if( ++Tms25Counter>=5 ) Tms25Counter=0;
       if( ++Tms50Counter>=10 ) Tms50Counter=0;
       if( ++Tms100Counter>=20 ) Tms100Counter=0;
       if( ++Tms500Counter>=100 ) Tms500Counter=0;
       if( ++Tms1000Counter>=200 ) Tms1000Counter=0;      
 
-#if STL_SELF_TEST       
+      
       /* self check */
       STL_DoRunTimeChecks();
-#endif  
+  
       
 #ifdef GEC_SF_MASTER  
           
+
 //      if( onetime == 0)
 //      {
 //          onetime++;
-//                          
-//           SPI1_DMA_ReceiveSendByte(m_modbus_data, 5);
-//      }      
-      if( Tms10Counter == 0 )      
-      {
-//          SPI1_DMA_ReceiveSendByte(m_modbus_data, 512);
-      }      
+//        
+//          if(SF_RL1_FB)
+//            SPI1_TX_Buff[0] = 0x01;
+//          else
+//            SPI1_TX_Buff[0] = 0x00;
+//                           
+//          SPI1_DMA_ReceiveSendByte(num);
+//      }
       
-      if( Tms100Counter == 0 )      
+      
+      if( Tms25Counter == 0 )      
       {
-//          CPU_Exchange_Data_Check();
-        spi_data_test();
+          CPU_Exchange_Data_Check();
       }
       
       if( Tms50Counter == 0 )
       {                       
-//          Input_Check();                   
-//          
-//          USB_VCP_RecvBufandSend();
+          Input_Check();                   
+          
+          USB_VCP_RecvBufandSend();
           
           SF_EWDT_TOOGLE();
           EWDT_TOOGLE();
@@ -111,72 +113,72 @@ void Task_Loop(void)
       
       if( Tms100Counter == 0 )
       {         
-//          SF_CTR_Check();
+          SF_CTR_Check();
       }
       
       
       if( Tms500Counter == 0 )
       {                  
           /** CAN1 send data **/
-//          res=Can_Send_Msg(CAN1,canbuf_send,4);                          
-//          if(res)
-//          {        
-//              #if DEBUG_PRINTF 
-////                printf("CAN1TX:fail\r\n");
-//              #endif
-//          }
-//          else 
-//          {	 
-//              #if DEBUG_PRINTF                         
-//                USB_VCP_SendBuf(canbuf_send, 4); 
-//              #endif
-//              delay_ms(1);
-//              
-//              /** CAN1 receive data **/
-//              can_rcv=Can_Receive_Msg(CAN1,canbuf_recv);
-//              if(can_rcv)
-//              {		
-//                  #if DEBUG_PRINTF 
-//                    USB_VCP_SendBuf(canbuf_recv, can_rcv);
-//                  #endif
-//              }                                                                       
-//            
-//          }                      
+          res=Can_Send_Msg(CAN1,canbuf_send,4);                          
+          if(res)
+          {        
+              #if DEBUG_PRINTF 
+//                printf("CAN1TX:fail\r\n");
+              #endif
+          }
+          else 
+          {	 
+              #if DEBUG_PRINTF                         
+                USB_VCP_SendBuf(canbuf_send, 4); 
+              #endif
+              delay_ms(1);
+              
+              /** CAN1 receive data **/
+              can_rcv=Can_Receive_Msg(CAN1,canbuf_recv);
+              if(can_rcv)
+              {		
+                  #if DEBUG_PRINTF 
+                    USB_VCP_SendBuf(canbuf_recv, can_rcv);
+                  #endif
+              }                                                                       
+            
+          }                      
         
       }
       
       if( Tms1000Counter == 0 )
       {
-//          Comm_DisplayBoard();      
+          Comm_DisplayBoard();      
       }
       
 #else
 
+      
       if( onetime == 0)
       {
           onetime++;
                           
-           spi_data_test();
+          SPI1_DMA_ReceiveSendByte(512);
       }
-      if( Tms100Counter == 0 )
+      if( Tms25Counter == 0 )
       {
-          comm_timeout--;
-          if( comm_timeout == 0 )
+          comm_timeout++;
+          if( comm_timeout > 100 )
           {
               ESC_SPI_Error_Process();
           }
           if( SPI_DMA_RECEIVE_FLAG == 1 )
           {
-                comm_timeout = 500;
+                comm_timeout = 0;
                 
-//                CPU_Exchange_Data_Check();    
-                spi_data_test();
+                CPU_Exchange_Data_Check();              
           }          
       }
       
       if( Tms50Counter == 0 )
       {                       
-//          Input_Check();   
+          Input_Check();   
                               
           SF_EWDT_TOOGLE();
           EWDT_TOOGLE();
@@ -184,7 +186,7 @@ void Task_Loop(void)
       
       if( Tms100Counter == 0 )
       {         
-//          SF_CTR_Check();
+          SF_CTR_Check();
       }      
       
 #endif

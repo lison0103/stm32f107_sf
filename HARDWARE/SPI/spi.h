@@ -22,7 +22,7 @@
 /* Exported functions ------------------------------------------------------- */
 void SPI1_Init(void);			 
 void SPI1_DMA_Configuration( void );
-void SPI1_DMA_ReceiveSendByte( u8 *pbufer, u16 num );
+void SPI1_DMA_ReceiveSendByte( u16 num );
 void SPI1_SetSpeed(u8 SpeedSet);   
 u8 SPI1_ReadWriteByte(u8 TxData);
 void SPI1_WriteByte(u8 TxData);

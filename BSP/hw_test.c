@@ -33,8 +33,6 @@ u8 sflag,inputnum = 0;
 u8 switch_flag = 1;
 u8 sfwdt_checkflag = 0;
 u8 canbuf_send[8];
-u8 m_modbus_data[512] = { 0 };
-u8 s_modbus_data[512] = { 0 };
 #ifdef GEC_SF_MASTER
 u8 R_SF_RL2_FB_CPU1;
 #else
@@ -86,42 +84,34 @@ void CPU_Exchange_Data_Check(void)
 {
     u16 num = 512;
   
-//          for(u16 n = 0; n < 512; n++)
-//          {
-//              SPI1_TX_Buff[n] = 0;
-//          }
+          for(u16 n = 0; n < 512; n++)
+          {
+              SPI1_TX_Buff[n] = 0;
+          }
     
           SPI_DMA_RECEIVE_FLAG = 0;
  
           if(SF_RL_DRV_FB)
-            m_modbus_data[0] = 0x01;
-          else
-            m_modbus_data[0] = 0x00;
+            SPI1_TX_Buff[0] = 0x01;
          
           if(SF_PWR_FB_CPU)
-            m_modbus_data[1] = 0x01;
-          else
-            m_modbus_data[1] = 0x00;
+            SPI1_TX_Buff[1] = 0x01;
           
           if(SF_RL_FB)
-            m_modbus_data[2] = 0x01;
-          else
-            m_modbus_data[2] = 0x00;
-          
+            SPI1_TX_Buff[2] = 0x01;
+            
           if(AUX_FB)
-            m_modbus_data[3] = 0x01;
-          else
-            m_modbus_data[3] = 0x00;
+            SPI1_TX_Buff[3] = 0x01;
+               
+          SPI1_TX_Buff[4] = sfwdt_checkflag;
           
-          m_modbus_data[4] = sfwdt_checkflag;
+          SPI1_TX_Buff[5] = canbuf_send[0];
+          SPI1_TX_Buff[6] = canbuf_send[1];
+          SPI1_TX_Buff[7] = canbuf_send[2];
+          SPI1_TX_Buff[8] = canbuf_send[3];
           
-          m_modbus_data[5] = canbuf_send[0];
-          m_modbus_data[6] = canbuf_send[1];
-          m_modbus_data[7] = canbuf_send[2];
-          m_modbus_data[8] = canbuf_send[3];
-          
-          SPI1_DMA_ReceiveSendByte(m_modbus_data, num);     
-#ifdef GEC_SF_MASTER 
+          SPI1_DMA_ReceiveSendByte(num);     
+
           printf("SPI1_RX_Buff :  \n");
           for( u8 cnt = 0; cnt < 5; cnt++ )
           {
@@ -130,10 +120,10 @@ void CPU_Exchange_Data_Check(void)
           printf("    SPI1_TX_Buff :  \n");
           for( u8 cnt = 0; cnt < 5; cnt++ )
           {
-            printf(" %01d \n",m_modbus_data[cnt]);
+            printf(" %01d \n",SPI1_TX_Buff[cnt]);
           }
-#endif              
-          if(m_modbus_data[4] == 1 && SPI1_RX_Buff[4] == 1)
+              
+          if(SPI1_TX_Buff[4] == 1 && SPI1_RX_Buff[4] == 1)
           {
               switch_flag = 2;
               sfwdt_checkflag = 0;
@@ -143,7 +133,6 @@ void CPU_Exchange_Data_Check(void)
               EN_ERROR_SYS3++;
               if(EN_ERROR_SYS3 > 2)
               {  
-                  switch_flag = 0;
                   ESC_SafeRelay_Error_Process();
                   printf("CPU_Exchange_Data_Check1 error \n");
               }
@@ -151,8 +140,8 @@ void CPU_Exchange_Data_Check(void)
           
           if( switch_flag == 2 )
           {
-              if( (m_modbus_data[0] != SPI1_RX_Buff[0]) || (m_modbus_data[1] != SPI1_RX_Buff[1]) 
-                 || (m_modbus_data[2] != SPI1_RX_Buff[2]) || (m_modbus_data[3] != SPI1_RX_Buff[3]) )
+              if( (SPI1_TX_Buff[0] != SPI1_RX_Buff[0]) || (SPI1_TX_Buff[1] != SPI1_RX_Buff[1]) 
+                 || (SPI1_TX_Buff[2] != SPI1_RX_Buff[2]) || (SPI1_TX_Buff[3] != SPI1_RX_Buff[3]) )
               {
                   EN_ERROR_SYS3++;
                   if(EN_ERROR_SYS3 > 2)
@@ -854,7 +843,7 @@ u8 onetime = 0;
 
 u8 data_error = 0;
 u32 ms_count = 0;
-#if 0
+
 void spi1_test(void)
 {    
 
@@ -995,7 +984,7 @@ void spi1_test(void)
 #endif
 
 }
-#endif
+
 /*******************************************************************************
 * Function Name  : can_test
 * Description    : 
@@ -1115,57 +1104,7 @@ void can1_can2_test(void)
 }
 #endif
 
-/*******************************************************************************
-* Function Name  : LED_indicator
-* Description    : 
-*                  
-* Input          : None
-*                 
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void spi_data_test(void)
-{
-      static u16 test_data = 0;
-      test_data++;
-      if(test_data > 255) test_data = 0;
-      
-      for( u16 cnt = 0; cnt < 255; cnt++)
-      {
-          m_modbus_data[cnt] = test_data;
-      }
 
-#ifdef GEC_SF_MASTER 
-          printf("SPI1_RX_Buff :  \n");
-          for( u16 cnt = 0; cnt < 5; cnt++ )
-          {
-            printf(" %01d \n",SPI1_RX_Buff[cnt] + 1);
-          }
-          printf("    SPI1_TX_Buff :  \n");
-          for( u16 cnt = 0; cnt < 5; cnt++ )
-          {
-            printf(" %01d \n",m_modbus_data[cnt]);
-          }
-          
-#else
-          for( u16 cnt = 0; cnt < 5; cnt++ )
-          {
-              if( (SPI1_RX_Buff[cnt]+1) != m_modbus_data[cnt] )
-              {
-                  AUX_CTR = 1;
-
-                  
-              }
-              else
-              {
-                  AUX_CTR = 0;
-                 
-              }
-          }
-#endif
-          
-      SPI1_DMA_ReceiveSendByte(m_modbus_data, 5);
-}
 
 /******************************  END OF FILE  *********************************/
 

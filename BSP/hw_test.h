@@ -26,10 +26,8 @@ void can1_can2_test(void);
 void SF_WDT_Check(void);
 void CPU_Exchange_Data_Check(void);
 void SF_CTR_Check(void);
-void spi_data_test(void);
 
-extern u8 m_modbus_data[512];
-extern u8 s_modbus_data[512];
+	
 extern u8 data_error;
 extern u8 canbuf_send[8];
 extern u8 onetime;
