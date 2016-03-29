@@ -32,6 +32,23 @@ volatile type_testResult_t result = IEC61508_testFailed;   /* variable is locate
 u32 SafetyTestFlowCnt = 0;
 u32 SafetyTestFlowCntInv = 0xFFFFFFFFuL;
 
+
+/*******************************************************************************
+* Function Name  : FailSafeTest
+* Description    : Contains the Fail Safe routine executed in case of
+*                  failure detected during one of the POR self-test routines
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void FailSafeTest(void)
+{
+  while(1)
+  {
+    NVIC_SystemReset();
+  }
+}
+
 /*******************************************************************************
 * Function Name  : Safety_test_init
 * Description    : 
@@ -51,20 +68,16 @@ int Safety_test_init(void)
         RCC_GetClocksFreq(&RCC_Clocks); 
         if (RCC_Clocks.SYSCLK_Frequency !=8000000)
         {
-          while(1);
+            FailSafeTest();
         }
         
         RCC_Configuration_72M(); //PLL - 72MHz
         RCC_GetClocksFreq(&RCC_Clocks); 
         if (RCC_Clocks.SYSCLK_Frequency !=72000000)
         {
-          while(1);
-        }
-        
-         /* Configure PA.00 in interrupt mode */
-//        EXTI0_Config();
-//        /* Generate software interrupt: simulate a falling edge applied on EXTI0 line */
-//        EXTI_GenerateSWInterrupt(EXTI_Line0);//中断函数中加入标志 IEC61508_testPassed，判断成功触发
+            FailSafeTest();
+        }       
+
         
         SafetyTestFlowCntInv -= CONFIGURATION_REG_TEST_CALLER;
         
@@ -75,11 +88,11 @@ int Safety_test_init(void)
         result = flag_test();
         if (result != IEC61508_testPassed)
         {
-          while(1);                            /* remains if FLAG test fails */
+            FailSafeTest();                           
         }
         else
         {
-          SafetyTestFlowCntInv -= FLAG_TEST_CALLER;
+            SafetyTestFlowCntInv -= FLAG_TEST_CALLER;
         }
 
       /*----------------------------------------------------------------------*/
@@ -89,11 +102,11 @@ int Safety_test_init(void)
         result = IEC61508_PCTest_POST();
         if (result != IEC61508_testPassed)
         {
-          while(1);                                      /* remains if PC test fails */
+            FailSafeTest();                                    
         }   
         else
         {
-          SafetyTestFlowCntInv -= PC_TEST_CALLER;
+            SafetyTestFlowCntInv -= PC_TEST_CALLER;
         }
 
       /*----------------------------------------------------------------------*/
@@ -103,19 +116,21 @@ int Safety_test_init(void)
         SafetyTestFlowCnt += PEI_TEST_CALLER;
         /* Do the IEC61508 instruction tests */
         if (iec61508_InstCheck_POST() == IEC61508_testFailed)
-        {
-            /* POST instruction test failed */  /*waitting for WATCHDOG to reset*/
-            while (1);
+        {            
+           FailSafeTest();
         }
         else
         {
             SafetyTestFlowCntInv -= PEI_TEST_CALLER;
         }
         
+      /*----------------------------------------------------------------------*/
+      /*---------------- Check Safety routines Control flow  -----------------*/
+      /*----------------------------------------------------------------------*/        
        if (((SafetyTestFlowCnt ^ SafetyTestFlowCntInv) != 0xFFFFFFFFuL)
           ||(SafetyTestFlowCnt != CHECKCNT ))  
        {
-          while (1);
+          FailSafeTest();
        }
        else
        {
@@ -141,25 +156,14 @@ int Safety_test_run(void)
       /*---------------------- Configuration registers -----------------------*/
       /*----------------------------------------------------------------------*/  
         SafetyTestFlowCnt += CONFIGURATION_REG_TEST_CALLER;
-        RCC_ClocksTypeDef RCC_Clocks;
-        RCC_Configuration_8M();//HSE - 8MHz
-        RCC_GetClocksFreq(&RCC_Clocks); 
-        if (RCC_Clocks.SYSCLK_Frequency !=8000000)
-        {
-          while(1);
-        }
         
-        RCC_Configuration_72M(); //PLL - 72MHz
+        RCC_ClocksTypeDef RCC_Clocks;
         RCC_GetClocksFreq(&RCC_Clocks); 
         if (RCC_Clocks.SYSCLK_Frequency !=72000000)
         {
-          while(1);
+            while(1);
         }
         
-         /* Configure PA.00 in interrupt mode */
-//        EXTI0_Config();
-//        /* Generate software interrupt: simulate a falling edge applied on EXTI0 line */
-//        EXTI_GenerateSWInterrupt(EXTI_Line0);//中断函数中加入标志 IEC61508_testPassed，判断成功触发
         
         SafetyTestFlowCntInv -= CONFIGURATION_REG_TEST_CALLER;
         

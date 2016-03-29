@@ -82,20 +82,7 @@ void Task_Loop(void)
   
       
 #ifdef GEC_SF_MASTER  
-          
-
-//      if( onetime == 0)
-//      {
-//          onetime++;
-//        
-//          if(SF_RL1_FB)
-//            SPI1_TX_Buff[0] = 0x01;
-//          else
-//            SPI1_TX_Buff[0] = 0x00;
-//                           
-//          SPI1_DMA_ReceiveSendByte(num);
-//      }
-      
+               
       
       if( Tms25Counter == 0 )      
       {
@@ -206,7 +193,6 @@ void Task_Loop(void)
 *******************************************************************************/
 int main(void)
 {        
-//    Safety_test();
   
     /** hardware init **/
     Bsp_Init();    

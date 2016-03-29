@@ -12,46 +12,10 @@
 #include "stm32f10x.h"
 #include "config_test.h"
 
-EXTI_InitTypeDef   EXTI_InitStructure;
+
 GPIO_InitTypeDef   GPIO_InitStructure;
-NVIC_InitTypeDef   NVIC_InitStructure;
 ErrorStatus HSEStartUpStatus;
 
-/**
-  * @brief  Configure PA.00 in interrupt mode
-  * @param  None
-  * @retval None
-  */
-void EXTI0_Config(void)
-{
-  /* Enable GPIOA clock */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
-  
-  /* Configure PA.00 pin as input floating */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-  /* Enable AFIO clock */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
-
-  /* Connect EXTI0 Line to PA.00 pin */
-  GPIO_EXTILineConfig(GPIO_PortSourceGPIOA, GPIO_PinSource0);
-
-  /* Configure EXTI0 line */
-  EXTI_InitStructure.EXTI_Line = EXTI_Line0;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;  
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
-
-  /* Enable and set EXTI0 Interrupt to the lowest priority */
-  NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x0F;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-}
 
 /**
   * @brief  Configures the different system clocks.PLL (8MHz * 9=72MHz)
@@ -124,7 +88,7 @@ void RCC_Configuration_72M(void)
   */
 void RCC_Configuration_8M(void)
 {
-  SystemInit();//频率设定有system_stm32f10x.c文件中的宏定义 开放某个宏 当调用SystemInit()时即可设置好频率
+//  SystemInit();//频率设定有system_stm32f10x.c文件中的宏定义 开放某个宏 当调用SystemInit()时即可设置好频率
  
   /* RCC system reset(for debug purpose) */
   RCC_DeInit();

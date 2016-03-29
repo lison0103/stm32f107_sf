@@ -27,7 +27,6 @@ extern void _CMP_Arithmetic (void);
 extern void _DMB_Arithmetic (void);
 
 
-//type_testResult iec61508_InstCheck_POST (void);
 type_testResult_t  iec61508_InstCheck_POST (void);
 void Check_Instruction_Set();
 

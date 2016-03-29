@@ -21,7 +21,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* Private function prototypes -----------------------------------------------*/
-void EXTI0_Config(void);
 void RCC_Configuration_8M(void);
 void RCC_Configuration_72M(void);
 #endif  /* _CONFIG_TEST_H__ */

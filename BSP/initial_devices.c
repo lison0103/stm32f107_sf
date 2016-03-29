@@ -117,7 +117,7 @@ void Bsp_Init(void)
             &USR_cb);          
           
         /** wait slave spi **/
-        delay_ms(200);
+//        delay_ms(200);
         
 
 #else

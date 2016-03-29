@@ -84,10 +84,12 @@ void STL_StartUp(void)
     STL_VerbosePORInit();
     printf("\n\n\r *******  Self Test Library Init  *******\n\r");
   #endif
-    
-  /** ewdt init **/  
+   
+  /*--------------------------------------------------------------------------*/ 
+  /*--------------------------- EWDT check -----------------------------------*/  
+  /*--------------------------------------------------------------------------*/ 
   EWDT_Drv_pin_config();
-  power_on_bsp_check();
+//  power_on_bsp_check();
   
   /*--------------------------------------------------------------------------*/
   /*------------------- CPU registers and Flags Self Test --------------------*/
@@ -337,7 +339,7 @@ void STL_StartUp(void)
    #endif  /* STL_VERBOSE_POR */
    
    EWDT_TOOGLE();
-
+  
    GotoCompilerStartUp()
       ;
 

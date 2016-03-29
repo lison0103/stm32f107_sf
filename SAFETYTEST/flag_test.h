@@ -17,6 +17,13 @@
 #include "iec61508.h"
 
 /* Private typedef -----------------------------------------------------------*/
+typedef struct {
+  /* base 0 */
+  unsigned int Flag_Proc_Cnt;     /*!< tests passed */
+  /* base 4 */
+  unsigned int Flag_Err_Cnt;      /*!< tests failed */
+}IEC61508_FlagCheck_struct;
+
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
