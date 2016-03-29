@@ -43,7 +43,7 @@ __IO uint32_t receive_count =1;
 *******************************************************************************/
 void Bsp_Init(void)
 {
-  
+
         /* self test ---------------------------------------------------------*/
         Safety_test_init();
   
@@ -55,7 +55,7 @@ void Bsp_Init(void)
         
         /** delay init **/
 	delay_init();  
-        
+
         /** LED init **/
 	LED_Init();
         
@@ -67,7 +67,8 @@ void Bsp_Init(void)
 	SPI1_DMA_Configuration();
         
         /** ewdt init **/
-        EWDT_Drv_pin_config();
+        /* move to STLstartup.c */
+//        EWDT_Drv_pin_config();
 //        power_on_bsp_check();
         
         /** exti init **/
@@ -125,7 +126,7 @@ void Bsp_Init(void)
       
 #endif  /* GEC_SF_MASTER */
         
-        
+
         /* Self test routines initialization ---------------------------------------*/
         STL_InitRunTimeChecks();
 

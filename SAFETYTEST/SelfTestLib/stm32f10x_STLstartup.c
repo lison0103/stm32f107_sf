@@ -22,6 +22,7 @@
 /* Includes ------------------------------------------------------------------*/
 //#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
+#include "ewdt.h"
 
 #define ALLOC_GLOBALS
 #include "stm32f10x_STLclassBvar.h"
@@ -83,7 +84,11 @@ void STL_StartUp(void)
     STL_VerbosePORInit();
     printf("\n\n\r *******  Self Test Library Init  *******\n\r");
   #endif
-
+    
+  /** ewdt init **/  
+  EWDT_Drv_pin_config();
+  power_on_bsp_check();
+  
   /*--------------------------------------------------------------------------*/
   /*------------------- CPU registers and Flags Self Test --------------------*/
   /*--------------------------------------------------------------------------*/
@@ -112,6 +117,7 @@ void STL_StartUp(void)
 
   CtrlFlowCnt += WDG_TEST_CALLER;
 //  STL_WDGSelfTest();
+  EWDT_TOOGLE();
   CtrlFlowCntInv -= WDG_TEST_CALLER;
 
   /*--------------------------------------------------------------------------*/
@@ -148,6 +154,8 @@ void STL_StartUp(void)
     CtrlFlowCntInv -= CRC32_TEST_CALLER;
   }
 
+  EWDT_TOOGLE();
+  
   /* Regular 16-bit crc computation */
   CtrlFlowCnt += CRC16_TEST_CALLER;
   if(STL_crc16(CRC_INIT,(u8 *)ROM_START, ROM_SIZE) != REF_CRC16)
@@ -166,7 +174,8 @@ void STL_StartUp(void)
     #endif  /* STL_VERBOSE_POR */
   }
 
-
+  EWDT_TOOGLE();
+  
   /*--------------------------------------------------------------------------*/
   /*   Verify Control flow before RAM init (which clears Ctrl flow counters)  */
   /*--------------------------------------------------------------------------*/
@@ -200,6 +209,8 @@ void STL_StartUp(void)
     printf(" Full RAM Test OK\n\r");
   #endif /* STL_VERBOSE_POR */
 
+  EWDT_TOOGLE();
+
   /* Both CtrlFlowCnt and CtrlFlowCntInv are zeroed then re-initialized inside
   the test routine to have inverse values */
 
@@ -223,6 +234,8 @@ void STL_StartUp(void)
     FailSafePOR();
 
   }
+  
+  EWDT_TOOGLE();
 
   /*--------------------------------------------------------------------------*/
   /*--------------- Switch Off PLL to test external clock source--------------*/
@@ -240,6 +253,8 @@ void STL_StartUp(void)
     USART_Configuration();  // Re-init USART with modified clock setting
   #endif  /* STL_VERBOSE_POR */
 
+  EWDT_TOOGLE();
+  
   /*--------------------------------------------------------------------------*/
   /*----------------------- Clock Frequency Self Test ------------------------*/
   /*--------------------------------------------------------------------------*/
@@ -293,6 +308,8 @@ void STL_StartUp(void)
   // Either switch back to HSI or start PLL on HSE asap
   CtrlFlowCntInv -= CLOCK_TEST_CALLER;
 
+  EWDT_TOOGLE();
+  
   /*--------------------------------------------------------------------------*/
   /* -----  Verify Control flow before Starting main program execution ------ */
   /*--------------------------------------------------------------------------*/
@@ -318,6 +335,8 @@ void STL_StartUp(void)
    #ifdef STL_VERBOSE_POR
     printf("Control Flow Checkpoint 2 OK \n\r");
    #endif  /* STL_VERBOSE_POR */
+   
+   EWDT_TOOGLE();
 
    GotoCompilerStartUp()
       ;
