@@ -51,12 +51,16 @@ u8 R_SF_RL_FB_CPU2;
 void SF_WDT_Check(void)
 {
     EWDT_TOOGLE();
+    IWDG_ReloadCounter();
     delay_ms(600);
     EWDT_TOOGLE();
+    IWDG_ReloadCounter();
     delay_ms(600);
     EWDT_TOOGLE(); 
+    IWDG_ReloadCounter();
     delay_ms(700);//>1.8s
-    EWDT_TOOGLE();    
+    EWDT_TOOGLE(); 
+    IWDG_ReloadCounter();
    
     if( !SF_RL_FB )
     {

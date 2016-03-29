@@ -117,8 +117,11 @@ void STL_StartUp(void)
     #endif /* STL_VERBOSE_POR */
   }
 
+  /*--------------------------------------------------------------------------*/ 
+  /*--------------------------- IWDT check -----------------------------------*/  
+  /*--------------------------------------------------------------------------*/  
   CtrlFlowCnt += WDG_TEST_CALLER;
-//  STL_WDGSelfTest();
+  STL_WDGSelfTest();
   EWDT_TOOGLE();
   CtrlFlowCntInv -= WDG_TEST_CALLER;
 
@@ -156,6 +159,8 @@ void STL_StartUp(void)
     CtrlFlowCntInv -= CRC32_TEST_CALLER;
   }
 
+  /* Reload IWDG / EWDT counter */
+  IWDG_ReloadCounter();
   EWDT_TOOGLE();
   
   /* Regular 16-bit crc computation */
@@ -176,6 +181,8 @@ void STL_StartUp(void)
     #endif  /* STL_VERBOSE_POR */
   }
 
+  /* Reload IWDG / EWDT counter */
+  IWDG_ReloadCounter();
   EWDT_TOOGLE();
   
   /*--------------------------------------------------------------------------*/
@@ -211,6 +218,8 @@ void STL_StartUp(void)
     printf(" Full RAM Test OK\n\r");
   #endif /* STL_VERBOSE_POR */
 
+  /* Reload IWDG / EWDT counter */
+  IWDG_ReloadCounter();
   EWDT_TOOGLE();
 
   /* Both CtrlFlowCnt and CtrlFlowCntInv are zeroed then re-initialized inside
@@ -237,6 +246,8 @@ void STL_StartUp(void)
 
   }
   
+  /* Reload IWDG / EWDT counter */
+  IWDG_ReloadCounter();
   EWDT_TOOGLE();
 
   /*--------------------------------------------------------------------------*/
@@ -255,6 +266,8 @@ void STL_StartUp(void)
     USART_Configuration();  // Re-init USART with modified clock setting
   #endif  /* STL_VERBOSE_POR */
 
+  /* Reload IWDG / EWDT counter */
+  IWDG_ReloadCounter();
   EWDT_TOOGLE();
   
   /*--------------------------------------------------------------------------*/
@@ -310,6 +323,8 @@ void STL_StartUp(void)
   // Either switch back to HSI or start PLL on HSE asap
   CtrlFlowCntInv -= CLOCK_TEST_CALLER;
 
+  /* Reload IWDG / EWDT counter */
+  IWDG_ReloadCounter();
   EWDT_TOOGLE();
   
   /*--------------------------------------------------------------------------*/
@@ -338,7 +353,9 @@ void STL_StartUp(void)
     printf("Control Flow Checkpoint 2 OK \n\r");
    #endif  /* STL_VERBOSE_POR */
    
-   EWDT_TOOGLE();
+  /* Reload IWDG / EWDT counter */
+  IWDG_ReloadCounter();
+  EWDT_TOOGLE();
   
    GotoCompilerStartUp()
       ;
@@ -567,7 +584,7 @@ void STL_WDGSelfTest(void)
 
     /* Enable write access to IWDG_PR and IWDG_RLR registers */
     IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
-    /* IWDG clock: 40KHz(LSI) / 4 = 8KHz max:0xFFF / 4095    Tout = ((4*2^prer)*count) / 40 */
+    /* IWDG clock: 40KHz(LSI) / 4 = 10KHz  */
     IWDG_SetPrescaler(IWDG_Prescaler_4);
     /* Set counter reload value to 1 (125µs */
     IWDG_SetReload(1);
@@ -578,6 +595,8 @@ void STL_WDGSelfTest(void)
 
     RCC_ClearFlag();        /* Clear all flags before reuming test */
     /* Wait for an independant watchdog reset */
+    /* set the flag,don't check the ewdt */
+    iwdg_check_flag = 1;
     while(1);
   }
   else  /* Watchdog test or software reset triggered by application failure */
@@ -597,7 +616,21 @@ void STL_WDGSelfTest(void)
       if ((RCC_GetFlagStatus(RCC_FLAG_PINRST)  == SET)
        && (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) == SET))
       { 
+        
+          /* Enable write access to IWDG_PR and IWDG_RLR registers */
+          IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
+          /* IWDG clock: 40KHz(LSI)  max:0xFFF / 4095    Tout = ((4*2^prer)*count) / 40*/
+          IWDG_SetPrescaler(IWDG_Prescaler_64);
+          /* Set counter reload value to 1250 ,  64 * 1250 / 40 = 2s */
+          IWDG_SetReload(1250);
+          /* Reload IWDG counter */
+          IWDG_ReloadCounter();
+          /* Enable IWDG (LSI automatically enabled by HW) */
+          IWDG_Enable();        
+        
+        
 //          RCC_ClearFlag();
+          iwdg_check_flag = 0;
           #ifdef STL_VERBOSE_POR
             printf("... WWDG reset, WDG test completed ... \r\n");
           #endif  /* STL_VERBOSE_POR */

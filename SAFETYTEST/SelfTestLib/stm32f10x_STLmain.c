@@ -222,7 +222,7 @@ void STL_DoRunTimeChecks(void)
       /* Update WWDG counter */
 //      WWDG_SetCounter(0x7F);
       /* Reload IWDG counter */
-//      IWDG_ReloadCounter();
+      IWDG_ReloadCounter();
 
       if (((CtrlFlowCnt ^ CtrlFlowCntInv) == 0xFFFFFFFFuL)
         &&((LastCtrlFlowCnt ^ LastCtrlFlowCntInv) == 0xFFFFFFFFuL))

@@ -28,6 +28,7 @@
 void power_on_bsp_check(void);
 void EWDT_Drv_pin_config(void);
 
+extern u8 iwdg_check_flag;
 
 #endif  /* __EWDT_H */
 
