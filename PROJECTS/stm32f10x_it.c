@@ -107,6 +107,12 @@ void SysTick_Handler(void)
   
 }
 
+void PVD_IRQHandler(void)
+{
+    /* store data */
+    while(1);
+}
+
 /**
   * @brief  This function handles EXTI15_10_IRQ Handler.
   * @param  None

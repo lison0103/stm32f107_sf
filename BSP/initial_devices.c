@@ -23,7 +23,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-
+void PVD_Configuration(void);
 
 #ifdef GEC_SF_MASTER
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
@@ -50,8 +50,9 @@ void Bsp_Init(void)
         /** set system interrupt priority group 2 **/
 	NVIC_Configuration();
         
-        /** RCC  Configuration **/
-        RCC_Configuration();                
+        /** RCC  and  PVD Configuration **/
+        RCC_Configuration();   
+        PVD_Configuration();
         
         /** delay init **/
 	delay_init();  
@@ -233,6 +234,40 @@ void NVIC_Configuration(void)
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	
     
 //    INTX_ENABLE();
+
+}
+
+/*******************************************************************************
+* Function Name  : PVD_Configuration
+* Description    : 
+*                  
+* Input          : None
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void PVD_Configuration(void)
+{
+  
+    EXTI_InitTypeDef EXTI_InitStructure;
+    NVIC_InitTypeDef NVIC_InitStructure;
+
+
+    EXTI_InitStructure.EXTI_Line = EXTI_Line16;
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;//EXTI_Trigger_Falling;//EXTI_Trigger_Rising_Falling;
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init(&EXTI_InitStructure);
+
+    /* Enable the PVD Interrupt */
+    NVIC_InitStructure.NVIC_IRQChannel = PVD_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+    NVIC_Init(&NVIC_InitStructure);
+    
+    PWR_PVDLevelConfig(PWR_PVDLevel_2V5);
+    PWR_PVDCmd(ENABLE);
 
 }
 

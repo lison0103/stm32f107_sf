@@ -105,7 +105,7 @@ void Task_Loop(void)
             
       if( Tms500Counter == 0 )
       {            
-           can_comm();                  
+           CAN_Comm();                  
       }
       
       if( Tms1000Counter == 0 )

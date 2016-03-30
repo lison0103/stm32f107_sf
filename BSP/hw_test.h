@@ -21,12 +21,12 @@
 /* Exported functions ------------------------------------------------------- */
 void Input_Check(void);
 void Input_Check2(void);
-void spi1_test(void);
+void SPI1_DMA_Check(void);
 void can1_can2_test(void);
 void SF_WDT_Check(void);
 void CPU_Exchange_Data_Check(void);
 void SF_CTR_Check(void);
-void can_comm(void);
+void CAN_Comm(void);
 
 	
 extern u8 data_error;

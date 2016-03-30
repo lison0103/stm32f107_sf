@@ -837,7 +837,7 @@ void Input_Check2(void)
 
 
 /*******************************************************************************
-* Function Name  : spi1_test
+* Function Name  : SPI1_DMA_Check
 * Description    : 
 *                  
 * Input          : None
@@ -851,7 +851,7 @@ u8 onetime = 0;
 u8 data_error = 0;
 u32 ms_count = 0;
 
-void spi1_test(void)
+void SPI1_DMA_Check(void)
 {    
 
   u16 i = 0;
@@ -1001,7 +1001,7 @@ void spi1_test(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void can_comm(void)
+void CAN_Comm(void)
 {
   
     u8 canbuf_recv[8];
