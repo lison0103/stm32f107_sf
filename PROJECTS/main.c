@@ -19,17 +19,14 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 static u16 Tms10Counter=0,Tms25Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
+#ifndef GEC_SF_MASTER
 static u32 comm_timeout = 0;
+#endif
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
 u32 TimingDelay = 0;
-#ifdef GEC_SF_MASTER
-u8 canbuf_recv[8];
-u8 res;
-u8 can_rcv;
-#endif
  
 
 /*******************************************************************************
@@ -78,7 +75,7 @@ void Task_Loop(void)
       /* self check */
       STL_DoRunTimeChecks();
       
-      Safety_test_run();
+      Safety_RunCheck();
   
       
 #ifdef GEC_SF_MASTER  
@@ -95,6 +92,7 @@ void Task_Loop(void)
           
           USB_VCP_RecvBufandSend();
           
+          /* Reload SF_EWDG / EWDT counter */
           SF_EWDT_TOOGLE();
           EWDT_TOOGLE();
           
@@ -104,36 +102,10 @@ void Task_Loop(void)
       {         
           SF_CTR_Check();
       }
-      
-      
-      if( Tms500Counter == 0 )
-      {                  
-          /** CAN1 send data **/
-          res=Can_Send_Msg(CAN1,canbuf_send,4);                          
-          if(res)
-          {        
-              #if DEBUG_PRINTF 
-//                printf("CAN1TX:fail\r\n");
-              #endif
-          }
-          else 
-          {	 
-              #if DEBUG_PRINTF                         
-                USB_VCP_SendBuf(canbuf_send, 4); 
-              #endif
-              delay_ms(1);
-              
-              /** CAN1 receive data **/
-              can_rcv=Can_Receive_Msg(CAN1,canbuf_recv);
-              if(can_rcv)
-              {		
-                  #if DEBUG_PRINTF 
-                    USB_VCP_SendBuf(canbuf_recv, can_rcv);
-                  #endif
-              }                                                                       
             
-          }                      
-        
+      if( Tms500Counter == 0 )
+      {            
+           can_comm();                  
       }
       
       if( Tms1000Counter == 0 )
@@ -168,7 +140,8 @@ void Task_Loop(void)
       if( Tms50Counter == 0 )
       {                       
           Input_Check();   
-                              
+          
+          /* Reload SF_EWDG / EWDT counter */
           SF_EWDT_TOOGLE();
           EWDT_TOOGLE();
       } 

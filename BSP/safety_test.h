@@ -31,8 +31,8 @@
 
 
 /* Exported functions ------------------------------------------------------- */
-int Safety_test_init(void);
-int Safety_test_run(void);
+int Safety_StartupCheck(void);
+int Safety_RunCheck(void);
 
 extern volatile type_testResult_t result;   /* variable is located in the stack */
 

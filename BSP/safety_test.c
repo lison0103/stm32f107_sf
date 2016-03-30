@@ -28,7 +28,8 @@
 /* Private functions ---------------------------------------------------------*/
 void LED_indicator1(void);
 
-volatile type_testResult_t result = IEC61508_testFailed;   /* variable is located in the stack */
+/* variable is located in the stack */
+volatile type_testResult_t result = IEC61508_testFailed;   
 u32 SafetyTestFlowCnt = 0;
 u32 SafetyTestFlowCntInv = 0xFFFFFFFFuL;
 
@@ -50,13 +51,13 @@ void FailSafeTest(void)
 }
 
 /*******************************************************************************
-* Function Name  : Safety_test_init
+* Function Name  : Safety_StartupCheck
 * Description    : 
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-int Safety_test_init(void)
+int Safety_StartupCheck(void)
 {       
              
       /*----------------------------------------------------------------------*/
@@ -149,7 +150,7 @@ int Safety_test_init(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-int Safety_test_run(void)
+int Safety_RunCheck(void)
 {       
         
       /*----------------------------------------------------------------------*/
@@ -161,7 +162,7 @@ int Safety_test_run(void)
         RCC_GetClocksFreq(&RCC_Clocks); 
         if (RCC_Clocks.SYSCLK_Frequency !=72000000)
         {
-            while(1);
+            FailSafeTest();
         }
         
         
@@ -174,7 +175,7 @@ int Safety_test_run(void)
         result = flag_test();
         if (result != IEC61508_testPassed)
         {
-          while(1);                            /* remains if FLAG test fails */
+            FailSafeTest();                           
         }
         else
         {
@@ -188,7 +189,7 @@ int Safety_test_run(void)
         result = IEC61508_PCTest_POST();
         if (result != IEC61508_testPassed)
         {
-          while(1);                                      /* remains if PC test fails */
+            FailSafeTest();                                    
         }   
         else
         {
@@ -203,18 +204,21 @@ int Safety_test_run(void)
         /* Do the IEC61508 instruction tests */
         if (iec61508_InstCheck_POST() == IEC61508_testFailed)
         {
-            /* POST instruction test failed */  /*waitting for WATCHDOG to reset*/
-            while (1);
+            /* program execution instruction instruction test failed */ 
+            FailSafeTest();
         }
         else
         {
             SafetyTestFlowCntInv -= PEI_TEST_CALLER;
         }
-        
+
+      /*----------------------------------------------------------------------*/
+      /*---------------- Check Safety routines Control flow  -----------------*/
+      /*----------------------------------------------------------------------*/        
        if (((SafetyTestFlowCnt ^ SafetyTestFlowCntInv) != 0xFFFFFFFFuL)
           ||(SafetyTestFlowCnt != CHECKCNT ))  
        {
-          while (1);
+          FailSafeTest();
        }
        else
        {

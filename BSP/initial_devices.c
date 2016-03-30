@@ -45,7 +45,7 @@ void Bsp_Init(void)
 {
 
         /* self test ---------------------------------------------------------*/
-        Safety_test_init();
+        Safety_StartupCheck();
   
         /** set system interrupt priority group 2 **/
 	NVIC_Configuration();

@@ -41,8 +41,8 @@ u8 R_SF_RL_FB_CPU2;
 
 /*******************************************************************************
 * Function Name  : SF_WDT_Check
-* Description    : 
-*                  
+* Description    : Safety relay output circuit
+*                  安全继电器输出电路
 * Input          : None
 *                  None
 * Output         : None
@@ -165,8 +165,8 @@ void CPU_Exchange_Data_Check(void)
 
 /*******************************************************************************
 * Function Name  : SF_CTR_Check
-* Description    : 
-*                  
+* Description    : Coding protection detection in running process
+*                  运行过程中进行代码保护检查 
 * Input          : None
 *                  None
 * Output         : None
@@ -199,8 +199,8 @@ void SF_CTR_Check(void)
 
 /*******************************************************************************
 * Function Name  : Input_Check
-* Description    : 
-*                  
+* Description    :  
+*                   
 * Input          : None
 *                  None
 * Output         : None
@@ -225,6 +225,8 @@ void Input_Check(void)
                         IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && 
                           IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 )*/)
         {
+          
+                /* System does the self-test for safety relay, running relay and auxiliary brake relay. */
                 if(SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB && AUX_FB)
                 {
                     
@@ -234,7 +236,8 @@ void Input_Check(void)
                         delay_ms(1);
                         
                         SF_WDT_Check();
-                }                
+                }   
+                /* Online monitoring safety relay drive failure detection */
                 else if(( switch_flag == 2 ) && ( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || AUX_FB ))
                 {
                     switch_flag = 0; 
@@ -988,6 +991,51 @@ void spi1_test(void)
 #endif
 
 }
+
+/*******************************************************************************
+* Function Name  : can_comm
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void can_comm(void)
+{
+  
+    u8 canbuf_recv[8];
+    u8 res;
+    u8 can_rcv;
+    
+    
+          /** CAN1 send data **/
+          res=Can_Send_Msg(CAN1,canbuf_send,4);                          
+          if(res)
+          {        
+              #if DEBUG_PRINTF 
+//                printf("CAN1TX:fail\r\n");
+              #endif
+          }
+          else 
+          {	 
+              #if DEBUG_PRINTF                         
+                USB_VCP_SendBuf(canbuf_send, 4); 
+              #endif
+              delay_ms(1);
+              
+              /** CAN1 receive data **/
+              can_rcv=Can_Receive_Msg(CAN1,canbuf_recv);
+              if(can_rcv)
+              {		
+                  #if DEBUG_PRINTF 
+                    USB_VCP_SendBuf(canbuf_recv, can_rcv);
+                  #endif
+              }                                                                       
+            
+          } 
+}
+
 
 /*******************************************************************************
 * Function Name  : can_test
