@@ -83,27 +83,6 @@ typedef struct _Data   Data_t;
 typedef PCTest_ReturnValues (*Exec_t)(Data_t *data);
 
 
-  #ifndef FLASH_SIZE
-  #define FLASH_SIZE            (0x00020000UL)    /*!< size of FLASH memory */
-  #endif
-  #ifndef __INLINE
-  #define __INLINE          inline                /*!< inline keyword for IAR Compiler. Only available in High optimization mode! */
-  #endif
-
-  #define FLASH_CRC_ADDR    0x000010BA            /* LENGTH = 0x20 */
-  #define __STEXT           0x100
-  
-/* Flash test */
-typedef struct IEC61508_FlashSign
-{
-  uint32_t CRC32Val;                            /*!< CRC32 value */
-  uint32_t MemLenght;                           /*!< memory length for calculation */
-  uint32_t NextAddress;                         /*!< next address in Flash */
-  uint32_t BlockSize;                           /*!< block size of Flash */
-  uint32_t Status;                              /*!< status information of this struct */
-} FlashCRC_t;
-
-/*	End of user configuration */
 #ifdef __cplusplus
 }
 #endif  /* __cplusplus */

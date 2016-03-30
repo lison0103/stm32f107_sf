@@ -19,7 +19,7 @@
 /* Private typedef -----------------------------------------------------------*/
 typedef struct {
   /* base 0 */
-  unsigned int Flag_Proc_Cnt;     /*!< tests passed */
+  unsigned int Flag_Pass_Cnt;     /*!< tests passed */
   /* base 4 */
   unsigned int Flag_Err_Cnt;      /*!< tests failed */
 }IEC61508_FlagCheck_struct;

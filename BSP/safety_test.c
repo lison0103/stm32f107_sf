@@ -164,9 +164,22 @@ int Safety_RunCheck(void)
         {
             FailSafeTest();
         }
+        /* Wait till PLL is used as system clock source 等待校验成功*/ 
+        if (RCC_GetSYSCLKSource() != 0x08) 
+        {
+            FailSafeTest();
+        } 
+        result = ConfigurationRegister_Check();
+        if (result != IEC61508_testPassed)
+        {
+            FailSafeTest();                           
+        }
+        else
+        {
+            SafetyTestFlowCntInv -= CONFIGURATION_REG_TEST_CALLER;
+        }        
         
         
-        SafetyTestFlowCntInv -= CONFIGURATION_REG_TEST_CALLER;
         
       /*----------------------------------------------------------------------*/
       /*--------------------------- FLAG registers ---------------------------*/
