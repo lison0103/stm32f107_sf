@@ -71,12 +71,11 @@ void Task_Loop(void)
       if( ++Tms500Counter>=100 ) Tms500Counter=0;
       if( ++Tms1000Counter>=200 ) Tms1000Counter=0;      
 
-      
+#if SELF_TEST      
       /* self check */
-      STL_DoRunTimeChecks();
-      
+      STL_DoRunTimeChecks();     
       Safety_RunCheck();
-  
+#endif  
       
 #ifdef GEC_SF_MASTER  
                
@@ -116,13 +115,13 @@ void Task_Loop(void)
 #else
 
       
-      if( onetime == 0)
-      {
-          onetime++;
-                          
-          SPI1_DMA_ReceiveSendByte(512);
-      }
-      if( Tms25Counter == 0 )
+//      if( onetime == 0)
+//      {
+//          onetime++;
+//                          
+//          SPI1_DMA_ReceiveSendByte(512);
+//      }
+      if( Tms10Counter == 0 )
       {
           comm_timeout++;
           if( comm_timeout > 100 )

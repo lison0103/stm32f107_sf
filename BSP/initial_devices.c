@@ -45,8 +45,9 @@ void Bsp_Init(void)
 {
 
         /* self test ---------------------------------------------------------*/
+#if SELF_TEST
         Safety_StartupCheck();
-  
+#endif  
         /** set system interrupt priority group 2 **/
 	NVIC_Configuration();
         
@@ -61,11 +62,7 @@ void Bsp_Init(void)
 	LED_Init();
         
         /** input and relay output test init **/
-        Input_Output_PinInit();
-        
-        /** spi communication init **/
-        SPI1_Init();
-	SPI1_DMA_Configuration();
+        Input_Output_PinInit();        
         
         /** ewdt init **/
         /* move to STLstartup.c */
@@ -126,11 +123,16 @@ void Bsp_Init(void)
         TIM2_Int_Init(4999,71);
       
 #endif  /* GEC_SF_MASTER */
-        
 
+        /** spi communication init **/
+        SPI1_Init();
+	SPI1_DMA_Configuration();
+        SPI1_DMA_Check();
+        
+#if SELF_TEST
         /* Self test routines initialization ---------------------------------------*/
         STL_InitRunTimeChecks();
-
+#endif
         /* systick timer , 5ms interrupt */
  	if(SysTick_Config(SystemCoreClock / 200))
         {
