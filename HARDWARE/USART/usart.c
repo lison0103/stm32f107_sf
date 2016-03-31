@@ -36,7 +36,7 @@ __IO uint16_t USART3_ready_buf_len=0;
 
 
 /*******************************************************************************
-* Function Name  : EXTIX_Init
+* Function Name  : BSP_USART_Init
 * Description    : 
 *                  
 * Input          : None
@@ -68,7 +68,7 @@ void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity)
 } 
 
 /*******************************************************************************
-* Function Name  : EXTIX_Init
+* Function Name  : NVIC_Configuration_Usart
 * Description    : 
 *                  
 * Input          : None
@@ -97,7 +97,7 @@ void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
 }
 
 /*******************************************************************************
-* Function Name  : EXTIX_Init
+* Function Name  : USART3_Init
 * Description    : 
 *                  
 * Input          : None
@@ -132,7 +132,7 @@ void USART3_Init(void)
 }
 
 /*******************************************************************************
-* Function Name  : EXTIX_Init
+* Function Name  : BSP_USART_Send
 * Description    : 
 *                  
 * Input          : None
@@ -153,7 +153,7 @@ void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
 }
 
 /*******************************************************************************
-* Function Name  : EXTIX_Init
+* Function Name  : USART3_ISR
 * Description    : 
 *                  
 * Input          : None
@@ -187,7 +187,7 @@ void USART3_IRQHandler(void)
 
 
 /*******************************************************************************
-* Function Name  : EXTIX_Init
+* Function Name  : USART_ReceiveOvertimeProcess
 * Description    : 
 *                  
 * Input          : None
@@ -219,7 +219,7 @@ void USART_ReceiveOvertimeProcess(void)
 
 
 /*******************************************************************************
-* Function Name  : EXTIX_Init
+* Function Name  : BSP_USART_Receive
 * Description    : 
 *                  
 * Input          : None

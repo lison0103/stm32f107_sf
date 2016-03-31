@@ -871,12 +871,11 @@ u32 ms_count = 10;
 void SPI1_DMA_Check(void)
 {    
 
-  u16 i = 0;
-  u8 result = 0;
+  u16 i = 0;  
   comm_num = buffersize;
   
 #ifdef GEC_SF_MASTER      
-    
+    u8 result = 0;
 
         
     number++;

@@ -164,7 +164,7 @@ int Safety_RunCheck(void)
         {
             FailSafeTest();
         }
-        /* Wait till PLL is used as system clock source 等待校验成功*/ 
+        /* Wait till PLL is used as system clock source */ 
         if (RCC_GetSYSCLKSource() != 0x08) 
         {
             FailSafeTest();

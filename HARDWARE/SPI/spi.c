@@ -59,7 +59,7 @@ void SPI1_Init(void)
 	SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;		                //选择了串行时钟的稳态:时钟悬空高
 	SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;	                        //数据捕获于第二个时钟沿
 	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;		                //NSS信号由硬件（NSS管脚）还是软件（使用SSI位）管理:内部NSS信号有SSI位控制
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_256;	//定义波特率预分频的值:波特率预分频值为256
+	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_64;	//定义波特率预分频的值:波特率预分频值为64,速度约为72M/64 = 1.124M/s
 	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;	                //指定数据传输从MSB位还是LSB位开始:数据传输从MSB位开始
 	SPI_InitStructure.SPI_CRCPolynomial = 7;	                        //CRC值计算的多项式
 	SPI_Init(SPI1, &SPI_InitStructure);                                     
@@ -106,7 +106,7 @@ void SPI1_DMA_Configuration( void )
       DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;//存储器地址增量模式
       DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte; //外设数据宽度8bit
       DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte; //存储器数据宽度8bit
-      DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;  //执行循环操作
+      DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;  //执行不循环操作
       DMA_InitStructure.DMA_Priority = DMA_Priority_High;//通道优先级高
       DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  //非存储器到存储器模式
       DMA_Init(DMA1_Channel2, &DMA_InitStructure);  //
