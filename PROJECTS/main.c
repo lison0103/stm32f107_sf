@@ -18,10 +18,7 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-static u16 Tms10Counter=0,Tms25Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
-#ifndef GEC_SF_MASTER
-static u32 comm_timeout = 0;
-#endif
+static u16 Tms10Counter=0,Tms20Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -65,7 +62,7 @@ void Task_Loop(void)
 {          
 
       if( ++Tms10Counter>=2 ) Tms10Counter=0;
-      if( ++Tms25Counter>=5 ) Tms25Counter=0;
+      if( ++Tms20Counter>=4 ) Tms20Counter=0;
       if( ++Tms50Counter>=10 ) Tms50Counter=0;
       if( ++Tms100Counter>=20 ) Tms100Counter=0;
       if( ++Tms500Counter>=100 ) Tms500Counter=0;
@@ -77,20 +74,24 @@ void Task_Loop(void)
       Safety_RunCheck();
 #endif  
       
-#ifdef GEC_SF_MASTER  
-               
+  
+
+//      if( Tms10Counter == 0 )
+//      {
+//        CPU_Comm();
+//      }
       
-      if( Tms25Counter == 0 )      
+      if( Tms20Counter == 0 )      
       {
-          CPU_Exchange_Data_Check();
+          CPU_Comm();
       }
       
       if( Tms50Counter == 0 )
       {                       
           Input_Check();                   
-          
+#ifdef GEC_SF_MASTER          
           USB_VCP_RecvBufandSend();
-          
+#endif          
           /* Reload SF_EWDG / EWDT counter */
           SF_EWDT_TOOGLE();
           EWDT_TOOGLE();
@@ -101,7 +102,7 @@ void Task_Loop(void)
       {         
           SF_CTR_Check();
       }
-            
+#ifdef GEC_SF_MASTER            
       if( Tms500Counter == 0 )
       {            
            CAN_Comm();                  
@@ -111,46 +112,8 @@ void Task_Loop(void)
       {
           Comm_DisplayBoard();      
       }
-      
-#else
+#endif      
 
-      
-//      if( onetime == 0)
-//      {
-//          onetime++;
-//                          
-//          SPI1_DMA_ReceiveSendByte(512);
-//      }
-      if( Tms10Counter == 0 )
-      {
-          comm_timeout++;
-          if( comm_timeout > 100 )
-          {
-              ESC_SPI_Error_Process();
-          }
-          if( SPI_DMA_RECEIVE_FLAG == 1 )
-          {
-                comm_timeout = 0;
-                
-                CPU_Exchange_Data_Check();              
-          }          
-      }
-      
-      if( Tms50Counter == 0 )
-      {                       
-          Input_Check();   
-          
-          /* Reload SF_EWDG / EWDT counter */
-          SF_EWDT_TOOGLE();
-          EWDT_TOOGLE();
-      } 
-      
-      if( Tms100Counter == 0 )
-      {         
-          SF_CTR_Check();
-      }      
-      
-#endif
 }
 
 

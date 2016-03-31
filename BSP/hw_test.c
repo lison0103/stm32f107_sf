@@ -26,9 +26,12 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
+#define CPU_COMM_TIMEOUT  3
+
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+void CPU_Exchange_Data_Check(void);
 
 u8 sflag,inputnum = 0;
 u8 switch_flag = 1;
@@ -39,6 +42,8 @@ u16 comm_num = 0;
 u8 R_SF_RL2_FB_CPU1;
 #else
 u8 R_SF_RL_FB_CPU2;
+static u16 comm_timeout = 100;
+static u16 cntt = 3;
 #endif
 
 /*******************************************************************************
@@ -77,6 +82,46 @@ void SF_WDT_Check(void)
 
 }
 
+
+/*******************************************************************************
+* Function Name  : CPU_Exchange_Data_Check
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void CPU_Comm(void)
+{
+
+#ifdef GEC_SF_MASTER
+
+          CPU_Exchange_Data_Check(); 
+#else  
+          comm_timeout--;
+          if( comm_timeout == 0 )
+          {
+              ESC_SPI_Error_Process();
+          }
+          if( SPI_DMA_RECEIVE_FLAG == 1 )
+          {
+                
+                if(cntt != 0)
+                {
+                    cntt--;
+                    comm_timeout = 100;
+                }
+                else
+                {
+                  comm_timeout = CPU_COMM_TIMEOUT;
+                }
+                
+                CPU_Exchange_Data_Check();              
+          }   
+#endif
+}
+
 /*******************************************************************************
 * Function Name  : CPU_Exchange_Data_Check
 * Description    : 
@@ -90,7 +135,7 @@ void CPU_Exchange_Data_Check(void)
 {
           
           u16 i;
-          
+         
           /* communication buffer */
           comm_num = buffersize;  
           for(i = 0; i < comm_num - 2; i++)
