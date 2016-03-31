@@ -132,7 +132,7 @@ void CPU_Exchange_Data_Check(void)
           if(!MB_CRC16(SPI1_RX_Buff, comm_num))
           {
             
-            
+#if DEBUG_PRINTF            
               printf("SPI1_RX_Buff :  \n");
               for( u8 cnt = 0; cnt < 5; cnt++ )
               {
@@ -143,7 +143,7 @@ void CPU_Exchange_Data_Check(void)
               {
                 printf(" %01d \n",SPI1_TX_Buff[cnt]);
               }
-                  
+#endif                  
               if(SPI1_TX_Buff[4] == 1 && SPI1_RX_Buff[4] == 1)
               {
                   switch_flag = 2;
