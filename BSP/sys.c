@@ -47,7 +47,7 @@ u32 GetLockCode(void)
   return Lock_Code;
 }
 
-//#ifdef GEC_SF_MASTER
+
 /*******************************************************************************
 * Function Name  : fputc
 * Description    : 
@@ -57,6 +57,7 @@ u32 GetLockCode(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/  
+#ifdef GEC_SF_MASTER
 #if DEBUG_PRINTF
 int fputc(int ch, FILE *f)
 {   
@@ -75,7 +76,28 @@ int fputc(int ch, FILE *f)
 
 #endif
 
-//#endif
+#else
+
+#if DEBUG_PRINTF
+int fputc(int ch, FILE *f)
+{   
+    
+	while((USART3->SR&0X40)==0);//循环发送,直到发送完毕   
+            USART3->DR = (u8) ch;  
+            
+	return ch;
+}
+
+#else
+
+int fputc(int ch, FILE *f)
+{      
+      return ch;
+}
+
+#endif
+
+#endif
 
 
 //THUMB指令不支持汇编内联

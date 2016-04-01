@@ -3961,9 +3961,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\USART\usart.c</name>
-      <excluded>
-        <configuration>GEC-SF-S</configuration>
-      </excluded>
     </file>
   </group>
   <group>

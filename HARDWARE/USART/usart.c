@@ -120,14 +120,18 @@ void USART3_Init(void)
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB , &GPIO_InitStruct);
 
-	
+#ifdef GEC_SF_MASTER 	
 	BSP_USART_Init(USART3, 19200, USART_Parity_No);//, ENABLE
 	
 	NVIC_Configuration_Usart(USART3);       	
  
 	USART_ClearFlag(USART3, USART_FLAG_TC);  
 	USART_Cmd(USART3,ENABLE);
-	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);				
+	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);	
+#else
+        BSP_USART_Init(USART3, 115200, USART_Parity_No);//, ENABLE
+        USART_Cmd(USART3,ENABLE);
+#endif
 
 }
 

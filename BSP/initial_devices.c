@@ -72,6 +72,9 @@ void Bsp_Init(void)
         /** exti init **/
         EXTIX_Init();
 
+        /** usart3 init **/
+        USART3_Init();        
+                
         /** CAN1 init,baud rate 250Kbps **/
 	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);                 
         
@@ -82,10 +85,7 @@ void Bsp_Init(void)
         CAN_Mode_Init(CAN2,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);         
                 
         /** TIM init 1000Khz£¬counting to 10 is 10us **/
-        TIM3_Int_Init(9,71);
-        
-        /** usart3 init **/
-        USART3_Init();
+        TIM3_Int_Init(9,71);        
         
         /** timer for usart3 **/
         /** TIM init 10khz, counting to 10 is 1ms **/

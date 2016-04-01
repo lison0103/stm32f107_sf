@@ -100,6 +100,7 @@ void CPU_Comm(void)
           CPU_Exchange_Data_Check(); 
 #else  
           comm_timeout--;
+          printf("CPU_Comm---comm_timeout:%d\r\n",comm_timeout);
           if( comm_timeout == 0 )
           {
               ESC_SPI_Error_Process();
@@ -178,16 +179,16 @@ void CPU_Exchange_Data_Check(void)
           {
             
 #if DEBUG_PRINTF            
-              printf("SPI1_RX_Buff :  \n");
-              for( u8 cnt = 0; cnt < 5; cnt++ )
-              {
-                printf(" %01d \n",SPI1_RX_Buff[cnt]);
-              }
-              printf("    SPI1_TX_Buff :  \n");
-              for( u8 cnt = 0; cnt < 5; cnt++ )
-              {
-                printf(" %01d \n",SPI1_TX_Buff[cnt]);
-              }
+//              printf("SPI1_RX_Buff :  \n");
+//              for( u8 cnt = 0; cnt < 5; cnt++ )
+//              {
+//                printf(" %01d \n",SPI1_RX_Buff[cnt]);
+//              }
+//              printf("    SPI1_TX_Buff :  \n");
+//              for( u8 cnt = 0; cnt < 5; cnt++ )
+//              {
+//                printf(" %01d \n",SPI1_TX_Buff[cnt]);
+//              }
 #endif                  
               if(SPI1_TX_Buff[4] == 1 && SPI1_RX_Buff[4] == 1)
               {
@@ -197,6 +198,7 @@ void CPU_Exchange_Data_Check(void)
               else if( sfwdt_checkflag == 1)
               {
                   EN_ERROR_SYS3++;
+                  printf("sfwdt_checkflag error \n");
               }
               
               if( switch_flag == 2 )
@@ -205,6 +207,7 @@ void CPU_Exchange_Data_Check(void)
                      || (SPI1_TX_Buff[2] != SPI1_RX_Buff[2]) || (SPI1_TX_Buff[3] != SPI1_RX_Buff[3]) )
                   {
                       EN_ERROR_SYS3++;
+                      printf("data error \n");
                   }
                   else
                   {
@@ -215,7 +218,8 @@ void CPU_Exchange_Data_Check(void)
           }
           else
           {
-              EN_ERROR_SYS3++;              
+              EN_ERROR_SYS3++;     
+              printf("MB_CRC16 error \n");
           }
           
           if(EN_ERROR_SYS3 > 2)
