@@ -73,7 +73,13 @@ void Bsp_Init(void)
         EXTIX_Init();
 
         /** usart3 init **/
-        USART3_Init();        
+#ifdef GEC_SF_MASTER 
+        USART3_Init();    
+#else
+#if DEBUG_PRINTF
+        USART3_Init();
+#endif        
+#endif
                 
         /** CAN1 init,baud rate 250Kbps **/
 	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);                 

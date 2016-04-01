@@ -38,12 +38,13 @@ u8 switch_flag = 1;
 u8 sfwdt_checkflag = 0;
 u8 canbuf_send[8] = {0};
 u16 comm_num = 0;
+u8 sf_wdt_check_tms = 0;
 #ifdef GEC_SF_MASTER
 u8 R_SF_RL2_FB_CPU1;
 #else
 u8 R_SF_RL_FB_CPU2;
 static u16 comm_timeout = 100;
-static u16 cntt = 3;
+static u16 cntt = 0;
 #endif
 
 /*******************************************************************************
@@ -57,28 +58,38 @@ static u16 cntt = 3;
 *******************************************************************************/
 void SF_WDT_Check(void)
 {
-    EWDT_TOOGLE();
-    IWDG_ReloadCounter();
-    delay_ms(600);
-    EWDT_TOOGLE();
-    IWDG_ReloadCounter();
-    delay_ms(600);
-    EWDT_TOOGLE(); 
-    IWDG_ReloadCounter();
-    delay_ms(700);//>1.8s
-    EWDT_TOOGLE(); 
-    IWDG_ReloadCounter();
+//    EWDT_TOOGLE();
+//    IWDG_ReloadCounter();
+//    delay_ms(600);
+//    EWDT_TOOGLE();
+//    IWDG_ReloadCounter();
+//    delay_ms(600);
+//    EWDT_TOOGLE(); 
+//    IWDG_ReloadCounter();
+//    delay_ms(700);//>1.8s
+//    EWDT_TOOGLE(); 
+//    IWDG_ReloadCounter();
+    
+    sfwdt_checkflag = 1;
+    
+    sf_wdt_check_tms++;
+    if( sf_wdt_check_tms >= 36)
+    {
+        
+        sf_wdt_check_tms = 0;
    
-    if( !SF_RL_FB )
-    {
-          switch_flag = 0;
-          sfwdt_checkflag = 0;
+        if( !SF_RL_FB )
+        {
+              switch_flag = 0;
+              sfwdt_checkflag = 0;
+        }
+        else
+        {
+            sfwdt_checkflag = 2;
+            SF_EWDT_TOOGLE();
+        }   
+        
     }
-    else
-    {
-        sfwdt_checkflag = 1;
-        SF_EWDT_TOOGLE();
-    }   
 
 }
 
@@ -190,12 +201,12 @@ void CPU_Exchange_Data_Check(void)
 //                printf(" %01d \n",SPI1_TX_Buff[cnt]);
 //              }
 #endif                  
-              if(SPI1_TX_Buff[4] == 1 && SPI1_RX_Buff[4] == 1)
+              if(SPI1_TX_Buff[4] == 2 && SPI1_RX_Buff[4] == 2)
               {
                   switch_flag = 2;
                   sfwdt_checkflag = 0;
               }
-              else if( sfwdt_checkflag == 1)
+              else if( sfwdt_checkflag == 2)
               {
                   EN_ERROR_SYS3++;
                   printf("sfwdt_checkflag error \n");
@@ -295,13 +306,13 @@ void Input_Check(void)
         {
           
                 /* System does the self-test for safety relay, running relay and auxiliary brake relay. */
-                if(SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB && AUX_FB)
+                if( ( sfwdt_checkflag == 1 ) || ( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB && AUX_FB ) )
                 {
                     
                         AUX_CTR = 1;
                         SF_RL_CTR = 1;  
                         
-                        delay_ms(1);
+//                        delay_ms(1);
                         
                         SF_WDT_Check();
                 }   

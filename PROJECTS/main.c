@@ -76,10 +76,10 @@ void Task_Loop(void)
       
   
 
-//      if( Tms10Counter == 0 )
-//      {
+      if( Tms10Counter == 0 )
+      {
 //        CPU_Comm();
-//      }
+      }
       
       if( Tms20Counter == 0 )      
       {
@@ -92,9 +92,12 @@ void Task_Loop(void)
 #ifdef GEC_SF_MASTER          
           USB_VCP_RecvBufandSend();
 #endif          
-          /* Reload SF_EWDG / EWDT counter */
-          SF_EWDT_TOOGLE();
+          /* Reload SF_EWDG / EWDT counter */          
           EWDT_TOOGLE();
+          if( sfwdt_checkflag != 1 )
+          {
+              SF_EWDT_TOOGLE();
+          }
           
       } 
       
