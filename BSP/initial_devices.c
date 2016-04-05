@@ -82,13 +82,13 @@ void Bsp_Init(void)
 #endif
                 
         /** CAN1 init,baud rate 250Kbps **/
-	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);                 
+	CAN_Mode_Init(CAN1,CAN_Mode_Normal);                 
         
 #ifdef GEC_SF_MASTER
         
         /** CAN2 init,baud rate 250Kbps **/
         /** note : use CAN2 , must CAN1 init **/
-        CAN_Mode_Init(CAN2,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);         
+        CAN_Mode_Init(CAN2,CAN_Mode_Normal);         
                 
         /** TIM init 1000Khz£¬counting to 10 is 10us **/
         TIM3_Int_Init(9,71);        

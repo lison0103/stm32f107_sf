@@ -1102,7 +1102,7 @@ void can_test(void)
 
 	 	
    
-	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,mode);  
+	CAN_Mode_Init(CAN1,mode);  
 
 	
  	while(1)
@@ -1159,11 +1159,11 @@ void can1_can2_test(void)
 	 	
    
         /** CAN1 init,baud rate 250Kbps **/
-	CAN_Mode_Init(CAN1,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);  
+	CAN_Mode_Init(CAN1,CAN_Mode_Normal);  
         
         /** CAN2 init,baud rate 250Kbps **/
         /** note : use CAN2 , must CAN1 init **/
-        CAN_Mode_Init(CAN2,CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,8,CAN_Mode_Normal);    
+        CAN_Mode_Init(CAN2,CAN_Mode_Normal);    
 
 	
  	while(1)
