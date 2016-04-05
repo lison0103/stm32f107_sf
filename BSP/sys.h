@@ -69,9 +69,9 @@
 
 /* if not use usb debug ,this macro should be 0 */
 #ifdef GEC_SF_MASTER
-#define DEBUG_PRINTF    0
+#define DEBUG_PRINTF    1
 #else
-#define DEBUG_PRINTF    0
+#define DEBUG_PRINTF    1
 #endif
 
 /* Exported functions ------------------------------------------------------- */

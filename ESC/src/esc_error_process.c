@@ -89,7 +89,7 @@ void ESC_SPI_Error_Process(void)
     /** 断开安全继电器 **/
     SF_RL_CTR = 0;
     SF_RL_WDT = 0;
-    printf("ESC_SPI_Error_Process\n");
+    printf("ESC_SPI_Error_Process \r\n");
 }
 
 
@@ -101,5 +101,5 @@ void ESC_SafeRelay_Error_Process(void)
     /** 断开安全继电器 **/
     SF_RL_CTR = 0;
     SF_RL_WDT = 0;
-    printf("ESC_SafeRelay_Error_Process\n");
+    printf("ESC_SafeRelay_Error_Process \r\n");
 }

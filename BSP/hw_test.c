@@ -87,6 +87,7 @@ void SF_WDT_Check(void)
         {
             sfwdt_checkflag = 2;
             SF_EWDT_TOOGLE();
+            printf("SF_WDT_Check---ok! \r\n");
         }   
         
     }
@@ -111,7 +112,7 @@ void CPU_Comm(void)
           CPU_Exchange_Data_Check(); 
 #else  
           comm_timeout--;
-          printf("CPU_Comm---comm_timeout:%d\r\n",comm_timeout);
+//          printf("CPU_Comm---comm_timeout:%d\r\n",comm_timeout);
           if( comm_timeout == 0 )
           {
               ESC_SPI_Error_Process();
@@ -188,19 +189,7 @@ void CPU_Exchange_Data_Check(void)
           
           if(!MB_CRC16(SPI1_RX_Buff, comm_num))
           {
-            
-#if DEBUG_PRINTF            
-//              printf("SPI1_RX_Buff :  \n");
-//              for( u8 cnt = 0; cnt < 5; cnt++ )
-//              {
-//                printf(" %01d \n",SPI1_RX_Buff[cnt]);
-//              }
-//              printf("    SPI1_TX_Buff :  \n");
-//              for( u8 cnt = 0; cnt < 5; cnt++ )
-//              {
-//                printf(" %01d \n",SPI1_TX_Buff[cnt]);
-//              }
-#endif                  
+                            
               if(SPI1_TX_Buff[4] == 2 && SPI1_RX_Buff[4] == 2)
               {
                   switch_flag = 2;
@@ -209,7 +198,7 @@ void CPU_Exchange_Data_Check(void)
               else if( sfwdt_checkflag == 2)
               {
                   EN_ERROR_SYS3++;
-                  printf("sfwdt_checkflag error \n");
+                  printf("sfwdt_checkflag error \r\n");
               }
               
               if( switch_flag == 2 )
@@ -218,7 +207,7 @@ void CPU_Exchange_Data_Check(void)
                      || (SPI1_TX_Buff[2] != SPI1_RX_Buff[2]) || (SPI1_TX_Buff[3] != SPI1_RX_Buff[3]) )
                   {
                       EN_ERROR_SYS3++;
-                      printf("data error \n");
+                      printf("data error \r\n");
                   }
                   else
                   {
@@ -230,14 +219,25 @@ void CPU_Exchange_Data_Check(void)
           else
           {
               EN_ERROR_SYS3++;     
-              printf("MB_CRC16 error \n");
+              printf("MB_CRC16 error \r\n");
+              
+#if DEBUG_PRINTF            
+
+              printf("SPI1_RX_Buff : %01d, %01d, %01d, %01d ,%01d, %01d, %01d \r\n",
+                     SPI1_RX_Buff[0],SPI1_RX_Buff[1],SPI1_RX_Buff[2],SPI1_RX_Buff[3]
+                     ,SPI1_RX_Buff[4],SPI1_RX_Buff[comm_num - 2],SPI1_RX_Buff[comm_num - 1]);
+
+              printf("SPI1_TX_Buff : %01d, %01d, %01d, %01d ,%01d, %01d, %01d \r\n",
+                     SPI1_TX_Buff[0],SPI1_TX_Buff[1],SPI1_TX_Buff[2],SPI1_TX_Buff[3]
+                     ,SPI1_TX_Buff[4],SPI1_TX_Buff[comm_num - 2],SPI1_TX_Buff[comm_num - 1]);
+#endif                
           }
           
           if(EN_ERROR_SYS3 > 2)
           {
               EN_ERROR_SYS3 = 0;
               ESC_SafeRelay_Error_Process();
-              printf("CPU_Exchange_Data_Check error \n");
+              printf("CPU_Exchange_Data_Check error \r\n");
           }
              
 }
