@@ -2179,6 +2179,7 @@
           <state>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib</state>
           <state>$PROJ_DIR$\..\SAFETYTEST\</state>
           <state>$PROJ_DIR$\..\BSP</state>
+          <state>$PROJ_DIR$\..\HARDWARE\ADC</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -3840,7 +3841,6 @@
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\src\stm32f10x_adc.c</name>
         <excluded>
-          <configuration>GEC-SF-M</configuration>
           <configuration>GEC-SF-S</configuration>
         </excluded>
       </file>
@@ -3935,6 +3935,9 @@
   </group>
   <group>
     <name>HARDWARE</name>
+    <file>
+      <name>$PROJ_DIR$\..\HARDWARE\ADC\adc.c</name>
+    </file>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\CAN\can.c</name>
     </file>
