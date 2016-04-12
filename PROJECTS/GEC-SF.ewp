@@ -3937,6 +3937,9 @@
     <name>HARDWARE</name>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\ADC\adc.c</name>
+      <excluded>
+        <configuration>GEC-SF-S</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\CAN\can.c</name>

@@ -395,7 +395,9 @@ USB_OTG_STS USB_OTG_CoreInit(USB_OTG_CORE_HANDLE *pdev)
     /***Commetted by lison,usb device and PA9 gpio confused****/
 //    gccfg.b.vbussensingA = 1 ;
 //    gccfg.b.vbussensingB = 1 ; 
-   
+    gccfg.b.vbussensingA = 0 ;
+    gccfg.b.vbussensingB = 0 ; 
+    
 #ifndef VBUS_SENSING_ENABLED
     gccfg.b.disablevbussensing = 1; 
 #endif    

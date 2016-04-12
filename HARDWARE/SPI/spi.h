@@ -27,9 +27,12 @@ u8 SPI1_ReadWriteByte(u8 TxData);
 void SPI1_WriteByte(u8 TxData);
 u8 SPI1_ReadByte(u8 TxData);
 void SPI1_NVIC(void);
+void DMA_Check_Flag(u32 times);
 
 extern u8 SPI1_TX_Buff[buffersize] ;
 extern u8 SPI1_RX_Buff[buffersize] ;
+extern u8 SPI1_TX_Data[buffersize] ;
+extern u8 SPI1_RX_Data[buffersize] ;
 extern u8 SPI_DMA_RECEIVE_FLAG;
 
 

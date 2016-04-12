@@ -63,9 +63,9 @@ void Task_Loop(void)
 
       if( ++Tms10Counter>=2 ) Tms10Counter=0;
       if( ++Tms20Counter>=4 ) Tms20Counter=0;
-      if( ++Tms50Counter>=10 ) Tms50Counter=0;
-      if( ++Tms100Counter>=20 ) Tms100Counter=0;
-      if( ++Tms500Counter>=100 ) Tms500Counter=0;
+      if( ++Tms50Counter>=9 ) Tms50Counter=0;
+      if( ++Tms100Counter>=19 ) Tms100Counter=0;
+      if( ++Tms500Counter>=99 ) Tms500Counter=0;
       if( ++Tms1000Counter>=200 ) Tms1000Counter=0;      
 
 #if SELF_TEST      
@@ -74,31 +74,39 @@ void Task_Loop(void)
       Safety_RunCheck();
 #endif  
       
-  
-
+#ifdef GEC_SF_MASTER 
       if( Tms10Counter == 0 )
       {
-//        CPU_Comm();
-      }
-      
-      if( Tms20Counter == 0 )      
+        
+      }      
+      if( Tms20Counter == 0 )
       {
           CPU_Comm();
+      }  
+#else
+      if( Tms10Counter == 0 )
+      {
+          CPU_Comm();         
       }
+      if( Tms20Counter == 0 )
+      {
+
+      }       
+#endif     
       
       if( Tms50Counter == 0 )
-      {                       
-          Input_Check();                   
-#ifdef GEC_SF_MASTER          
-          USB_VCP_RecvBufandSend();
-#endif          
+      {                                 
           /* Reload SF_EWDG / EWDT counter */          
-          EWDT_TOOGLE();
+//          EWDT_TOOGLE();
           if( sfwdt_checkflag != 1 )
           {
               SF_EWDT_TOOGLE();
           }
           
+          Input_Check();                   
+#ifdef GEC_SF_MASTER          
+          USB_VCP_RecvBufandSend();
+#endif          
       } 
       
       if( Tms100Counter == 0 )
@@ -113,7 +121,7 @@ void Task_Loop(void)
       
       if( Tms1000Counter == 0 )
       {
-          Comm_DisplayBoard();      
+//          Comm_DisplayBoard();  
       }
 #endif      
 
@@ -141,10 +149,10 @@ int main(void)
         /* 5ms */
         while ( !TimingDelay );
         TimingDelay = 0;
-        
+
         Task_Loop();
         LED_indicator();
-           
+   
     }          
           
 }

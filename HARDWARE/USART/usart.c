@@ -13,6 +13,7 @@
 #include "stm32f10x_rcc.h" 
 #include "stm32f10x_gpio.h" 
 #include "stm32f10x_dma.h"
+#include "sys.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -110,17 +111,36 @@ void USART3_Init(void)
 
 	GPIO_InitTypeDef GPIO_InitStruct;					
 
-  GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
-  GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB , &GPIO_InitStruct);
-	
-  GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
-  GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOB , &GPIO_InitStruct);
+#ifdef GEC_SF_MASTER 
+#if DEBUG_PRINTF
+        
+        GPIO_PinRemapConfig(GPIO_FullRemap_USART3, ENABLE);
+        
+        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
+        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_Init(GPIOD , &GPIO_InitStruct);
+              
+        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
+        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_Init(GPIOD , &GPIO_InitStruct);
+        
+        BSP_USART_Init(USART3, 115200, USART_Parity_No);//, ENABLE
+        USART_Cmd(USART3,ENABLE);
+  
+#else
+        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
+        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_Init(GPIOB , &GPIO_InitStruct);
+              
+        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
+        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_Init(GPIOB , &GPIO_InitStruct);
 
-#ifdef GEC_SF_MASTER 	
+	
 	BSP_USART_Init(USART3, 19200, USART_Parity_No);//, ENABLE
 	
 	NVIC_Configuration_Usart(USART3);       	
@@ -128,7 +148,19 @@ void USART3_Init(void)
 	USART_ClearFlag(USART3, USART_FLAG_TC);  
 	USART_Cmd(USART3,ENABLE);
 	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);	
+#endif
+        
 #else
+        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
+        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_Init(GPIOB , &GPIO_InitStruct);
+              
+        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
+        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_Init(GPIOB , &GPIO_InitStruct);        
+        
         BSP_USART_Init(USART3, 115200, USART_Parity_No);//, ENABLE
         USART_Cmd(USART3,ENABLE);
 #endif

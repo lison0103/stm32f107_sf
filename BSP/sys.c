@@ -62,7 +62,9 @@ u32 GetLockCode(void)
 int fputc(int ch, FILE *f)
 {   
   
-        USB_VCP_SendBuf((u8 *)(&ch), 1);
+//        USB_VCP_SendBuf((u8 *)(&ch), 1);
+      while((USART3->SR&0X40)==0);//循环发送,直到发送完毕   
+          USART3->DR = (u8) ch; 
 
 	return ch;
 }

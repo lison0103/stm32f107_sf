@@ -274,7 +274,7 @@ void CAN1_RX0_IRQHandler(void)
 #ifdef GEC_SF_MASTER
   #if DEBUG_PRINTF 
         printf("CAN1RX:");
-        Usb_Vcp_SendBuf(RxMessage.Data, RxMessage.DLC);
+//        Usb_Vcp_SendBuf(RxMessage.Data, RxMessage.DLC);
         printf("\r\n");
   #endif
 #endif
@@ -301,7 +301,7 @@ void CAN2_RX0_IRQHandler(void)
 #ifdef GEC_SF_MASTER
      #if DEBUG_PRINTF 
         printf("CAN1RX:");
-        Usb_Vcp_SendBuf(RxMessage.Data, RxMessage.DLC);
+//        Usb_Vcp_SendBuf(RxMessage.Data, RxMessage.DLC);
         printf("\r\n");     
      #endif
 #endif
@@ -339,8 +339,8 @@ u8 Can_Send_Msg(CAN_TypeDef* CANx,u8* msg,u8 len)
 	TxMessage.Data[i]=msg[i];			          
 	mbox= CAN_Transmit(CANx, &TxMessage);   
 	i=0; 
-        delay_ms(1);
-	while((CAN_TransmitStatus(CANx, mbox)==CAN_TxStatus_Failed)&&(i<0XFFF))
+        delay_us(500);
+	while((CAN_TransmitStatus(CANx, mbox)!=CAN_TxStatus_Ok)&&(i<0XFFF))
         {
             i++;	
         }

@@ -131,7 +131,6 @@ void Bsp_Init(void)
 
         /** spi communication init **/
         SPI1_Init();
-//	SPI1_DMA_Configuration();
         SPI1_DMA_Check();
         
 #if SELF_TEST

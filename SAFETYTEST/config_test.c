@@ -386,14 +386,14 @@ type_testResult_t ConfigurationRegister_Check(void)
       }      
       
       /*  DMA  Register Check */
-      if( DMAReg_Check() == IEC61508_testPassed )
-      {
-          ConfigReg_Check.Conf_Pass_Cnt++;
-      }
-      else
-      {
-          ConfigReg_Check.Conf_Err_Cnt++;
-      }       
+//      if( DMAReg_Check() == IEC61508_testPassed )
+//      {
+//          ConfigReg_Check.Conf_Pass_Cnt++;
+//      }
+//      else
+//      {
+//          ConfigReg_Check.Conf_Err_Cnt++;
+//      }       
       
       /*  ADC  Register Check */
       /*  DAC  Register Check */
@@ -424,14 +424,14 @@ type_testResult_t ConfigurationRegister_Check(void)
       }       
       
       /*  SPI  Register Check */
-      if( SPIReg_Check() == IEC61508_testPassed )
-      {
-          ConfigReg_Check.Conf_Pass_Cnt++;
-      }
-      else
-      {
-          ConfigReg_Check.Conf_Err_Cnt++;
-      }      
+//      if( SPIReg_Check() == IEC61508_testPassed )
+//      {
+//          ConfigReg_Check.Conf_Pass_Cnt++;
+//      }
+//      else
+//      {
+//          ConfigReg_Check.Conf_Err_Cnt++;
+//      }      
       
       /*  I2C  Register Check */
       /*  USART  Register Check */ 

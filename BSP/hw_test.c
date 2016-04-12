@@ -26,12 +26,13 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-#define CPU_COMM_TIMEOUT  3
+#define CPU_COMM_TIMEOUT  5
 
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void CPU_Exchange_Data_Check(void);
+void CPU_Data_Check(void);
+void CPU_Exchange_Data(void);
 
 u8 sflag,inputnum = 0;
 u8 switch_flag = 1;
@@ -39,6 +40,8 @@ u8 sfwdt_checkflag = 0;
 u8 canbuf_send[8] = {0};
 u16 comm_num = 0;
 u8 sf_wdt_check_tms = 0;
+u8 onetime = 0;
+//static u8 test_num = 0;
 #ifdef GEC_SF_MASTER
 u8 R_SF_RL2_FB_CPU1;
 #else
@@ -58,22 +61,12 @@ static u16 cntt = 0;
 *******************************************************************************/
 void SF_WDT_Check(void)
 {
-//    EWDT_TOOGLE();
-//    IWDG_ReloadCounter();
-//    delay_ms(600);
-//    EWDT_TOOGLE();
-//    IWDG_ReloadCounter();
-//    delay_ms(600);
-//    EWDT_TOOGLE(); 
-//    IWDG_ReloadCounter();
-//    delay_ms(700);//>1.8s
-//    EWDT_TOOGLE(); 
-//    IWDG_ReloadCounter();
     
     sfwdt_checkflag = 1;
     
     sf_wdt_check_tms++;
-    if( sf_wdt_check_tms >= 36)
+    /*  (41 - 1)*45ms = 1800ms */
+    if( sf_wdt_check_tms >= 41)
     {
         
         sf_wdt_check_tms = 0;
@@ -108,16 +101,30 @@ void CPU_Comm(void)
 {
 
 #ifdef GEC_SF_MASTER
-
-          CPU_Exchange_Data_Check(); 
+          EWDT_TOOGLE();
+//          CPU_Exchange_Data();
+          if( onetime == 0 )
+          {
+              onetime++;
+              CPU_Exchange_Data();
+          }
+          else
+          {
+              CPU_Data_Check();
+              CPU_Exchange_Data();
+          }
+          EWDT_TOOGLE();
 #else  
           comm_timeout--;
 //          printf("CPU_Comm---comm_timeout:%d\r\n",comm_timeout);
           if( comm_timeout == 0 )
           {
+              printf("CPU_Comm---comm_timeout \r\n");
+              
               ESC_SPI_Error_Process();
+              comm_timeout = CPU_COMM_TIMEOUT;
           }
-          if( SPI_DMA_RECEIVE_FLAG == 1 )
+          if ( ( DMA_GetFlagStatus(DMA1_IT_TC2) ) != RESET )
           {
                 
                 if(cntt != 0)
@@ -129,14 +136,16 @@ void CPU_Comm(void)
                 {
                   comm_timeout = CPU_COMM_TIMEOUT;
                 }
-                
-                CPU_Exchange_Data_Check();              
+                 EWDT_TOOGLE();
+                CPU_Data_Check();
+                CPU_Exchange_Data();
+                EWDT_TOOGLE();
           }   
 #endif
 }
 
 /*******************************************************************************
-* Function Name  : CPU_Exchange_Data_Check
+* Function Name  : CPU_Data_Check
 * Description    : 
 *                  
 * Input          : None
@@ -144,53 +153,23 @@ void CPU_Comm(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void CPU_Exchange_Data_Check(void)
-{
-          
-          u16 i;
-         
+void CPU_Data_Check(void)
+{ 
+    
+    
+#if 1
+    
           /* communication buffer */
           comm_num = buffersize;  
-          for(i = 0; i < comm_num - 2; i++)
-          {
-              SPI1_TX_Buff[i] = 0;
-          }
-    
-          SPI_DMA_RECEIVE_FLAG = 0;
- 
-          if(SF_RL_DRV_FB)
-            SPI1_TX_Buff[0] = 0x01;
-         
-          if(SF_PWR_FB_CPU)
-            SPI1_TX_Buff[1] = 0x01;
-          
-          if(SF_RL_FB)
-            SPI1_TX_Buff[2] = 0x01;
-            
-          if(AUX_FB)
-            SPI1_TX_Buff[3] = 0x01;
-               
-          SPI1_TX_Buff[4] = sfwdt_checkflag;
-          
-          SPI1_TX_Buff[5] = canbuf_send[0];
-          SPI1_TX_Buff[6] = canbuf_send[1];
-          SPI1_TX_Buff[7] = canbuf_send[2];
-          SPI1_TX_Buff[8] = canbuf_send[3];
-          
-          i = MB_CRC16( SPI1_TX_Buff, comm_num - 2 );
-          SPI1_TX_Buff[comm_num - 2] = i;
-          SPI1_TX_Buff[comm_num - 1] = i>>8;          
-          
-          SPI1_DMA_ReceiveSendByte(comm_num); 
 
-#ifdef GEC_SF_MASTER          
-          while( SPI_DMA_RECEIVE_FLAG != 1 );
-#endif          
+    
+         DMA_Check_Flag(2000);    
+             
           
-          if(!MB_CRC16(SPI1_RX_Buff, comm_num))
+          if(!MB_CRC16(SPI1_RX_Data, comm_num))
           {
                             
-              if(SPI1_TX_Buff[4] == 2 && SPI1_RX_Buff[4] == 2)
+              if(SPI1_TX_Data[4] == 2 && SPI1_RX_Data[4] == 2)
               {
                   switch_flag = 2;
                   sfwdt_checkflag = 0;
@@ -203,8 +182,8 @@ void CPU_Exchange_Data_Check(void)
               
               if( switch_flag == 2 )
               {
-                  if( (SPI1_TX_Buff[0] != SPI1_RX_Buff[0]) || (SPI1_TX_Buff[1] != SPI1_RX_Buff[1]) 
-                     || (SPI1_TX_Buff[2] != SPI1_RX_Buff[2]) || (SPI1_TX_Buff[3] != SPI1_RX_Buff[3]) )
+                  if( (SPI1_TX_Data[0] != SPI1_RX_Data[0]) || (SPI1_TX_Data[1] != SPI1_RX_Data[1]) 
+                     || (SPI1_TX_Data[2] != SPI1_RX_Data[2]) || (SPI1_TX_Data[3] != SPI1_RX_Data[3]) )
                   {
                       EN_ERROR_SYS3++;
                       printf("data error \r\n");
@@ -223,13 +202,13 @@ void CPU_Exchange_Data_Check(void)
               
 #if DEBUG_PRINTF            
 
-              printf("SPI1_RX_Buff : %01d, %01d, %01d, %01d ,%01d, %01d, %01d \r\n",
-                     SPI1_RX_Buff[0],SPI1_RX_Buff[1],SPI1_RX_Buff[2],SPI1_RX_Buff[3]
-                     ,SPI1_RX_Buff[4],SPI1_RX_Buff[comm_num - 2],SPI1_RX_Buff[comm_num - 1]);
+              printf("SPI1_RX_Data : %01d, %01d, %01d, %01d ,%01d, %01d, %01d \r\n",
+                     SPI1_RX_Data[0],SPI1_RX_Data[1],SPI1_RX_Data[2],SPI1_RX_Data[3]
+                     ,SPI1_RX_Data[4],SPI1_RX_Data[comm_num - 2],SPI1_RX_Data[comm_num - 1]);
 
-              printf("SPI1_TX_Buff : %01d, %01d, %01d, %01d ,%01d, %01d, %01d \r\n",
-                     SPI1_TX_Buff[0],SPI1_TX_Buff[1],SPI1_TX_Buff[2],SPI1_TX_Buff[3]
-                     ,SPI1_TX_Buff[4],SPI1_TX_Buff[comm_num - 2],SPI1_TX_Buff[comm_num - 1]);
+              printf("SPI1_TX_Data : %01d, %01d, %01d, %01d ,%01d, %01d, %01d \r\n",
+                     SPI1_TX_Data[0],SPI1_TX_Data[1],SPI1_TX_Data[2],SPI1_TX_Data[3]
+                     ,SPI1_TX_Data[4],SPI1_TX_Data[comm_num - 2],SPI1_TX_Data[comm_num - 1]);
 #endif                
           }
           
@@ -239,7 +218,137 @@ void CPU_Exchange_Data_Check(void)
               ESC_SafeRelay_Error_Process();
               printf("CPU_Exchange_Data_Check error \r\n");
           }
+          
+          
+#else
+         u8 i;
+          /* communication buffer */
+          comm_num = buffersize;  
+
+    
+         DMA_Check_Flag(2000);          
+         
+        
+              if(!MB_CRC16(SPI1_RX_Data, comm_num))
+              {
+//#ifdef GEC_SF_MASTER 
+//                  for( i=0; i < comm_num - 2; i++ )
+//                  {
+//
+//                      if( (SPI1_RX_Data[i]^(SPI1_TX_Data[i] - 1)) )
+//                      {
+//                          EN_ERROR_SYS3++;
+//                          break;
+//                      }
+//                  
+//                  }
+//#endif
+              } 
+              else
+              {
+                          EN_ERROR_SYS3++;    
+              }          
+
+                        
+
+          
+          if(EN_ERROR_SYS3 > 3)
+          {
+#if DEBUG_PRINTF            
+
+              printf("RX: %01d, %01d, %01d, %01d ,%01d, %01d, %01d \r\n",
+                     SPI1_RX_Data[0],SPI1_RX_Data[1],SPI1_RX_Data[2],SPI1_RX_Data[3]
+                     ,SPI1_RX_Data[4],SPI1_RX_Data[comm_num - 2],SPI1_RX_Data[comm_num - 1]);
+
+              printf("TX : %01d, %01d, %01d, %01d ,%01d, %01d, %01d \r\n",
+                     SPI1_TX_Data[0],SPI1_TX_Data[1],SPI1_TX_Data[2],SPI1_TX_Data[3]
+                     ,SPI1_TX_Data[4],SPI1_TX_Data[comm_num - 2],SPI1_TX_Data[comm_num - 1]);
+#endif 
+                LED = 0;
+                while(1)
+                {
+                    EWDT_TOOGLE(); 
+                    IWDG_ReloadCounter();        
+                }
+          }
+          
+#endif
              
+}
+
+/*******************************************************************************
+* Function Name  : CPU_Exchange_Data
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void CPU_Exchange_Data(void)
+{
+#if 1
+    
+          u16 i;
+         
+          /* communication buffer */
+          comm_num = buffersize;  
+          for(i = 0; i < comm_num - 2; i++)
+          {
+              SPI1_TX_Data[i] = 0;
+          }
+    
+          SPI_DMA_RECEIVE_FLAG = 0;
+ 
+          if(SF_RL_DRV_FB)
+            SPI1_TX_Data[0] = 0x01;
+         
+          if(SF_PWR_FB_CPU)
+            SPI1_TX_Data[1] = 0x01;
+          
+          if(SF_RL_FB)
+            SPI1_TX_Data[2] = 0x01;
+            
+          if(AUX_FB)
+            SPI1_TX_Data[3] = 0x01;
+               
+          SPI1_TX_Data[4] = sfwdt_checkflag;
+          
+          SPI1_TX_Data[5] = canbuf_send[0];
+          SPI1_TX_Data[6] = canbuf_send[1];
+          SPI1_TX_Data[7] = canbuf_send[2];
+          SPI1_TX_Data[8] = canbuf_send[3];
+          
+          i = MB_CRC16( SPI1_TX_Data, comm_num - 2 );
+          SPI1_TX_Data[comm_num - 2] = i;
+          SPI1_TX_Data[comm_num - 1] = i>>8; 
+          
+          SPI1_DMA_ReceiveSendByte(comm_num);
+#else
+          u16 i;
+         
+          /* communication buffer */
+          comm_num = buffersize;  
+#ifdef GEC_SF_MASTER          
+          test_num++;
+          if(test_num > 255)test_num = 0;
+          
+          for( i = 0; i < comm_num - 2; i++ )
+          {
+              SPI1_TX_Data[i] = test_num;
+          }
+#else
+          for( i=0; i < comm_num - 2; i++ )
+          {
+              SPI1_TX_Data[i] = SPI1_RX_Data[i];
+          }   
+#endif          
+          i = MB_CRC16( SPI1_TX_Data, comm_num - 2 );
+          SPI1_TX_Data[comm_num - 2] = i;
+          SPI1_TX_Data[comm_num - 1] = i>>8;
+          
+          SPI1_DMA_ReceiveSendByte(comm_num);
+#endif            
 }
 
 /*******************************************************************************
@@ -310,8 +419,7 @@ void Input_Check(void)
                 {
                     
                         AUX_CTR = 1;
-                        SF_RL_CTR = 1;  
-                        
+                        SF_RL_CTR = 1;                         
 //                        delay_ms(1);
                         
                         SF_WDT_Check();
@@ -926,7 +1034,7 @@ void Input_Check2(void)
 *******************************************************************************/
 u8 number = 0;
 u8 data_error = 0;
-u32 ms_count = 10;
+u32 ms_count = 100;
 
 void SPI1_DMA_Check(void)
 {    
@@ -936,58 +1044,58 @@ void SPI1_DMA_Check(void)
   
 #ifdef GEC_SF_MASTER      
     u8 result = 0;
-
+#endif
         
     number++;
 
     for( i = 0; i < comm_num; i++)
     {
-        SPI1_TX_Buff[i] = number;
+        SPI1_TX_Data[i] = number;
     }
     
-    i = MB_CRC16( SPI1_TX_Buff, comm_num - 2 );
-    SPI1_TX_Buff[comm_num - 2] = i;
-    SPI1_TX_Buff[comm_num - 1] = i>>8;
-#endif    
+    i = MB_CRC16( SPI1_TX_Data, comm_num - 2 );
+    SPI1_TX_Data[comm_num - 2] = i;
+    SPI1_TX_Data[comm_num - 1] = i>>8;
+    
     
     SPI1_DMA_ReceiveSendByte(comm_num);
   
-    while( SPI_DMA_RECEIVE_FLAG != 1 );
-
-    if ( SPI_DMA_RECEIVE_FLAG == 1 )
-    {
+    DMA_Check_Flag(400000);
+    
+    
         
         while(ms_count--)
         {
             
-              SPI_DMA_RECEIVE_FLAG = 0;
-
+            EWDT_TOOGLE(); 
+            IWDG_ReloadCounter();             
+        
 #ifdef GEC_SF_MASTER              
               
-              delay_ms(10);
+              delay_ms(2);
               
               number++;
+              if(number > 255)number = 0;
 
               for( i = 0; i < comm_num - 2; i++ )
               {
-                    SPI1_TX_Buff[i] = number;
+                    SPI1_TX_Data[i] = number;
               }
               
-              i = MB_CRC16( SPI1_TX_Buff, comm_num - 2 );
-              SPI1_TX_Buff[comm_num - 2] = i;
-              SPI1_TX_Buff[comm_num - 1] = i>>8;
+              i = MB_CRC16( SPI1_TX_Data, comm_num - 2 );
+              SPI1_TX_Data[comm_num - 2] = i;
+              SPI1_TX_Data[comm_num - 1] = i>>8;
               
               SPI1_DMA_ReceiveSendByte(comm_num);
-                            
-              while( SPI_DMA_RECEIVE_FLAG != 1 );
-
+                        
+              DMA_Check_Flag(400000);
               
-              if(!MB_CRC16(SPI1_RX_Buff, comm_num))
+              if(!MB_CRC16(SPI1_RX_Data, comm_num))
               {
 
                   for( i=0; i < comm_num - 2; i++ )
                   {
-                      result = SPI1_RX_Buff[i]^(SPI1_TX_Buff[i] - 1);
+                      result = SPI1_RX_Data[i]^(SPI1_TX_Data[i] - 1);
                       if( result )
                       {
                           data_error = 1;
@@ -998,46 +1106,57 @@ void SPI1_DMA_Check(void)
               } 
               else
               {
-                          data_error = 1;             
+                          data_error = 1;    
+                          break;
               }
               
               
               
               
 #else
-              if(!MB_CRC16(SPI1_RX_Buff, comm_num))
+              if(!MB_CRC16(SPI1_RX_Data, comm_num))
               {                 
                   for( i=0; i < comm_num - 2; i++ )
                   {
-                      SPI1_TX_Buff[i] = SPI1_RX_Buff[i];
+                      SPI1_TX_Data[i] = SPI1_RX_Data[i];
                   }   
                   
-                  i = MB_CRC16( SPI1_TX_Buff, comm_num - 2 );
-                  SPI1_TX_Buff[comm_num - 2] = i;
-                  SPI1_TX_Buff[comm_num - 1] = i>>8;
+                  i = MB_CRC16( SPI1_TX_Data, comm_num - 2 );
+                  SPI1_TX_Data[comm_num - 2] = i;
+                  SPI1_TX_Data[comm_num - 1] = i>>8;
               } 
               else
               {
-                  data_error = 1;                 
+                  data_error = 1;    
+                  break;
               }
               
               SPI1_DMA_ReceiveSendByte(comm_num);
-              
-              while( SPI_DMA_RECEIVE_FLAG != 1 );
+
+              DMA_Check_Flag(400000);
 #endif              
-        }
+        }      
         
-        if( data_error == 1 )
+
+#ifdef GEC_SF_MASTER 
+#else
+        SPI1_DMA_ReceiveSendByte(comm_num);
+#endif
+    if( data_error == 1 )
+    {
+        LED = 0;
+        printf("SPI1_DMA_Check error \r\n");
+        while(1)
         {
-            LED = 0;
-            while(1);            
+            EWDT_TOOGLE(); 
+            IWDG_ReloadCounter();        
         }
-        
     }
 
 
 }
 
+#ifdef GEC_SF_MASTER 
 /*******************************************************************************
 * Function Name  : can_comm
 * Description    : 
@@ -1065,23 +1184,23 @@ void CAN_Comm(void)
     else 
     {	 
 #if DEBUG_PRINTF                         
-        USB_VCP_SendBuf(canbuf_send, 4); 
+//        USB_VCP_SendBuf(canbuf_send, 4); 
 #endif
-        delay_ms(1);
+//        delay_ms(1);
         
         /** CAN1 receive data **/
         can_rcv=Can_Receive_Msg(CAN1,canbuf_recv);
         if(can_rcv)
         {		
 #if DEBUG_PRINTF 
-            USB_VCP_SendBuf(canbuf_recv, can_rcv);
+//            USB_VCP_SendBuf(canbuf_recv, can_rcv);
 #endif
         }                                                                       
         
     } 
     
 }
-
+#endif
 
 /*******************************************************************************
 * Function Name  : can_test
@@ -1192,7 +1311,7 @@ void can1_can2_test(void)
  			for(i=0;i<can_rcv;i++)
 			{	
                             #if DEBUG_PRINTF 
-                              USB_VCP_SendBuf(canbuf_recv, can_rcv);	
+//                              USB_VCP_SendBuf(canbuf_recv, can_rcv);	
                             #endif
  			}
 		}                               

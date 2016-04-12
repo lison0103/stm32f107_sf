@@ -25,8 +25,12 @@ void SPI1_DMA_Check(void);
 void can1_can2_test(void);
 void SF_WDT_Check(void);
 void SF_CTR_Check(void);
+#ifdef GEC_SF_MASTER 
 void CAN_Comm(void);
+#endif
 void CPU_Comm(void);
+void CPU_Data_Check(void);
+void CPU_Exchange_Data(void);
 
 	
 extern u8 data_error;
