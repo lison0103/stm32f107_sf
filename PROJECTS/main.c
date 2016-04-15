@@ -124,7 +124,7 @@ void Task_Loop(void)
       if( Tms1000Counter == 0 )
       {
 //          Comm_DisplayBoard();  
-          if( ++timeprintf > 600 )
+          if( ++timeprintf >= 600 )
           {
               timeprintf = 0;
               printf("%d\r\n",SysRunTime);

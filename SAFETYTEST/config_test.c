@@ -414,14 +414,14 @@ type_testResult_t ConfigurationRegister_Check(void)
       /*  SDIO  Register Check */
       /*  USB  Register Check */            
       /*  CAN  Register Check */
-      if( CANReg_Check() == IEC61508_testPassed )
-      {
-          ConfigReg_Check.Conf_Pass_Cnt++;
-      }
-      else
-      {
-          ConfigReg_Check.Conf_Err_Cnt++;
-      }       
+//      if( CANReg_Check() == IEC61508_testPassed )
+//      {
+//          ConfigReg_Check.Conf_Pass_Cnt++;
+//      }
+//      else
+//      {
+//          ConfigReg_Check.Conf_Err_Cnt++;
+//      }       
       
       /*  SPI  Register Check */
 //      if( SPIReg_Check() == IEC61508_testPassed )

@@ -29,14 +29,15 @@
 
 /* Private macro -------------------------------------------------------------*/
 //CAN接收RX0中断使能
-#define CAN1_RX0_INT_ENABLE	0		//0,不使能;1,使能.
-#define CAN2_RX0_INT_ENABLE	0		//0,不使能;1,使能.
+#define CAN1_RX0_INT_ENABLE	1		//0,不使能;1,使能.
+#define CAN2_RX0_INT_ENABLE	1		//0,不使能;1,使能.
 
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-
+u8 can1_receive = 0;
+u8 can2_receive = 0;
 
 /*******************************************************************************
 * Function Name  : CAN_Mode_Init
@@ -100,7 +101,7 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode)
             CAN_InitStructure.CAN_TTCM=DISABLE;			//非时间触发通信模式  
             CAN_InitStructure.CAN_ABOM=DISABLE;			//软件自动离线管理	 
             CAN_InitStructure.CAN_AWUM=DISABLE;			//睡眠模式通过软件唤醒(清除CAN->MCR的SLEEP位)
-            CAN_InitStructure.CAN_NART=ENABLE;			//禁止报文自动传送 ,按照CAN标准，CAN硬件在发送报文失败时会一直自动重传直到发送成功
+            CAN_InitStructure.CAN_NART=DISABLE;//ENABLE;			//禁止报文自动传送 ,按照CAN标准，CAN硬件在发送报文失败时会一直自动重传直到发送成功
             CAN_InitStructure.CAN_RFLM=DISABLE;		 	//报文不锁定,新的覆盖旧的  
             CAN_InitStructure.CAN_TXFP=DISABLE;			//优先级由报文标识符决定 
             CAN_InitStructure.CAN_Mode= mode;	                //模式设置： mode:0,普通模式;1,回环模式; 
@@ -161,9 +162,12 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode)
             CAN_FilterInit(&CAN_FilterInitStructure);			           
 
 #if CAN1_RX0_INT_ENABLE 
-	CAN_ITConfig(CANx,CAN_IT_FMP0,ENABLE);				.		    
-
+	CAN_ITConfig(CANx,CAN_IT_FMP0,ENABLE);						    
+#ifdef GEC_SF_MASTER
 	NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX0_IRQn;
+#else
+        NVIC_InitStructure.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
+#endif
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;     
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;            
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -172,6 +176,7 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode)
             
             
         }
+#ifdef GEC_SF_MASTER        
         else if(CANx == CAN2)
         {                  											 	
             
@@ -190,7 +195,7 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode)
             CAN_InitStructure.CAN_TTCM=DISABLE;		  
             CAN_InitStructure.CAN_ABOM=DISABLE;				 
             CAN_InitStructure.CAN_AWUM=DISABLE;			
-            CAN_InitStructure.CAN_NART=ENABLE;			 
+            CAN_InitStructure.CAN_NART=DISABLE;//ENABLE;			 
             CAN_InitStructure.CAN_RFLM=DISABLE;		 	  
             CAN_InitStructure.CAN_TXFP=DISABLE;			 
             CAN_InitStructure.CAN_Mode= mode;	         
@@ -242,14 +247,14 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode)
 
 	NVIC_InitStructure.NVIC_IRQChannel = CAN2_RX0_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;     
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;           
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;           
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 #endif             
             
             
         }
-           
+#endif           
 	return 0;
 }   
 
@@ -268,16 +273,9 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode)
 void CAN1_RX0_IRQHandler(void)
 {
   	CanRxMsg RxMessage;
-               
+        can1_receive = 1;             
         CAN_Receive(CAN1, 0, &RxMessage);
 
-#ifdef GEC_SF_MASTER
-  #if DEBUG_PRINTF 
-        printf("CAN1RX:");
-//        Usb_Vcp_SendBuf(RxMessage.Data, RxMessage.DLC);
-        printf("\r\n");
-  #endif
-#endif
 }
 #endif
 
@@ -296,15 +294,8 @@ void CAN1_RX0_IRQHandler(void)
 void CAN2_RX0_IRQHandler(void)
 {
   	CanRxMsg RxMessage;
-               
+        can2_receive = 1;       
         CAN_Receive(CAN2, 0, &RxMessage);
-#ifdef GEC_SF_MASTER
-     #if DEBUG_PRINTF 
-        printf("CAN1RX:");
-//        Usb_Vcp_SendBuf(RxMessage.Data, RxMessage.DLC);
-        printf("\r\n");     
-     #endif
-#endif
 }
 #endif
 
@@ -324,9 +315,8 @@ len:data len(max len is 8)
 msg:Data Pointer.
 return:0,success;
 **/		 
-u8 Can_Send_Msg(CAN_TypeDef* CANx,u8* msg,u8 len)
+void Can_Send_Msg(CAN_TypeDef* CANx,u8* msg,u8 len)
 {	
-	u8 mbox;
 	u16 i=0;
 	CanTxMsg TxMessage;
 	TxMessage.StdId=0x12;			// STD ID
@@ -337,18 +327,8 @@ u8 Can_Send_Msg(CAN_TypeDef* CANx,u8* msg,u8 len)
 	TxMessage.DLC=len;			
 	for(i=0;i<len;i++)
 	TxMessage.Data[i]=msg[i];			          
-	mbox= CAN_Transmit(CANx, &TxMessage);   
-	i=0; 
-        delay_us(500);
-	while((CAN_TransmitStatus(CANx, mbox)!=CAN_TxStatus_Ok)&&(i<0XFFF))
-        {
-            i++;	
-        }
-	if(i>=0XFFF)
-        {  
-            return 1;
-        }
-	return 0;	 
+	CAN_Transmit(CANx, &TxMessage);   
+	 
 }
 
 

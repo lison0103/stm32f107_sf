@@ -1163,159 +1163,22 @@ void SPI1_DMA_Check(void)
 *******************************************************************************/
 void CAN_Comm(void)
 {
-  
-    u8 canbuf_recv[8];
-    u8 res;
-    u8 can_rcv;
-       
-    /** CAN1 send data **/
-    res=Can_Send_Msg(CAN1,canbuf_send,4);                          
-    if(res)
-    {        
-#if DEBUG_PRINTF 
-//        printf("CAN1TX:fail\r\n");
-#endif
+    u8 can_comm_timeout = 0;
+    
+    if( can1_receive == 1 )
+    {
+        can1_receive = 0;
+        can_comm_timeout = 0;
     }
-    else 
-    {	 
-#if DEBUG_PRINTF                         
-//        USB_VCP_SendBuf(canbuf_send, 4); 
-#endif
-//        delay_ms(1);
-        
-        /** CAN1 receive data **/
-        can_rcv=Can_Receive_Msg(CAN1,canbuf_recv);
-        if(can_rcv)
-        {		
-#if DEBUG_PRINTF 
-//            USB_VCP_SendBuf(canbuf_recv, can_rcv);
-#endif
-        }                                                                       
-        
-    } 
+    else if( ++can_comm_timeout >= 3 )
+    {
+        /*  can communication timeout process */
+    }       
+    /** CAN1 send data **/
+    Can_Send_Msg(CAN1,canbuf_send,4);                          
     
 }
 #endif
-
-/*******************************************************************************
-* Function Name  : can_test
-* Description    : 
-*                  
-* Input          : None
-*                  None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void can_test(void)
- {	 
-	u8 i=0,t=0;
-	u8 canbuf[8];
-	u8 res;
-        u8 can_rcv;
-	u8 mode=CAN_Mode_Normal;
-
-	 	
-   
-	CAN_Mode_Init(CAN1,mode);  
-
-	
- 	while(1)
-	{
-         
-                for(i=0;i<8;i++)
-                {
-                  canbuf[i]=i;
-                }
-                
-                res=Can_Send_Msg(CAN1,canbuf,8);
-                if(res)
-                {                             
-                   /** send fail **/                            
-                }							   
-                               
-                can_rcv=Can_Receive_Msg(CAN1,canbuf);
-		if(can_rcv)
-		{			
-			
- 			for(i=0;i<can_rcv;i++)
-			{									    
-				
- 			}
-		}
-		t++; 
-		delay_ms(10);
-		if(t==20)
-		{
-			LED=!LED;	
-			t=0;
-		}		   
-	}
-}
-
-
-/*******************************************************************************
-* Function Name  : can1_can2_test
-* Description    : 
-*                  
-* Input          : None
-*                  None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-#ifdef GEC_SF_MASTER
-void can1_can2_test(void)
-{	
-  
-	u8 i=0;
-	u8 canbuf_send[8],canbuf_recv[8];
-	u8 res;
-        u8 can_rcv;
-	 	
-   
-        /** CAN1 init,baud rate 250Kbps **/
-	CAN_Mode_Init(CAN1,CAN_Mode_Normal);  
-        
-        /** CAN2 init,baud rate 250Kbps **/
-        /** note : use CAN2 , must CAN1 init **/
-        CAN_Mode_Init(CAN2,CAN_Mode_Normal);    
-
-	
- 	while(1)
-	{
-          
-                /** CAN1 send **/
-                
-                for(i=0;i<8;i++)
-                {
-                  canbuf_send[i]=i;                
-                }
-                res=Can_Send_Msg(CAN1,canbuf_send,8);
-                
-                #if DEBUG_PRINTF
-                if(res)                   
-                    printf("Failed\r\n");		
-                else 
-                    printf("OK\r\n");	 										   
-                #endif
-
-                /** CAN2 receive **/
-		can_rcv=Can_Receive_Msg(CAN2,canbuf_recv);
-		if(can_rcv)
-		{			
-			
- 			for(i=0;i<can_rcv;i++)
-			{	
-                            #if DEBUG_PRINTF 
-//                              USB_VCP_SendBuf(canbuf_recv, can_rcv);	
-                            #endif
- 			}
-		}                               
-		   
-	}
-
-}
-#endif
-
 
 
 /******************************  END OF FILE  *********************************/
