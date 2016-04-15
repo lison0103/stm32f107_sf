@@ -1163,20 +1163,37 @@ void SPI1_DMA_Check(void)
 *******************************************************************************/
 void CAN_Comm(void)
 {
-    u8 can_comm_timeout = 0;
+    static u8 can1_comm_timeout,can2_comm_timeout = 0;
     
     if( can1_receive == 1 )
     {
         can1_receive = 0;
-        can_comm_timeout = 0;
+        can1_comm_timeout = 0;
     }
-    else if( ++can_comm_timeout >= 3 )
+    else if( ++can1_comm_timeout >= 3 )
     {
         /*  can communication timeout process */
-    }       
-    /** CAN1 send data **/
-    Can_Send_Msg(CAN1,canbuf_send,4);                          
+    }  
     
+    if( can2_receive == 1 )
+    {
+        can2_receive = 0;
+        can2_comm_timeout = 0;
+    }
+    else if( ++can2_comm_timeout >= 3 )
+    {
+        /*  can communication timeout process */
+    }    
+    
+    /** CAN1 send data **/
+    /** CB normal SEND ID:0x1314, CB URGE SEND ID:0x1234 **/
+    Can_Send_Msg(CAN1,0x1314,canbuf_send,4);    
+//    Can_Send_Msg(CAN1,0x1234,canbuf_send,4);
+
+    /** CAN2 send data **/
+    /** DBL1 UP SEND ID:0X1234, DBL1 DOWN SEND ID:0x2345 **/
+    Can_Send_Msg(CAN2,0x1234,canbuf_send,4);   
+    Can_Send_Msg(CAN2,0x2345,canbuf_send,4);   
 }
 #endif
 

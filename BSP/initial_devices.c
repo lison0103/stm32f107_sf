@@ -80,11 +80,12 @@ void Bsp_Init(void)
         USART3_Init();
 #endif        
 #endif
-                
-        /** CAN1 init,baud rate 250Kbps **/
-	CAN_Mode_Init(CAN1,CAN_Mode_Normal);                 
+                               
         
 #ifdef GEC_SF_MASTER
+        
+        /** CAN1 init,baud rate 250Kbps **/
+	CAN_Mode_Init(CAN1,CAN_Mode_Normal);   
         
         /** CAN2 init,baud rate 250Kbps **/
         /** note : use CAN2 , must CAN1 init **/
