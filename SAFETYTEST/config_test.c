@@ -168,10 +168,10 @@ int DMAReg_Check(void)
       /* DMA_CCR2 register */
       ReadRegVal = 0x00000000;
       SetRegVal = 0x00000000;
-      ReadRegVal |= ( DMA_CCR2_TCIE | DMA_CCR2_DIR | DMA_CCR2_CIRC | DMA_CCR2_PINC
+      ReadRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR2_DIR | DMA_CCR2_CIRC | DMA_CCR2_PINC
                      | DMA_CCR2_MINC | DMA_CCR2_PSIZE | DMA_CCR2_MSIZE 
                      | DMA_CCR2_PL | DMA_CCR2_MEM2MEM );
-      SetRegVal |= ( DMA_CCR2_TCIE | DMA_CCR2_MINC | DMA_CCR2_PL_1 );
+      SetRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR2_MINC | DMA_CCR2_PL_1 );
       if( ( ReadRegVal &= DMA1_Channel2->CCR ) != SetRegVal )
       {
           return IEC61508_testFailed;
@@ -180,10 +180,10 @@ int DMAReg_Check(void)
       /* DMA_CCR3 register */
       ReadRegVal = 0x00000000;
       SetRegVal = 0x00000000;
-      ReadRegVal |= ( DMA_CCR3_TCIE | DMA_CCR3_DIR | DMA_CCR3_CIRC | DMA_CCR3_PINC
+      ReadRegVal |= ( /*DMA_CCR3_TCIE |*/ DMA_CCR3_DIR | DMA_CCR3_CIRC | DMA_CCR3_PINC
                      | DMA_CCR3_MINC | DMA_CCR3_PSIZE | DMA_CCR3_MSIZE 
                      | DMA_CCR3_PL | DMA_CCR3_MEM2MEM );
-      SetRegVal |= ( DMA_CCR2_TCIE | DMA_CCR3_DIR | DMA_CCR2_MINC );
+      SetRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR3_DIR | DMA_CCR2_MINC );
       if( ( ReadRegVal &= DMA1_Channel3->CCR ) != SetRegVal )
       {
           return IEC61508_testFailed;
@@ -263,7 +263,7 @@ int CANReg_Check(void)
       SetRegVal = 0x00000000;
       ReadRegVal |= ( CAN_MCR_TXFP | CAN_MCR_RFLM | CAN_MCR_NART | CAN_MCR_AWUM
                     | CAN_MCR_ABOM | CAN_MCR_TTCM );
-      SetRegVal |= ( CAN_MCR_NART );
+//      SetRegVal |= ( CAN_MCR_NART );
       if( ( ReadRegVal &= CAN1->MCR ) != SetRegVal )
       {
           return IEC61508_testFailed;
@@ -386,14 +386,14 @@ type_testResult_t ConfigurationRegister_Check(void)
       }      
       
       /*  DMA  Register Check */
-//      if( DMAReg_Check() == IEC61508_testPassed )
-//      {
-//          ConfigReg_Check.Conf_Pass_Cnt++;
-//      }
-//      else
-//      {
-//          ConfigReg_Check.Conf_Err_Cnt++;
-//      }       
+      if( DMAReg_Check() == IEC61508_testPassed )
+      {
+          ConfigReg_Check.Conf_Pass_Cnt++;
+      }
+      else
+      {
+          ConfigReg_Check.Conf_Err_Cnt++;
+      }       
       
       /*  ADC  Register Check */
       /*  DAC  Register Check */
@@ -414,24 +414,24 @@ type_testResult_t ConfigurationRegister_Check(void)
       /*  SDIO  Register Check */
       /*  USB  Register Check */            
       /*  CAN  Register Check */
-//      if( CANReg_Check() == IEC61508_testPassed )
-//      {
-//          ConfigReg_Check.Conf_Pass_Cnt++;
-//      }
-//      else
-//      {
-//          ConfigReg_Check.Conf_Err_Cnt++;
-//      }       
+      if( CANReg_Check() == IEC61508_testPassed )
+      {
+          ConfigReg_Check.Conf_Pass_Cnt++;
+      }
+      else
+      {
+          ConfigReg_Check.Conf_Err_Cnt++;
+      }       
       
       /*  SPI  Register Check */
-//      if( SPIReg_Check() == IEC61508_testPassed )
-//      {
-//          ConfigReg_Check.Conf_Pass_Cnt++;
-//      }
-//      else
-//      {
-//          ConfigReg_Check.Conf_Err_Cnt++;
-//      }      
+      if( SPIReg_Check() == IEC61508_testPassed )
+      {
+          ConfigReg_Check.Conf_Pass_Cnt++;
+      }
+      else
+      {
+          ConfigReg_Check.Conf_Err_Cnt++;
+      }      
       
       /*  I2C  Register Check */
       /*  USART  Register Check */ 
