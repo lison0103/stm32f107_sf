@@ -24,8 +24,8 @@ static u16 Tms10Counter=0,Tms20Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Co
 /* Private functions ---------------------------------------------------------*/
 
 u32 TimingDelay = 0;
- 
-
+u32 SysRunTime = 0; 
+u32 timeprintf = 0;
 /*******************************************************************************
 * Function Name  : LED_indicator
 * Description    : 
@@ -97,33 +97,40 @@ void Task_Loop(void)
       if( Tms50Counter == 0 )
       {                                 
           /* Reload SF_EWDG / EWDT counter */          
-//          EWDT_TOOGLE();
+          EWDT_TOOGLE();
           if( sfwdt_checkflag != 1 )
           {
               SF_EWDT_TOOGLE();
           }
           
-          Input_Check();                   
-#ifdef GEC_SF_MASTER          
-          USB_VCP_RecvBufandSend();
-#endif          
+          Input_Check();
+#ifdef GEC_SF_MASTER            
+          CAN_Comm();  
+#endif 
       } 
       
       if( Tms100Counter == 0 )
       {         
           SF_CTR_Check();
       }
-#ifdef GEC_SF_MASTER            
+           
       if( Tms500Counter == 0 )
-      {            
-           CAN_Comm();                  
+      {             
+#ifdef GEC_SF_MASTER          
+          USB_VCP_RecvBufandSend();
+#endif            
       }
       
       if( Tms1000Counter == 0 )
       {
 //          Comm_DisplayBoard();  
+          if( ++timeprintf > 600 )
+          {
+              timeprintf = 0;
+              printf("%d\r\n",SysRunTime);
+          }
       }
-#endif      
+     
 
 }
 

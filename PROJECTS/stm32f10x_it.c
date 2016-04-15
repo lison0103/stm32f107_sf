@@ -39,6 +39,7 @@
 /* Private function prototypes -----------------------------------------------*/
     
 extern u32 TimingDelay;    
+extern u32 SysRunTime;
 #ifdef GEC_SF_MASTER
 extern USB_OTG_CORE_HANDLE           USB_OTG_dev; 
 
@@ -101,10 +102,9 @@ void DebugMon_Handler(void)
 //}
 // 
 void SysTick_Handler(void)
-{
-  
+{ 
       TimingDelay++;
-//  LED=!LED;
+      SysRunTime++;
 }
 
 void PVD_IRQHandler(void)

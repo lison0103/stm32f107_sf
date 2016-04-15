@@ -101,8 +101,6 @@ void CPU_Comm(void)
 {
 
 #ifdef GEC_SF_MASTER
-          EWDT_TOOGLE();
-//          CPU_Exchange_Data();
           if( onetime == 0 )
           {
               onetime++;
@@ -113,7 +111,6 @@ void CPU_Comm(void)
               CPU_Data_Check();
               CPU_Exchange_Data();
           }
-          EWDT_TOOGLE();
 #else  
           comm_timeout--;
 //          printf("CPU_Comm---comm_timeout:%d\r\n",comm_timeout);
@@ -136,10 +133,8 @@ void CPU_Comm(void)
                 {
                   comm_timeout = CPU_COMM_TIMEOUT;
                 }
-                 EWDT_TOOGLE();
                 CPU_Data_Check();
                 CPU_Exchange_Data();
-                EWDT_TOOGLE();
           }   
 #endif
 }
