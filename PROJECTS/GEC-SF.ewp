@@ -3809,6 +3809,9 @@
         <configuration>GEC-SF-S</configuration>
       </excluded>
     </file>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_state_machine.c</name>
+    </file>
   </group>
   <group>
     <name>FWLib</name>
