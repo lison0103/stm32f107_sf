@@ -40,11 +40,13 @@
 * Output         : None
 * Return         : None
 *******************************************************************************/
+#ifndef GEC_SF_S_NEW
 void CRC_DeInit(void)
 {
   /* Reset CRC generator */
   CRC->CR = CRC_RESET;
 }
+#endif
 
 /*******************************************************************************
 * Function Name  : CRC_Init

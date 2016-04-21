@@ -75,8 +75,12 @@ ClockStatus STL_ClockStartUpTest(void)
       {
       }
       /*-------------- Reference Measurement ---------------------------------*/
+#ifdef GEC_SF_S_NEW
+      LSIPeriod = ( (0xFFFF - RTC_GetWakeUpCounter()) * 2 );   /* HSE frequency measurement */
+      RTC_WakeUpCmd( DISABLE );     
+#else
       LSIPeriod = RTC_GetCounter(); /* LSI frequency measurement */
-
+#endif
       /* Switch CPU clock source from internal RC to oscillator and check it */
       if (STL_SwitchToExtClockSrc() != SUCCESS)
       {
@@ -84,8 +88,13 @@ ClockStatus STL_ClockStartUpTest(void)
       }
       else    /* Clock switched correctly */
       {
+#ifdef GEC_SF_S_NEW
+      RTC_SetWakeUpCounter(0xFFFF);
+      RTC_WakeUpCmd( ENABLE );      
+#else          
         RTC_SetCounter(0);                            /* Reset RTC */
         RTC_WaitForLastTask();
+#endif
         SysTick->VAL =0X00;//SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset SysTick counter */
 
         /* Wait Systick underflow before measurement */
@@ -94,7 +103,12 @@ ClockStatus STL_ClockStartUpTest(void)
         }
 
         /*-------------------- HSE Measurement -------------------------------*/
+#ifdef GEC_SF_S_NEW
+        RefHSEPeriod = ( (0xFFFF - RTC_GetWakeUpCounter()) * 2 );   /* HSE frequency measurement */
+        RTC_WakeUpCmd( DISABLE );     
+#else        
         RefHSEPeriod = RTC_GetCounter();   /* HSE frequency measurement */
+#endif
         RefHSEPeriodInv = ~RefHSEPeriod;   /* Redundant storage */
 
         ClockFrequency = HSI_Freq * LSIPeriod;
@@ -163,14 +177,22 @@ ErrorStatus STL_LSIinit(void)
   CtrlFlowCnt += LSI_INIT_CALLEE;
 
   /* RTC clock selection -----------------------------------------------------*/
+#ifdef GEC_SF_S_NEW
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+#else
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
-
+#endif
   /* Allow access to BKP Domain */
   PWR_BackupAccessCmd(ENABLE);
 
   /* Reset Backup Domain */
+#ifdef GEC_SF_S_NEW  
+  RCC_BackupResetCmd(ENABLE);
+  RCC_BackupResetCmd(DISABLE);  
+#else
   BKP_DeInit();
-
+#endif
+  
   /* Enable LSI */
   RCC_LSICmd(ENABLE);
 
@@ -254,6 +276,30 @@ void STL_RTCinit(void)
 
   CtrlFlowCnt += RTC_INIT_CALLEE;
 
+#ifdef GEC_SF_S_NEW
+  RTC_InitTypeDef  RTC_InitStructure;  
+  
+  RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); /* Select LSI as RTC Clock Source */
+  
+  RCC_RTCCLKCmd(ENABLE);                  /* Start RTC counter */
+
+  /* Configure the RTC data register and RTC prescaler */
+  RTC_InitStructure.RTC_AsynchPrediv = 0x00;
+  RTC_InitStructure.RTC_SynchPrediv  = 0x00;
+  RTC_Init(&RTC_InitStructure);
+  
+  /* Wait for RTC registers synchronization */
+  RTC_WaitForSynchro();
+
+  RTC_WakeUpCmd( DISABLE );
+  RTC_WakeUpClockConfig( RTC_WakeUpClock_RTCCLK_Div2 );
+  
+  
+  /* Reset RTC */
+  RTC_SetWakeUpCounter(0xFFFF);
+  RTC_WakeUpCmd( ENABLE );
+  
+#else  
   RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); /* Select LSI as RTC Clock Source */
 
   RCC_RTCCLKCmd(ENABLE);                  /* Start RTC counter */
@@ -266,6 +312,8 @@ void STL_RTCinit(void)
 
   RTC_SetPrescaler(0);    /* Do not prescale to have the highest precision */
 
+#endif
+  
   CtrlFlowCntInv -= RTC_INIT_CALLEE;
 
 }

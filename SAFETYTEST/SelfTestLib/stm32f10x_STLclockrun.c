@@ -65,35 +65,43 @@ void STL_SysTickRTCSync(void)
 #endif
   
 #ifdef GEC_SF_S_NEW
+  RTC_InitTypeDef  RTC_InitStructure;
+  
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
   
   /* Allow access to BKP Domain */
   PWR_BackupAccessCmd(ENABLE);
   
   /* Reset Backup Domain */
-  BKP_DeInit();
+  RCC_BackupResetCmd(ENABLE);
+  RCC_BackupResetCmd(DISABLE);
   
   /* Enable LSI */
   RCC_LSICmd(ENABLE);
   
+  while(RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET);
+  
   RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); /* Select LSI as RTC Clock Source */
   
   RCC_RTCCLKCmd(ENABLE);                  /* Start RTC counter */
+
+  /* Configure the RTC data register and RTC prescaler */
+  RTC_InitStructure.RTC_AsynchPrediv = 0x00;
+  RTC_InitStructure.RTC_SynchPrediv  = 0x00;
+  RTC_Init(&RTC_InitStructure);
   
   /* Wait for RTC registers synchronization */
   RTC_WaitForSynchro();
-  
-  /* Wait until last write operation on RTC registers has finished */
-  RTC_WaitForLastTask();
-  
-  RTC_SetPrescaler(0);    /* Do not prescale to have the highest precision */
-  
+
+  RTC_WakeUpCmd( DISABLE );
+  RTC_WakeUpClockConfig( RTC_WakeUpClock_RTCCLK_Div2 );
   
   /** TIM4 init 10khz, counting to 20 is 2ms **/
   TIM4_Int_Init(19,7199);
   
   /* Reset RTC */
-  RTC_SetCounter(0);
+  RTC_SetWakeUpCounter(0xFFFF);
+  RTC_WakeUpCmd( ENABLE );
   
 #else
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
@@ -165,10 +173,17 @@ ClockStatus STL_ClockFreqTest(void)
   /*-------------------------- HSE Measurement -------------------------------*/
   /* Assuming this routine is called on each and every SysTick interrupt
     and that SysTick interrupt rate is constant */
+#ifdef GEC_SF_S_NEW
+  HSEPeriod = ( (0xFFFF - RTC_GetWakeUpCounter()) * 2 );   /* HSE frequency measurement */
+  RTC_WakeUpCmd( DISABLE );
+  RTC_SetWakeUpCounter(0xFFFF);
+  RTC_WakeUpCmd( ENABLE );
+#else
   RTC_WaitForLastTask();          /* Verify last write operation completed*/
   HSEPeriod = RTC_GetCounter();   /* HSE frequency measurement */
   RTC_SetCounter(0);              /* Reset RTC for next measure */
-
+#endif
+  
   /* Verify first measure integrity and use it as reference */
   if ((StartUpClockFreq ^ StartUpClockFreqInv) == 0xFFFFFFFFuL)
   {
@@ -232,10 +247,17 @@ u32 STL_MeasurePeriod(void)
   /*-------------------------- HSE Measurement -------------------------------*/
   /* Assuming this routine can only be called in a SysTick interrupt
     and that SysTick interrupt rate is constant */
+#ifdef GEC_SF_S_NEW  
+  Period = ( (0xFFFF - RTC_GetWakeUpCounter()) * 2 );   /* HSE frequency measurement */
+  RTC_WakeUpCmd( DISABLE );
+  RTC_SetWakeUpCounter(0xFFFF);
+  RTC_WakeUpCmd( ENABLE );
+#else  
   RTC_WaitForLastTask();          /* Verify last write operation completed*/
   Period = RTC_GetCounter();   /* HSE frequency measurement */
   RTC_SetCounter(0);              /* Reset RTC for next measure */
-
+#endif
+  
   ISRCtrlFlowCntInv -= MEASPERIOD_ISR_CALLEE;
 
   return (Period);   /* Store inverse redundant value */

@@ -497,16 +497,24 @@ u8 SPI1_ReadWriteByte(u8 TxData)
 		{
 		retry++;
 		if(retry>200)return 0;
-		}			  
+		}
+#ifdef GEC_SF_S_NEW	
+        SPI_SendData8(SPI1, TxData);
+#else
 	SPI_I2S_SendData(SPI1, TxData);                                         //通过外设SPIx发送一个数据
-	retry=0;
+#endif
+        retry=0;
 
 	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)         //检查指定的SPI标志位设置与否:接受缓存非空标志位
 		{
 		retry++;
 		if(retry>200)return 0;
-		}	  						    
+		}
+#ifdef GEC_SF_S_NEW        
+        return SPI_ReceiveData8(SPI1);
+#else
 	return SPI_I2S_ReceiveData(SPI1);                                       //返回通过SPIx最近接收的数据					    
+#endif
 }
 
 
@@ -544,8 +552,9 @@ void SPI1_IRQHandler(void)
   
       if (SPI_I2S_GetITStatus(SPI1,SPI_I2S_IT_RXNE) != RESET)     
       {
+#ifndef GEC_SF_S_NEW
           SPI_I2S_ClearITPendingBit(SPI1,SPI_I2S_IT_RXNE);
-          
+#endif     
                 while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
       
 

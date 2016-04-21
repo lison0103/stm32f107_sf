@@ -55,7 +55,9 @@ reserved). The CRC reset value is 0xFFFFFFFF */
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
+#ifndef GEC_SF_S_NEW
 void CRC_DeInit(void);
+#endif
 void CRC_Init(void);
 
 u32 CRC_CalcBlockCrc(uc32 *p, u32 len);

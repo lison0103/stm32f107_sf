@@ -21,7 +21,11 @@ type_testResult_t flag_test(void)
   FlagCheck.Flag_Err_Cnt = 0;
   
   //Checks whether the FLASH Read Out Protection Status is set or not
+#ifdef GEC_SF_S_NEW  
+  if ( FLASH_OB_GetRDP() == RESET )
+#else
   if ( FLASH_GetReadOutProtectionStatus() == RESET)
+#endif
   {  
     FlagCheck.Flag_Pass_Cnt++;
   }
@@ -31,6 +35,7 @@ type_testResult_t flag_test(void)
   }
   
   //Checks whether the FLASH Prefetch Buffer status is set or not
+#ifndef GEC_SF_S_NEW
   if( FLASH_GetPrefetchBufferStatus() != RESET)
   {  
     FlagCheck.Flag_Pass_Cnt++;
@@ -39,7 +44,7 @@ type_testResult_t flag_test(void)
   {
     FlagCheck.Flag_Err_Cnt++;
   }
-  
+#endif  
   //Checks whether the specified RCC interrupt has occurred or not
   //RCC_IT_LSIRDY: LSI ready interrupt
   if (RCC_GetITStatus(RCC_IT_LSIRDY) == RESET)

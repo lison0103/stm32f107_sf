@@ -491,6 +491,9 @@ typedef enum {DISABLE = 0, ENABLE = !DISABLE} FunctionalState;
 
 typedef enum {ERROR = 0, SUCCESS = !ERROR} ErrorStatus;
 
+/*!< STM32F10x Standard Peripheral Library old definitions (maintained for legacy purpose) */
+#define HSE_Value            HSE_VALUE
+#define HSI_Value            HSI_VALUE
 /**
   * @}
   */
