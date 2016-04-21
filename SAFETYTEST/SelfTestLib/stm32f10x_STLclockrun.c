@@ -63,8 +63,42 @@ void STL_SysTickRTCSync(void)
   SysTick->CTRL &= SysTick_Counter_Disable;
   SysTick->VAL = SysTick_Counter_Clear;
 #endif
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
+  
+#ifdef GEC_SF_S_NEW
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+  
+  /* Allow access to BKP Domain */
+  PWR_BackupAccessCmd(ENABLE);
+  
+  /* Reset Backup Domain */
+  BKP_DeInit();
+  
+  /* Enable LSI */
+  RCC_LSICmd(ENABLE);
+  
+  RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); /* Select LSI as RTC Clock Source */
+  
+  RCC_RTCCLKCmd(ENABLE);                  /* Start RTC counter */
+  
+  /* Wait for RTC registers synchronization */
+  RTC_WaitForSynchro();
+  
+  /* Wait until last write operation on RTC registers has finished */
+  RTC_WaitForLastTask();
+  
+  RTC_SetPrescaler(0);    /* Do not prescale to have the highest precision */
+  
+  
+  /** TIM4 init 10khz, counting to 20 is 2ms **/
+  TIM4_Int_Init(19,7199);
+  
+  /* Reset RTC */
+  RTC_SetCounter(0);
+  
+#else
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
 
+    
   /* Allow access to BKP Domain */
   PWR_BackupAccessCmd(ENABLE);
 
@@ -104,7 +138,7 @@ SysTick_Config(SYSTICK_TB_RUN);
 //  SysTick_CounterCmd(SysTick_Counter_Enable);
 //  SysTick->CTRL |= SysTick_Counter_Enable;
 
-  
+#endif  
 
 }
 

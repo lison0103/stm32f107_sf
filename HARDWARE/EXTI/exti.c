@@ -75,7 +75,11 @@ void EXTIX_Init(void)
 #else
         
         /** IN1 **/
+#ifdef GEC_SF_S_NEW
+        SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource4);
+#else        
   	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD,GPIO_PinSource4);
+#endif   
 
    	EXTI_InitStructure.EXTI_Line=EXTI_Line4;
   	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;	
@@ -84,7 +88,11 @@ void EXTIX_Init(void)
   	EXTI_Init(&EXTI_InitStructure);		
 
         /** IN2 **/
+#ifdef GEC_SF_S_NEW
+        SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource3);
+#else        
   	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD,GPIO_PinSource3);
+#endif
 
    	EXTI_InitStructure.EXTI_Line=EXTI_Line3;
   	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;	

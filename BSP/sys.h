@@ -12,7 +12,11 @@
 #define __SYS_H	
 
 /* Includes ------------------------------------------------------------------*/
+#ifdef GEC_SF_S_NEW
+#include "stm32f30x.h"
+#else
 #include "stm32f10x.h"
+#endif
 #include "stdio.h"
 #ifdef GEC_SF_MASTER
 #include "usbd_cdc_vcp.h"

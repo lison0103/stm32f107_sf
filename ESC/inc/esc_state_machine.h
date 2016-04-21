@@ -12,7 +12,7 @@
 #define __ESC_STATE_MACHINE_H 
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f10x.h"
+#include "sys.h"
 
 /* Exported types ------------------------------------------------------------*/
 typedef enum  

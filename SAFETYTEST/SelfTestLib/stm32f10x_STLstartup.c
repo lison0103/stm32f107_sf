@@ -464,7 +464,11 @@ ErrorStatus RCC_Config64MHzOnHSI(void)
   /* Flash 2 wait state */
   FLASH_SetLatency(FLASH_Latency_2);
   /* Enable Prefetch Buffer */
-  FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+#ifdef GEC_SF_S_NEW
+    FLASH_PrefetchBufferCmd(ENABLE);
+#else
+    FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+#endif
 
   /* PLLCLK = 4MHz * 16 = 64 MHz */
 //  RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_16);

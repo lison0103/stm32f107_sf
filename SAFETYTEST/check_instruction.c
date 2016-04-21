@@ -8,7 +8,7 @@
  * @author	: Paul
 */
 
-#include "stm32f10x.h"
+#include "sys.h"
 #include "check_instruction.h"
 #include "check_instruction_2.h"
 

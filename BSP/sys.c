@@ -81,6 +81,17 @@ int fputc(int ch, FILE *f)
 #else
 
 #if DEBUG_PRINTF
+
+#ifdef GEC_SF_S_NEW
+int fputc(int ch, FILE *f)
+{   
+    
+	while((USART3->ISR&0X40)==0);//循环发送,直到发送完毕   
+            USART3->TDR = (u8) ch;  
+            
+	return ch;
+}
+#else
 int fputc(int ch, FILE *f)
 {   
     
@@ -89,6 +100,8 @@ int fputc(int ch, FILE *f)
             
 	return ch;
 }
+
+#endif
 
 #else
 

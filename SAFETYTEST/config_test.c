@@ -8,7 +8,6 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f10x.h"
 #include "config_test.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -77,21 +76,59 @@ int RCCReg_Check(void)
 #ifdef GEC_SF_MASTER
                   | RCC_CFGR_PLLSRC_PREDIV1 
 #else
+#ifdef GEC_SF_S_NEW 
+                  | RCC_CFGR_PLLSRC_PREDIV1     
+#else
                   | RCC_PLLSource_HSE_Div1
+#endif
 #endif
                   | RCC_CFGR_PLLMULL );      
       SetRegVal |= ( RCC_CFGR_HPRE_DIV1 | RCC_CFGR_PPRE1_DIV2 | RCC_CFGR_PPRE2_DIV1 
 #ifdef GEC_SF_MASTER
                   | RCC_CFGR_PLLSRC_PREDIV1 
 #else
+#ifdef GEC_SF_S_NEW 
+                  | RCC_CFGR_PLLSRC_PREDIV1     
+#else
                   | RCC_PLLSource_HSE_Div1
+#endif
 #endif
                   | RCC_CFGR_PLLMULL9 );
       if ( ( ReadRegVal &= RCC->CFGR ) != SetRegVal ) 
       {
           return IEC61508_testFailed;
       }
-      
+
+#ifdef GEC_SF_S_NEW
+
+      /* RCC_AHBENR register */
+      ReadRegVal = 0x00000000;
+      ReadRegVal |= ( RCC_AHBENR_DMA1EN | RCC_AHBENR_CRCEN | RCC_AHBENR_GPIOAEN
+                   | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN
+                     | RCC_AHBENR_GPIOEEN );
+      if( ( ReadRegVal & RCC->AHBENR ) != ReadRegVal )
+      {
+          return IEC61508_testFailed;
+      }
+     
+      /* RCC_APB2ENR register */
+      ReadRegVal = 0x00000000;
+      ReadRegVal |= ( RCC_APB2ENR_SYSCFGEN | RCC_APB2ENR_SPI1EN ); 
+      if( ( ReadRegVal & RCC->APB2ENR ) != ReadRegVal )
+      {
+          return IEC61508_testFailed;
+      }
+
+      /* RCC_APB1ENR register */
+      ReadRegVal = 0x00000000;
+      ReadRegVal |= ( RCC_APB1ENR_PWREN | RCC_APB1ENR_CAN1EN
+                     | RCC_APB1ENR_TIM2EN | RCC_APB1ENR_TIM4EN );                      
+      if( ( ReadRegVal & RCC->APB1ENR ) != ReadRegVal )
+      {
+          return IEC61508_testFailed;
+      }       
+
+#else      
       /* RCC_AHBENR register */
       ReadRegVal = 0x00000000;
       ReadRegVal |= ( RCC_AHBENR_DMA1EN | RCC_AHBENR_CRCEN );
@@ -121,6 +158,7 @@ int RCCReg_Check(void)
       {
           return IEC61508_testFailed;
       }      
+#endif
       
       return IEC61508_testPassed;
 }
@@ -164,7 +202,32 @@ int DMAReg_Check(void)
 {
       uint32_t ReadRegVal = 0x00000000;
       uint32_t SetRegVal = 0x00000000;      
-      
+
+#ifdef GEC_SF_S_NEW      
+      /* DMA_CCR2 register */
+      ReadRegVal = 0x00000000;
+      SetRegVal = 0x00000000;
+      ReadRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR_DIR | DMA_CCR_CIRC | DMA_CCR_PINC
+                     | DMA_CCR_MINC | DMA_CCR_PSIZE | DMA_CCR_MSIZE 
+                     | DMA_CCR_PL | DMA_CCR_MEM2MEM );
+      SetRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR_MINC | DMA_CCR_PL_1 );
+      if( ( ReadRegVal &= DMA1_Channel2->CCR ) != SetRegVal )
+      {
+          return IEC61508_testFailed;
+      }
+          
+      /* DMA_CCR3 register */
+      ReadRegVal = 0x00000000;
+      SetRegVal = 0x00000000;
+      ReadRegVal |= ( /*DMA_CCR3_TCIE |*/ DMA_CCR_DIR | DMA_CCR_CIRC | DMA_CCR_PINC
+                     | DMA_CCR_MINC | DMA_CCR_PSIZE | DMA_CCR_MSIZE 
+                     | DMA_CCR_PL | DMA_CCR_MEM2MEM );
+      SetRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR_DIR | DMA_CCR_MINC );
+      if( ( ReadRegVal &= DMA1_Channel3->CCR ) != SetRegVal )
+      {
+          return IEC61508_testFailed;
+      }
+#else
       /* DMA_CCR2 register */
       ReadRegVal = 0x00000000;
       SetRegVal = 0x00000000;
@@ -183,11 +246,13 @@ int DMAReg_Check(void)
       ReadRegVal |= ( /*DMA_CCR3_TCIE |*/ DMA_CCR3_DIR | DMA_CCR3_CIRC | DMA_CCR3_PINC
                      | DMA_CCR3_MINC | DMA_CCR3_PSIZE | DMA_CCR3_MSIZE 
                      | DMA_CCR3_PL | DMA_CCR3_MEM2MEM );
-      SetRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR3_DIR | DMA_CCR2_MINC );
+      SetRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR3_DIR | DMA_CCR3_MINC );
       if( ( ReadRegVal &= DMA1_Channel3->CCR ) != SetRegVal )
       {
           return IEC61508_testFailed;
-      }
+      }      
+      
+#endif
       
       return IEC61508_testPassed;
 }
@@ -289,8 +354,33 @@ int SPIReg_Check(void)
 {
       uint32_t ReadRegVal = 0x00000000;
       uint32_t SetRegVal = 0x00000000;      
-      
-      /* CAN_MCR register */
+
+#ifdef GEC_SF_S_NEW       
+      /* SPI_CR1 register */
+      ReadRegVal = 0x00000000;
+      SetRegVal = 0x00000000;
+      ReadRegVal |= ( SPI_CR1_CPHA | SPI_CR1_CPOL | SPI_CR1_MSTR | SPI_CR1_SPE
+                    | SPI_CR1_LSBFIRST | SPI_CR1_SSM | SPI_CR1_RXONLY 
+                    | SPI_CR1_CRCEN | SPI_CR1_BIDIMODE);
+      SetRegVal |= ( SPI_CR1_CPHA | SPI_CR1_CPOL | SPI_CR1_SPE
+                    | SPI_CR1_SSM | SPI_CR1_CRCEN );
+      if( ( ReadRegVal &= SPI1->CR1 ) != SetRegVal )
+      {
+          return IEC61508_testFailed;
+      }
+
+      /* SPI_CR2 register */
+      ReadRegVal = 0x00000000;
+      SetRegVal = 0x00000000;
+      ReadRegVal |= ( SPI_CR2_DS );
+      SetRegVal |= ( SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2 );
+
+      if( ( ReadRegVal &= SPI1->CR2 ) != SetRegVal )
+      {
+          return IEC61508_testFailed;
+      }      
+#else
+      /* SPI_CR1 register */
       ReadRegVal = 0x00000000;
       SetRegVal = 0x00000000;
       ReadRegVal |= ( SPI_CR1_CPHA | SPI_CR1_CPOL | SPI_CR1_MSTR | SPI_CR1_SPE
@@ -304,8 +394,9 @@ int SPIReg_Check(void)
       if( ( ReadRegVal &= SPI1->CR1 ) != SetRegVal )
       {
           return IEC61508_testFailed;
-      }
-
+      }      
+      
+#endif
       
       return IEC61508_testPassed;
 }
@@ -322,7 +413,7 @@ int USARTReg_Check(void)
       uint32_t ReadRegVal = 0x00000000;
       uint32_t SetRegVal = 0x00000000;      
       
-      /* CAN_MCR register */
+      /* USART_CR1 register */
       ReadRegVal = 0x00000000;
       SetRegVal = 0x00000000;
       ReadRegVal |= ( USART_CR1_RE | USART_CR1_TE | USART_CR1_PCE
@@ -483,7 +574,11 @@ void RCC_Configuration_72M(void)
   if (HSEStartUpStatus == SUCCESS) 
   { 
      /* 使能flash预读取缓冲区 */ 
-     FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable); 
+#ifdef GEC_SF_S_NEW
+    FLASH_PrefetchBufferCmd(ENABLE);
+#else
+    FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+#endif
 
      /* 令Flash处于等待状态，2是针对高频时钟的，这两句跟RCC没直接关系，可以暂且略过 */ 
      FLASH_SetLatency(FLASH_Latency_2); 
@@ -498,15 +593,22 @@ void RCC_Configuration_72M(void)
      RCC_PCLK1Config(RCC_HCLK_Div2); 
 
      /* ADCCLK = PCLK2/6 设置ADC外设时钟=低速总线2时钟的六分频*/ 
+#ifdef GEC_SF_S_NEW
+     RCC_ADCCLKConfig(RCC_ADC34PLLCLK_Div6);
+#else
      RCC_ADCCLKConfig(RCC_PCLK2_Div6); 
-
+#endif
      /* Set PLL clock output to 72MHz using HSE (8MHz) as entry clock */ 
      //上面这句例程中缺失了，但却很关键 
      /* 利用锁相环讲外部8Mhz晶振9倍频到72Mhz */ 
 #ifdef GEC_SF_MASTER
     RCC_PLLConfig(RCC_PLLSource_PREDIV1, RCC_PLLMul_9);
 #else
+#ifdef GEC_SF_S_NEW
+    RCC_PLLConfig(RCC_PLLSource_PREDIV1, RCC_PLLMul_9);
+#else
     RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
+#endif
 #endif 
 
      /* Enable PLL 使能锁相环*/ 

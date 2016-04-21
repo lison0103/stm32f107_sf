@@ -9,10 +9,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h" 
-#include "stm32f10x_usart.h" 
-#include "stm32f10x_rcc.h" 
-#include "stm32f10x_gpio.h" 
-#include "stm32f10x_dma.h"
 #include "sys.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -151,6 +147,24 @@ void USART3_Init(void)
 #endif
         
 #else
+        
+#ifdef GEC_SF_S_NEW
+        
+        /* Connect PXx to USARTx_Tx */
+        GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_7);
+        
+        /* Connect PXx to USARTx_Rx */
+        GPIO_PinAFConfig(GPIOB, GPIO_PinSource11, GPIO_AF_7);
+        
+        /* Configure USART Tx and Rx as alternate function push-pull */
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
+        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+        GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
+        GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
+        
+        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11;
+        GPIO_Init(GPIOB, &GPIO_InitStruct);
+#else
         GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
         GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
         GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
@@ -160,7 +174,7 @@ void USART3_Init(void)
         GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
         GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
         GPIO_Init(GPIOB , &GPIO_InitStruct);        
-        
+#endif   
         BSP_USART_Init(USART3, 115200, USART_Parity_No);//, ENABLE
         USART_Cmd(USART3,ENABLE);
 #endif
@@ -182,8 +196,13 @@ void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
 	uint16_t i = 0;
 	for(i = 0; i < len; i++)
 	{
+#ifdef GEC_SF_S_NEW            
+    	USARTx->TDR = (*(buff + i) & (uint16_t)0x01FF);
+		while (USART_GetFlagStatus(USARTx, USART_FLAG_TC) == RESET);
+#else
     	USARTx->DR = (*(buff + i) & (uint16_t)0x01FF);
 		while (USART_GetFlagStatus(USARTx, USART_FLAG_TC) == RESET);
+#endif                
 	} 
   
 }

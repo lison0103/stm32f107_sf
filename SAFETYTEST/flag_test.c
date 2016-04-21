@@ -9,7 +9,6 @@
  * @author	: Paul
 */
 
-#include "stm32f10x.h"
 #include "flag_test.h"
 
 IEC61508_FlagCheck_struct  FlagCheck;

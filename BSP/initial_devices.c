@@ -168,13 +168,21 @@ void RCC_Configuration(void)
     /* Flash 2 wait state */
     FLASH_SetLatency(FLASH_Latency_2);
     /* Enable Prefetch Buffer */
+#ifdef GEC_SF_S_NEW
+    FLASH_PrefetchBufferCmd(ENABLE);
+#else
     FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
+#endif
 
     /* PLLCLK = 8MHz * 9 = 72 MHz */
 #ifdef GEC_SF_MASTER
     RCC_PLLConfig(RCC_PLLSource_PREDIV1, RCC_PLLMul_9);
 #else
+#ifdef GEC_SF_S_NEW
+    RCC_PLLConfig(RCC_PLLSource_PREDIV1, RCC_PLLMul_9);
+#else
     RCC_PLLConfig(RCC_PLLSource_HSE_Div1, RCC_PLLMul_9);
+#endif       
 #endif
     /* Enable PLL */
     RCC_PLLCmd(ENABLE);
@@ -193,7 +201,25 @@ void RCC_Configuration(void)
     }
 
     
-    /* Enable GPIO and Peripherals clocks */   
+    /* Enable GPIO and Peripherals clocks */ 
+#ifdef GEC_SF_S_NEW
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+    
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_CAN1 , ENABLE);    
+
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM2
+                           |RCC_APB1Periph_TIM4 ,
+                            ENABLE); 
+    
+    RCC_APB2PeriphClockCmd( RCC_APB2Periph_SYSCFG | RCC_APB2Periph_SPI1, ENABLE);
+
+    RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOA
+                           |RCC_AHBPeriph_GPIOB
+                           |RCC_AHBPeriph_GPIOC
+                           |RCC_AHBPeriph_GPIOD
+                           |RCC_AHBPeriph_GPIOE ,
+                           ENABLE);
+#else     
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_BKP | RCC_APB1Periph_PWR, ENABLE );
     
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_CAN1 , ENABLE);    
@@ -213,7 +239,8 @@ void RCC_Configuration(void)
   
 
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 | RCC_AHBPeriph_CRC, ENABLE); 
-  
+#endif
+    
     #ifdef GEC_SF_MASTER
       RCC_APB1PeriphClockCmd( RCC_APB1Periph_CAN2 , ENABLE);    
       RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM3 , ENABLE);   
@@ -273,7 +300,11 @@ void PVD_Configuration(void)
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
     
+#ifdef GEC_SF_S_NEW
+    PWR_PVDLevelConfig(PWR_PVDLevel_4);  
+#else
     PWR_PVDLevelConfig(PWR_PVDLevel_2V5);
+#endif
     PWR_PVDCmd(ENABLE);
 
 }
