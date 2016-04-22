@@ -33,7 +33,6 @@ void CPU_Exchange_Data(void);
 
 	
 extern u8 data_error;
-extern u8 canbuf_send[8];
 extern u8 onetime;
 extern u8 switch_flag;
 extern u8 sfwdt_checkflag;

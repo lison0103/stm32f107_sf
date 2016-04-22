@@ -17,10 +17,23 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
+#define canbuffsize 100
+
 /* Exported functions ------------------------------------------------------- */
 u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode);//CAN初始化 
 u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8* msg,u8 len);			//发送数据
 u8 Can_Receive_Msg(CAN_TypeDef* CANx,u8 *buf);					//接收数据
+
+/* CAN1 */
+extern u8 CAN1_TX_Buff[canbuffsize];
+extern u8 CAN1_RX_Buff[canbuffsize];
+extern u8 CAN1_TX_Data[canbuffsize];
+extern u8 CAN1_RX_Data[canbuffsize];
+/* CAN2 */
+extern u8 CAN2_TX_Buff[canbuffsize];
+extern u8 CAN2_RX_Buff[canbuffsize];
+extern u8 CAN2_TX_Data[canbuffsize];
+extern u8 CAN2_RX_Data[canbuffsize];
 
 extern u8 can1_receive;
 extern u8 can2_receive;

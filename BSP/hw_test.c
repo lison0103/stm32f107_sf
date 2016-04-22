@@ -37,7 +37,6 @@ void CPU_Exchange_Data(void);
 u8 sflag,inputnum = 0;
 u8 switch_flag = 1;
 u8 sfwdt_checkflag = 0;
-u8 canbuf_send[8] = {0};
 u16 comm_num = 0;
 u8 sf_wdt_check_tms = 0;
 u8 onetime = 0;
@@ -309,10 +308,10 @@ void CPU_Exchange_Data(void)
                
           SPI1_TX_Data[4] = sfwdt_checkflag;
           
-          SPI1_TX_Data[5] = canbuf_send[0];
-          SPI1_TX_Data[6] = canbuf_send[1];
-          SPI1_TX_Data[7] = canbuf_send[2];
-          SPI1_TX_Data[8] = canbuf_send[3];
+          SPI1_TX_Data[5] = CAN1_TX_Data[0];
+          SPI1_TX_Data[6] = CAN1_TX_Data[1];
+          SPI1_TX_Data[7] = CAN1_TX_Data[2];
+          SPI1_TX_Data[8] = CAN1_TX_Data[3];
           
           i = MB_CRC16( SPI1_TX_Data, comm_num - 2 );
           SPI1_TX_Data[comm_num - 2] = i;
@@ -395,7 +394,7 @@ void Input_Check(void)
   
         for(u8 i=0;i<4;i++)
         {
-          canbuf_send[i]= 0x0;                 
+          CAN1_TX_Data[i]= 0x0;                 
         }
         
         /**************************** test input *************
@@ -427,160 +426,160 @@ void Input_Check(void)
                 }                
 
                 
-                for(u8 i=0;i<3;i++)
-                {
-                    canbuf_send[i]= 0xff;                 
-                }
-                canbuf_send[3] = 0x0f;
+//                for(u8 i=0;i<3;i++)
+//                {
+//                    CAN1_TX_Data[i]= 0xff;                 
+//                }
+//                CAN1_TX_Data[3] = 0x0f;
           
-        }
-        else
-        {
-                switch_flag = 0;
-                AUX_CTR = 0; 
-                SF_RL_CTR = 0;            
+//        }
+//        else
+//        {
+//                switch_flag = 0;
+//                AUX_CTR = 0; 
+//                SF_RL_CTR = 0;            
 
                 /****test input,The actual test should be commented****/
-//                canbuf_send[0] = 0xff;
-//                canbuf_send[1] = 0xff;
-//                canbuf_send[2] = 0xfc;
-//                canbuf_send[3] = 0x0f;
+//                CAN1_TX_Data[0] = 0xff;
+//                CAN1_TX_Data[1] = 0xff;
+//                CAN1_TX_Data[2] = 0xfc;
+//                CAN1_TX_Data[3] = 0x0f;
                 /*****************************************************/
         
                   if ( !IN1 ) 
                   { 
-                      canbuf_send[0] |= 1 << 0;                 
+                      CAN1_TX_Data[0] |= 1 << 0;                 
                   }
                   if ( !IN2 ) 
                   {       
-                      canbuf_send[0] |= 1 << 1;
+                      CAN1_TX_Data[0] |= 1 << 1;
                   }
                   if ( !IN3 ) 
                   {                   
-                      canbuf_send[0] |= 1 << 2; 
+                      CAN1_TX_Data[0] |= 1 << 2; 
 
                   }
                   if ( !IN4 ) 
                   {
-                      canbuf_send[0] |= 1 << 3;
+                      CAN1_TX_Data[0] |= 1 << 3;
                   } 
                   if ( !IN5 ) 
                   {           
-                      canbuf_send[0] |= 1 << 4;
+                      CAN1_TX_Data[0] |= 1 << 4;
                   }
                   if ( !IN6 ) 
                   {          
-                      canbuf_send[0] |= 1 << 5;
+                      CAN1_TX_Data[0] |= 1 << 5;
 
                   }
                   if ( !IN7 ) 
                   {         
-                      canbuf_send[0] |= 1 << 6;
+                      CAN1_TX_Data[0] |= 1 << 6;
 
                   }        
                   if ( !IN8 ) 
                   {         
-                      canbuf_send[0] |= 1 << 7;
+                      CAN1_TX_Data[0] |= 1 << 7;
 
                   }
                   if ( IN9 ) 
                   {     
-                      canbuf_send[1] |= 1 << 0;
+                      CAN1_TX_Data[1] |= 1 << 0;
 
                   }
                   if ( IN10 ) 
                   {                
-                      canbuf_send[1] |= 1 << 1;
+                      CAN1_TX_Data[1] |= 1 << 1;
 
                   } 
                   if ( IN11 ) 
                   {          
-                      canbuf_send[1] |= 1 << 2;
+                      CAN1_TX_Data[1] |= 1 << 2;
 
                   }
                   if ( IN12 ) 
                   {
-                      canbuf_send[1] |= 1 << 3;
+                      CAN1_TX_Data[1] |= 1 << 3;
 
                   }
                   if ( IN13 ) 
                   {   
-                      canbuf_send[1] |= 1 << 4; 
+                      CAN1_TX_Data[1] |= 1 << 4; 
 
                   }         
                   if ( IN14 ) 
                   {    
-                      canbuf_send[1] |= 1 << 5; 
+                      CAN1_TX_Data[1] |= 1 << 5; 
 
                   }
                   if ( IN15 ) 
                   { 
-                      canbuf_send[1] |= 1 << 6;
+                      CAN1_TX_Data[1] |= 1 << 6;
 
                   }
                   if ( IN16 ) 
                   {
-                      canbuf_send[1] |= 1 << 7; 
+                      CAN1_TX_Data[1] |= 1 << 7; 
 
                   }    
                   if ( IN17 ) 
                   {          
-                      canbuf_send[2] |= 1 << 0;
+                      CAN1_TX_Data[2] |= 1 << 0;
 
                   }
                   if ( IN18 ) 
                   {
-                      canbuf_send[2] |= 1 << 1;
+                      CAN1_TX_Data[2] |= 1 << 1;
 
                   }
                   if ( IN19 ) 
                   {   
-                      canbuf_send[2] |= 1 << 2;
+                      CAN1_TX_Data[2] |= 1 << 2;
 
                   }         
                   if ( IN20 ) 
                   {    
-                      canbuf_send[2] |= 1 << 3; 
+                      CAN1_TX_Data[2] |= 1 << 3; 
 
                   }
                   if ( IN21 ) 
                   { 
-                      canbuf_send[2] |= 1 << 4;
+                      CAN1_TX_Data[2] |= 1 << 4;
 
                   }
                   if ( IN22 ) 
                   {
-                      canbuf_send[2] |= 1 << 5;
+                      CAN1_TX_Data[2] |= 1 << 5;
 
                   } 
                   if ( IN23 ) 
                   {
-                      canbuf_send[2] |= 1 << 6;
+                      CAN1_TX_Data[2] |= 1 << 6;
 
                   }
                   if ( IN24 ) 
                   {   
-                      canbuf_send[2] |= 1 << 7;
+                      CAN1_TX_Data[2] |= 1 << 7;
 
                   }         
                   if ( IN25 ) 
                   {    
-                      canbuf_send[3] |= 1 << 0;
+                      CAN1_TX_Data[3] |= 1 << 0;
 
                   }
                   if ( IN26 ) 
                   { 
-                      canbuf_send[3] |= 1 << 1;
+                      CAN1_TX_Data[3] |= 1 << 1;
 
                   }
                   if ( IN27 ) 
                   {
-                      canbuf_send[3] |= 1 << 2; 
+                      CAN1_TX_Data[3] |= 1 << 2; 
 
                   }  
                   if ( IN28 ) 
                   {
-                      canbuf_send[3] |= 1 << 3; 
+                      CAN1_TX_Data[3] |= 1 << 3; 
 
                   } 
                   
@@ -687,7 +686,13 @@ void Input_Check(void)
                   
 #endif
                   
-        }   
+        }
+        else
+        {
+                switch_flag = 0;
+                AUX_CTR = 0; 
+                SF_RL_CTR = 0;          
+        }
         
         
 }        
@@ -1164,6 +1169,9 @@ void SPI1_DMA_Check(void)
 void CAN_Comm(void)
 {
     static u8 can1_comm_timeout,can2_comm_timeout = 0;
+    static u8 can1_send_cnt = 0;
+    u8 * p_CanBuff;
+    u16 i = 0;
     
     if( can1_receive == 1 )
     {
@@ -1184,16 +1192,43 @@ void CAN_Comm(void)
     {
         /*  can communication timeout process */
     }    
-    
+
+    /** packet the data pack **/
+    if( can1_send_cnt == 0)
+    {
+        CAN1_TX_Buff[0] = 0xfa;
+        CAN1_TX_Buff[1] = canbuffsize - 4;
+        for( u8 j = 0; j < canbuffsize - 4; j++ )
+        {
+            CAN1_TX_Buff[j+2] = CAN1_TX_Data[j];
+        }
+        i = MB_CRC16( CAN1_TX_Buff, canbuffsize - 2 );
+        CAN1_TX_Buff[canbuffsize - 2] = i;
+        CAN1_TX_Buff[canbuffsize - 1] = i>>8;    
+    }    
     /** CAN1 send data **/
     /** CB normal SEND ID:0x1314, CB URGE SEND ID:0x1234 **/
-    Can_Send_Msg(CAN1,0x1314,canbuf_send,4);    
-//    Can_Send_Msg(CAN1,0x1234,canbuf_send,4);
+    if( can1_send_cnt >= canbuffsize/24 )
+    {
+        p_CanBuff = &CAN1_TX_Buff[ 24*can1_send_cnt ];
+        Can_Send_Msg(CAN1,0x1314,p_CanBuff,canbuffsize%24); 
+        can1_send_cnt = 0;
+    }    
+    else
+    {
+        for( i = 0; i < 3; i++ )
+        {
+            p_CanBuff = &CAN1_TX_Buff[ (8*i) + (24*can1_send_cnt) ];
+            Can_Send_Msg(CAN1,0x1314,p_CanBuff,8); 
+        }
+        can1_send_cnt++;
+    }
+//    Can_Send_Msg(CAN1,0x1234,CAN1_TX_Buff,4);
 
     /** CAN2 send data **/
     /** DBL1 UP SEND ID:0X1234, DBL1 DOWN SEND ID:0x2345 **/
-    Can_Send_Msg(CAN2,0x1234,canbuf_send,4);   
-    Can_Send_Msg(CAN2,0x2345,canbuf_send,4);   
+    Can_Send_Msg(CAN2,0x1234,CAN1_TX_Buff,4);   
+    Can_Send_Msg(CAN2,0x2345,CAN1_TX_Buff,4);   
 }
 #endif
 

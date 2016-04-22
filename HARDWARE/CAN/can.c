@@ -38,6 +38,17 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
+/* CAN1 */
+u8 CAN1_TX_Buff[canbuffsize] = { 0 };
+u8 CAN1_RX_Buff[canbuffsize] = { 0 };
+u8 CAN1_TX_Data[canbuffsize] = { 0 };
+u8 CAN1_RX_Data[canbuffsize] = { 0 };
+/* CAN2 */
+u8 CAN2_TX_Buff[canbuffsize] = { 0 };
+u8 CAN2_RX_Buff[canbuffsize] = { 0 };
+u8 CAN2_TX_Data[canbuffsize] = { 0 };
+u8 CAN2_RX_Data[canbuffsize] = { 0 };
+
 u8 can1_receive = 0;
 u8 can2_receive = 0;
 
@@ -311,7 +322,7 @@ void CAN1_RX0_IRQHandler(void)
             for( u8 i = 0; i < RxMessage.DLC; i++ )
             {
                 /* receive data */
-                printf("CAN1_RX0[%d]:%d\r\n",i,RxMessage.Data[i]);
+//                printf("CAN1_RX0[%d]:%d\r\n",i,RxMessage.Data[i]);
             }
         }
     }
@@ -354,7 +365,7 @@ void CAN2_RX0_IRQHandler(void)
             for( u8 i = 0; i < RxMessage.DLC; i++ )
             {
                 /* receive data */
-                printf("CAN1_RX0[%d]:%d\r\n",i,RxMessage.Data[i]);
+//                printf("CAN1_RX0[%d]:%d\r\n",i,RxMessage.Data[i]);
             }
         }
         /** DBL1 DOWN RECEIVE **/
@@ -364,7 +375,7 @@ void CAN2_RX0_IRQHandler(void)
             for( u8 i = 0; i < RxMessage.DLC; i++ )
             {
                 /* receive data */
-                printf("CAN1_RX0[%d]:%d\r\n",i,RxMessage.Data[i]);
+//                printf("CAN1_RX0[%d]:%d\r\n",i,RxMessage.Data[i]);
             }
         }        
     }        
