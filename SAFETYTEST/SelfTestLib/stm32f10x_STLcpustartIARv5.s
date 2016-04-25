@@ -242,14 +242,16 @@ STL_StartUpCPUTest:
 
     ; Stack pointer (Register R13)
     MOVS R12, R13       ; Contains the return address and must be saved
-    MOV R13, #0xAAA8    ; Test is different (SP is word aligned)
-    MOVT R13, #0xAAAA   ; Load in two times and 2 least significant bits cleared
+    MOV R0, #0xAAA8
+    MOVT R0, #0xAAAA
+    MSR MSP, R0    ; Test is different (SP is word aligned)
     MOV R1, #0xAAA8     ; It must be loaded half-word by half-word
     MOVT R1, #0xAAAA    ; and compared with another register
     CMP R13, R1
     BNE FailSafePOR
-    MOV R13, #0x5554
-    MOVT R13, #0x5555
+    MOV R0, #0x5554
+    MOVT R0, #0x5555
+    MSR MSP, R0
     MOV R1, #0x5554
     MOVT R1, #0x5555
     CMP R13, R1

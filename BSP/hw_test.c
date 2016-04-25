@@ -1034,7 +1034,7 @@ void Input_Check2(void)
 *******************************************************************************/
 u8 number = 0;
 u8 data_error = 0;
-u32 ms_count = 100;
+u32 test_cnt = 100;
 
 void SPI1_DMA_Check(void)
 {    
@@ -1064,7 +1064,7 @@ void SPI1_DMA_Check(void)
     
     
         
-        while(ms_count--)
+        while(test_cnt--)
         {
             
             EWDT_TOOGLE(); 
@@ -1075,7 +1075,7 @@ void SPI1_DMA_Check(void)
               delay_ms(2);
               
               number++;
-              if(number > 255)number = 0;
+              if(number >= 255)number = 0;
 
               for( i = 0; i < comm_num - 2; i++ )
               {

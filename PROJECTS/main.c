@@ -41,7 +41,7 @@ void LED_indicator(void)
 	
 	led_idr_cnt++;
 	
-	if(led_idr_cnt >= 100 && data_error <= 0)
+	if( led_idr_cnt >= 100 )
 	{
                 led_idr_cnt = 0;
 		LED=!LED;                

@@ -10,7 +10,7 @@
 ;定义数据区
 ;  AREA | Header Data|, DATA
 ;  ALIGN 4
-  SECTION .text:DATA  ;REORDER:NOROOT    ;:ROOT     ;:NOROOT
+  SECTION .text:DATA(2)  ;REORDER:NOROOT    ;:ROOT     ;:NOROOT
 MY_NUMBER
   DCD 0x12345678  ;处记录的是一个数据
   DCD 0xABCDEF00

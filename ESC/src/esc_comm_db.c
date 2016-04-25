@@ -212,7 +212,7 @@ void modbus_format_old_encode(void)
 ////////////////////////////////////////////////////////////////////////////////
 void modbus_format_encode(void)
 {
-  u16 *pt = (u16*)Modbuff; // i=0, 
+//  u16 *pt = (u16*)Modbuff; // i=0, 
   
   //安全回路端子号
   //Modbuff[408] 
