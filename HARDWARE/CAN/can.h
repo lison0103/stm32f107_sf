@@ -37,7 +37,8 @@ extern u8 CAN2_RX_Data[canbuffsize];
 
 extern u8 can1_receive;
 extern u8 can2_receive;
-	 										 							 				    
+extern u8 can1_data_packet;
+extern u8 can1_recv_len;	 										 							 				    
 				
 #endif  /* __CAN_H */
 

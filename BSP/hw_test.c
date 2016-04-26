@@ -1158,7 +1158,7 @@ void SPI1_DMA_Check(void)
 
 #ifdef GEC_SF_MASTER 
 /*******************************************************************************
-* Function Name  : can_comm
+* Function Name  : CAN_Comm
 * Description    : 
 *                  
 * Input          : None
@@ -1191,6 +1191,26 @@ void CAN_Comm(void)
     else if( ++can2_comm_timeout >= 3 )
     {
         /*  can communication timeout process */
+    }  
+    
+    /** receive a data packet **/
+    if( can1_data_packet == 1 )
+    {
+        if(!MB_CRC16(CAN1_RX_Data, can1_recv_len))
+        {                    
+            /** ok **/
+            CAN1_TX_Data[4] = CAN1_RX_Data[2];
+            CAN1_TX_Data[5] = CAN1_RX_Data[3];
+        }
+        else
+        {
+            /** fail **/
+            for( u8 i = 0; i < can1_recv_len; i++ )
+            {
+                CAN1_RX_Data[i] = 0;
+            }
+        }
+        can1_data_packet = 0;
     }    
 
     /** packet the data pack **/
