@@ -54,12 +54,14 @@
 
         EXTERN  __iar_program_start
         EXTERN  SystemInit
+        EXTERN  STL_StartUp
         PUBLIC  __vector_table
 
         DATA
 __vector_table
         DCD     sfe(CSTACK)
-        DCD     Reset_Handler             ; Reset Handler
+        DCD     STL_StartUp             ; To be executed before __iar_program_start 
+//        DCD     Reset_Handler             ; Reset Handler
 
         DCD     NMI_Handler               ; NMI Handler
         DCD     HardFault_Handler         ; Hard Fault Handler
