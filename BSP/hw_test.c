@@ -1032,14 +1032,13 @@ void Input_Check2(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-u8 number = 0;
-u8 data_error = 0;
-u32 test_cnt = 100;
-
 void SPI1_DMA_Check(void)
 {    
 
   u16 i = 0;  
+  u8 number = 0;
+  u8 data_error = 0;
+  u32 test_cnt = 100;  
   comm_num = buffersize;
   
 #ifdef GEC_SF_MASTER      
@@ -1098,19 +1097,25 @@ void SPI1_DMA_Check(void)
                       result = SPI1_RX_Data[i]^(SPI1_TX_Data[i] - 1);
                       if( result )
                       {
-                          data_error = 1;
+                          data_error++;
+                          printf("1");                             
                           break;
+
                       }
                   
                   }
               } 
               else
               {
-                          data_error = 1;    
-                          break;
+                  data_error++;
+                  printf("2");                  
+  
               }
               
-              
+              if( data_error > 2 )
+              {
+                  break;
+              }               
               
               
 #else
@@ -1127,8 +1132,12 @@ void SPI1_DMA_Check(void)
               } 
               else
               {
-                  data_error = 1;    
-                  break;
+                  data_error++;
+                  if( data_error > 2 )
+                  {
+                      printf("3");
+                      break;
+                  }
               }
               
               SPI1_DMA_ReceiveSendByte(comm_num);
@@ -1142,7 +1151,7 @@ void SPI1_DMA_Check(void)
 #else
         SPI1_DMA_ReceiveSendByte(comm_num);
 #endif
-    if( data_error == 1 )
+    if( data_error > 2 )
     {
         LED = 0;
         printf("SPI1_DMA_Check error \r\n");

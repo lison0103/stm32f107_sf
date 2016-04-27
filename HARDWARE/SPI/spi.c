@@ -31,6 +31,53 @@ u8 SPI_DMA_RECEIVE_FLAG = 0;
 DMA_InitTypeDef     DMA_InitStructure;
 static u16 waitus = 0;
 
+
+
+/*******************************************************************************
+* Function Name  : SPI1_Configuration
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SPI1_Configuration(void)
+{       
+        SPI_InitTypeDef  SPI_InitStructure;	
+        
+        SPI_I2S_DeInit(SPI1);
+
+	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;      //设置SPI单向或者双向的数据模式:SPI设置为双线双向全双工
+#ifdef GEC_SF_MASTER
+	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;		                //设置SPI工作模式:设置为主SPI
+#else
+        SPI_InitStructure.SPI_Mode = SPI_Mode_Slave;
+#endif
+	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;		        //设置SPI的数据大小:SPI发送接收8位帧结构
+	SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;		                //选择了串行时钟的稳态:时钟悬空高
+	SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;	                        //数据捕获于第二个时钟沿
+	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;		                //NSS信号由硬件（NSS管脚）还是软件（使用SSI位）管理:内部NSS信号有SSI位控制
+	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;	//定义波特率预分频的值:波特率预分频值为32,速度约为72M/32 = 2.25M/s
+	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;	                //指定数据传输从MSB位还是LSB位开始:数据传输从MSB位开始
+	SPI_InitStructure.SPI_CRCPolynomial = 7;	                        //CRC值计算的多项式
+	SPI_Init(SPI1, &SPI_InitStructure);                                     
+ 
+        //DMA 
+        SPI1_DMA_Configuration();       
+        SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
+        SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
+           
+        //CRC
+        SPI_CalculateCRC(SPI1, ENABLE);
+        
+        //SPI enable
+	SPI_Cmd(SPI1, ENABLE); 
+        
+        printf("SPI INIT \r\n");
+} 
+
+
 /*******************************************************************************
 * Function Name  : SPI1_Init
 * Description    : 
@@ -42,8 +89,7 @@ static u16 waitus = 0;
 *******************************************************************************/
 void SPI1_Init(void)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;        
-        SPI_InitTypeDef  SPI_InitStructure;	
+	GPIO_InitTypeDef GPIO_InitStructure;        	
 
 #ifdef GEC_SF_MASTER        
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_7;
@@ -87,35 +133,7 @@ void SPI1_Init(void)
            
 // 	GPIO_SetBits(GPIOA,GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7);
         
-        SPI_I2S_DeInit(SPI1);
-
-	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;      //设置SPI单向或者双向的数据模式:SPI设置为双线双向全双工
-#ifdef GEC_SF_MASTER
-	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;		                //设置SPI工作模式:设置为主SPI
-#else
-        SPI_InitStructure.SPI_Mode = SPI_Mode_Slave;
-#endif
-	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;		        //设置SPI的数据大小:SPI发送接收8位帧结构
-	SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;		                //选择了串行时钟的稳态:时钟悬空高
-	SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;	                        //数据捕获于第二个时钟沿
-	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;		                //NSS信号由硬件（NSS管脚）还是软件（使用SSI位）管理:内部NSS信号有SSI位控制
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;	//定义波特率预分频的值:波特率预分频值为32,速度约为72M/32 = 2.25M/s
-	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;	                //指定数据传输从MSB位还是LSB位开始:数据传输从MSB位开始
-	SPI_InitStructure.SPI_CRCPolynomial = 7;	                        //CRC值计算的多项式
-	SPI_Init(SPI1, &SPI_InitStructure);                                     
- 
-        //DMA 
-        SPI1_DMA_Configuration();       
-        SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
-        SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
-           
-        //CRC
-        SPI_CalculateCRC(SPI1, ENABLE);
-        
-        //SPI enable
-	SPI_Cmd(SPI1, ENABLE); 
-        
-        printf("SPI INIT \r\n");
+        SPI1_Configuration();
 }    
 
 
@@ -192,79 +210,57 @@ void SPI1_DMA_Configuration( void )
 void SPI1_DMA_ReceiveSendByte( u16 num )
 {
   
-//      while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
     
-          /* copy data to buff */
-          for(u16 i = 0; i < num; i++)
-          {
-              SPI1_TX_Buff[i] = SPI1_TX_Data[i];
-          }    
+    /* copy data to buff */
+    for(u16 i = 0; i < num; i++)
+    {
+        SPI1_TX_Buff[i] = SPI1_TX_Data[i];
+    }    
     
-          waitus = 0;
-          while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < 2000 ) )
-          {
-              waitus++;
-              delay_us(1);
-          }
-          
-          if( waitus >= 2000 )
-          {
-              printf("1 TXE timeout! \r\n");
-          }
+    waitus = 0;
+    while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < 2000 ) )
+    {
+        waitus++;
+        delay_us(1);
+    }
+    
+    if( waitus >= 2000 )
+    {
+        printf("1 TXE timeout! \r\n");
+    }
       
-      DMA_Cmd(DMA1_Channel2, DISABLE);
-      DMA_Cmd(DMA1_Channel3, DISABLE);      
+    DMA_Cmd(DMA1_Channel2, DISABLE);
+    DMA_Cmd(DMA1_Channel3, DISABLE);      
+    
+    DMA1_Channel2->CNDTR = 0x0000;	
+    DMA1_Channel2->CNDTR = num;
+    DMA1_Channel3->CNDTR = 0x0000;	
+    DMA1_Channel3->CNDTR = num;      
+    
+    
+    DMA_ClearFlag(DMA1_FLAG_GL3|DMA1_FLAG_TC3|DMA1_FLAG_HT3|DMA1_FLAG_TE3);
+    DMA_ClearFlag(DMA1_FLAG_GL2|DMA1_FLAG_TC2|DMA1_FLAG_HT2|DMA1_FLAG_TE2);
       
-      DMA1_Channel2->CNDTR = 0x0000;	
-      DMA1_Channel2->CNDTR = num;
-      DMA1_Channel3->CNDTR = 0x0000;	
-      DMA1_Channel3->CNDTR = num;      
+    //接送前读一次SPI1->DR，保证接收缓冲区为空
+    SPI1->DR ;						
       
-      
-      DMA_ClearFlag(DMA1_FLAG_GL3|DMA1_FLAG_TC3|DMA1_FLAG_HT3|DMA1_FLAG_TE3);
-      DMA_ClearFlag(DMA1_FLAG_GL2|DMA1_FLAG_TC2|DMA1_FLAG_HT2|DMA1_FLAG_TE2);
-      
-      //接送前读一次SPI1->DR，保证接收缓冲区为空
-      SPI1->DR ;						
-      
-//      while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-          waitus = 0;
-          while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < 2000 ) )
-          {
-              waitus++;
-              delay_us(1);
-          }
-          
-          if( waitus >= 2000 )
-          {
-              printf("2 TXE timeout! \r\n");
-          }
-          
-      DMA_Cmd(DMA1_Channel2, ENABLE);    
-      DMA_Cmd(DMA1_Channel3, ENABLE);
-      
-          
 
-//    /* DMA channel Tx of SPI Configuration */
-//    DMA_InitStructure.DMA_BufferSize = buffersize;
-//    DMA_InitStructure.DMA_PeripheralBaseAddr = SPI1_DR_Addr;
-//    DMA_InitStructure.DMA_MemoryBaseAddr = (u32)SPI1_TX_Buff;
-//    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
-//    DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
-//    DMA_Init(DMA1_Channel3, &DMA_InitStructure);
-//
-//    /* Enable the SPI Rx and Tx DMA requests */
-//    SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
-//
-//    /* Enable the SPI peripheral */
-//    SPI_Cmd(SPI1, ENABLE);
-//        
-//
-//    /* Enable the DMA channels */
-//    DMA_Cmd(DMA1_Channel3, ENABLE);      
+    waitus = 0;
+    while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < 2000 ) )
+    {
+        waitus++;
+        delay_us(1);
+    }
+    
+    if( waitus >= 2000 )
+    {
+        printf("2 TXE timeout! \r\n");
+    }
+    
+    DMA_Cmd(DMA1_Channel2, ENABLE);    
+    DMA_Cmd(DMA1_Channel3, ENABLE);
       
-      
-     
+    
 }
 
 /*******************************************************************************
@@ -278,7 +274,7 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
 *******************************************************************************/
 void DMA_Check_Flag(u32 times)
 {         
-     
+
           waitus = 0;
           while( ( !DMA_GetFlagStatus(DMA1_IT_TC2) ) && ( waitus < times ) )
           {
@@ -344,8 +340,12 @@ void DMA_Check_Flag(u32 times)
               //SPI CRC ERROR
               printf("Channel2 CRCERR \r\n");
               EN_ERROR_SYS4++;
-//              SPI1_Init();
-              
+#ifdef GEC_SF_MASTER          
+              SPI1_Configuration();
+              delay_ms(200);
+#else
+              SPI1_Configuration();
+#endif              
               if(EN_ERROR_SYS4 > 2)
               {
                 ESC_SPI_Error_Process();
