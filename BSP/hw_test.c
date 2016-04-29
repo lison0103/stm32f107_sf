@@ -1178,9 +1178,7 @@ void SPI1_DMA_Check(void)
 void CAN_Comm(void)
 {
     static u8 can1_comm_timeout,can2_comm_timeout = 0;
-    static u8 can1_send_cnt = 0;
-    u8 * p_CanBuff;
-    u16 i = 0;
+    u8 len = 0;
     
     if( can1_receive == 1 )
     {
@@ -1202,62 +1200,28 @@ void CAN_Comm(void)
         /*  can communication timeout process */
     }  
     
-    /** receive a data packet **/
-    if( can1_data_packet == 1 )
+    /* just for test */
+    for(len = 0; len < 20; len++)
     {
-        if(!MB_CRC16(CAN1_RX_Data, can1_recv_len))
-        {                    
-            /** ok **/
-            CAN1_TX_Data[4] = CAN1_RX_Data[2];
-            CAN1_TX_Data[5] = CAN1_RX_Data[3];
-        }
-        else
-        {
-            /** fail **/
-            for( u8 i = 0; i < can1_recv_len; i++ )
-            {
-                CAN1_RX_Data[i] = 0;
-            }
-        }
-        can1_data_packet = 0;
-    }    
-
-    /** packet the data pack **/
-    if( can1_send_cnt == 0)
-    {
-        CAN1_TX_Buff[0] = 0xfa;
-        CAN1_TX_Buff[1] = canbuffsize - 4;
-        for( u8 j = 0; j < canbuffsize - 4; j++ )
-        {
-            CAN1_TX_Buff[j+2] = CAN1_TX_Data[j];
-        }
-        i = MB_CRC16( CAN1_TX_Buff, canbuffsize - 2 );
-        CAN1_TX_Buff[canbuffsize - 2] = i;
-        CAN1_TX_Buff[canbuffsize - 1] = i>>8;    
-    }    
-    /** CAN1 send data **/
-    /** CB normal SEND ID:0x1314, CB URGE SEND ID:0x1234 **/
-    if( can1_send_cnt >= canbuffsize/24 )
-    {
-        p_CanBuff = &CAN1_TX_Buff[ 24*can1_send_cnt ];
-        Can_Send_Msg(CAN1,0x1314,p_CanBuff,canbuffsize%24); 
-        can1_send_cnt = 0;
-    }    
-    else
-    {
-        for( i = 0; i < 3; i++ )
-        {
-            p_CanBuff = &CAN1_TX_Buff[ (8*i) + (24*can1_send_cnt) ];
-            Can_Send_Msg(CAN1,0x1314,p_CanBuff,8); 
-        }
-        can1_send_cnt++;
+        CAN2_TX_Data[len] = len;
     }
-//    Can_Send_Msg(CAN1,0x1234,CAN1_TX_Buff,4);
-
-    /** CAN2 send data **/
+    /** receive a data packet -----------------------------------------------**/ 
+    len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
+    CAN1_TX_Data[4] = CAN1_RX_Data[2];
+    CAN1_TX_Data[5] = CAN1_RX_Data[3]; 
+    
+    len = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN1_RX_Data, 0);
+    len = BSP_CAN_Receive(CAN2, &CAN2_RX_Down, CAN1_RX_Data, 0);
+    
+    /** CAN1 send data ------------------------------------------------------**/
+    /** CB normal SEND ID:0x1314, CB URGE SEND ID:0x1234 **/
+    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 100);
+    BSP_CAN_Send(CAN1, &CAN1_TX_Urge, CAN1TX_URGE_ID, CAN2_TX_Data, 20);
+    
+    /** CAN2 send data ------------------------------------------------------**/
     /** DBL1 UP SEND ID:0X1234, DBL1 DOWN SEND ID:0x2345 **/
-    Can_Send_Msg(CAN2,0x1234,CAN1_TX_Buff,4);   
-    Can_Send_Msg(CAN2,0x2345,CAN1_TX_Buff,4);   
+    BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN2TX_UP_ID, CAN2_TX_Data, 8);  
+    BSP_CAN_Send(CAN2, &CAN2_TX_Down, CAN2TX_DOWN_ID, CAN2_TX_Data, 8);   
 }
 #endif
 
