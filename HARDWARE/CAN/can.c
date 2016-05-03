@@ -216,6 +216,13 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode)
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
             NVIC_Init(&NVIC_InitStructure);
 #endif
+            CAN_ITConfig(CAN1, CAN_IT_TME, DISABLE);                // 发送中断
+            /* Enable CAN1 TX0 interrupt IRQ channel */
+            NVIC_InitStructure.NVIC_IRQChannel = CAN1_TX_IRQn;
+            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+            NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+            NVIC_Init(&NVIC_InitStructure);            
             
             
         }
@@ -295,7 +302,13 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode)
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
             NVIC_Init(&NVIC_InitStructure);
 #endif             
-            
+            CAN_ITConfig(CAN2, CAN_IT_TME, DISABLE);                // 发送中断
+            /* Enable CAN1 TX0 interrupt IRQ channel */
+            NVIC_InitStructure.NVIC_IRQChannel = CAN2_TX_IRQn;
+            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+            NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+            NVIC_Init(&NVIC_InitStructure);             
             
         }
 #endif           
@@ -530,6 +543,7 @@ void CAN_Send_Process(CAN_TypeDef* CANx,CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint
                 }
                 
             }
+            CAN_ITConfig(CAN1, CAN_IT_TME, ENABLE);
         }
 
 
@@ -569,6 +583,43 @@ void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_
     }			
 }
 
+/*******************************************************************************
+* Function Name  : CAN1_TX_IRQHandler
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/  
+void CAN1_TX_IRQHandler(void)
+{
+
+    CAN_ITConfig(CAN1, CAN_IT_TME, DISABLE);
+    
+//    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 0);
+    BSP_CAN_Send(CAN1, &CAN1_TX_Urge, CAN1TX_URGE_ID, CAN2_TX_Data, 0);
+   
+    
+}
+
+/*******************************************************************************
+* Function Name  : CAN2_TX_IRQHandler
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/  
+void CAN2_TX_IRQHandler(void)
+{
+
+//            CAN_ClearITPendingBit(CAN2,CAN_IT_RQCP0);
+
+   
+    
+}
 
 /*******************************************************************************
 * Function Name  : BSP_CAN_Receive
