@@ -81,6 +81,143 @@ void STL_InitRunTimeChecks(void)
 
 }
 
+/*******************************************************************************
+* Function Name  : GeneralRegister_RunCheck
+* Description    : 
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void GeneralRegister_RunCheck(void)
+{
+    CtrlFlowCnt += CPU_TEST_CALLER;
+    if (STL_RunTimeCPUTest() != CPUTEST_SUCCESS)
+    {
+#ifdef STL_VERBOSE
+        printf("Start-up CPU Test Failure\n\r");
+#endif /* STL_VERBOSE */
+        FailSafePOR();
+    }
+    else
+    {
+        CtrlFlowCntInv -= CPU_TEST_CALLER;
+    }
+
+}
+
+/*******************************************************************************
+* Function Name  : StackCheck
+* Description    : 
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void StackCheck(void)
+{
+    CtrlFlowCnt += STACK_OVERFLOW_TEST;
+    if (STL_CheckStack() != SUCCESS)
+    {
+#ifdef STL_VERBOSE
+        printf("Stack overflow\n\r");
+#endif /* STL_VERBOSE */
+        FailSafePOR();
+    }
+    else
+    {
+        CtrlFlowCntInv -= STACK_OVERFLOW_TEST;
+    }
+
+}
+
+/*******************************************************************************
+* Function Name  : ClockFrequency_RunCheck
+* Description    : 
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void ClockFrequency_RunCheck(void)
+{
+    CtrlFlowCnt += CLOCK_TEST_CALLER;
+    switch ( STL_MainClockTest() )
+    {
+       case FREQ_OK:
+        CtrlFlowCntInv -= CLOCK_TEST_CALLER;
+        break;
+        
+       case EXT_SOURCE_FAIL:
+#ifdef STL_VERBOSE
+        /* Loop until the end of current transmission */
+        //            while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
+        //            {
+        //            }
+        /* Re-config USART baudrate FOR 115200 bds with HSI clock (8MHz) */
+        //            USART1->BRR = 0x45u;
+        printf("\n\r Clock Source failure (Run-time)\n\r");
+#endif /* STL_VERBOSE */
+        FailSafePOR();
+        break;
+        
+       case CLASS_B_VAR_FAIL:
+#ifdef STL_VERBOSE
+        printf("\n\r Class B variable error (clock test)\n\r");
+#endif /* STL_VERBOSE */
+        FailSafePOR();
+        break;
+        
+       case LSI_START_FAIL:
+       case HSE_START_FAIL:
+       case HSI_HSE_SWITCH_FAIL:
+       case TEST_ONGOING:
+       case CTRL_FLOW_ERROR:
+       default:
+#ifdef STL_VERBOSE
+        printf("Abnormal Clock Test routine termination \n\r");
+#endif  /* STL_VERBOSE */
+        FailSafePOR();
+        break;
+    }
+    
+}
+
+/*******************************************************************************
+* Function Name  : DataIntegrityInFlash_RunCheck
+* Description    : 
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DataIntegrityInFlash_RunCheck(u32* RomTest)
+{
+    CtrlFlowCnt += FLASH_TEST_CALLER;
+    *RomTest = STL_crc16Run();
+    //      RomTest = STL_crc32Run(); // Requires the control flow check to be modified
+    switch ( *RomTest )
+    {
+       case TEST_RUNNING:
+        //          #ifdef STL_VERBOSE
+        CtrlFlowCntInv -= FLASH_TEST_CALLER;
+        //          #endif /* STL_VERBOSE */
+        break;
+        
+       case TEST_OK:
+#ifdef STL_VERBOSE
+        printf("Run-time FLASH CRC OK\n\r");
+#endif /* STL_VERBOSE */
+        CtrlFlowCntInv -= FLASH_TEST_CALLER;
+        break;
+        
+       case TEST_FAILURE:
+       case CLASS_B_DATA_FAIL:
+       default:
+#ifdef STL_VERBOSE
+        printf(" Run-time FLASH CRC Error\n\r");
+#endif  /* STL_VERBOSE */
+        FailSafePOR();
+        break;
+    }
+
+}
 
 /*******************************************************************************
 * Function Name  : STL_DoRunTimeChecks
@@ -111,109 +248,23 @@ void STL_DoRunTimeChecks(void)
       /*----------------------------------------------------------------------*/
       /*---------------------------- CPU registers ----------------------------*/
       /*----------------------------------------------------------------------*/
-      CtrlFlowCnt += CPU_TEST_CALLER;
-      if (STL_RunTimeCPUTest() != CPUTEST_SUCCESS)
-      {
-        #ifdef STL_VERBOSE
-          printf("Start-up CPU Test Failure\n\r");
-        #endif /* STL_VERBOSE */
-        FailSafePOR();
-      }
-      else
-      {
-        CtrlFlowCntInv -= CPU_TEST_CALLER;
-      }
+      GeneralRegister_RunCheck();
 
       /*----------------------------------------------------------------------*/
       /*------------------------- Stack overflow -----------------------------*/
       /*----------------------------------------------------------------------*/
-      CtrlFlowCnt += STACK_OVERFLOW_TEST;
-      if (STL_CheckStack() != SUCCESS)
-      {
-        #ifdef STL_VERBOSE
-          printf("Stack overflow\n\r");
-        #endif /* STL_VERBOSE */
-        FailSafePOR();
-      }
-      else
-      {
-        CtrlFlowCntInv -= STACK_OVERFLOW_TEST;
-      }
+      StackCheck();
 
       /*----------------------------------------------------------------------*/
       /*------------------------- Clock monitoring ---------------------------*/
       /*----------------------------------------------------------------------*/
-      CtrlFlowCnt += CLOCK_TEST_CALLER;
-      switch ( STL_MainClockTest() )
-      {
-        case FREQ_OK:
-          CtrlFlowCntInv -= CLOCK_TEST_CALLER;
-          break;
-
-        case EXT_SOURCE_FAIL:
-          #ifdef STL_VERBOSE
-          /* Loop until the end of current transmission */
-//            while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-//            {
-//            }
-            /* Re-config USART baudrate FOR 115200 bds with HSI clock (8MHz) */
-//            USART1->BRR = 0x45u;
-            printf("\n\r Clock Source failure (Run-time)\n\r");
-          #endif /* STL_VERBOSE */
-          FailSafePOR();
-          break;
-
-        case CLASS_B_VAR_FAIL:
-          #ifdef STL_VERBOSE
-            printf("\n\r Class B variable error (clock test)\n\r");
-          #endif /* STL_VERBOSE */
-          FailSafePOR();
-          break;
-
-        case LSI_START_FAIL:
-        case HSE_START_FAIL:
-        case HSI_HSE_SWITCH_FAIL:
-        case TEST_ONGOING:
-        case CTRL_FLOW_ERROR:
-        default:
-          #ifdef STL_VERBOSE
-            printf("Abnormal Clock Test routine termination \n\r");
-          #endif  /* STL_VERBOSE */
-          FailSafePOR();
-          break;
-      }
+      ClockFrequency_RunCheck();
 
 
       /*----------------------------------------------------------------------*/
       /*------------------ Invariable memory CRC check -----------------------*/
       /*----------------------------------------------------------------------*/
-      CtrlFlowCnt += FLASH_TEST_CALLER;
-      RomTest = STL_crc16Run();
-//      RomTest = STL_crc32Run(); // Requires the control flow check to be modified
-      switch ( RomTest )
-      {
-        case TEST_RUNNING:
-//          #ifdef STL_VERBOSE
-            CtrlFlowCntInv -= FLASH_TEST_CALLER;
-//          #endif /* STL_VERBOSE */
-          break;
-
-        case TEST_OK:
-          #ifdef STL_VERBOSE
-           printf("Run-time FLASH CRC OK\n\r");
-          #endif /* STL_VERBOSE */
-          CtrlFlowCntInv -= FLASH_TEST_CALLER;
-          break;
-
-        case TEST_FAILURE:
-        case CLASS_B_DATA_FAIL:
-        default:
-          #ifdef STL_VERBOSE
-            printf(" Run-time FLASH CRC Error\n\r");
-          #endif  /* STL_VERBOSE */
-          FailSafePOR();
-          break;
-      }
+      DataIntegrityInFlash_RunCheck(&RomTest);
 
       /*----------------------------------------------------------------------*/
       /*---------------- Check Safety routines Control flow  -----------------*/

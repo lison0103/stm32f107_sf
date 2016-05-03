@@ -82,7 +82,7 @@ void write_bkp(u16 adr,u16 dat)
 }
 
 /*******************************************************************************
-* Function Name  : ext_WDT_check
+* Function Name  : ExtWdtCheck
 * Description    : 
 *                  
 * Input          : None
@@ -90,7 +90,7 @@ void write_bkp(u16 adr,u16 dat)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-u8 ext_WDT_check(void)
+u8 ExtWdtCheck(void)
 {
   u16 bkr_rst_flag=0;
 
@@ -110,13 +110,13 @@ u8 ext_WDT_check(void)
 #endif
       if(bkr_rst_flag == 0xfa01)
       {
-    /** 软件复位 **/
+    /** soft reset **/
 //    if(RCC_GetFlagStatus(RCC_FLAG_SFTRST) == SET)
 //    {
 //        
 //    }
 
-        /** 引脚复位 **/
+        /** pin reset **/
         if(RCC_GetFlagStatus(RCC_FLAG_PINRST) != SET)
         {
 #ifdef GEC_SF_S_NEW
@@ -159,20 +159,7 @@ u8 ext_WDT_check(void)
   return(0);
 }  
 
-/*******************************************************************************
-* Function Name  : power_on_bsp_check
-* Description    : 
-*                  
-* Input          : None
-*                  None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void power_on_bsp_check(void)
-{
-  //外置看门狗检测，故障F81
-  ext_WDT_check();
-}
+
 
 
 /******************************  END OF FILE  *********************************/

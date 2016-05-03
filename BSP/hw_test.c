@@ -50,7 +50,7 @@ static u16 cntt = 0;
 #endif
 
 /*******************************************************************************
-* Function Name  : SF_WDT_Check
+* Function Name  : SafetyRelayExtWdtCheck
 * Description    : Safety relay output circuit
 *                  安全继电器输出电路
 * Input          : None
@@ -58,7 +58,7 @@ static u16 cntt = 0;
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SF_WDT_Check(void)
+void SafetyRelayExtWdtCheck(void)
 {
     
     sfwdt_checkflag = 1;
@@ -416,7 +416,7 @@ void Input_Check(void)
                         SF_RL_CTR = 1;                         
 //                        delay_ms(1);
                         
-                        SF_WDT_Check();
+                        SafetyRelayExtWdtCheck();
                 }   
                 /* Online monitoring safety relay drive failure detection */
                 else if(( switch_flag == 2 ) && ( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || AUX_FB ))
@@ -1024,15 +1024,15 @@ void Input_Check2(void)
 
 
 /*******************************************************************************
-* Function Name  : SPI1_DMA_Check
-* Description    : 
+* Function Name  : CrossCommCPUCheck
+* Description    : CrossCommCPU and Data Integrity test
 *                  
 * Input          : None
 *                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SPI1_DMA_Check(void)
+void CrossCommCPUCheck(void)
 {    
 
   u16 i = 0;  
@@ -1200,15 +1200,14 @@ void CAN_Comm(void)
         /*  can communication timeout process */
     }  
     
-    /* just for test */
-    for(len = 0; len < 20; len++)
-    {
-        CAN2_TX_Data[len] = len;
-    }
     /** receive a data packet -----------------------------------------------**/ 
     len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
+    
+    /* just for test */
     CAN1_TX_Data[4] = CAN1_RX_Data[2];
     CAN1_TX_Data[5] = CAN1_RX_Data[3]; 
+    CAN2_TX_Data[0] = CAN1_RX_Data[2];
+    CAN2_TX_Data[1] = CAN1_RX_Data[3];
     
     len = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN1_RX_Data, 0);
     len = BSP_CAN_Receive(CAN2, &CAN2_RX_Down, CAN1_RX_Data, 0);

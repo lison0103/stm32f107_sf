@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : Contains the timing delays.
 *                      
 *******************************************************************************/
 
@@ -31,9 +31,9 @@ static u16 fac_ms=0;
 
 /*******************************************************************************
 * Function Name  : delay_init
-* Description    : 
-*                  
-* Input          : 
+* Description    : Delay is managed using SysTick
+*                  Initialization delay function
+* Input          : None
 *                 
 * Output         : None
 * Return         : None
@@ -49,9 +49,9 @@ void delay_init(void)
 
 /*******************************************************************************
 * Function Name  : delay_us
-* Description    : 
+* Description    : delay nus
 *                  
-* Input          : 
+* Input          : nus: Number of us want to delay
 *                 
 * Output         : None
 * Return         : None
@@ -77,9 +77,9 @@ void delay_us(u32 nus)
 
 /*******************************************************************************
 * Function Name  : delay_ms
-* Description    : 
+* Description    : delay nms
 *                  
-* Input          : 
+* Input          : nms: Number of ms want to delay
 *                 
 * Output         : None
 * Return         : None
@@ -117,29 +117,55 @@ void delay_ms(u16 nms)
 
 #else
 
-
-void delay_init()	 
+/*******************************************************************************
+* Function Name  : delay_init
+* Description    : Coarse delay function
+*                  Initialization delay function
+* Input          : None
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void delay_init(void)	 
 {
  
 }
 
-//粗延时函数，微秒
+
+/*******************************************************************************
+* Function Name  : delay_us
+* Description    : Microsecond delay
+*                  
+* Input          : nus: Number of us want to delay
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void delay_us(u32 nus)
 {    
    u16 i=0;  
    while(nus--)
    {
-      i=6;  //自己定义
+      i=6;  
       while(i--) ;    
    }
 }
-//毫秒级的延时
+
+/*******************************************************************************
+* Function Name  : delay_ms
+* Description    : Millisecond delay
+*                  
+* Input          : nms: Number of ms want to delay
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void delay_ms(u16 nms)
 {    
    u16 i=0;  
    while(nms--)
    {
-      i=8000;  //自己定义
+      i=8000;  
       while(i--) ;    
    }
 }

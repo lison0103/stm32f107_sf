@@ -25,7 +25,7 @@
 #endif
 
 /* Exported functions ------------------------------------------------------- */
-void power_on_bsp_check(void);
+u8 ExtWdtCheck(void);
 void EWDT_Drv_pin_config(void);
 
 extern u8 iwdg_check_flag;

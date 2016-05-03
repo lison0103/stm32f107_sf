@@ -1,5 +1,23 @@
+/*******************************************************************************
+* File Name          : crc16.c
+* Author             : lison
+* Version            : V1.0
+* Date               : 03/22/2016
+* Description        : Contains the 16-bit CRC Calculation and verification.
+*                      
+*******************************************************************************/
 
+
+/* Includes ------------------------------------------------------------------*/
 #include "crc16.h"
+
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
+
 
 const unsigned char aucCRCHi[] = {
     0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,
@@ -51,6 +69,16 @@ const unsigned char aucCRCLo[] = {
     0x41, 0x81, 0x80, 0x40
 };
 
+
+/*******************************************************************************
+* Function Name  : MB_CRC16
+* Description    : Computes the 16-bit CRC
+*                  
+* Input          : pucFrame: The first address data to be checked
+*                  usLen:    The length of the data to be checked
+* Output         : None
+* Return         : Check result
+*******************************************************************************/
 uint16_t MB_CRC16( uint8_t *pucFrame, uint16_t usLen )
 {
     uint8_t ucCRCHi = 0xFF;
@@ -66,3 +94,4 @@ uint16_t MB_CRC16( uint8_t *pucFrame, uint16_t usLen )
     return ( uint16_t )( ucCRCHi << 8 | ucCRCLo );
 }
 
+/******************************  END OF FILE  *********************************/

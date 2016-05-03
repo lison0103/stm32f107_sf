@@ -34,6 +34,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
+#define RAMCheck STL_FullRamMarchC
+
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -67,6 +69,168 @@ void FailSafePOR(void)
 }
 
 /*******************************************************************************
+* Function Name  : GeneralRegister_StartupCheck
+* Description    : 
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void GeneralRegister_StartupCheck(void)
+{
+    /* Initializes counter for control flow monitoring */
+    CtrlFlowCnt = CPU_TEST_CALLER;
+    CtrlFlowCntInv = 0xFFFFFFFFuL;
+    
+    if (STL_StartUpCPUTest() != CPUTEST_SUCCESS)
+    {
+#ifdef STL_VERBOSE_POR
+        printf("Start-up CPU Test Failure\n\r");
+#endif /* STL_VERBOSE_POR */
+        FailSafePOR();
+    }
+    else  /* Test OK */
+    {
+        /* If else statement is not executed, it will be detected by control flow monitoring */
+        CtrlFlowCntInv -= CPU_TEST_CALLER;
+#ifdef STL_VERBOSE_POR
+        printf("Start-up CPU Test OK\n\r");
+#endif /* STL_VERBOSE_POR */
+    }
+
+}
+
+/*******************************************************************************
+* Function Name  : IWDTCheck
+* Description    : 
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void IWDTCheck(void)
+{
+    CtrlFlowCnt += WDG_TEST_CALLER;
+    STL_WDGSelfTest();
+    EWDT_TOOGLE();
+    CtrlFlowCntInv -= WDG_TEST_CALLER;
+
+}
+
+/*******************************************************************************
+* Function Name  : DataIntegrityInFlashCheck
+* Description    : 
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void DataIntegrityInFlash_StartupCheck(void)
+{
+    CtrlFlowCnt += CRC32_TEST_CALLER;
+    {
+        u32 TmpCRC;
+        /* Initialize the internal 32-bit CRC generator */
+        CRC_Init();
+        /* Compute the 32-bit crc of the whole Flash */
+        TmpCRC = CRC_CalcBlockCrc((uc32 *)ROM_START, (u32)ROM_SIZEinWORDS);
+        /* Store the inverted least significant byte of the CRC in the peripheral */
+        SetIDRegister(~((u8)TmpCRC));
+        CtrlFlowCntInv -= CRC32_TEST_CALLER;
+    }
+    
+    /* Reload IWDG / EWDT counter */
+    IWDG_ReloadCounter();
+    EWDT_TOOGLE();
+    
+    /* Regular 16-bit crc computation */
+    CtrlFlowCnt += CRC16_TEST_CALLER;
+    if(STL_crc16(CRC_INIT,(u8 *)ROM_START, ROM_SIZE) != REF_CRC16)
+    {
+#ifdef STL_VERBOSE_POR
+        printf(" FLASH 16-bit CRC Error at Start-up\n\r");
+#endif  /* STL_VERBOSE_POR */
+        FailSafePOR();
+    }
+    else  /* Test OK */
+    {
+        /* If else statement is not executed, it will be detected by control flow monitoring */
+        CtrlFlowCntInv -= CRC16_TEST_CALLER;
+#ifdef STL_VERBOSE_POR
+        printf(" Start-up FLASH 16-bit CRC OK\n\r");
+#endif  /* STL_VERBOSE_POR */
+    }
+    
+    /* Reload IWDG / EWDT counter */
+    IWDG_ReloadCounter();
+    EWDT_TOOGLE();
+
+}
+
+/*******************************************************************************
+* Function Name  : ClockFrequency_StartupCheck
+* Description    : 
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void ClockFrequency_StartupCheck(void)
+{
+    CtrlFlowCnt += CLOCK_TEST_CALLER;
+    switch ( STL_ClockStartUpTest() )
+    {
+       case FREQ_OK:
+#ifdef STL_VERBOSE_POR
+        /* Switch back to HSI to be sure to have a valid display */
+        RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
+        printf("Clock frequency OK \n\r");
+#endif  /* STL_VERBOSE_POR */
+        break;
+        
+       case LSI_START_FAIL:
+#ifdef STL_VERBOSE_POR
+        printf("LSI start-up failure \n\r");
+#endif  /* STL_VERBOSE_POR */
+        FailSafePOR();
+        break;
+        
+       case HSE_START_FAIL:
+#ifdef STL_VERBOSE_POR
+        printf("HSE start-up failure \n\r");
+#endif  /* STL_VERBOSE_POR */
+        FailSafePOR();
+        break;
+        
+       case HSI_HSE_SWITCH_FAIL:
+#ifdef STL_VERBOSE_POR
+        printf("Clock switch failure \n\r");
+#endif  /* STL_VERBOSE_POR */
+        FailSafePOR();
+        break;
+        
+       case EXT_SOURCE_FAIL:
+#ifdef STL_VERBOSE_POR
+        printf("Clock Source failure \n\r");
+#endif  /* STL_VERBOSE_POR */
+        FailSafePOR();
+        break;
+        
+       case TEST_ONGOING:
+       default:
+#ifdef STL_VERBOSE_POR
+        printf("Abnormal Clock Test routine termination \n\r");
+#endif  /* STL_VERBOSE_POR */
+        FailSafePOR();
+        break;
+    }
+    // Either switch back to HSI or start PLL on HSE asap
+    CtrlFlowCntInv -= CLOCK_TEST_CALLER;
+    
+    /* Reload IWDG / EWDT counter */
+    IWDG_ReloadCounter();
+    EWDT_TOOGLE();
+
+}
+
+
+/*******************************************************************************
 * Function Name  : STL_StartUp
 * Description    : Contains the very first test routines executed right after
 *                  the reset
@@ -89,7 +253,7 @@ void STL_StartUp(void)
   /*--------------------------- EWDT check -----------------------------------*/  
   /*--------------------------------------------------------------------------*/ 
   EWDT_Drv_pin_config();
-//  power_on_bsp_check();
+//  ExtWdtCheck();
   
   /*--------------------------------------------------------------------------*/
   /*------------------- CPU registers and Flags Self Test --------------------*/
@@ -97,33 +261,12 @@ void STL_StartUp(void)
   /* WARNING: all registers destroyed when exiting this function (including
   preserved registers R4 to R11) and excluding stack point R13) */
 
-  /* Initializes counter for control flow monitoring */
-  CtrlFlowCnt = CPU_TEST_CALLER;
-  CtrlFlowCntInv = 0xFFFFFFFFuL;
-
-  if (STL_StartUpCPUTest() != CPUTEST_SUCCESS)
-  {
-    #ifdef STL_VERBOSE_POR
-      printf("Start-up CPU Test Failure\n\r");
-    #endif /* STL_VERBOSE_POR */
-    FailSafePOR();
-  }
-  else  /* Test OK */
-  {
-    /* If else statement is not executed, it will be detected by control flow monitoring */
-    CtrlFlowCntInv -= CPU_TEST_CALLER;
-    #ifdef STL_VERBOSE_POR
-      printf("Start-up CPU Test OK\n\r");
-    #endif /* STL_VERBOSE_POR */
-  }
+  GeneralRegister_StartupCheck();
 
   /*--------------------------------------------------------------------------*/ 
   /*--------------------------- IWDT check -----------------------------------*/  
   /*--------------------------------------------------------------------------*/  
-  CtrlFlowCnt += WDG_TEST_CALLER;
-  STL_WDGSelfTest();
-  EWDT_TOOGLE();
-  CtrlFlowCntInv -= WDG_TEST_CALLER;
+  IWDTCheck();
 
   /*--------------------------------------------------------------------------*/
   /*-------------------- Switch ON PLL for 64MHz operation--------------------*/
@@ -146,44 +289,8 @@ void STL_StartUp(void)
   /*--------------------------------------------------------------------------*/
   /*--------------------- Invariable memory CRC check ------------------------*/
   /*--------------------------------------------------------------------------*/
+  DataIntegrityInFlash_StartupCheck();
 
-  CtrlFlowCnt += CRC32_TEST_CALLER;
-  {
-      u32 TmpCRC;
-    /* Initialize the internal 32-bit CRC generator */
-    CRC_Init();
-    /* Compute the 32-bit crc of the whole Flash */
-    TmpCRC = CRC_CalcBlockCrc((uc32 *)ROM_START, (u32)ROM_SIZEinWORDS);
-    /* Store the inverted least significant byte of the CRC in the peripheral */
-    SetIDRegister(~((u8)TmpCRC));
-    CtrlFlowCntInv -= CRC32_TEST_CALLER;
-  }
-
-  /* Reload IWDG / EWDT counter */
-  IWDG_ReloadCounter();
-  EWDT_TOOGLE();
-  
-  /* Regular 16-bit crc computation */
-  CtrlFlowCnt += CRC16_TEST_CALLER;
-  if(STL_crc16(CRC_INIT,(u8 *)ROM_START, ROM_SIZE) != REF_CRC16)
-  {
-    #ifdef STL_VERBOSE_POR
-    printf(" FLASH 16-bit CRC Error at Start-up\n\r");
-    #endif  /* STL_VERBOSE_POR */
-    FailSafePOR();
-  }
-  else  /* Test OK */
-  {
-    /* If else statement is not executed, it will be detected by control flow monitoring */
-    CtrlFlowCntInv -= CRC16_TEST_CALLER;
-    #ifdef STL_VERBOSE_POR
-      printf(" Start-up FLASH 16-bit CRC OK\n\r");
-    #endif  /* STL_VERBOSE_POR */
-  }
-
-  /* Reload IWDG / EWDT counter */
-  IWDG_ReloadCounter();
-  EWDT_TOOGLE();
   
   /*--------------------------------------------------------------------------*/
   /*   Verify Control flow before RAM init (which clears Ctrl flow counters)  */
@@ -207,17 +314,18 @@ void STL_StartUp(void)
   /* --------------------- Variable memory functional test -------------------*/
   /*--------------------------------------------------------------------------*/
   /* WARNING: Stack is zero-initialized when exiting from this routine */
-  if (STL_FullRamMarchC() != SUCCESS)
-  {
-    #ifdef STL_VERBOSE_POR
-      printf("RAM Test Failure\n\r");
-    #endif  /* STL_VERBOSE_POR */
-    FailSafePOR();
-  }
-  #ifdef STL_VERBOSE_POR
-    printf(" Full RAM Test OK\n\r");
-  #endif /* STL_VERBOSE_POR */
 
+  if (RAMCheck() != SUCCESS)
+  {
+#ifdef STL_VERBOSE_POR
+      printf("RAM Test Failure\n\r");
+#endif  /* STL_VERBOSE_POR */
+      FailSafePOR();
+  }
+#ifdef STL_VERBOSE_POR
+  printf(" Full RAM Test OK\n\r");
+#endif /* STL_VERBOSE_POR */
+  
   /* Reload IWDG / EWDT counter */
   IWDG_ReloadCounter();
   EWDT_TOOGLE();
@@ -273,59 +381,7 @@ void STL_StartUp(void)
   /*--------------------------------------------------------------------------*/
   /*----------------------- Clock Frequency Self Test ------------------------*/
   /*--------------------------------------------------------------------------*/
-  CtrlFlowCnt += CLOCK_TEST_CALLER;
-  switch ( STL_ClockStartUpTest() )
-  {
-    case FREQ_OK:
-      #ifdef STL_VERBOSE_POR
-        /* Switch back to HSI to be sure to have a valid display */
-        RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
-        printf("Clock frequency OK \n\r");
-      #endif  /* STL_VERBOSE_POR */
-      break;
-
-    case LSI_START_FAIL:
-       #ifdef STL_VERBOSE_POR
-        printf("LSI start-up failure \n\r");
-      #endif  /* STL_VERBOSE_POR */
-      FailSafePOR();
-      break;
-
-    case HSE_START_FAIL:
-      #ifdef STL_VERBOSE_POR
-        printf("HSE start-up failure \n\r");
-      #endif  /* STL_VERBOSE_POR */
-      FailSafePOR();
-      break;
-
-    case HSI_HSE_SWITCH_FAIL:
-      #ifdef STL_VERBOSE_POR
-        printf("Clock switch failure \n\r");
-      #endif  /* STL_VERBOSE_POR */
-      FailSafePOR();
-      break;
-
-    case EXT_SOURCE_FAIL:
-      #ifdef STL_VERBOSE_POR
-        printf("Clock Source failure \n\r");
-      #endif  /* STL_VERBOSE_POR */
-      FailSafePOR();
-      break;
-
-    case TEST_ONGOING:
-    default:
-      #ifdef STL_VERBOSE_POR
-        printf("Abnormal Clock Test routine termination \n\r");
-      #endif  /* STL_VERBOSE_POR */
-      FailSafePOR();
-      break;
-  }
-  // Either switch back to HSI or start PLL on HSE asap
-  CtrlFlowCntInv -= CLOCK_TEST_CALLER;
-
-  /* Reload IWDG / EWDT counter */
-  IWDG_ReloadCounter();
-  EWDT_TOOGLE();
+  ClockFrequency_StartupCheck();
   
   /*--------------------------------------------------------------------------*/
   /* -----  Verify Control flow before Starting main program execution ------ */
@@ -557,7 +613,7 @@ ErrorStatus RCC_SwitchOffPLL(void)
 
 
 /*******************************************************************************
-* Function Name  : STL_WDGSelfTest
+* Function Name  : STL_IWDGSelfTest
 * Description    : Verifies the watchdog by forcing watchdog resets
 * Input          : None
 * Output         : None
@@ -590,7 +646,7 @@ void STL_WDGSelfTest(void)
     IWDG_WriteAccessCmd(IWDG_WriteAccess_Enable);
     /* IWDG clock: 40KHz(LSI) / 4 = 10KHz  */
     IWDG_SetPrescaler(IWDG_Prescaler_4);
-    /* Set counter reload value to 1 (125µs */
+    /* Set counter reload value to 1 (125¦Ìs */
     IWDG_SetReload(1);
     /* Reload IWDG counter */
     IWDG_ReloadCounter();
@@ -655,4 +711,3 @@ void STL_WDGSelfTest(void)
 }
 
 /******************* (C) COPYRIGHT 2007 STMicroelectronics *****END OF FILE****/
-

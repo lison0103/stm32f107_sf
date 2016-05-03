@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : Contains prototype of input and output pin Initializes.
 *			          
 *******************************************************************************/
 

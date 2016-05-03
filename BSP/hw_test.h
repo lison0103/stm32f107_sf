@@ -21,8 +21,8 @@
 /* Exported functions ------------------------------------------------------- */
 void Input_Check(void);
 void Input_Check2(void);
-void SPI1_DMA_Check(void);
-void SF_WDT_Check(void);
+void CrossCommCPUCheck(void);
+void SafetyRelayExtWdtCheck(void);
 void SF_CTR_Check(void);
 #ifdef GEC_SF_MASTER 
 void CAN_Comm(void);
