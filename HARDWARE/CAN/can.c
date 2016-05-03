@@ -342,7 +342,11 @@ void CAN_RX_Process( CanRxMsg RxMessage, CAN_RX_DATA_PROCESS_TypeDef* CanRx )
             CanRx->recving = 0;
             CanRx->data_packet = 1;  
         }
-    
+        else if( CanRx->mlen < 0 )
+        {
+            CanRx->recving = 0;
+            CanRx->data_packet = 0;            
+        }    
     }
     
 }
@@ -447,6 +451,7 @@ void CAN2_RX0_IRQHandler(void)
 void CAN_Send_Process(CAN_TypeDef* CANx,CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_t send_id,uint8_t *buff,uint32_t len)
 {
 	u32 i;
+        u8  result = 0;
 
 			
 				
@@ -478,10 +483,15 @@ void CAN_Send_Process(CAN_TypeDef* CANx,CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint
             {
                 for( i = 0; i < 3; i++ )
                 {
-                    Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CAN_FRAME_LEN ); 
-                    CanTx->p_CanBuff += CAN_FRAME_LEN;
+                    result = Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CAN_FRAME_LEN ); 
+                    if( result != 1 )
+                    {
+                        CanTx->p_CanBuff += CAN_FRAME_LEN;
+                        CanTx->mlen -= CAN_FRAME_LEN;
+                    }
+                    
                 }
-                CanTx->mlen -= CAN_SEND_LEN;
+//                CanTx->mlen -= CAN_SEND_LEN;
             }
             else
             {
@@ -489,21 +499,35 @@ void CAN_Send_Process(CAN_TypeDef* CANx,CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint
                 {
                     for( i = 0; i < 2; i++ )
                     {
-                        Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CAN_FRAME_LEN ); 
-                        CanTx->p_CanBuff += CAN_FRAME_LEN;
+                        result = Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CAN_FRAME_LEN ); 
+                        if( result != 1 )
+                        {
+                            CanTx->p_CanBuff += CAN_FRAME_LEN;
+                            CanTx->mlen -= CAN_FRAME_LEN;
+                        }
                     }   
-                    CanTx->mlen -= 2*CAN_FRAME_LEN;
+//                    CanTx->mlen -= 2*CAN_FRAME_LEN;
                 }
                 else if( CanTx->mlen > CAN_FRAME_LEN )
                 {
                     
-                    Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CAN_FRAME_LEN ); 
-                    CanTx->p_CanBuff += CAN_FRAME_LEN;                               
-                    CanTx->mlen -= CAN_FRAME_LEN;                                        
+                    result = Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CAN_FRAME_LEN ); 
+                    if( result != 1 )
+                    {
+                        CanTx->p_CanBuff += CAN_FRAME_LEN;
+                        CanTx->mlen -= CAN_FRAME_LEN;
+                    }                                      
                 }
                 
-                Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CanTx->mlen );
-                CanTx->sending = 0;
+                if( CanTx->mlen <= CAN_FRAME_LEN )
+                {
+                    result = Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CanTx->mlen );
+                    if( result != 1 )
+                    {
+                        CanTx->mlen = 0;
+                        CanTx->sending = 0;
+                    }
+                }
                 
             }
         }

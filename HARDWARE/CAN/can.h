@@ -18,14 +18,14 @@
 typedef struct  {
   u8 sending;
   u8* p_CanBuff;
-  u8 mlen;
+  s16 mlen;
   u8 tx_buff[200];
 } CAN_TX_DATA_PROCESS_TypeDef;
 
 typedef struct  {
   u8 recving;
-  u8 rxcnt;
-  u8 mlen;
+  s16 rxcnt;
+  s16 mlen;
   u8 data_packet;
   u8 recv_cnt;
   u8 recv_len;
