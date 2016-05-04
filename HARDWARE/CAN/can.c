@@ -67,7 +67,7 @@ CAN_RX_DATA_PROCESS_TypeDef  CAN2_RX_Up;
 CAN_RX_DATA_PROCESS_TypeDef  CAN2_RX_Down;
 
 /*******************************************************************************
-* Function Name  : CAN_Mode_Init
+* Function Name  : CAN_Int_Init
 * Description    : 
 *                  
 * Input          : None
@@ -82,9 +82,9 @@ tbs1:CAN_BS1_1tq ~CAN_BS1_16tq
 brp:1~1024;  tq=(brp)*tpclk1
 baud rate=Fpclk1/((tbs1+1+tbs2+1+1)*brp);
 mode:CAN_Mode_Normal;CAN_Mode_LoopBack;
-if Fpclk is 36M,CAN_Mode_Init(CAN_SJW_1tq,CAN_BS2_8tq,CAN_BS1_9tq,4,CAN_Mode_LoopBack);
+if Fpclk is 36M,
 baud rate:36M/((8+9+1)*4)=500Kbps **/
-u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode)
+u8 CAN_Int_Init(CAN_TypeDef* CANx)
 { 
 	GPIO_InitTypeDef 		GPIO_InitStructure; 
 	CAN_InitTypeDef        	CAN_InitStructure;
@@ -146,7 +146,7 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode)
             CAN_InitStructure.CAN_NART=DISABLE;//ENABLE;			//禁止报文自动传送 ,按照CAN标准，CAN硬件在发送报文失败时会一直自动重传直到发送成功
             CAN_InitStructure.CAN_RFLM=DISABLE;		 	//报文不锁定,新的覆盖旧的  
             CAN_InitStructure.CAN_TXFP=DISABLE;			//优先级由报文标识符决定 
-            CAN_InitStructure.CAN_Mode= mode;	                //模式设置： mode:0,普通模式;1,回环模式; 
+            CAN_InitStructure.CAN_Mode= CAN_Mode_Normal;	//模式设置： mode:0,普通模式;1,回环模式; 
             //set baud rate
             CAN_InitStructure.CAN_SJW = CAN_SJW_1tq;  
             CAN_InitStructure.CAN_BS1 = CAN_BS1_3tq;
@@ -252,7 +252,7 @@ u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode)
             CAN_InitStructure.CAN_NART=DISABLE;//ENABLE;			 
             CAN_InitStructure.CAN_RFLM=DISABLE;		 	  
             CAN_InitStructure.CAN_TXFP=DISABLE;			 
-            CAN_InitStructure.CAN_Mode= mode;	         
+            CAN_InitStructure.CAN_Mode= CAN_Mode_Normal;	         
             
             CAN_InitStructure.CAN_SJW = CAN_SJW_1tq;  
             CAN_InitStructure.CAN_BS1 = CAN_BS1_3tq;

@@ -46,7 +46,7 @@ typedef struct  {
 #define CAN2RX_DOWN_ID  0x3488
 
 /* Exported functions ------------------------------------------------------- */
-u8 CAN_Mode_Init(CAN_TypeDef* CANx,u8 mode);//CAN初始化 
+u8 CAN_Int_Init(CAN_TypeDef* CANx);//CAN初始化 
 u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8* msg,u8 len);			//发送数据
 u8 Can_Receive_Msg(CAN_TypeDef* CANx,u8 *buf);					//接收数据
 void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_t send_id, uint8_t *buff, uint32_t len);

@@ -33,6 +33,7 @@
 /* Exported functions ------------------------------------------------------- */
 int Safety_StartupCheck(void);
 int Safety_RunCheck(void);
+void FailSafeTest(void);
 
 extern volatile type_testResult_t result;   /* variable is located in the stack */
 

@@ -175,27 +175,7 @@ void ProgramExecutionInstructionCheck(void)
     }
 }
 
-/*******************************************************************************
-* Function Name  : DataIntegrityInFRAMCheck
-* Description    : 
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-#ifdef GEC_SF_MASTER
-void DataIntegrityInFRAMCheck(void)
-{
-    eep_init();
-    if(MB85RCXX_Check())
-    {
-        /** MB85RCXX check fail , do some things **/                   
-    }
-    else
-    {
-        esc_data_check();
-    } 
-}
-#endif
+
 
 /*******************************************************************************
 * Function Name  : Safety_StartupCheck
@@ -228,12 +208,6 @@ int Safety_StartupCheck(void)
       /*----------------------------------------------------------------------*/  
       ProgramExecutionInstructionCheck();
 
-      /*----------------------------------------------------------------------*/
-      /*----------------------------- FRAM Test ------------------------------*/
-      /*----------------------------------------------------------------------*/ 
-#ifdef GEC_SF_MASTER
-      DataIntegrityInFRAMCheck();      
-#endif
       /*----------------------------------------------------------------------*/
       /*---------------- Check Safety routines Control flow  -----------------*/
       /*----------------------------------------------------------------------*/        

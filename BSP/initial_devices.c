@@ -24,8 +24,13 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 void PVD_Configuration(void);
+void SysTickTimerInit(void);
+void ExtCommDeviceInit(void);
+void PluseOutputInit(void);
 
 #ifdef GEC_SF_MASTER
+void DataIntegrityInFRAMCheck(void);
+
 __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
 uint8_t Rxbuffer[64]; 
 __IO uint32_t receive_count =1;
@@ -47,7 +52,7 @@ void Bsp_Init(void)
         /* self test ---------------------------------------------------------*/
 #if SELF_TEST
         Safety_StartupCheck();
-#endif  
+#endif   
         /** set system interrupt priority group 2 **/
 	NVIC_Configuration();
         
@@ -56,18 +61,20 @@ void Bsp_Init(void)
         PVD_Configuration();
         
         /** delay init **/
-	delay_init();  
+	Delay_Init();  
 
         /** LED init **/
 	LED_Init();
         
         /** input and relay output test init **/
-        Input_Output_PinInit();        
+        Input_Output_PinInit();           
+        /*----------------------------------------------------------------------*/
+        /*------------------------- Safety ExtWdt Test -------------------------*/
+        /*---------------------- SafetyRelay AuxRelay Test ---------------------*/
+        /*----------------------------------------------------------------------*/   
         
-        /** ewdt init **/
-        /* move to STLstartup.c */
-//        EWDT_Drv_pin_config();
-//        power_on_bsp_check();
+        SafetyExtWdt_StartUpCheck();
+
         
         /** exti init **/
         EXTIX_Init();
@@ -85,29 +92,24 @@ void Bsp_Init(void)
 #ifdef GEC_SF_MASTER
         
         /** CAN1 init,baud rate 250Kbps **/
-	CAN_Mode_Init(CAN1,CAN_Mode_Normal);   
+	CAN_Int_Init(CAN1);   
         
         /** CAN2 init,baud rate 250Kbps **/
         /** note : use CAN2 , must CAN1 init **/
-        CAN_Mode_Init(CAN2,CAN_Mode_Normal);         
-                
-        /** TIM init 1000Khz£¬counting to 10 is 10us **/
-        TIM3_Int_Init(9,71);        
+        CAN_Int_Init(CAN2);         
         
-        /** timer for usart3 **/
-        /** TIM init 10khz, counting to 10 is 1ms **/
-        TIM2_Int_Init(9,7199);
+        /** pluse output init **/
+        PluseOutputInit();
         
-        /** MB85RCXX init **/
-        eep_init();
-        if(MB85RCXX_Check())
-        {
-              /** MB85RCXX check fail , do some things **/                   
-        }
-        else
-        {
-            esc_data_check();
-        }       	 	          
+        /** Extenal communication device init **/
+        ExtCommDeviceInit();
+        
+        /*----------------------------------------------------------------------*/
+        /*----------------------------- FRAM Test ------------------------------*/
+        /*----------------------------------------------------------------------*/
+        
+        DataIntegrityInFRAMCheck();      
+
         
         /** USB VCP init **/
           USBD_Init(&USB_OTG_dev,
@@ -132,22 +134,99 @@ void Bsp_Init(void)
 
         /** spi communication init **/
         SPI1_Init();
-      /*----------------------------------------------------------------------*/
-      /*------------------------- Cross Comm CPU test ------------------------*/
-      /*------------------------- Data Integrity Test ------------------------*/
-      /*----------------------------------------------------------------------*/         
+        /*----------------------------------------------------------------------*/
+        /*------------------------- Cross Comm CPU test ------------------------*/
+        /*------------------------- Data Integrity Test ------------------------*/
+        /*----------------------------------------------------------------------*/         
         CrossCommCPUCheck();
+
         
 #if SELF_TEST
         /* Self test routines initialization ---------------------------------------*/
-        STL_InitRunTimeChecks();
+        Safety_InitRunTimeChecks();
 #endif
         /* systick timer , 5ms interrupt */
- 	if(SysTick_Config(SystemCoreClock / 200))
-        {
-          /* Capture error */
-          while (1);
-        }
+        SysTickTimerInit();
+}
+
+
+/*******************************************************************************
+* Function Name  : DataIntegrityInFRAMCheck
+* Description    : 
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+#ifdef GEC_SF_MASTER
+void DataIntegrityInFRAMCheck(void)
+{
+    eep_init();
+    if(MB85RCXX_Check())
+    {
+        /** MB85RCXX check fail , do some things **/                   
+    }
+    else
+    {
+        esc_data_check();
+    } 
+}
+#endif
+
+/*******************************************************************************
+* Function Name  : ExtCommDeviceInit
+* Description    : 
+*                  
+* Input          : None
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void ExtCommDeviceInit(void)
+{
+  
+    USART3_Init();   
+    
+    /** timer for usart3 **/
+    /** TIM init 10khz, counting to 10 is 1ms **/
+    TIM2_Int_Init(9,7199); 
+
+}
+
+/*******************************************************************************
+* Function Name  : PluseOutputInit
+* Description    : 
+*                  
+* Input          : None
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void PluseOutputInit(void)
+{
+  
+    /** TIM init 1000Khz¡ê?counting to 10 is 10us **/
+    TIM3_Int_Init(9,71); 
+
+}
+
+/*******************************************************************************
+* Function Name  : SysTickTimerInit
+* Description    : 
+*                  
+* Input          : None
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SysTickTimerInit(void)
+{
+  
+    if(SysTick_Config(SystemCoreClock / 200))
+    {
+        /* Capture error */
+        while (1);
+    }
+
 }
 
 /*******************************************************************************

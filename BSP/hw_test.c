@@ -16,6 +16,7 @@
 #include "ewdt.h"
 #include "esc_error_process.h"
 #include "crc16.h"
+#include "safety_test.h"
 
 #ifdef GEC_SF_MASTER
 #include "usbd_cdc_vcp.h"
@@ -50,7 +51,28 @@ static u16 cntt = 0;
 #endif
 
 /*******************************************************************************
-* Function Name  : SafetyRelayExtWdtCheck
+* Function Name  : SafetyRelayAuxRelayTest
+* Description    : Safety Relay and AuxRelay Test
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SafetyRelayAuxRelayTest(void)
+{
+   
+    
+    /* Online monitoring safety relay drive failure detection */
+    if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || AUX_FB )
+    {
+        FailSafeTest();
+    }   
+
+}
+
+/*******************************************************************************
+* Function Name  : SafetyExtWdt_StartUpCheck
 * Description    : Safety relay output circuit
 *                  安全继电器输出电路
 * Input          : None
@@ -58,7 +80,61 @@ static u16 cntt = 0;
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SafetyRelayExtWdtCheck(void)
+void SafetyExtWdt_StartUpCheck(void)
+{
+    
+#ifndef GEC_SF_MASTER    
+    delay_ms(600);
+#endif
+
+    if( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB && AUX_FB )
+    {
+        SF_EWDT_TOOGLE();
+        AUX_CTR = 1;
+        SF_RL_CTR = 1;   
+        SF_EWDT_TOOGLE();
+    }   
+    
+    
+    /*  wait 1800ms */
+    delay_ms(600);
+    EWDT_TOOGLE();
+    IWDG_ReloadCounter();
+    delay_ms(600);
+    EWDT_TOOGLE();
+    IWDG_ReloadCounter();
+    
+    /** Safety Relay and AuxRelay Test **/
+    SafetyRelayAuxRelayTest();
+    
+    delay_ms(600);
+    EWDT_TOOGLE();
+    IWDG_ReloadCounter();    
+   
+    if( !SF_RL_FB )
+    {
+        FailSafeTest();
+    }
+    else
+    {
+        AUX_CTR = 0;
+        SF_RL_CTR = 0;  
+    }   
+        
+
+
+}
+
+/*******************************************************************************
+* Function Name  : SafetyExtWdt_RunCheck
+* Description    : Safety relay output circuit
+*                  安全继电器输出电路
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SafetyExtWdt_RunCheck(void)
 {
     
     sfwdt_checkflag = 1;
@@ -346,7 +422,7 @@ void CPU_Exchange_Data(void)
 }
 
 /*******************************************************************************
-* Function Name  : SF_CTR_Check
+* Function Name  : SafetyCTR_Check
 * Description    : Coding protection detection in running process
 *                  运行过程中进行代码保护检查 
 * Input          : None
@@ -354,7 +430,7 @@ void CPU_Exchange_Data(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SF_CTR_Check(void)
+void SafetyCTR_Check(void)
 {
  
       if(switch_flag == 2)
@@ -366,7 +442,7 @@ void SF_CTR_Check(void)
             EN_ERROR_SYS2++;
             if(EN_ERROR_SYS2 > 2)
             {
-                printf("SF_CTR_Check error \n");
+                printf("SafetyCTR_Check error \n");
                 ESC_SafeRelay_Error_Process();
             }
         }
@@ -416,7 +492,7 @@ void Input_Check(void)
                         SF_RL_CTR = 1;                         
 //                        delay_ms(1);
                         
-                        SafetyRelayExtWdtCheck();
+                        SafetyExtWdt_RunCheck();
                 }   
                 /* Online monitoring safety relay drive failure detection */
                 else if(( switch_flag == 2 ) && ( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || AUX_FB ))

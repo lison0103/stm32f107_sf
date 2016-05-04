@@ -30,7 +30,7 @@ static u16 fac_ms=0;
 #if USE_SYSTICK_DELAY
 
 /*******************************************************************************
-* Function Name  : delay_init
+* Function Name  : Delay_Init
 * Description    : Delay is managed using SysTick
 *                  Initialization delay function
 * Input          : None
@@ -38,7 +38,7 @@ static u16 fac_ms=0;
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void delay_init(void)	 
+void Delay_Init(void)	 
 {
   
 	SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK_Div8);	
@@ -118,7 +118,7 @@ void delay_ms(u16 nms)
 #else
 
 /*******************************************************************************
-* Function Name  : delay_init
+* Function Name  : Delay_Init
 * Description    : Coarse delay function
 *                  Initialization delay function
 * Input          : None
@@ -126,7 +126,7 @@ void delay_ms(u16 nms)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void delay_init(void)	 
+void Delay_Init(void)	 
 {
  
 }

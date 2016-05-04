@@ -111,7 +111,7 @@ void Task_Loop(void)
       
       if( Tms100Counter == 0 )
       {         
-          SF_CTR_Check();
+          SafetyCTR_Check();
       }
            
       if( Tms500Counter == 0 )
@@ -146,7 +146,7 @@ void Task_Loop(void)
 *******************************************************************************/
 int main(void)
 {        
-  
+
     /** hardware init **/
     Bsp_Init();    
     

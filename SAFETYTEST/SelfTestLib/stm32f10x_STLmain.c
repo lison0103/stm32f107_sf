@@ -34,7 +34,7 @@ ErrorStatus STL_CheckStack(void);
 
 
 /*******************************************************************************
-* Function Name  : STL_InitRunTimeChecks
+* Function Name  : Safety_InitRunTimeChecks
 * Description    : Initializes the Class B variables and their inverted
 *                  redundant counterparts. Init also the Systick and RTC timer
 *                  for clock frequency monitoring.
@@ -42,7 +42,7 @@ ErrorStatus STL_CheckStack(void);
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void STL_InitRunTimeChecks(void)
+void Safety_InitRunTimeChecks(void)
 {
   /* Init Class B variables required in main routine and SysTick interrupt
   service routine for timing purposes */

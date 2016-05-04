@@ -23,7 +23,7 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void STL_InitRunTimeChecks(void);
+void Safety_InitRunTimeChecks(void);
 void STL_DoRunTimeChecks(void);
 
 #endif /* __STL_MAIN_H */

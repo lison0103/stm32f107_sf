@@ -231,7 +231,7 @@ void ClockFrequency_StartupCheck(void)
 
 
 /*******************************************************************************
-* Function Name  : STL_StartUp
+* Function Name  : StartUpSelfTest
 * Description    : Contains the very first test routines executed right after
 *                  the reset
 * Input          : None
@@ -239,7 +239,7 @@ void ClockFrequency_StartupCheck(void)
 *                  Flash interface initialized, Systick timer ON (2ms timebase)
 * Return         : None
 *******************************************************************************/
-void STL_StartUp(void)
+void StartUpSelfTest(void)
 {
   #ifdef STL_VERBOSE_POR
     /* NOTE: Depending on compiler optimization level, printf may not operate
