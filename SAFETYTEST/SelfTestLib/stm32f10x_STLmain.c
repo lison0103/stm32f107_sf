@@ -83,7 +83,7 @@ void Safety_InitRunTimeChecks(void)
 
 /*******************************************************************************
 * Function Name  : GeneralRegister_RunCheck
-* Description    : 
+* Description    : Check the general register during running.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -106,13 +106,13 @@ void GeneralRegister_RunCheck(void)
 }
 
 /*******************************************************************************
-* Function Name  : StackCheck
-* Description    : 
+* Function Name  : Stack_RunCheck
+* Description    : Check the stack.
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void StackCheck(void)
+void Stack_RunCheck(void)
 {
     CtrlFlowCnt += STACK_OVERFLOW_TEST;
     if (STL_CheckStack() != SUCCESS)
@@ -131,7 +131,7 @@ void StackCheck(void)
 
 /*******************************************************************************
 * Function Name  : ClockFrequency_RunCheck
-* Description    : 
+* Description    : Check the clock frequency during running.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -182,7 +182,7 @@ void ClockFrequency_RunCheck(void)
 
 /*******************************************************************************
 * Function Name  : DataIntegrityInFlash_RunCheck
-* Description    : 
+* Description    : Check the data integrity in flash during running.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -220,13 +220,13 @@ void DataIntegrityInFlash_RunCheck(u32* RomTest)
 }
 
 /*******************************************************************************
-* Function Name  : STL_DoRunTimeChecks
+* Function Name  : Safety_RunCheck1
 * Description    : Provide a short description of the function
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void STL_DoRunTimeChecks(void)
+void Safety_RunCheck1(void)
 {
   /* Is the time base duration elapsed? */
   if (TimeBaseFlag == 0xAAAAAAAAuL)
@@ -253,7 +253,7 @@ void STL_DoRunTimeChecks(void)
       /*----------------------------------------------------------------------*/
       /*------------------------- Stack overflow -----------------------------*/
       /*----------------------------------------------------------------------*/
-      StackCheck();
+      Stack_RunCheck();
 
       /*----------------------------------------------------------------------*/
       /*------------------------- Clock monitoring ---------------------------*/

@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : Main program body.
 *                      
 *******************************************************************************/
 
@@ -28,10 +28,8 @@ u32 SysRunTime = 0;
 u32 timeprintf = 0;
 /*******************************************************************************
 * Function Name  : LED_indicator
-* Description    : 
-*                  
-* Input          : None
-*                 
+* Description    : LED indicator flashes Timing                 
+* Input          : None               
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -51,10 +49,8 @@ void LED_indicator(void)
 
 /*******************************************************************************
 * Function Name  : Task_Loop
-* Description    : 
-*                  
-* Input          : None
-*                 
+* Description    : This function contains the task to be executed in a loop.               
+* Input          : None                
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -70,8 +66,8 @@ void Task_Loop(void)
 
 #if SELF_TEST      
       /* self check */
-      STL_DoRunTimeChecks();     
-      Safety_RunCheck();
+      Safety_RunCheck1();     
+      Safety_RunCheck2();
 #endif  
       
 #ifdef GEC_SF_MASTER 
@@ -137,10 +133,8 @@ void Task_Loop(void)
 
 /*******************************************************************************
 * Function Name  : main
-* Description    : 
-*                  
+* Description    : Main program.             
 * Input          : None
-*                 
 * Output         : None
 * Return         : None
 *******************************************************************************/

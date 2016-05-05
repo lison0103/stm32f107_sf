@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : The file contains prototype of spi driver functions.
 *			          
 *******************************************************************************/
 
@@ -22,11 +22,6 @@
 /* Exported functions ------------------------------------------------------- */
 void SPI1_Init(void);			 
 void SPI1_DMA_ReceiveSendByte( u16 num );
-void SPI1_SetSpeed(u8 SpeedSet);   
-u8 SPI1_ReadWriteByte(u8 TxData);
-void SPI1_WriteByte(u8 TxData);
-u8 SPI1_ReadByte(u8 TxData);
-void SPI1_NVIC(void);
 void DMA_Check_Flag(u32 times);
 
 extern u8 SPI1_TX_Buff[buffersize] ;

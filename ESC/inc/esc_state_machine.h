@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 04/19/2016
-* Description        : 
+* Description        : The file contains prototype of esc state machine
 *			          
 *******************************************************************************/
 

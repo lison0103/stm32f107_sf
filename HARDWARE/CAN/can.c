@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : This file contains can functions.
 *                      
 *******************************************************************************/
 
@@ -29,10 +29,9 @@
 //#define CAN_BAUDRATE  10   /* 10kBps  */
 
 /* Private macro -------------------------------------------------------------*/
-//CAN接收RX0中断使能
-#define CAN1_RX0_INT_ENABLE	1		//0,不使能;1,使能.
+#define CAN1_RX0_INT_ENABLE	1		
 #ifdef GEC_SF_MASTER
-#define CAN2_RX0_INT_ENABLE	1		//0,不使能;1,使能.
+#define CAN2_RX0_INT_ENABLE	1		
 #endif
 
 #define CAN_FRAME_LEN   8
@@ -68,22 +67,19 @@ CAN_RX_DATA_PROCESS_TypeDef  CAN2_RX_Down;
 
 /*******************************************************************************
 * Function Name  : CAN_Int_Init
-* Description    : 
-*                  
+* Description    : Initialization can.
+* CAN_SJW: CAN_SJW_1tq~ CAN_SJW_4tq
+* CAN_BS2: CAN_BS2_1tq~CAN_BS2_8tq;
+* CAN_BS1: CAN_BS1_1tq ~CAN_BS1_16tq
+* CAN_Prescaler: 1~1024;  tq=(brp)*tpclk1
+* baud rate = Fpclk1/((tbs1+1+tbs2+1+1)*brp)
+* if Fpclk is 36M, baud rate:36M/((1+3+2)*24)=250Kbps               
 * Input          : None
 *                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-/** CAN init
-tsjw:CAN_SJW_1tq~ CAN_SJW_4tq
-tbs2:CAN_BS2_1tq~CAN_BS2_8tq;
-tbs1:CAN_BS1_1tq ~CAN_BS1_16tq
-brp:1~1024;  tq=(brp)*tpclk1
-baud rate=Fpclk1/((tbs1+1+tbs2+1+1)*brp);
-mode:CAN_Mode_Normal;CAN_Mode_LoopBack;
-if Fpclk is 36M,
-baud rate:36M/((8+9+1)*4)=500Kbps **/
+
 u8 CAN_Int_Init(CAN_TypeDef* CANx)
 { 
 	GPIO_InitTypeDef 		GPIO_InitStructure; 
@@ -138,16 +134,29 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             
             CAN_DeInit(CANx);
             CAN_StructInit(&CAN_InitStructure);
+                        
+            /*  non-time-triggered communication mode */
+            /*  非时间触发通信模式 */
+            CAN_InitStructure.CAN_TTCM=DISABLE;			
+            /* automatic offline management software */
+            /* 软件自动离线管理 */
+            CAN_InitStructure.CAN_ABOM=DISABLE;				 
+            /* wake-sleep mode via software (Clear CAN-> MCR's SLEEP bit) */
+            /* 睡眠模式通过软件唤醒(清除CAN->MCR的SLEEP位) */
+            CAN_InitStructure.CAN_AWUM=DISABLE;			
+            /* message is automatically transferred, in accordance with the CAN standard, */
+            /* CAN hardware failure when sending packets would have been automatic retransmission until sent successfully */
+            /* 报文自动传送 ,按照CAN标准，CAN硬件在发送报文失败时会一直自动重传直到发送成功 */
+            CAN_InitStructure.CAN_NART=DISABLE;//ENABLE;	
+            /* message is not locked, the new over the old one */
+            /* 报文不锁定,新的覆盖旧的 */
+            CAN_InitStructure.CAN_RFLM=DISABLE;		 	
+            /* priority is determined by the packet identifier */
+            /* 优先级由报文标识符决定 */
+            CAN_InitStructure.CAN_TXFP=DISABLE;			
+            CAN_InitStructure.CAN_Mode= CAN_Mode_Normal;	 
             
-            //CAN 
-            CAN_InitStructure.CAN_TTCM=DISABLE;			//非时间触发通信模式  
-            CAN_InitStructure.CAN_ABOM=DISABLE;			//软件自动离线管理	 
-            CAN_InitStructure.CAN_AWUM=DISABLE;			//睡眠模式通过软件唤醒(清除CAN->MCR的SLEEP位)
-            CAN_InitStructure.CAN_NART=DISABLE;//ENABLE;			//禁止报文自动传送 ,按照CAN标准，CAN硬件在发送报文失败时会一直自动重传直到发送成功
-            CAN_InitStructure.CAN_RFLM=DISABLE;		 	//报文不锁定,新的覆盖旧的  
-            CAN_InitStructure.CAN_TXFP=DISABLE;			//优先级由报文标识符决定 
-            CAN_InitStructure.CAN_Mode= CAN_Mode_Normal;	//模式设置： mode:0,普通模式;1,回环模式; 
-            //set baud rate
+            /* set baud rate */
             CAN_InitStructure.CAN_SJW = CAN_SJW_1tq;  
             CAN_InitStructure.CAN_BS1 = CAN_BS1_3tq;
             CAN_InitStructure.CAN_BS2 = CAN_BS2_2tq;   
@@ -216,7 +225,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
             NVIC_Init(&NVIC_InitStructure);
 #endif
-            CAN_ITConfig(CAN1, CAN_IT_TME, DISABLE);                // 发送中断
+            CAN_ITConfig(CAN1, CAN_IT_TME, DISABLE);                
             /* Enable CAN1 TX0 interrupt IRQ channel */
 #ifdef GEC_SF_MASTER
             NVIC_InitStructure.NVIC_IRQChannel = CAN1_TX_IRQn;
@@ -249,7 +258,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             CAN_InitStructure.CAN_TTCM=DISABLE;		  
             CAN_InitStructure.CAN_ABOM=DISABLE;				 
             CAN_InitStructure.CAN_AWUM=DISABLE;			
-            CAN_InitStructure.CAN_NART=DISABLE;//ENABLE;			 
+            CAN_InitStructure.CAN_NART=DISABLE;			 
             CAN_InitStructure.CAN_RFLM=DISABLE;		 	  
             CAN_InitStructure.CAN_TXFP=DISABLE;			 
             CAN_InitStructure.CAN_Mode= CAN_Mode_Normal;	         
@@ -306,7 +315,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
             NVIC_Init(&NVIC_InitStructure);
 #endif             
-            CAN_ITConfig(CAN2, CAN_IT_TME, DISABLE);                // 发送中断
+            CAN_ITConfig(CAN2, CAN_IT_TME, DISABLE);                
             /* Enable CAN1 TX0 interrupt IRQ channel */
             NVIC_InitStructure.NVIC_IRQChannel = CAN2_TX_IRQn;
             NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
@@ -322,10 +331,10 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
 
 /*******************************************************************************
 * Function Name  : CAN_RX_Process
-* Description    : 
+* Description    : process the receive data.
 *                  
-* Input          : None
-*                  None
+* Input          : RxMessage: receive a CanRxMsg
+*                  CanRx: define a CAN_RX_DATA_PROCESS_TypeDef struct to receive a frame data
 * Output         : None
 * Return         : None
 *******************************************************************************/			    
@@ -371,10 +380,8 @@ void CAN_RX_Process( CanRxMsg RxMessage, CAN_RX_DATA_PROCESS_TypeDef* CanRx )
 
 /*******************************************************************************
 * Function Name  : CAN1_RX0_IRQHandler
-* Description    : 
-*                  
+* Description    : This function handles CAN1 RX0 interrupt request.                
 * Input          : None
-*                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -410,10 +417,8 @@ void CAN1_RX0_IRQHandler(void)
 
 /*******************************************************************************
 * Function Name  : CAN2_RX0_IRQHandler
-* Description    : 
-*                  
-* Input          : None
-*                  None
+* Description    : This function handles CAN2 RX0 interrupt request.                 
+* Input          : None             
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -457,20 +462,25 @@ void CAN2_RX0_IRQHandler(void)
 
 
 /*******************************************************************************
-* Function Name  : CAN_Send_Process
-* Description    : 
+* Function Name  : BSP_CAN_Send
+* Description    : CAN send a frame data.
 *                  
-* Input          : None
-*                  None
+* Input          : CANx: CAN1 or CAN2
+*                  CanRx: define a CAN_TX_DATA_PROCESS_TypeDef struct to send a frame data
+*                  send_id: Extended identifier ID
+*                  buff: send data address
+*                  len: want to send data len
 * Output         : None
 * Return         : None
-*******************************************************************************/      
-void CAN_Send_Process(CAN_TypeDef* CANx,CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_t send_id,uint8_t *buff,uint32_t len)
+*******************************************************************************/  
+void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_t send_id, uint8_t *buff, uint32_t len)
 {
-	u32 i;
-        u8  result = 0;
 
-			
+        u32 i;
+        u8  result = 0;	
+        
+        
+        if( len > canbuffsize ) return;		
 				
         /** packet the data pack ------------------------**/
         if( CanTx->sending == 0 && len > 0 )
@@ -548,51 +558,14 @@ void CAN_Send_Process(CAN_TypeDef* CANx,CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint
                 
             }
             CAN_ITConfig(CAN1, CAN_IT_TME, ENABLE);
-        }
-
-
-
-			
-}
-
-
-/*******************************************************************************
-* Function Name  : BSP_CAN_Send
-* Description    : 
-*                  
-* Input          : None
-*                  None
-* Output         : None
-* Return         : None
-*******************************************************************************/  
-void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_t send_id, uint8_t *buff, uint32_t len)
-{
-
-	
-    if( len > canbuffsize ) return;
+        } 
     
-    switch (*(uint32_t*)&CANx)
-    {
-       case CAN1_BASE:
-        
-          CAN_Send_Process(CAN1, CanTx, send_id, buff, len);
-          
-          break;
-#ifdef GEC_SF_MASTER
-       case CAN2_BASE:
-       
-          CAN_Send_Process(CAN2, CanTx, send_id, buff, len);
-          break;	
-#endif         
-    }			
 }
 
 /*******************************************************************************
 * Function Name  : CAN1_TX_IRQHandler
-* Description    : 
-*                  
+* Description    : This function handles CAN1 TX interrupt request.               
 * Input          : None
-*                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/  
@@ -609,30 +582,32 @@ void CAN1_TX_IRQHandler(void)
 
 /*******************************************************************************
 * Function Name  : CAN2_TX_IRQHandler
-* Description    : 
-*                  
+* Description    : This function handles CAN2 TX interrupt request.                
 * Input          : None
-*                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/  
+#ifdef GEC_SF_MASTER
 void CAN2_TX_IRQHandler(void)
 {
 
-//            CAN_ClearITPendingBit(CAN2,CAN_IT_RQCP0);
+    CAN_ClearITPendingBit(CAN2,CAN_IT_RQCP0);
 
    
     
 }
+#endif
 
 /*******************************************************************************
 * Function Name  : BSP_CAN_Receive
-* Description    : 
+* Description    : CAN reveive a frame data.
 *                  
-* Input          : None
-*                  None
+* Input          : CANx: CAN1 or CAN2
+*                  CanRx: define a CAN_RX_DATA_PROCESS_TypeDef struct to receive a frame data
+*                  buff: receive data address
+*                  mlen: want to receive data len
 * Output         : None
-* Return         : None
+* Return         : Length of the received data
 *******************************************************************************/   
 uint32_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, uint8_t *buff,uint32_t mlen)
 {
@@ -688,18 +663,16 @@ uint32_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, u
 
 /*******************************************************************************
 * Function Name  : Can_Send_Msg
-* Description    : 
+* Description    : CAN send data
 *                  
-* Input          : None
-*                  None
+* Input          : len: data len(max len is 8)
+*                  msg: Data Pointer.
+*                  exid: Extended identifier ID.
+*                  CANx: CAN1 or CAN2
 * Output         : None
-* Return         : None
-*******************************************************************************/
-/** CAN send data
-len:data len(max len is 8)				     
-msg:Data Pointer.
-return:0,success;
-**/		 
+* Return         : 0: success
+*                  1: fail, no send mailbox 
+*******************************************************************************/		 
 u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8* msg,u8 len)
 {	
 	u16 i=0;
@@ -723,18 +696,12 @@ u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8* msg,u8 len)
 
 /*******************************************************************************
 * Function Name  : Can_Receive_Msg
-* Description    : 
-*                  
-* Input          : None
-*                  None
+* Description    : CAN receive data                 
+* Input          : buf:data cache
 * Output         : None
-* Return         : None
+* Return         : 0: no data receive; 
+*                  other: Length of the received data;
 *******************************************************************************/
-/** CAN receive data
-buf:data cache;	 
-return:0,no data receive;
-other,Length of the received data;
-**/
 u8 Can_Receive_Msg(CAN_TypeDef* CANx,u8 *buf)
 {		   		   
       u32 i;

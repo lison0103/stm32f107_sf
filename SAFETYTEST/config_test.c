@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/30/2016
-* Description        : 
+* Description        : This file contains Configuration register check.
 *                      
 *******************************************************************************/
 
@@ -31,7 +31,7 @@ IEC61508_ConfCheck_struct  ConfigReg_Check;
 
 /*******************************************************************************
 * Function Name  : PWRReg_Check
-* Description    : 
+* Description    : Check Power Control register.
 * Input          : None
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
@@ -52,7 +52,7 @@ int PWRReg_Check(void)
 
 /*******************************************************************************
 * Function Name  : RCCReg_Check
-* Description    : 
+* Description    : Check Reset and Clock Control register.
 * Input          : None
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
@@ -165,7 +165,7 @@ int RCCReg_Check(void)
 
 /*******************************************************************************
 * Function Name  : EXTIReg_Check
-* Description    : 
+* Description    : Check External Interrupt register.
 * Input          : None
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
@@ -193,7 +193,7 @@ int EXTIReg_Check(void)
 
 /*******************************************************************************
 * Function Name  : DMAReg_Check
-* Description    : 
+* Description    : Check DMA Controller register.
 * Input          : None
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
@@ -260,7 +260,7 @@ int DMAReg_Check(void)
 
 /*******************************************************************************
 * Function Name  : TIMReg_Check
-* Description    : 
+* Description    : Check TIM register.
 * Input          : None
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
@@ -313,7 +313,7 @@ int TIMReg_Check(void)
 
 /*******************************************************************************
 * Function Name  : CANReg_Check
-* Description    : 
+* Description    : Check Controller Area Network register.
 * Input          : None
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
@@ -345,7 +345,7 @@ int CANReg_Check(void)
 
 /*******************************************************************************
 * Function Name  : SPIReg_Check
-* Description    : 
+* Description    : Check Serial Peripheral Interface register
 * Input          : None
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
@@ -403,7 +403,7 @@ int SPIReg_Check(void)
 
 /*******************************************************************************
 * Function Name  : USARTReg_Check
-* Description    : 
+* Description    : Check Universal Synchronous Asynchronous Receiver Transmitter register.
 * Input          : None
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
@@ -430,7 +430,7 @@ int USARTReg_Check(void)
 
 /*******************************************************************************
 * Function Name  : ConfigurationRegister_Check
-* Description    : 
+* Description    : Check the configuration register.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -553,12 +553,13 @@ type_testResult_t ConfigurationRegister_Check(void)
 }
 
 
-
-/**
-  * @brief  Configures the different system clocks.PLL (8MHz * 9=72MHz)
-  * @param  None
-  * @retval None
-  */
+/*******************************************************************************
+* Function Name  : RCC_Configuration_72M
+* Description    : Configures the different system clocks.PLL (8MHz * 9=72MHz)
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void RCC_Configuration_72M(void) 
 { 
 
@@ -624,16 +625,20 @@ void RCC_Configuration_72M(void)
      /* Wait till PLL is used as system clock source 等待校验成功*/ 
      while (RCC_GetSYSCLKSource() != 0x08) 
      {} 
-} 
-
-  RCC_ClockSecuritySystemCmd(ENABLE);//使能或者失能时钟安全系统
+  } 
+  /* Enable or disable clock security system */
+  /* 使能或者失能时钟安全系统 */
+  RCC_ClockSecuritySystemCmd(ENABLE);
 }
 
-/**
-  * @brief  Configures the different system clocks.HSE(8MHz)
-  * @param  None
-  * @retval None
-  */
+
+/*******************************************************************************
+* Function Name  : RCC_Configuration_8M
+* Description    : Configures the different system clocks.HSE(8MHz)
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void RCC_Configuration_8M(void)
 {
 //  SystemInit();//频率设定有system_stm32f10x.c文件中的宏定义 开放某个宏 当调用SystemInit()时即可设置好频率
@@ -671,8 +676,9 @@ void RCC_Configuration_8M(void)
     while (RCC_GetSYSCLKSource() != 0x04)
     {}
   }
-
-  RCC_ClockSecuritySystemCmd(ENABLE);//使能或者失能时钟安全系统
+  /* Enable or disable clock security system */
+  /* 使能或者失能时钟安全系统 */
+  RCC_ClockSecuritySystemCmd(ENABLE);
 }
 
 

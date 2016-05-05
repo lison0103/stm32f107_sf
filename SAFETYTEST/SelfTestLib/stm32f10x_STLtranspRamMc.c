@@ -60,7 +60,7 @@ void STL_TranspMarchCInit(void)
 
 
 /*******************************************************************************
-* Function Name  : STL_TranspMarchC
+* Function Name  : RAM_RunCheck
 * Description    : This function verifies that 6 words of RAM are functional,
                     (with overlapping) using the March C- algorithm.
 * Input          : None
@@ -68,7 +68,7 @@ void STL_TranspMarchCInit(void)
 * Return         : ClassBTestStatus {TEST_RUNNING, CLASS_B_DATA_FAIL,
                     CTRL_FLW_ERROR, TEST_FAILURE, TEST_OK}
 *******************************************************************************/
-ClassBTestStatus STL_TranspMarchC(void)
+ClassBTestStatus RAM_RunCheck(void)
 {
       ClassBTestStatus Result = TEST_RUNNING;
       u32 i;        /* Index for RAM physical addressing */

@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : This file contains esc error process functions.
 *                      
 *******************************************************************************/
 
@@ -26,30 +26,28 @@ int EscBuff[10] = {0};
 
 /*******************************************************************************
 * Function Name  : ESC_EWDT_Error_Process
-* Description    : 
-*                  
-* Input          : 
-*                 
+* Description    : External watchdog checked fail
+*                  In the error handling routine in an infinite loop, disconnect the safety relay
+*                  Escalator stops running, enter the fault state, waiting for manual reset fault.
+* Input          : None            
 * Output         : None
 * Return         : None
 *******************************************************************************/
-/** 在故障处理子程序中死循环，断开安全继电器
-扶梯停止运行，进入故障状态，等待故障人工复位。**/
 void ESC_EWDT_Error_Process(void)
 {
  
-    /** 断开安全继电器 **/
+    /** Disconnect the safety relay **/
     SF_RL_CTR = 0;
     SF_RL_WDT = 0;
    
     while(1)
     {
-        /** 在故障处理子程序中死循环 **/
-          /**  等待故障人工复位 **/
+        /** In the error handling routine in an infinite loop **/
+          /**  Wait manual reset fault **/
           if( IN10 )
           {
                 __set_FAULTMASK(1);   
-                /** 软复位 **/
+                /** soft reset **/
                 NVIC_SystemReset();
           
           }
@@ -57,48 +55,81 @@ void ESC_EWDT_Error_Process(void)
 
 }
 
-/** 在故障处理子程序中死循环，等待看门狗复位
-断开安全继电器，扶梯停止运行，进入故障状态，等待故障复位 **/
+
+/*******************************************************************************
+* Function Name  : ESC_Flash_Error_Process
+* Description    : Fram checked fail
+*                  Error handling routine, safety disconnect relay,
+*                  Escalator stops running, enter the fault state, 
+*                  waiting for manual correction parameters
+* Input          : None            
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void ESC_Flash_Error_Process(void)
 {
  
-    /** 断开安全继电器 **/
+    /** Disconnect the safety relay **/
     SF_RL_CTR = 0;
     SF_RL_WDT = 0;  
 
 }
 
 
-/** 故障处理子程序，断开安全继电器，
-扶梯停止运行，进入故障状态, 等待人工修正参数 **/
+
+/*******************************************************************************
+* Function Name  : ESC_Flash_Error_Process
+* Description    : Flash checked fail
+*                  In the error handling routine in an infinite loop, waiting watchdog reset
+*                  Disconnect the safety relay, the escalator stops running, enter the fault state, 
+*                  waiting for the fault reset.
+* Input          : None            
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void ESC_Fram_Error_Process(void)
 {
 #ifdef GEC_SF_MASTER  
-    /** 断开安全继电器 **/
+    /** Disconnect the safety relay **/
     SF_RL_CTR = 0;
     SF_RL_WDT = 0;    
 #endif    
 
 }
 
-/** 进入故障处理子程序，断开安全继电器，
-扶梯停止运行，进入故障状态 **/
+
+/*******************************************************************************
+* Function Name  : ESC_SPI_Error_Process
+* Description    : SPI checked fail
+*                  Entering the error handling routine, safety disconnect relay,
+*                  Escalator stops running into the fault state
+* Input          : None            
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void ESC_SPI_Error_Process(void)
 {
   
-    /** 断开安全继电器 **/
+    /** Disconnect the safety relay **/
 //    SF_RL_CTR = 0;
 //    SF_RL_WDT = 0;
     printf("ESC_SPI_Error_Process \r\n");
 }
 
 
-/** 进入故障处理子程序，断开安全继电器，
-扶梯停止运行，进入故障状态 **/
+/*******************************************************************************
+* Function Name  : ESC_SafeRelay_Error_Process
+* Description    : ESC SafeRelay checked fail
+*                  Entering the error handling routine, safety disconnect relay,
+*                  Escalator stops running into the fault state
+* Input          : None            
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void ESC_SafeRelay_Error_Process(void)
 {
  
-    /** 断开安全继电器 **/
+    /** Disconnect the safety relay **/
     SF_RL_CTR = 0;
     SF_RL_WDT = 0;
     printf("ESC_SafeRelay_Error_Process \r\n");

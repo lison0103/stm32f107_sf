@@ -29,6 +29,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f30x_it.h"
+#include "led.h"
 
 /** @addtogroup STM32F30x_StdPeriph_Templates
   * @{
@@ -40,6 +41,8 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+extern u32 TimingDelay;    
+extern u32 SysRunTime;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Exceptions Handlers                         */
@@ -140,6 +143,21 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
+    TimingDelay++;
+    SysRunTime++;
+}
+
+/*******************************************************************************
+* Function Name  : PVD_IRQHandler
+* Description    : This function handles PVD interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void PVD_IRQHandler(void)
+{
+    /* store data */
+    while(1);
 }
 
 /******************************************************************************/

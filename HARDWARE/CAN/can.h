@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : This file contains prototype of can functions.
 *			          
 *******************************************************************************/
 
@@ -46,9 +46,9 @@ typedef struct  {
 #define CAN2RX_DOWN_ID  0x3488
 
 /* Exported functions ------------------------------------------------------- */
-u8 CAN_Int_Init(CAN_TypeDef* CANx);//CAN初始化 
-u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8* msg,u8 len);			//发送数据
-u8 Can_Receive_Msg(CAN_TypeDef* CANx,u8 *buf);					//接收数据
+u8 CAN_Int_Init(CAN_TypeDef* CANx); 
+u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8* msg,u8 len);			
+u8 Can_Receive_Msg(CAN_TypeDef* CANx,u8 *buf);					
 void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_t send_id, uint8_t *buff, uint32_t len);
 uint32_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, uint8_t *buff,uint32_t mlen);
 

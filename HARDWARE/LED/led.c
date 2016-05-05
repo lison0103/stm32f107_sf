@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : The file contains led functions.
 *                      
 *******************************************************************************/
 
@@ -20,7 +20,7 @@
 
 /*******************************************************************************
 * Function Name  : LED_Init
-* Description    : 
+* Description    : Initialization led.
 *                  
 * Input          : None
 *                  None

@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : This file contains the external watchdog functions.
 *                      
 *******************************************************************************/
 
@@ -24,8 +24,8 @@ u8 iwdg_check_flag = 0;
 
 /*******************************************************************************
 * Function Name  : EWDT_Drv_pin_config
-* Description    : min:1.12 typ:1.6 max:2.4
-*                  
+* Description    : Configure the pin.
+*                  the external watchdog reset  min:1.12 typ:1.6 max:2.4
 * Input          : None
 *                  None
 * Output         : None
@@ -63,10 +63,10 @@ void EWDT_Drv_pin_config(void)
 
 /*******************************************************************************
 * Function Name  : write_bkp
-* Description    : 
+* Description    : This function write the cpu backup register to store data.
 *                  
-* Input          : None
-*                  None
+* Input          : adr: the address of backup register
+*                  dat: data to be written
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -83,14 +83,14 @@ void write_bkp(u16 adr,u16 dat)
 
 /*******************************************************************************
 * Function Name  : ExtWdtCheck
-* Description    : 
+* Description    : Check the external watchdog.
 *                  
 * Input          : None
 *                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-u8 ExtWdtCheck(void)
+void ExtWdtCheck(void)
 {
   u16 bkr_rst_flag=0;
 
@@ -156,7 +156,6 @@ u8 ExtWdtCheck(void)
       
   }
   
-  return(0);
 }  
 
 

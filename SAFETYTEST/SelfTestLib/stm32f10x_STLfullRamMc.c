@@ -37,7 +37,7 @@ static uc8 RAM_REVSCRMBL[RAM_BLOCKSIZE] = {1,0,2,3,5,4,6,7,9,8,10,11,13,12,14,15
 /* Private functions ---------------------------------------------------------*/
 
 /*******************************************************************************
-* Function Name  : STL_FullRamMarchC
+* Function Name  : RAM_StarupCheck
 * Description    : This function verifies that RAM is functional,
 *                  using the March C- algorithm.
 * Input          : None
@@ -45,7 +45,7 @@ static uc8 RAM_REVSCRMBL[RAM_BLOCKSIZE] = {1,0,2,3,5,4,6,7,9,8,10,11,13,12,14,15
 *                  at the exception of CtrlFlowCntInv, set to 0xFFFFFFFF.
 * Return         : ErrorStatus = {ERROR; SUCCESS}
 *******************************************************************************/
-ErrorStatus STL_FullRamMarchC(void)
+ErrorStatus RAM_StarupCheck(void)
 {
       ErrorStatus Result = SUCCESS;
       u32 *p;       /* RAM pointer */

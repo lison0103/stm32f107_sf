@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 04/12/2016
-* Description        : 
+* Description        : This file contains prototype of adc conversion functions.
 *			          
 *******************************************************************************/
 

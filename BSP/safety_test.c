@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : Contains the Self-test functions.
 *                      
 *******************************************************************************/
 
@@ -52,7 +52,7 @@ void FailSafeTest(void)
     
 /*******************************************************************************
 * Function Name  : ConfigurationRegister_StartupCheck
-* Description    : 
+* Description    : This function check the configuration register after startup.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -81,7 +81,7 @@ void ConfigurationRegister_StartupCheck(void)
 
 /*******************************************************************************
 * Function Name  : ConfigurationRegister_RunCheck
-* Description    : 
+* Description    : This function check the configuration register during running.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -114,7 +114,7 @@ void ConfigurationRegister_RunCheck(void)
 
 /*******************************************************************************
 * Function Name  : FlagRegisterCheck
-* Description    : 
+* Description    : Check the flag register.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -135,7 +135,7 @@ void FlagRegisterCheck(void)
 
 /*******************************************************************************
 * Function Name  : ProgramCounterCheck
-* Description    : 
+* Description    : Check the program counter.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -156,7 +156,7 @@ void ProgramCounterCheck(void)
 
 /*******************************************************************************
 * Function Name  : ProgramExecutionInstructionCheck
-* Description    : Program Execution Instruction and Accumulator test
+* Description    : Check the program execution instruction and accumulator.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -178,13 +178,13 @@ void ProgramExecutionInstructionCheck(void)
 
 
 /*******************************************************************************
-* Function Name  : Safety_StartupCheck
-* Description    : 
+* Function Name  : Safety_StartupCheck2
+* Description    : This function contains self test after startup.
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-int Safety_StartupCheck(void)
+void Safety_StartupCheck2(void)
 {       
              
       /*----------------------------------------------------------------------*/
@@ -196,11 +196,6 @@ int Safety_StartupCheck(void)
       /*--------------------------- FLAG registers ---------------------------*/
       /*----------------------------------------------------------------------*/
       FlagRegisterCheck();
-
-      /*----------------------------------------------------------------------*/
-      /*------------------------------- PC Test ------------------------------*/
-      /*----------------------------------------------------------------------*/ 
-      ProgramCounterCheck();
 
       /*----------------------------------------------------------------------*/
       /*------------------- program execution instruction --------------------*/
@@ -222,18 +217,17 @@ int Safety_StartupCheck(void)
            SafetyTestFlowCntInv = 0xFFFFFFFFuL;          
        }
         
-        return 0;
 
 }
 
 /*******************************************************************************
-* Function Name  : Safety_test_run
-* Description    : 
+* Function Name  : Safety_RunCheck2
+* Description    : This function contains self test during running.
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-int Safety_RunCheck(void)
+void Safety_RunCheck2(void)
 {       
         
       /*----------------------------------------------------------------------*/
@@ -261,7 +255,7 @@ int Safety_RunCheck(void)
       /*---------------- Check Safety routines Control flow  -----------------*/
       /*----------------------------------------------------------------------*/        
        if (((SafetyTestFlowCnt ^ SafetyTestFlowCntInv) != 0xFFFFFFFFuL)
-          ||(SafetyTestFlowCnt != CHECKCNT ))  
+          ||(SafetyTestFlowCnt != CHECKCNTRUN ))  
        {
           FailSafeTest();
        }
@@ -271,7 +265,6 @@ int Safety_RunCheck(void)
            SafetyTestFlowCntInv = 0xFFFFFFFFuL;          
        }
         
-        return 0;
 
 }
 

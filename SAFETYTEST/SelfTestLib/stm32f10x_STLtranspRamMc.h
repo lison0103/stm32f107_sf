@@ -30,7 +30,7 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void STL_TranspMarchCInit(void);
-ClassBTestStatus STL_TranspMarchC(void);
+ClassBTestStatus RAM_RunCheck(void);
 
 #endif /* __TRANSP_RAM_MC_H */
 

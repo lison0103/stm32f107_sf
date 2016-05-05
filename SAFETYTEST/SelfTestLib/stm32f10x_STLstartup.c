@@ -34,8 +34,6 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-#define RAMCheck STL_FullRamMarchC
-
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -70,7 +68,7 @@ void FailSafePOR(void)
 
 /*******************************************************************************
 * Function Name  : GeneralRegister_StartupCheck
-* Description    : 
+* Description    : Check the general register after startup.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -101,7 +99,7 @@ void GeneralRegister_StartupCheck(void)
 
 /*******************************************************************************
 * Function Name  : IWDTCheck
-* Description    : 
+* Description    : Check the internal watchdong.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -117,7 +115,7 @@ void IWDTCheck(void)
 
 /*******************************************************************************
 * Function Name  : DataIntegrityInFlashCheck
-* Description    : 
+* Description    : Check the clock frequency after startup.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -166,7 +164,7 @@ void DataIntegrityInFlash_StartupCheck(void)
 
 /*******************************************************************************
 * Function Name  : ClockFrequency_StartupCheck
-* Description    : 
+* Description    : Check the data integrity in flash after startup.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -229,9 +227,27 @@ void ClockFrequency_StartupCheck(void)
 
 }
 
+/*******************************************************************************
+* Function Name  : Stack_StartupCheck
+* Description    : Verify Control flow before Starting main program execution.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Stack_StartupCheck(void)
+{
+    CtrlFlowCnt += STACK_OVERFLOW_TEST;
+    StackOverFlowPtrn[0] = 0xAAAAAAAAuL;
+    StackOverFlowPtrn[1] = 0xBBBBBBBBuL;
+    StackOverFlowPtrn[2] = 0xCCCCCCCCuL;
+    StackOverFlowPtrn[3] = 0xDDDDDDDDuL;
+    CtrlFlowCntInv -= STACK_OVERFLOW_TEST;
+}
+
+
 
 /*******************************************************************************
-* Function Name  : StartUpSelfTest
+* Function Name  : Safety_StartupCheck1
 * Description    : Contains the very first test routines executed right after
 *                  the reset
 * Input          : None
@@ -239,7 +255,7 @@ void ClockFrequency_StartupCheck(void)
 *                  Flash interface initialized, Systick timer ON (2ms timebase)
 * Return         : None
 *******************************************************************************/
-void StartUpSelfTest(void)
+void Safety_StartupCheck1(void)
 {
   #ifdef STL_VERBOSE_POR
     /* NOTE: Depending on compiler optimization level, printf may not operate
@@ -312,10 +328,11 @@ void StartUpSelfTest(void)
 
   /*--------------------------------------------------------------------------*/
   /* --------------------- Variable memory functional test -------------------*/
+  /* --------------------------  Address Computation  ------------------------*/
   /*--------------------------------------------------------------------------*/
   /* WARNING: Stack is zero-initialized when exiting from this routine */
 
-  if (RAMCheck() != SUCCESS)
+  if (RAM_StarupCheck() != SUCCESS)
   {
 #ifdef STL_VERBOSE_POR
       printf("RAM Test Failure\n\r");
@@ -381,18 +398,14 @@ void StartUpSelfTest(void)
   /*--------------------------------------------------------------------------*/
   /*----------------------- Clock Frequency Self Test ------------------------*/
   /*--------------------------------------------------------------------------*/
+  
   ClockFrequency_StartupCheck();
   
   /*--------------------------------------------------------------------------*/
-  /* -----  Verify Control flow before Starting main program execution ------ */
+  /*--------------------------- Stack overflow -------------------------------*/
   /*--------------------------------------------------------------------------*/
 
-   CtrlFlowCnt += STACK_OVERFLOW_TEST;
-   StackOverFlowPtrn[0] = 0xAAAAAAAAuL;
-   StackOverFlowPtrn[1] = 0xBBBBBBBBuL;
-   StackOverFlowPtrn[2] = 0xCCCCCCCCuL;
-   StackOverFlowPtrn[3] = 0xDDDDDDDDuL;
-   CtrlFlowCntInv -= STACK_OVERFLOW_TEST;
+  Stack_StartupCheck();
 
   /*--------------------------------------------------------------------------*/
   /* -----  Verify Control flow before Starting main program execution ------ */

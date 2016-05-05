@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : The file contains spi driver functions.
 *                      
 *******************************************************************************/
 
@@ -35,7 +35,7 @@ static u16 waitus = 0;
 
 /*******************************************************************************
 * Function Name  : SPI1_Configuration
-* Description    : 
+* Description    : Configure spi1 register.
 *                  
 * Input          : None
 *                  None
@@ -80,7 +80,7 @@ void SPI1_Configuration(void)
 
 /*******************************************************************************
 * Function Name  : SPI1_Init
-* Description    : 
+* Description    : Intialization SPI1 .
 *                  
 * Input          : None
 *                  None
@@ -139,7 +139,7 @@ void SPI1_Init(void)
 
 /*******************************************************************************
 * Function Name  : SPI1_DMA_Configuration
-* Description    : 配置SPI1_RX的DMA通道2，SPI1_TX的DMA通道3
+* Description    : Configuring SPI1_RX DMA channel 2, SPI1_TX DMA channel 3
 * Input          : None
 * Output         : None
 * Return         : None
@@ -202,8 +202,8 @@ void SPI1_DMA_Configuration( void )
 
 /*******************************************************************************
 * Function Name  : SPI1_DMA_ReceiveSendByte
-* Description    : 
-* Input          : None
+* Description    : Enable SPI1 DMA send and receive data.
+* Input          : num: the number of send and receive data.
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -265,8 +265,8 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
 
 /*******************************************************************************
 * Function Name  : DMA_Check_Flag
-* Description    : 
-*                  
+* Description    : Check the DMA flag register.
+*                  Judging whether data transmission and reception is completed
 * Input          : None
 *                  None
 * Output         : None
@@ -365,7 +365,7 @@ void DMA_Check_Flag(u32 times)
 
 /*******************************************************************************
 * Function Name  : DMA1_Channel2_IRQHandler
-* Description    : receive
+* Description    : This function handles DMA1 Stream 2 interrupt request.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -420,7 +420,7 @@ void DMA1_Channel2_IRQHandler(void)
 }
 /*******************************************************************************
 * Function Name  : DMA1_Channel3_IRQHandler
-* Description    : send
+* Description    : This function handles DMA1 Stream 3 interrupt request.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -463,125 +463,6 @@ void DMA1_Channel3_IRQHandler(void)
       }
 
 }
-
-
-
-/*******************************************************************************/
-/*******************************************************************************/
-/*******************************************************************************/
-
-
-/** SPI SpeedSet:
-SPI_BaudRatePrescaler_2   2 division   (SPI 36M@sys 72M)
-SPI_BaudRatePrescaler_8   8 division   (SPI 9M@sys 72M)
-SPI_BaudRatePrescaler_16  16 division  (SPI 4.5M@sys 72M)
-SPI_BaudRatePrescaler_256 256 division (SPI 281.25K@sys 72M)
-**/  
-void SPI1_SetSpeed(u8 SpeedSet)
-{
-        SPI_InitTypeDef  SPI_InitStructure;
-  
-	SPI_InitStructure.SPI_BaudRatePrescaler = SpeedSet ;
-  	SPI_Init(SPI1, &SPI_InitStructure);
-	SPI_Cmd(SPI1,ENABLE);
-} 
-
-/** SPIx read and write a byte
-TxData:Bytes to be written
-return :Read bytes
-**/
-u8 SPI1_ReadWriteByte(u8 TxData)
-{		
-	u8 retry=0;				 	
-	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET)          //检查指定的SPI标志位设置与否:发送缓存空标志位
-		{
-		retry++;
-		if(retry>200)return 0;
-		}
-#ifdef GEC_SF_S_NEW	
-        SPI_SendData8(SPI1, TxData);
-#else
-	SPI_I2S_SendData(SPI1, TxData);                                         //通过外设SPIx发送一个数据
-#endif
-        retry=0;
-
-	while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET)         //检查指定的SPI标志位设置与否:接受缓存非空标志位
-		{
-		retry++;
-		if(retry>200)return 0;
-		}
-#ifdef GEC_SF_S_NEW        
-        return SPI_ReceiveData8(SPI1);
-#else
-	return SPI_I2S_ReceiveData(SPI1);                                       //返回通过SPIx最近接收的数据					    
-#endif
-}
-
-
-void SPI1_WriteByte(u8 TxData)
-{  
-     u8 retry=0;     
-     while((SPI1->SR&1<<1)==0) 
-     {
-      retry++;
-      if(retry>200)return;
-     }     
-     SPI1->DR=TxData;            
-}
-
-
-u8 SPI1_ReadByte(u8 TxData)
-{  
-     u8 retry=0;     
-
-     while((SPI1->SR&1<<0)==0)  
-     {
-      retry++;
-      if(retry>200)return 0;
-     }             
-     return SPI1->DR;                
-}
-
-extern u8 Master_Temp[10];
-
-u8 Recive_buf[20] = {0x00};
-u8 cnt,flag1,recv_len= 0;
-
-void SPI1_IRQHandler(void)
-{
-  
-      if (SPI_I2S_GetITStatus(SPI1,SPI_I2S_IT_RXNE) != RESET)     
-      {
-#ifndef GEC_SF_S_NEW
-          SPI_I2S_ClearITPendingBit(SPI1,SPI_I2S_IT_RXNE);
-#endif     
-                while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-      
-
-#ifdef GEC_SF_MASTER
-
-#else
-
-#endif
-                
-      }  
-}
-
-void SPI1_NVIC(void)
-{
-  
-      NVIC_InitTypeDef NVIC_InitStructure;
-      
-      NVIC_InitStructure.NVIC_IRQChannel = SPI1_IRQn;
-      NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1 ;
-      NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;		
-      NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			
-      NVIC_Init(&NVIC_InitStructure);	
-           
-}
-
-
-
 
 
 

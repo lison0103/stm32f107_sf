@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : This file contains mb85rcxx driver functions.
 *                      
 *******************************************************************************/
 
@@ -46,7 +46,7 @@ u16 EEPROM_WR_TIME=0;
 
 /*******************************************************************************
 * Function Name  : EEP_SDA_OUT
-* Description    : 
+* Description    : Initialization the SDA pin.
 *                  
 * Input          : None
 *                  None
@@ -67,7 +67,7 @@ void EEP_SDA_OUT(void)
 
 /*******************************************************************************
 * Function Name  : EEP_SCL_OUT
-* Description    : 
+* Description    : Initialization the SCL pin.
 *                  
 * Input          : None
 *                  None
@@ -87,7 +87,7 @@ void EEP_SCL_OUT(void)
 
 /*******************************************************************************
 * Function Name  : eep_start
-* Description    : 
+* Description    : Simulate IIC start
 *                  
 * Input          : None
 *                  None
@@ -114,7 +114,7 @@ void eep_start(void)
 
 /*******************************************************************************
 * Function Name  : eep_stop
-* Description    : 
+* Description    : Simulate IIC stop
 *                  
 * Input          : None
 *                  None
@@ -141,12 +141,12 @@ void eep_stop(void)
 
 /*******************************************************************************
 * Function Name  : eep_write
-* Description    : 
+* Description    : write data to mb85rcxx
 *                  
-* Input          : None
+* Input          : d: data want to be written
 *                  None
 * Output         : None
-* Return         : None
+* Return         : EEP_ACK: success EEP_NACK: fail
 *******************************************************************************/
 u8 eep_write(u8 d)		
 {
@@ -198,12 +198,12 @@ u8 eep_write(u8 d)
 
 /*******************************************************************************
 * Function Name  : eep_read
-* Description    : 
+* Description    : read a data from mb85rcxx
 *                  
 * Input          : None
 *                  None
 * Output         : None
-* Return         : None
+* Return         : return read the data
 *******************************************************************************/
 u8 eep_read(u8 ack)	 
 {
@@ -243,7 +243,7 @@ u8 eep_read(u8 ack)
 
 /*******************************************************************************
 * Function Name  : eep_init
-* Description    : 
+* Description    : Initialization simulation IIC.
 *                  
 * Input          : None
 *                  None
@@ -261,12 +261,13 @@ void eep_init(void)
 
 /*******************************************************************************
 * Function Name  : eeprom_data_write1
-* Description    : 
+* Description    : From address to start writing a length data
 *                  
-* Input          : None
-*                  None
+* Input          : addr: mb85rcxx address want to be written
+*                  len: the lenth of data
+*                  dat: want to write the address of data  
 * Output         : None
-* Return         : None
+* Return         : 0: success 1: fail
 *******************************************************************************/
 uint8_t eeprom_data_write1(u16 addr,u16 len,u8 *dat)
 {
@@ -304,12 +305,13 @@ uint8_t eeprom_data_write1(u16 addr,u16 len,u8 *dat)
 
 /*******************************************************************************
 * Function Name  : eeprom_write
-* Description    : 
+* Description    : From address to start writing a length data
 *                  
-* Input          : None
-*                  None
+* Input          : addr: mb85rcxx address want to be written
+*                  len: the lenth of data
+*                  dat: want to write the address of data  
 * Output         : None
-* Return         : None
+* Return         : 0: success 1: fail
 *******************************************************************************/
 u8 eeprom_write(u16 addr,u16 len,u8 *dat)
 {
@@ -329,12 +331,13 @@ u8 eeprom_write(u16 addr,u16 len,u8 *dat)
 
 /*******************************************************************************
 * Function Name  : eeprom_data_read1
-* Description    : 
+* Description    : From address to start reading a length data
 *                  
-* Input          : None
-*                  None
+* Input          : addr: mb85rcxx address want to be read
+*                  len: the lenth of data
+*                  dat: want to read the address of data  
 * Output         : None
-* Return         : None
+* Return         : 0: success 1: fail
 *******************************************************************************/
 uint8_t eeprom_data_read1(u16 addr, u16 len, u8 *dat)
 {
@@ -372,12 +375,13 @@ uint8_t eeprom_data_read1(u16 addr, u16 len, u8 *dat)
 
 /*******************************************************************************
 * Function Name  : eeprom_read
-* Description    : 
+* Description    : From address to start reading a length data
 *                  
-* Input          : None
-*                  None
+* Input          : addr: mb85rcxx address want to be read
+*                  len: the lenth of data
+*                  dat: want to read the address of data  
 * Output         : None
-* Return         : None
+* Return         : 0: success 1: fail
 *******************************************************************************/
 u8 eeprom_read(u16 addr,u16 len,u8 *dat)
 {
@@ -398,12 +402,12 @@ u8 eeprom_read(u16 addr,u16 len,u8 *dat)
 
 /*******************************************************************************
 * Function Name  : MB85RCXX_Check
-* Description    : 
+* Description    : Check the mb85rcxx.
 *                  
 * Input          : None
 *                  None
 * Output         : None
-* Return         : None
+* Return         : 0: success 1: fail
 *******************************************************************************/
 u8 MB85RCXX_Check(void)
 {

@@ -28,7 +28,7 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-ErrorStatus STL_FullRamMarchC(void);
+ErrorStatus RAM_StarupCheck(void);
 
 #endif /* __FULL_RAM_MARCHC_H */
 

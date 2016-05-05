@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : This file contains usart functions.
 *                      
 *******************************************************************************/
 
@@ -34,10 +34,11 @@ __IO uint16_t USART3_ready_buf_len=0;
 
 /*******************************************************************************
 * Function Name  : BSP_USART_Init
-* Description    : 
+* Description    : Initialization usart.
 *                  
-* Input          : None
-*                  None
+* Input          : USARTx: USART1,USART2 or USART3
+*                  baud: Baud rate
+*                  Parity: Parity check
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -66,10 +67,8 @@ void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity)
 
 /*******************************************************************************
 * Function Name  : NVIC_Configuration_Usart
-* Description    : 
-*                  
-* Input          : None
-*                  None
+* Description    : Configuring usart interrupt group.                 
+* Input          : USARTx: USART1,USART2 or USART3
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -95,10 +94,8 @@ void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
 
 /*******************************************************************************
 * Function Name  : USART3_Init
-* Description    : 
-*                  
+* Description    : Initialization usart3.                
 * Input          : None
-*                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -183,10 +180,11 @@ void USART3_Init(void)
 
 /*******************************************************************************
 * Function Name  : BSP_USART_Send
-* Description    : 
+* Description    : usart send data
 *                  
-* Input          : None
-*                  None
+* Input          : USARTx: USART1,USART2 or USART3
+*                  buff: the first address of send data 
+*                  len: the length of send data
 * Output         : None
 * Return         : None
 *******************************************************************************/ 
@@ -209,7 +207,7 @@ void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
 
 /*******************************************************************************
 * Function Name  : USART3_ISR
-* Description    : 
+* Description    : usart3 interrupt handles.
 *                  
 * Input          : None
 *                  None
@@ -235,6 +233,13 @@ void USART3_ISR(void)
 	}
 }
 
+/*******************************************************************************
+* Function Name  : USART3_IRQHandler
+* Description    : This function handles USART3 global interrupt request.             
+* Input          : None                
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void USART3_IRQHandler(void)
 {	 
       USART3_ISR();
@@ -243,10 +248,8 @@ void USART3_IRQHandler(void)
 
 /*******************************************************************************
 * Function Name  : USART_ReceiveOvertimeProcess
-* Description    : 
-*                  
+* Description    : usart3 receive data overtime process.                
 * Input          : None
-*                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -275,12 +278,12 @@ void USART_ReceiveOvertimeProcess(void)
 
 /*******************************************************************************
 * Function Name  : BSP_USART_Receive
-* Description    : 
-*                  
-* Input          : None
-*                  None
+* Description    : usart receive data.                 
+* Input          : USARTx: USART1,USART2 or USART3
+*                  buff: the first address of receive data 
+*                  mlen: want to receive the length of data
 * Output         : None
-* Return         : None
+* Return         : the length of receive data
 *******************************************************************************/
 uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 {
@@ -383,10 +386,12 @@ u16 uart3_rx_number=0,uart3_tx_number=0;	//,uart3_rx_counter
 
 /*******************************************************************************
 * Function Name  : DMA_Configuration_USART
-* Description    : 
-*                  
-* Input          : None
-*                  None
+* Description    : Configuring usart dma                
+* Input          : DMA_Chx: the number of dma channel
+*                  DB: dma Peripheral base addr
+*                  buff: dma memory base addr
+*                  dir: dma Peripheral data direction
+*                  len: the lenth of buffer data
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -415,10 +420,10 @@ void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *b
 
 /*******************************************************************************
 * Function Name  : BSP_USART_DMA_Init
-* Description    : 
-*                  
-* Input          : None
-*                  None
+* Description    : Intialization usart dma.                 
+* Input          : USARTx: USART1,USART2 or USART3
+*                  txBuff: the first address of dma send data
+*                  rxBuff: the first address of dma receive data
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -463,10 +468,11 @@ void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff)
 
 /*******************************************************************************
 * Function Name  : BSP_USART_Init
-* Description    : 
+* Description    : Initialization usart.
 *                  
-* Input          : None
-*                  None
+* Input          : USARTx: USART1,USART2 or USART3
+*                  baud: Baud rate
+*                  Parity: Parity check
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -500,8 +506,13 @@ void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity) //, F
   //USART_Cmd(USARTx , ENABLE); //USART Ê¹ÄÜ
 } 
 
-/*************************************************************************************************** 
-***************************************************************************************************/  
+/*******************************************************************************
+* Function Name  : USART1_IRQHandler
+* Description    : This function handles USART1 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/ 
 void USART1_IRQHandler(void)
 {
 #ifdef USART1_EN 
@@ -536,6 +547,13 @@ void USART1_IRQHandler(void)
 #endif	
 }
 
+/*******************************************************************************
+* Function Name  : USART2_IRQHandler
+* Description    : This function handles USART2 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void USART2_IRQHandler(void)
 {
 #ifdef USART2_EN 
@@ -568,6 +586,13 @@ void USART2_IRQHandler(void)
 #endif			
 }
 
+/*******************************************************************************
+* Function Name  : USART3_IRQHandler
+* Description    : This function handles USART3 global interrupt request.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void USART3_IRQHandler(void)
 {
 #ifdef USART3_EN 
@@ -606,10 +631,8 @@ void USART3_IRQHandler(void)
 
 /*******************************************************************************
 * Function Name  : NVIC_Configuration_Usart
-* Description    : 
-*                  
-* Input          : None
-*                  None
+* Description    : Configuring usart interrupt group.                 
+* Input          : USARTx: USART1,USART2 or USART3
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -642,10 +665,8 @@ void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
  
 /*******************************************************************************
 * Function Name  : USART1_Init
-* Description    : 
-*                  
+* Description    : Initialization usart1.                
 * Input          : None
-*                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/ 
@@ -708,10 +729,8 @@ void USART1_Init(void)
 
 /*******************************************************************************
 * Function Name  : USART2_Init
-* Description    : 
-*                  
+* Description    : Initialization usart2.                
 * Input          : None
-*                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -748,10 +767,8 @@ void USART2_Init(void)
 
 /*******************************************************************************
 * Function Name  : USART3_Init
-* Description    : 
-*                  
+* Description    : Initialization usart3.                
 * Input          : None
-*                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -805,10 +822,11 @@ void USART3_Init(void)
 
 /*******************************************************************************
 * Function Name  : BSP_USART_Send
-* Description    : 
+* Description    : usart send data
 *                  
-* Input          : None
-*                  None
+* Input          : USARTx: USART1,USART2 or USART3
+*                  buff: the first address of send data 
+*                  len: the length of send data
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -876,12 +894,12 @@ void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
 
 /*******************************************************************************
 * Function Name  : BSP_USART_Receive
-* Description    : 
-*                  
-* Input          : None
-*                  None
+* Description    : usart receive data.                 
+* Input          : USARTx: USART1,USART2 or USART3
+*                  buff: the first address of receive data 
+*                  mlen: want to receive the length of data
 * Output         : None
-* Return         : None
+* Return         : the length of receive data
 *******************************************************************************/ 
 uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 {

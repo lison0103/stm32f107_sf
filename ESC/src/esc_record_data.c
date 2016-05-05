@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : This file contains esc record and store data.
 *                      
 *******************************************************************************/
 
@@ -32,10 +32,8 @@ u8 Sys_Data_Backup[100] = {0};
 
 /*******************************************************************************
 * Function Name  : sys_data_write
-* Description    : 
-*                  
-* Input          : 
-*                 
+* Description    : write the data to the Fram.                  
+* Input          : None          
 * Output         : None
 * Return         : None
 *******************************************************************************/
@@ -56,18 +54,14 @@ void sys_data_write(void)
 
 /*******************************************************************************
 * Function Name  : esc_data_check
-* Description    : 
-*                  
-* Input          : 
-*                 
+* Description    : Respectively on two parameters CRC check memory area, such as CRC check is passed,
+*                  And then one by one using zone parameters (original code) and backup zone parameters (complement) XOR,
+*                  Two storage areas to ensure that the correct parameters, such as parameter error occurs, 
+*                  the process proceeds to the error handling routine                   
+* Input          : None                
 * Output         : None
 * Return         : None
 *******************************************************************************/
-/**
-分别对两个存贮区的参数进行CRC校验，如CRC校验通过后，
-再逐一对使用区参数（原码）与备份区参数（补码）进行异或运算，
-确保两个存贮区的参数正确，如发生参数错误，则进入故障处理子程序
-**/
 void esc_data_check(void)
 {
   u16 i;

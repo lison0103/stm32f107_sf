@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : This file contains the external interrupt functions.
 *                      
 *******************************************************************************/
 
@@ -25,7 +25,7 @@ u32 in2_counter = 0;
 
 /*******************************************************************************
 * Function Name  : EXTIX_Init
-* Description    : 
+* Description    : Initialization EXTI.
 *                  
 * Input          : None
 *                  None
@@ -118,7 +118,16 @@ void EXTIX_Init(void)
 #endif
 }
 
-/** MASTER IN2 **/ 
+
+/*******************************************************************************
+* Function Name  : EXTI0_IRQHandler
+* Description    : This function handles External interrupt Line 0 request.
+*                  MASTER IN2
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void EXTI0_IRQHandler(void)
 {
     if(EXTI_GetITStatus(EXTI_Line0) != RESET)
@@ -136,7 +145,15 @@ void EXTI0_IRQHandler(void)
     }
 }
 
-/** MASTER IN1 **/
+/*******************************************************************************
+* Function Name  : EXTI1_IRQHandler
+* Description    : This function handles External interrupt Line 1 request.
+*                  MASTER IN1
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void EXTI1_IRQHandler(void)
 {
 
@@ -148,7 +165,15 @@ void EXTI1_IRQHandler(void)
   }
 }
 
-/** SLAVE IN2 **/ 
+/*******************************************************************************
+* Function Name  : EXTI3_IRQHandler
+* Description    : This function handles External interrupt Line 3 request.
+*                  SLAVE IN2
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void EXTI3_IRQHandler(void)
 {
     if(EXTI_GetITStatus(EXTI_Line3) != RESET)
@@ -162,7 +187,15 @@ void EXTI3_IRQHandler(void)
     }
 }
 
-/** SLAVE IN1 **/
+/*******************************************************************************
+* Function Name  : EXTI4_IRQHandler
+* Description    : This function handles External interrupt Line 4 request.
+*                  SLAVE IN1
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
 void EXTI4_IRQHandler(void)
 {
 

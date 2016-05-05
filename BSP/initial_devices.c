@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : Contains the devices initinal.
 *                      
 *******************************************************************************/
 
@@ -39,7 +39,7 @@ __IO uint32_t receive_count =1;
 
 /*******************************************************************************
 * Function Name  : Bsp_Init
-* Description    : 
+* Description    : Initialize the CPU1,CPU2 and peripherals
 *                  
 * Input          : None
 *                  None
@@ -51,7 +51,7 @@ void Bsp_Init(void)
 
         /* self test ---------------------------------------------------------*/
 #if SELF_TEST
-        Safety_StartupCheck();
+        Safety_StartupCheck2();
 #endif   
         /** set system interrupt priority group 2 **/
 	NVIC_Configuration();
@@ -66,7 +66,7 @@ void Bsp_Init(void)
         /** LED init **/
 	LED_Init();
         
-        /** input and relay output test init **/
+        /** input and relay output init **/
         Input_Output_PinInit();           
         /*----------------------------------------------------------------------*/
         /*------------------------- Safety ExtWdt Test -------------------------*/
@@ -80,13 +80,11 @@ void Bsp_Init(void)
         EXTIX_Init();
 
         /** usart3 init **/
-#ifdef GEC_SF_MASTER 
-        USART3_Init();    
-#else
+        /** just for debug **/
 #if DEBUG_PRINTF
         USART3_Init();
 #endif        
-#endif
+
                                
         
 #ifdef GEC_SF_MASTER
@@ -137,7 +135,8 @@ void Bsp_Init(void)
         /*----------------------------------------------------------------------*/
         /*------------------------- Cross Comm CPU test ------------------------*/
         /*------------------------- Data Integrity Test ------------------------*/
-        /*----------------------------------------------------------------------*/         
+        /*----------------------------------------------------------------------*/   
+        
         CrossCommCPUCheck();
 
         
@@ -152,7 +151,7 @@ void Bsp_Init(void)
 
 /*******************************************************************************
 * Function Name  : DataIntegrityInFRAMCheck
-* Description    : 
+* Description    : FRAM initialization and test data integrity.
 * Input          : None
 * Output         : None
 * Return         : None
@@ -174,7 +173,7 @@ void DataIntegrityInFRAMCheck(void)
 
 /*******************************************************************************
 * Function Name  : ExtCommDeviceInit
-* Description    : 
+* Description    : Initialization the external communication devices interface.
 *                  
 * Input          : None
 *                 
@@ -194,7 +193,7 @@ void ExtCommDeviceInit(void)
 
 /*******************************************************************************
 * Function Name  : PluseOutputInit
-* Description    : 
+* Description    : Initialization the pluse output.
 *                  
 * Input          : None
 *                 
@@ -211,7 +210,7 @@ void PluseOutputInit(void)
 
 /*******************************************************************************
 * Function Name  : SysTickTimerInit
-* Description    : 
+* Description    : Initialization the systick timer.
 *                  
 * Input          : None
 *                 
@@ -221,6 +220,7 @@ void PluseOutputInit(void)
 void SysTickTimerInit(void)
 {
   
+    /** interrupt time 5ms **/
     if(SysTick_Config(SystemCoreClock / 200))
     {
         /* Capture error */
@@ -336,7 +336,7 @@ void RCC_Configuration(void)
 
 /*******************************************************************************
 * Function Name  : NVIC_Configuration
-* Description    : 
+* Description    : Configuring NVIC interrupt group.
 *                  
 * Input          : None
 *                 
@@ -356,7 +356,7 @@ void NVIC_Configuration(void)
 
 /*******************************************************************************
 * Function Name  : PVD_Configuration
-* Description    : 
+* Description    : Configuring system Voltage Detector.
 *                  
 * Input          : None
 *                 

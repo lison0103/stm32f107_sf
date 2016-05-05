@@ -29,7 +29,7 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void StartUpSelfTest(void);
+void Safety_StartupCheck1(void);
 void FailSafe(void);
 void FailSafeCPU(void);
 void STL_WDGSelfTest(void);

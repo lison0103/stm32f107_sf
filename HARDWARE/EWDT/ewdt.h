@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : This file contains prototype of the external watchdog functions.
 *			          
 *******************************************************************************/
 
@@ -25,7 +25,7 @@
 #endif
 
 /* Exported functions ------------------------------------------------------- */
-u8 ExtWdtCheck(void);
+void ExtWdtCheck(void);
 void EWDT_Drv_pin_config(void);
 
 extern u8 iwdg_check_flag;

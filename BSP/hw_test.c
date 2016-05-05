@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : Contains some test function.
 *                      
 *******************************************************************************/
 
@@ -73,8 +73,8 @@ void SafetyRelayAuxRelayTest(void)
 
 /*******************************************************************************
 * Function Name  : SafetyExtWdt_StartUpCheck
-* Description    : Safety relay output circuit
-*                  安全继电器输出电路
+* Description    : When powered on,check the safety external watchdog.
+*                  
 * Input          : None
 *                  None
 * Output         : None
@@ -127,8 +127,8 @@ void SafetyExtWdt_StartUpCheck(void)
 
 /*******************************************************************************
 * Function Name  : SafetyExtWdt_RunCheck
-* Description    : Safety relay output circuit
-*                  安全继电器输出电路
+* Description    : When the escalator stopped,check the safety external watchdog.
+*                  
 * Input          : None
 *                  None
 * Output         : None
@@ -164,8 +164,8 @@ void SafetyExtWdt_RunCheck(void)
 
 
 /*******************************************************************************
-* Function Name  : CPU_Exchange_Data_Check
-* Description    : 
+* Function Name  : CPU_Comm
+* Description    : Cpu1 and cpu2 communication.
 *                  
 * Input          : None
 *                  None
@@ -216,7 +216,7 @@ void CPU_Comm(void)
 
 /*******************************************************************************
 * Function Name  : CPU_Data_Check
-* Description    : 
+* Description    : Check the receive data.
 *                  
 * Input          : None
 *                  None
@@ -348,7 +348,7 @@ void CPU_Data_Check(void)
 
 /*******************************************************************************
 * Function Name  : CPU_Exchange_Data
-* Description    : 
+* Description    : Cpu send data by spi.
 *                  
 * Input          : None
 *                  None
@@ -424,7 +424,7 @@ void CPU_Exchange_Data(void)
 /*******************************************************************************
 * Function Name  : SafetyCTR_Check
 * Description    : Coding protection detection in running process
-*                  运行过程中进行代码保护检查 
+*                  
 * Input          : None
 *                  None
 * Output         : None
@@ -457,7 +457,7 @@ void SafetyCTR_Check(void)
 
 /*******************************************************************************
 * Function Name  : Input_Check
-* Description    :  
+* Description    : Monitor the input pin status test.
 *                   
 * Input          : None
 *                  None
@@ -492,12 +492,13 @@ void Input_Check(void)
                         SF_RL_CTR = 1;                         
 //                        delay_ms(1);
                         
-                        SafetyExtWdt_RunCheck();
+//                        SafetyExtWdt_RunCheck();
                 }   
                 /* Online monitoring safety relay drive failure detection */
-                else if(( switch_flag == 2 ) && ( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || AUX_FB ))
+                else if( switch_flag == 2 )
                 {
-                    switch_flag = 0; 
+                    SafetyRelayAuxRelayTest();
+                    switch_flag = 0;
                     printf("Input_Check error \n");
                 }                
 
@@ -776,7 +777,7 @@ void Input_Check(void)
 
 /*******************************************************************************
 * Function Name  : Input_Check2
-* Description    : 
+* Description    : Monitor the input pin status and test.
 *                  
 * Input          : None
 *                  None
@@ -1244,7 +1245,7 @@ void CrossCommCPUCheck(void)
 #ifdef GEC_SF_MASTER 
 /*******************************************************************************
 * Function Name  : CAN_Comm
-* Description    : 
+* Description    : CAN Communication test.
 *                  
 * Input          : None
 *                  None

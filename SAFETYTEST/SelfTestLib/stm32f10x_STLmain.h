@@ -24,7 +24,7 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void Safety_InitRunTimeChecks(void);
-void STL_DoRunTimeChecks(void);
+void Safety_RunCheck1(void);
 
 #endif /* __STL_MAIN_H */
 

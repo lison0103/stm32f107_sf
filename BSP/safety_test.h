@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Description        : 
+* Description        : Contains prototype of the Self-test functions.
 *			          
 *******************************************************************************/
 
@@ -25,14 +25,17 @@
 
 #define CHECKCNT ((u32)CONFIGURATION_REG_TEST_CALLER + \
                           FLAG_TEST_CALLER + \
+                          PEI_TEST_CALLER)
+
+#define CHECKCNTRUN ((u32)CONFIGURATION_REG_TEST_CALLER + \
+                          FLAG_TEST_CALLER + \
                           PC_TEST_CALLER + \
                           PEI_TEST_CALLER)
 
 
-
 /* Exported functions ------------------------------------------------------- */
-int Safety_StartupCheck(void);
-int Safety_RunCheck(void);
+void Safety_StartupCheck2(void);
+void Safety_RunCheck2(void);
 void FailSafeTest(void);
 
 extern volatile type_testResult_t result;   /* variable is located in the stack */
