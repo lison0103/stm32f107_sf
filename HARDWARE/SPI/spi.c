@@ -276,6 +276,7 @@ void DMA_Check_Flag(u32 times)
 {         
 
           waitus = 0;
+          /* 10us */
           while( ( !DMA_GetFlagStatus(DMA1_IT_TC2) ) && ( waitus < times ) )
           {
               waitus++;

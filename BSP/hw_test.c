@@ -64,7 +64,7 @@ void SafetyRelayAuxRelayTest(void)
    
     
     /* Online monitoring safety relay drive failure detection */
-    if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || AUX_FB )
+    if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || !AUX_FB )
     {
         FailSafeTest();
     }   
@@ -84,19 +84,21 @@ void SafetyExtWdt_StartUpCheck(void)
 {
     
 #ifndef GEC_SF_MASTER    
-    delay_ms(600);
+    delay_ms(700);
 #endif
 
     if( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB && AUX_FB )
     {
         SF_EWDT_TOOGLE();
-        AUX_CTR = 1;
+//        AUX_CTR = 1;
         SF_RL_CTR = 1;   
         SF_EWDT_TOOGLE();
     }   
     
     
     /*  wait 1800ms */
+    EWDT_TOOGLE();
+    IWDG_ReloadCounter();    
     delay_ms(600);
     EWDT_TOOGLE();
     IWDG_ReloadCounter();
@@ -117,7 +119,7 @@ void SafetyExtWdt_StartUpCheck(void)
     }
     else
     {
-        AUX_CTR = 0;
+//        AUX_CTR = 0;
         SF_RL_CTR = 0; 
         sfwdt_checkflag = 2;
     }   
@@ -489,7 +491,7 @@ void Input_Check(void)
                 if( ( sfwdt_checkflag == 1 ) || ( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB && AUX_FB ) )
                 {
                     
-                        AUX_CTR = 1;
+//                        AUX_CTR = 1;
                         SF_RL_CTR = 1;                         
 //                        delay_ms(1);
                         
@@ -1137,7 +1139,7 @@ void CrossCommCPUCheck(void)
     
     SPI1_DMA_ReceiveSendByte(comm_num);
   
-    DMA_Check_Flag(400000);
+    DMA_Check_Flag(100000);
     
     
         
@@ -1165,7 +1167,7 @@ void CrossCommCPUCheck(void)
               
               SPI1_DMA_ReceiveSendByte(comm_num);
                         
-              DMA_Check_Flag(400000);
+              DMA_Check_Flag(40000);
               
               if(!MB_CRC16(SPI1_RX_Data, comm_num))
               {
@@ -1220,7 +1222,7 @@ void CrossCommCPUCheck(void)
               
               SPI1_DMA_ReceiveSendByte(comm_num);
 
-              DMA_Check_Flag(400000);
+              DMA_Check_Flag(40000);
 #endif              
         }      
         
