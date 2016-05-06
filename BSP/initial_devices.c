@@ -121,12 +121,7 @@ void Bsp_Init(void)
             &USR_cb);          
           
         /** wait slave spi **/
-//        delay_ms(200);
-        
-
-#else
-        /** TIM init 1000Khz£¬counting to 5000 is 5ms **/
-        TIM2_Int_Init(4999,71);
+//        delay_ms(200);       
       
 #endif  /* GEC_SF_MASTER */
 

@@ -118,7 +118,8 @@ void SafetyExtWdt_StartUpCheck(void)
     else
     {
         AUX_CTR = 0;
-        SF_RL_CTR = 0;  
+        SF_RL_CTR = 0; 
+        sfwdt_checkflag = 2;
     }   
         
 
@@ -498,8 +499,8 @@ void Input_Check(void)
                 else if( switch_flag == 2 )
                 {
                     SafetyRelayAuxRelayTest();
-                    switch_flag = 0;
-                    printf("Input_Check error \n");
+//                    switch_flag = 0;
+//                    printf("Input_Check error \n");
                 }                
 
                 

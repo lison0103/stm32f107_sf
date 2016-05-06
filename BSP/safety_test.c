@@ -102,14 +102,14 @@ void ConfigurationRegister_RunCheck(void)
         FailSafeTest();
     } 
     result = ConfigurationRegister_Check();
-    if (result != IEC61508_testPassed)
-    {
-        FailSafeTest();                           
-    }
-    else
-    {
+//    if (result != IEC61508_testPassed)
+//    {
+//        FailSafeTest();                           
+//    }
+//    else
+//    {
         SafetyTestFlowCntInv -= CONFIGURATION_REG_TEST_CALLER;
-    }  
+//    }  
 }
 
 /*******************************************************************************
