@@ -37,7 +37,6 @@ void  Adc_Init(void)
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_ADC1, ENABLE );	 
  
         /* Set the ADC division factor 6 72M / 6 = 12, ADC can not exceed the maximum time 14M */
-        /* 设置ADC分频因子6 72M/6=12,ADC最大时间不能超过14M */
 	RCC_ADCCLKConfig(RCC_PCLK2_Div6);   
 
                        
@@ -48,22 +47,16 @@ void  Adc_Init(void)
 	ADC_DeInit(ADC1);  
 
         /* ADC operating modes: ADC1 and ADC2 work in standalone mode */
-        /* ADC工作模式:ADC1和ADC2工作在独立模式 */
 	ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;	
         /* Analog to digital conversion work in single mode */
-        /* 模数转换工作在单通道模式 */
 	ADC_InitStructure.ADC_ScanConvMode = DISABLE;
         /* Analog to digital conversion in single conversion mode */
-        /* 模数转换工作在单次转换模式 */
 	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;	
         /* Conversion by software rather than external trigger start */
-        /* 转换由软件而不是外部触发启动 */
 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;	
         /* ADC data is right-aligned */
-        /* ADC数据右对齐 */
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;	
         /* The number of order rules convert ADC channels */
-        /* 顺序进行规则转换的ADC通道的数目 */
 	ADC_InitStructure.ADC_NbrOfChannel = 0;	
 	ADC_Init(ADC1, &ADC_InitStructure);	
   

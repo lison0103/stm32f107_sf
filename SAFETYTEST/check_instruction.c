@@ -18,7 +18,7 @@ IEC61508_InstCheck_struct InstCheckBIST_struct;
 //type_testResult iec61508_InstCheck_POST (void)
 type_testResult_t iec61508_InstCheck_POST (void)
 {
-  _TBB_Arithmetic();   //no ok  ->remove ADRL R0, ThumbFun + 1 生成分支地址并置最低位为 1 ->ok
+  _TBB_Arithmetic();   //no ok  ->remove ADRL R0, ThumbFun + 1 Generate the branch address and the least significant bit is set to 1 ->ok
   _ITT_Arithmetic();   //ok 
   _DMB_Arithmetic();   //no ok  ->remove lock_mutex -> ok
   _CMP_Arithmetic();  //ok
@@ -79,39 +79,6 @@ i++;
   "EOR R0, R0, R1" "\n\t"                       /*XORB*/
   "CMP R0, #0xB4" "\n\t"                       /*CMPB*/
   );
-/*
-  i++;  
-a++;
-   asm 
-  (
-      "DMB  \n"                   //; 保证资源的访问已经结束
-      "MOV R1, #0 \n"      //; 向锁定域写"unlocked"
-      "STR R1, [R0] \n"
-      "DSB \n"                    //; 保证在CPU唤醒前完成互斥量状态更新
-      "SEV \n"                   //; 像其他CPU发送事件，唤醒任何等待事件的CPU 
 
-   );
-
-__asm
-(
-   //"IMPORT gVar \n" 
- // "ldr r0, [in] \n" 
-  //push eax 
-
-  "MOV r0, r15 \n" 
-  "MOV R0, #0x1 \n"
-  "ADD R0, R0, #0x0 \n"
-);
-i++;
-__asm 
-(
-//  "ADD [bx]inst__type.u16gvIndex, #0x1"     
-  "MOV R0, #0x1 \n"
-  "ADD R0, R0, #0x0 \n"
-//  "CBZ R0, JNB_TEST \n"           
-//  "NOP \n"
-//  "JNB_TEST: \n"
-);
-*/
 
 }

@@ -48,19 +48,29 @@ void SPI1_Configuration(void)
         
         SPI_I2S_DeInit(SPI1);
 
-	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;      //设置SPI单向或者双向的数据模式:SPI设置为双线双向全双工
+        /* Setting unidirectional or bidirectional SPI data mode: SPI is set to double two-way full-duplex */
+	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;      
 #ifdef GEC_SF_MASTER
-	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;		                //设置SPI工作模式:设置为主SPI
+        /* Setting SPI mode: setting master SPI */
+	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;		                
 #else
+        /* Setting SPI mode: setting slave SPI */
         SPI_InitStructure.SPI_Mode = SPI_Mode_Slave;
 #endif
-	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;		        //设置SPI的数据大小:SPI发送接收8位帧结构
-	SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;		                //选择了串行时钟的稳态:时钟悬空高
-	SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;	                        //数据捕获于第二个时钟沿
-	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;		                //NSS信号由硬件（NSS管脚）还是软件（使用SSI位）管理:内部NSS信号有SSI位控制
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;	//定义波特率预分频的值:波特率预分频值为32,速度约为72M/32 = 2.25M/s
-	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;	                //指定数据传输从MSB位还是LSB位开始:数据传输从MSB位开始
-	SPI_InitStructure.SPI_CRCPolynomial = 7;	                        //CRC值计算的多项式
+        /* SPI data set size: SPI transmission and reception of 8-bit frame structure */
+	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;		        
+        /* Select the serial clock Steady: Clock floating high */
+	SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;		              
+        /* Data capture on the second clock edge */
+	SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;	                        
+        /* NSS signal by hardware (NSS pin) or software (using SSI bit) management: internal NSS-bit control signal has SSI */
+	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;		                
+        /* Defines the baud rate prescaler values: Baud Rate Prescaler is 32, speed is about 72M / 32 = 2.25M / s */
+	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;	
+        /* Specifies the data transmission from the MSB or LSB bit first: data transmission start from the MSB */
+	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
+        /* CRC polynomial value calculation */
+	SPI_InitStructure.SPI_CRCPolynomial = 7;	                        
 	SPI_Init(SPI1, &SPI_InitStructure);                                     
  
         //DMA 
@@ -151,31 +161,33 @@ void SPI1_DMA_Configuration( void )
 //      NVIC_InitTypeDef NVIC_InitStructure;   
       
       DMA_DeInit(DMA1_Channel2);
-      DMA_InitStructure.DMA_PeripheralBaseAddr = SPI1_DR_Addr;//设置外设地址，注意PSIZE
-      DMA_InitStructure.DMA_MemoryBaseAddr = (u32)SPI1_RX_Buff;//设置DMA存储器地址，注意MSIZE
-      DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC; //目的
-      DMA_InitStructure.DMA_BufferSize = buffersize; //传输数量设置为buffersize个
+      DMA_InitStructure.DMA_PeripheralBaseAddr = SPI1_DR_Addr;
+      /* Set the DMA memory address */
+      DMA_InitStructure.DMA_MemoryBaseAddr = (u32)SPI1_RX_Buff;
+      DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC; 
+      /* A transmission number is set to buffersize */
+      DMA_InitStructure.DMA_BufferSize = buffersize; 
       
-      DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;//不执行外设地址增量模式
-      DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;//存储器地址增量模式
-      DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte; //外设数据宽度8bit
-      DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte; //存储器数据宽度8bit
-      DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;  //执行不循环操作
-      DMA_InitStructure.DMA_Priority = DMA_Priority_High;//通道优先级高
-      DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  //非存储器到存储器模式
-      DMA_Init(DMA1_Channel2, &DMA_InitStructure);  //
+      DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+      DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+      DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte; 
+      DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte; 
+      DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;  
+      DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+      DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  
+      DMA_Init(DMA1_Channel2, &DMA_InitStructure);  
       
 //      DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, ENABLE);
       
       DMA_DeInit(DMA1_Channel3);
       DMA_InitStructure.DMA_PeripheralBaseAddr = SPI1_DR_Addr;
       DMA_InitStructure.DMA_MemoryBaseAddr = (u32)SPI1_TX_Buff;
-      DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST; //目的
-      DMA_InitStructure.DMA_BufferSize = buffersize; //缓存长度
+      DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST; 
+      DMA_InitStructure.DMA_BufferSize = buffersize; 
       
-      DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;//一个外设
-      DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;//缓存地址增加
-      DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte; //字节传输
+      DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+      DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+      DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte; 
       DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte; 
       DMA_InitStructure.DMA_Mode = DMA_Mode_Normal; 
       DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
@@ -241,7 +253,7 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
     DMA_ClearFlag(DMA1_FLAG_GL3|DMA1_FLAG_TC3|DMA1_FLAG_HT3|DMA1_FLAG_TE3);
     DMA_ClearFlag(DMA1_FLAG_GL2|DMA1_FLAG_TC2|DMA1_FLAG_HT2|DMA1_FLAG_TE2);
       
-    //接送前读一次SPI1->DR，保证接收缓冲区为空
+    /* Read once before the shuttle SPI1-> DR, ensure that the receiving buffer is empty */
     SPI1->DR ;						
       
 

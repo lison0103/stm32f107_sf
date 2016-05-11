@@ -7,12 +7,12 @@
  * @date	: 26-March-2014
  * @author	: Paul
 */
-;定义数据区
+; Defined data area
 ;  AREA | Header Data|, DATA
 ;  ALIGN 4
   SECTION .text:DATA(2)  ;REORDER:NOROOT    ;:ROOT     ;:NOROOT
 MY_NUMBER
-  DCD 0x12345678  ;处记录的是一个数据
+  DCD 0x12345678  ;It is a data record
   DCD 0xABCDEF00
 
   ;PUBLIC MY_NUMBER
@@ -51,14 +51,14 @@ LOCKED   EQU 1
 UNLOCKED EQU 0
 
 ;;;;;;;;;;;----NO TEST----;;;;;;;;;;;
-;ADDS.W ADD.W 
-;隔离指令
-;DMB DSB ISB
-;饱和运算指令,#imm5 用于指定饱和边界 取值范围是1－32
-;SSAT.W Rd, #imm5, Rn, {,shift}
-;CBZ ;跳转范围较窄，只有0‐126
-;SDIV
-;LDRD STRD
+; ADDS.W ADD.W
+; Isolation instruction
+; DMB DSB ISB
+; Saturation operation instruction, # imm5 saturation boundary is used to specify the range 1-32
+; SSAT.W Rd, # imm5, Rn, {, shift}
+; CBZ; Jump narrower, only 0-126
+; SDIV
+; LDRD STRD
 
 ;;;;;;;;;;;----TEST----;;;;;;;;;;;
 ;ADD ADDS 
@@ -74,8 +74,8 @@ _DMB_Arithmetic
 
   LDR R3, =MY_NUMBER    ;R3= MY_NUMBER
   LDRD.W R0, R1,[R3]    ;R1= 0xABCD_EF00, R0=0x1234_5678
-  STRD.W R1, R0,[R3]    ;(MY_NUMBER)=0xABCDEF00_12345678  ;存储64 位整数  ;实现了双字的字序反转操作
-  ;DMB                   ;保证STR完成     
+  STRD.W R1, R0,[R3]    ;(MY_NUMBER)=0xABCDEF00_12345678  ;Memory 64-bit integer; to achieve a double word word order inversion operation
+  ;DMB                  ;Ensure complete STR     
   ;LDRD.W R0, R1,[R3]   ;R0= 0xABCD_EF00, R1=0x1234_5678
   LDR R4, [R3]          ;R4= *R3 R4= 0xABCD_EF00 
   CMP R4, R1
@@ -87,35 +87,35 @@ _DMB_Arithmetic
   ;STM r0, {r2,r3}
   ;LDRD.W R0, R1,[R2]  ;R0= 0xABCD_EF00, R1=0x1234_5678
   ;STRD.W R1, R0,[R2]  ;(0x1000)=0xABCD_EF00_1234_5678 : 78 56 34 12 00 EF CD AB 
-  ;STRD 来存储64 位整数
-  ;STRD.W R1, R0, [R2]  ;执行后， (0x1000)=0xABCD_EF00_1234_5678，从而实现了双字的字序反转操作。
+  ;STRD Memory 64-bit integer
+  ;STRD.W R1, R0, [R2]  ;After the execution, (0x1000) = 0xABCD_EF00_1234_5678, in order to achieve the double word word order inversion operation.
 
 ;lock_mutex
-;      MOV R1, #LOCKED        ; 和"locked"比较
-;      WFE
-;      DMB                    ; 保证资源的访问已经结束
-;      MOV R1, #UNLOCKED      ; 向锁定域写"unlocked"
-;      DSB                    ; 保证在CPU唤醒前完成互斥量状态更新
-;      SEV                    ; 像其他CPU发送事件，唤醒任何等待事件的CPU 
-;      CMP R1, #UNLOCKED      ; 和"locked"比较
+;       MOV R1, #LOCKED               ; and "locked" Comparison
+;       WFE
+;       DMB                           ; ensure access to resources has ended
+;       MOV R1, #UNLOCKED             ; write to the lock region "unlocked"
+;       DSB                           ; ensure completion before the CPU wake mutex status updates
+;       SEV                           ; send events like the other CPU, the CPU waits for an event to wake any
+;       CMP R1, #UNLOCKED             ; and "locked" Comparison  
 ;      BNE lock_mutex         
-      
-;没有STR和BL中间的DMB指令，就不能保证这条STR指令在复制代码到底部内存之前已经完成，
-;因为复制例程可能会在通过STR写入的数据还在写缓冲（Write Buffer）中时就运行
-;DMB指令强迫所有DMB之前的数据访问完成。
-;ISB指令防止了在复制代码结束之前就从RAM中取指令
-;Flash在内存的映射地址0x0800 0000 ~ 0x0801 FFFF，即大小为128KB
-;     MOV R0, #0
-;     LDR R1, =0x08000000           ;#REMAP_REG              
-;     STR R0, [R1]                  ; 关闭flash映射
-;     DMB                           ; 保证STR完成     
-     //BL block_copy_routine()     ; 复制代码到RAM
-;     ISB                           ; 保证流水线清空
-     //BL copied_routine()         ; 运行复制后的代码 (RAM中)
     
-;     LDR R0, =0x00000008  ;=GIC_CPUIF_BASE   ; 获得中断控制器基地址
-;     LDR R1, [R0, #0x0c]          ; 读取IAR，同时解除nIRQ信号
-;     DSB                          ;确保内存访问结束，并且没有其他的指令运行
+; There is no middle DMB STR and BL instructions, we can not guarantee this STR instructions before you copy the code in the end portion of the memory has been completed,
+; Because replication routines may be written by STR also write data buffer (Write Buffer) to run when
+; DMB DMB instruction before forcing all data access is complete.
+; ISB instruction to prevent the instruction fetch from RAM copy the code before the end of
+; Flash memory mapped address 0x0800 0000 ~ 0x0801 FFFF, namely the size of 128KB
+;     MOV R0, #0
+; LDR R1, = 0x08000000  ; #REMAP_REG
+; STR R0, [R1]          ; close the flash map
+; DMB                   ; ensure complete STR
+      // BL block_copy_routine (); copy the code into RAM
+; ISB                   ; ensure pipeline Empty
+      // BL copied_routine (); run after copying the code (RAM in)
+    
+; LDR R0, = 0x00000008; = GIC_CPUIF_BASE; obtain the base address of the interrupt controller
+; LDR R1, [R0, # 0x0c]  ; read IAR, while lifting nIRQ signal
+; DSB                   ; ensure that the memory access is complete, and no other instruction execution
 
 _DMB_Arithmetic_test_pass
   LDR  R1, =InstCheckPOST_struct     
@@ -146,22 +146,22 @@ _CMP_Arithmetic
 
   LDR R0, =0xeeff5599
   LDR R2, =0x1100aa44
-  ADDS.W R0, R0, R2   ;使用32 位Thumb-2 指令，并更新标志     ;R0=FFFFFFDD
-  ADD.W R0, R0, R2    ;使用32 位Thumb-2 指令，但不更新标志位
+  ADDS.W R0, R0, R2   ;32-bit Thumb-2 instruction, and update flag; R0 = FFFFFFDD
+  ADD.W R0, R0, R2    ;32-bit Thumb-2 instructions, but do not update flags
 
   LDR R0, =0x2000
-  SSAT.W R1, #12, R0    ;R0=0x2000(8192) 输出R1=0x7FF(2047) Q 标志位 1 12 位带符号整数（‐2048 至2047）
+  SSAT.W R1, #12, R0    ;R0 = 0x2000 (8192) output R1 = 0x7FF (2047) Q flag 112-bit signed integer (-2048 to 2047)
   LDR R4, =0x7ff  
   CMP R4, R1
   bne _CMP_Arithmetic_test_fail
   
-  USAT.W R1, #12, R0    ;无符号的12 位整数（0‐4095）R0=0x2000(8192) 输出R1=0xFFF(4095) Q 标志位 1
+  USAT.W R1, #12, R0    ;12-bit unsigned integer (0-4095) R0 = 0x2000 (8192) output R1 = 0xFFF (4095) Q flag 1
   LDR R4, =0xfff  
   CMP R4, R1
   bne _CMP_Arithmetic_test_fail
   
-;SSAT{.W} R1, #12, R0  ;R0=0x2000(8192) 输出R1=0x7FF(2047) APSR 中 Q 标志位 1 12 位带符号整数（‐2048 至2047）
-;USAT{.W} R1, #12, R0  ;无符号的12 位整数（0‐4095）R0=0x2000(8192) 输出R1=0xFFF(4095) Q 标志位 1 
+;SSAT{.W} R1, #12, R0  ;R0 = 0x2000 (8192) output R1 = 0x7FF (2047) CPSR flag 112 in the Q-bit signed integer (-2048 to 2047)
+;USAT{.W} R1, #12, R0  ;12-bit unsigned integer (0-4095) R0 = 0x2000 (8192) output R1 = 0xFFF (4095) Q flag 1
 
   MOV R0, #1
   CBZ R0, _CMP_Arithmetic_test_fail
@@ -169,7 +169,7 @@ _CMP_Arithmetic
 
   LDR R0, =300
   MOV R1, #5
-  SDIV.W R2, R0, R1   ;则R2= 300/5 =60
+  SDIV.W R2, R0, R1   ;R2= 300/5 =60
   MOV R4, #60
   CMP R4, R2
   bne _CMP_Arithmetic_test_fail
@@ -187,7 +187,7 @@ _CMP_Arithmetic
   CMP R4, R0
   bne _CMP_Arithmetic_test_fail
 
-;使用ADC实现64位加法，(R1,R0)=(R1,R0)+(R3,R2)
+;Use ADC to achieve 64-bit adder，(R1,R0)=(R1,R0)+(R3,R2)
   LDR R0, =0xeeff5599
   LDR R2, =0x1100aa44
   ADDS R0, R0, R2            /*ADDS*/    ;R0=FFFFFFDD
@@ -196,27 +196,27 @@ _CMP_Arithmetic
   CMP R4, R1
   bne _CMP_Arithmetic_test_fail
 
-;使用SBC实现64位减法，(R1,R0)=(R1,R0)-(R3,R2)
+;Use SBC achieve 64-bit subtraction，(R1,R0)=(R1,R0)-(R3,R2)
   SUBS R0, R0, R2            /*SUBS*/    ;R0-R2=EEFF5599
   SBC R1, R1, R3             /*SBC*/     ;R1-R3=55AB
   LDR R4, =0x55ab
   CMP R4, R1
   bne _CMP_Arithmetic_test_fail
 
-;使用RSC实现求64位数值的负数，(R3,R2)  R3=0-R1 R2=0-R0
+;Implement using RPC request value of negative 64，(R3,R2)  R3=0-R1 R2=0-R0
   ;RSBS R2, R0, #0
   ;RSC R3, R1, #0
   
-;R0+1, 判断R0是否为1的补码，若是Z置位
+;R0 + 1, determine complement R0 is 1, and if Z is set
   MOV R0, #1
   NEG R0, R0                 /*r1=0x0*/       /*NEG*/
   CMN R0, #1                 /*CMN*/
   bne _CMP_Arithmetic_test_fail
-;判断R1的低4位是否为0
+;Low four judges R1 is 0
   MOV R1, #0xf0
   TST R1, #0x0f              /*TST*/ 
   bne _CMP_Arithmetic_test_fail
-;比较R0与R1是否相等
+;Compare R0 and R1 are equal
   MOV R0, #0xaa55
   MOV R1, #0xaa55
   TEQ R0, R1                 /*TEQ*/
@@ -248,7 +248,7 @@ _CMP_Arithmetic_test_exit
 _BIT_Arithmetic
 ;/* Push ALL registers to stack */
   push {r0-r12,r14}
-;/*按位与
+;/*Bitwise AND
   MOV R0, #0xaaa
   MOV R1, #0x555
   AND R0, R0, R1          ; R0 &= R1
@@ -261,7 +261,7 @@ _BIT_Arithmetic
   CMP R1, #0
   bne _BIT_Arithmetic_test_fail
   
-;/*按位或
+;/*Bitwise or
   MOV R0, #0xaaa
   MOV R1, #0x555
   ORR R2, R0, R1           ; Rd |= Rn          /*ORR*/
@@ -277,7 +277,7 @@ _BIT_Arithmetic
   CMP R2, R3
   bne _BIT_Arithmetic_test_fail
 
-;/*位段清零
+;/*Bit segment is cleared
   LDR R0, =0x1234FFFF
   BFC R0, #4, #10            ;R0= 0x1234C00F  /*BFC*/
   LDR R1, =0x1234C00F
@@ -313,7 +313,7 @@ _BIT_Arithmetic
   CMP R1, R2
   bne _BIT_Arithmetic_test_fail
   
-;/*按位或反码 把源操作数按位取反后，再执行按位或
+;/*Bitwise or inverted the source operand bit negated, then performs a bitwise OR
   LDR R0, =0xaa55aa55
   ORN.W R0, R0, #0xaa      ; R0 = R0 | ~imm12    /*ORN.W imm12*/
   LDR R2, =0xffffff55
@@ -327,7 +327,7 @@ _BIT_Arithmetic
   bne _BIT_Arithmetic_test_fail
 
 
-;/*（按位）异或，异或总是按位的
+;/*(Bit) exclusive OR, XOR are always bits
   LDR R0, =0xff0055aa
   LDR R1, =0xf0f0aa55
   EOR R1, R1, R0                    ; Rd ^= Rn          /*EOR*/
@@ -344,7 +344,7 @@ _BIT_Arithmetic
   CMP R3, R2
   bne _BIT_Arithmetic_test_fail
 
-;/*寄存器偏移寻址
+;/* Register offset addressing
   MOV R2, #1
   MOV R0, R2, LSL #3           /*R0=R2*8*/
   MOV R3, #3
@@ -381,7 +381,7 @@ _STMDB_LDMIA
 ;/* Push ALL registers to stack */
   push {r0-r12,r14}
 
-;/*乘加与乘减
+;/*Multiply Accumulate, and Multiply Subtract
   MOV R0, #10
   MOV R1, #2
   MOV R2, #3
@@ -392,7 +392,7 @@ _STMDB_LDMIA
   CMP R3, #4
   bne _stmdb_ldmia_test_fail
   
-;/*带符号的64 位乘法
+;/*64-bit signed multiplication
   LDR R0, =patternnum5
   LDR R1, =patternnum6
   SMULL.W R2, R3, R0, R1  ;[R3:R2]= R0*R1     /*SMULL.W*/   #0xAAAAAA9F55555560 
@@ -410,7 +410,7 @@ _STMDB_LDMIA
   CMP R2, R4
   bne _stmdb_ldmia_test_fail
   
-;/*无符号的64 位乘法
+;/*Unsigned 64-bit multiplication
   LDR R0, =patternnum5
   LDR R1, =patternnum6
   UMULL.W R2, R3, R0, R1  ;[R3:R2]= R0*R1     /*UMULL.W*/   #0xAAAAAA9F55555560 

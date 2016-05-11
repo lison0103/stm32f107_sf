@@ -34,7 +34,7 @@ int fputc(int ch, FILE *f)
 {   
   
 //        USB_VCP_SendBuf((u8 *)(&ch), 1);
-      while((USART3->SR&0X40)==0);//循环发送,直到发送完毕   
+      while((USART3->SR&0X40)==0);  
           USART3->DR = (u8) ch; 
 
 	return ch;
@@ -57,7 +57,7 @@ int fputc(int ch, FILE *f)
 int fputc(int ch, FILE *f)
 {   
     
-	while((USART3->ISR&0X40)==0);//循环发送,直到发送完毕   
+	while((USART3->ISR&0X40)==0);
             USART3->TDR = (u8) ch;  
             
 	return ch;
@@ -66,7 +66,7 @@ int fputc(int ch, FILE *f)
 int fputc(int ch, FILE *f)
 {   
     
-	while((USART3->SR&0X40)==0);//循环发送,直到发送完毕   
+	while((USART3->SR&0X40)==0);
             USART3->DR = (u8) ch;  
             
 	return ch;

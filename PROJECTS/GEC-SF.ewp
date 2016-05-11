@@ -4740,13 +4740,6 @@
   <group>
     <name>ESC</name>
     <file>
-      <name>$PROJ_DIR$\..\ESC\src\esc_comm_db.c</name>
-      <excluded>
-        <configuration>GEC-SF-S</configuration>
-        <configuration>GEC-SF-S-NEW</configuration>
-      </excluded>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_error_process.c</name>
     </file>
     <file>

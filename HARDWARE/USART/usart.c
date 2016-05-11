@@ -50,19 +50,18 @@ void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity)
   {
 
     case USART3_BASE:
-      RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3 , ENABLE); //USART3 时钟使能
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3 , ENABLE); 
   		break;
   }
 
-  USART_StructInit(&USART_InitStruct); //结构体参数初始化，默认值9600
+  USART_StructInit(&USART_InitStruct); 
   USART_InitStruct.USART_BaudRate = baud;
   USART_InitStruct.USART_WordLength = USART_WordLength_8b;
   USART_InitStruct.USART_StopBits = USART_StopBits_1;
   USART_InitStruct.USART_Parity = Parity;
   USART_InitStruct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
   USART_InitStruct.USART_HardwareFlowControl =USART_HardwareFlowControl_None; 
-  USART_Init(USARTx , &USART_InitStruct); //USART1初始化
-  
+  USART_Init(USARTx , &USART_InitStruct); 
 } 
 
 /*******************************************************************************
@@ -110,31 +109,31 @@ void USART3_Init(void)
         GPIO_PinRemapConfig(GPIO_FullRemap_USART3, ENABLE);
         
         GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; 
         GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
         GPIO_Init(GPIOD , &GPIO_InitStruct);
               
         GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING;
         GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
         GPIO_Init(GPIOD , &GPIO_InitStruct);
         
-        BSP_USART_Init(USART3, 115200, USART_Parity_No);//, ENABLE
+        BSP_USART_Init(USART3, 115200, USART_Parity_No);
         USART_Cmd(USART3,ENABLE);
   
 #else
         GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; 
         GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
         GPIO_Init(GPIOB , &GPIO_InitStruct);
               
         GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; 
         GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
         GPIO_Init(GPIOB , &GPIO_InitStruct);
 
 	
-	BSP_USART_Init(USART3, 19200, USART_Parity_No);//, ENABLE
+	BSP_USART_Init(USART3, 19200, USART_Parity_No);
 	
 	NVIC_Configuration_Usart(USART3);       	
  
@@ -163,16 +162,16 @@ void USART3_Init(void)
         GPIO_Init(GPIOB, &GPIO_InitStruct);
 #else
         GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
         GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
         GPIO_Init(GPIOB , &GPIO_InitStruct);
               
         GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
+        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; 
         GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
         GPIO_Init(GPIOB , &GPIO_InitStruct);        
 #endif   
-        BSP_USART_Init(USART3, 115200, USART_Parity_No);//, ENABLE
+        BSP_USART_Init(USART3, 115200, USART_Parity_No);
         USART_Cmd(USART3,ENABLE);
 #endif
 
@@ -404,17 +403,17 @@ void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *b
   DMA_DeInit(DMA_Chx);
   DMA_InitStructure.DMA_PeripheralBaseAddr = DB;
   DMA_InitStructure.DMA_MemoryBaseAddr = (u32)buff;
-  DMA_InitStructure.DMA_DIR = dir; //目的
-  DMA_InitStructure.DMA_BufferSize = len; //缓存长度
+  DMA_InitStructure.DMA_DIR = dir; 
+  DMA_InitStructure.DMA_BufferSize = len; 
   
-  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;//一个外设
-  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;//缓存地址增加
-  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte; //字节传输
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte; 
   DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte; 
   DMA_InitStructure.DMA_Mode = DMA_Mode_Normal; 
   DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;
-  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  //
-  DMA_Init(DMA_Chx, &DMA_InitStructure);  //
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  
+  DMA_Init(DMA_Chx, &DMA_InitStructure);  
 }
 
 
@@ -427,7 +426,7 @@ void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *b
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff) // 
+void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff) 
 {
   switch (*(uint32_t*)&USARTx)
   {
@@ -476,34 +475,34 @@ void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity) //, FunctionalState DMAState
+void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity) 
 {
   USART_InitTypeDef   USART_InitStruct;
 
   switch (*(uint32_t*)&USARTx)
   {
     case USART1_BASE:
-      RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 , ENABLE); //USART1 时钟使能
+      RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 , ENABLE); 
   		break;
     case USART2_BASE:
-      RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2 , ENABLE); //USART2 时钟使能
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2 , ENABLE); 
   		break;
     case USART3_BASE:
-      RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3 , ENABLE); //USART3 时钟使能
+      RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3 , ENABLE); 
   		break;
   }
 
-  USART_StructInit(&USART_InitStruct); //结构体参数初始化，默认值9600
+  USART_StructInit(&USART_InitStruct); 
   USART_InitStruct.USART_BaudRate = baud;
   USART_InitStruct.USART_WordLength = USART_WordLength_8b;
   USART_InitStruct.USART_StopBits = USART_StopBits_1;
   USART_InitStruct.USART_Parity = Parity;
   USART_InitStruct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
   USART_InitStruct.USART_HardwareFlowControl =USART_HardwareFlowControl_None; 
-  USART_Init(USARTx , &USART_InitStruct); //USART1初始化
+  USART_Init(USARTx , &USART_InitStruct); 
   
   
-  //USART_Cmd(USARTx , ENABLE); //USART 使能
+  //USART_Cmd(USARTx , ENABLE); 
 } 
 
 /*******************************************************************************
@@ -520,8 +519,8 @@ void USART1_IRQHandler(void)
 	
 	if(USART_GetITStatus(USART1, USART_IT_IDLE) == SET)
 	{
-		//接收空闲中断
-		//禁止再次接受
+                /* Receive interrupt idle */
+                /* Barred from receiving again */
 		DMA_Cmd(USART1_RX_DMA_CHANNEL, DISABLE);
 
 		uart1_rx_number = 512-USART1_RX_DMA_CHANNEL->CNDTR;
@@ -534,7 +533,7 @@ void USART1_IRQHandler(void)
 		USART1_RX_DMA_CHANNEL->CNDTR = 512;		
 		DMA_Cmd(USART1_RX_DMA_CHANNEL, ENABLE);
 		
-		//清除标志
+		/* clear flag */
 		i = USART1->SR;
 		i = USART1->DR;
 	}		
@@ -561,8 +560,8 @@ void USART2_IRQHandler(void)
 	
 	if(USART_GetITStatus(USART2, USART_IT_IDLE) == SET)
 	{
-		//接收空闲中断
-		//禁止再次接受
+                /* Receive interrupt idle */
+                /* Barred from receiving again */
 		DMA_Cmd(USART2_RX_DMA_CHANNEL, DISABLE);
 		
 		uart2_rx_number = 512-USART2_RX_DMA_CHANNEL->CNDTR;
@@ -574,7 +573,7 @@ void USART2_IRQHandler(void)
 		USART2_RX_DMA_CHANNEL->CNDTR = 512;		
 		DMA_Cmd(USART2_RX_DMA_CHANNEL, ENABLE);
 		
-		//清除标志
+		/* clear flag */
 		i = USART2->SR;
 		i = USART2->DR;
 	}		
@@ -600,8 +599,8 @@ void USART3_IRQHandler(void)
  
 	if(USART_GetITStatus(USART3, USART_IT_IDLE) == SET)
 	{
-		//接收空闲中断
-		//禁止再次接受
+                /* Receive interrupt idle */
+                /* Barred from receiving again */
 		DMA_Cmd(USART3_RX_DMA_CHANNEL, DISABLE);
 		
 		
@@ -615,7 +614,7 @@ void USART3_IRQHandler(void)
 		USART3_RX_DMA_CHANNEL->CNDTR = 512;		
 		DMA_Cmd(USART3_RX_DMA_CHANNEL, ENABLE);
 		
-		//清除标志
+		/* clear flag */
 		i = USART3->SR;
 		i = USART3->DR;
 	}		
@@ -679,23 +678,23 @@ void USART1_Init(void)
 	GPIO_PinRemapConfig(GPIO_Remap_USART1, ENABLE);
 
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; 
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB , &GPIO_InitStruct);
 	
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_7;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING;
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB , &GPIO_InitStruct);
 	#else					
 
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOA , &GPIO_InitStruct);
 	
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING;  
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOA , &GPIO_InitStruct);
 	#endif
@@ -705,24 +704,24 @@ void USART1_Init(void)
 	RCC_APB2PeriphClockCmd(USART1_TRX_RCC, ENABLE); 
 
   GPIO_InitStruct.GPIO_Pin = USART1_TRX_PIN;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP; // 
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(USART1_TRX_GPIO , &GPIO_InitStruct);
 	#endif
 	
 	///////////////////////////////////////////////////////////////////
-	BSP_USART_Init(USART1, 19200, USART_Parity_No);//, ENABLE
+	BSP_USART_Init(USART1, 19200, USART_Parity_No);
 	
   //if(DMAState==ENABLE)       
 	BSP_USART_DMA_Init(USART1,uart1_tx_buff,uart1_rx_buff);
 
-	//中断 
+
 	///////////////////////////////////////////////////////////////////  
 	USART_ITConfig(USART1, USART_IT_TC, ENABLE);
 	USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
 	NVIC_Configuration_Usart(USART1);       	
 	
-	USART_Cmd(USART1 , ENABLE); //USART1 使能
+	USART_Cmd(USART1 , ENABLE); 
 				
 #endif
 }
@@ -740,21 +739,21 @@ void USART2_Init(void)
 	GPIO_InitTypeDef GPIO_InitStruct;
 
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOA , &GPIO_InitStruct);
 	
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; 
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOA , &GPIO_InitStruct);
 
-	BSP_USART_Init(USART2, 19200, USART_Parity_No);//, ENABLE
+	BSP_USART_Init(USART2, 19200, USART_Parity_No);
 	
   //if(DMAState==ENABLE)       
 	BSP_USART_DMA_Init(USART2,uart2_tx_buff,uart2_rx_buff);
    
-	//中断 	
+
   ///////////////////////////////////////////////////////////////////  
 	USART_ITConfig(USART2, USART_IT_TC, ENABLE);
 	USART_ITConfig(USART2, USART_IT_IDLE, ENABLE);
@@ -783,33 +782,33 @@ void USART3_Init(void)
 	GPIO_PinRemapConfig(GPIO_PartialRemap_USART3, ENABLE);
 
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; 
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOC , &GPIO_InitStruct);
 	
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; 
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOC , &GPIO_InitStruct);
 	#else					 
 
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; // 
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB , &GPIO_InitStruct);
 	
   GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; // 
+  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING;
   GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_Init(GPIOB , &GPIO_InitStruct);
 	#endif
 	
-	BSP_USART_Init(USART3, 19200, USART_Parity_No);//, ENABLE
+	BSP_USART_Init(USART3, 19200, USART_Parity_No);
 	
   //if(DMAState==ENABLE)       
 	BSP_USART_DMA_Init(USART3,uart3_tx_buff,uart3_rx_buff);
 
-	//中断 
+
 	///////////////////////////////////////////////////////////////////  
 	USART_ITConfig(USART3, USART_IT_TC, ENABLE);
 	USART_ITConfig(USART3, USART_IT_IDLE, ENABLE);

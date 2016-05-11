@@ -25,7 +25,7 @@
 #include "usart.h"
 
 #ifdef GEC_SF_MASTER
-#include "esc_comm_db.h"
+//#include "esc_comm_db.h"
 #include "esc_record_data.h"
 #include "mb85rcxx.h"
 #include "usbd_cdc_core_loopback.h"
