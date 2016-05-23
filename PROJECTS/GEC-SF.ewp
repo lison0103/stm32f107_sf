@@ -4740,7 +4740,36 @@
   <group>
     <name>ESC</name>
     <file>
+      <name>$PROJ_DIR$\..\ESC\inc\esc.h</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_error_process.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_handrail_speed.c</name>
+      <excluded>
+        <configuration>GEC-SF-M</configuration>
+        <configuration>GEC-SF-S</configuration>
+        <configuration>GEC-SF-S-NEW</configuration>
+      </excluded>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_interrupt.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_missing_step.c</name>
+      <excluded>
+        <configuration>GEC-SF-M</configuration>
+        <configuration>GEC-SF-S</configuration>
+        <configuration>GEC-SF-S-NEW</configuration>
+      </excluded>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_motor_speed.c</name>
+      <excluded>
+        <configuration>GEC-SF-S</configuration>
+        <configuration>GEC-SF-S-NEW</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_record_data.c</name>

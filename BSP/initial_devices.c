@@ -216,7 +216,7 @@ void SysTickTimerInit(void)
 {
   
     /** interrupt time 5ms **/
-    if(SysTick_Config(SystemCoreClock / 200))
+    if(SysTick_Config(SystemCoreClock / ( 1000 / SYSTEMTICK )))
     {
         /* Capture error */
         while (1);

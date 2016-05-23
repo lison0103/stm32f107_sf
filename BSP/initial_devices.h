@@ -39,6 +39,7 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 #define SELF_TEST  1
+#define SYSTEMTICK      ( 5 )
 
 /* Exported functions ------------------------------------------------------- */
 void Bsp_Init(void);

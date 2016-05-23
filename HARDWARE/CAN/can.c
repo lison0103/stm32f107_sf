@@ -184,15 +184,15 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             CAN_FilterInitStructure.CAN_FilterScale=CAN_FilterScale_32bit; 	
             
             //any id
-//            CAN_FilterInitStructure.CAN_FilterIdHigh=0x0000;	//32λID
+//            CAN_FilterInitStructure.CAN_FilterIdHigh=0x0000;	//32-bit ID
 //            CAN_FilterInitStructure.CAN_FilterIdLow=0x0000;
-//            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0x0000;//32λMASK
+//            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0x0000;//32-bit MASK
 //            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0x0000;
             
             //std id
-//            CAN_FilterInitStructure.CAN_FilterIdHigh=(0x10) << 5;	//32λID
+//            CAN_FilterInitStructure.CAN_FilterIdHigh=(0x10) << 5;	//32-bit ID
 //            CAN_FilterInitStructure.CAN_FilterIdLow=0x0000;
-//            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0xffff;//32λMASK
+//            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0xffff;//32-bit MASK
 //            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xfffc;
             
             //ext id
