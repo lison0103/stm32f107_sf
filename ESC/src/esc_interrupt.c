@@ -9,7 +9,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "esc_interrupt.h"
-
+#include "esc.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -30,11 +30,11 @@
 *******************************************************************************/
 void mtr_X1_int(void)
 {
-//    MTRITEM[0].SensorPulse++;    
-//    MTRITEM[0].rt_pulse++; 			
-//    MTRITEM[0].rt_brake_pulse++; 
-//    MTRITEM[0].PulseCalCounter++;
-//    
+    MTRITEM[0].SensorPulse++;    
+    MTRITEM[0].rt_pulse++; 			
+    MTRITEM[0].rt_brake_pulse++; 
+    MTRITEM[0].PulseCalCounter++;
+    
 //#ifdef GEC_SF_MASTER  
 //    HDL_Left.MtrPulse++;
 //    HDL_Right.MtrPulse++;
@@ -55,11 +55,11 @@ void mtr_X1_int(void)
 void mtr_X2_int(void)
 {
   
-//    MTRITEM[1].SensorPulse++;    
-//    MTRITEM[1].rt_pulse++; 	
-//    MTRITEM[1].rt_brake_pulse++; 
-//    MTRITEM[1].PulseCalCounter++;
-//    
+    MTRITEM[1].SensorPulse++;    
+    MTRITEM[1].rt_pulse++; 	
+    MTRITEM[1].rt_brake_pulse++; 
+    MTRITEM[1].PulseCalCounter++;
+    
 //#ifndef GEC_SF_MASTER  
 //    HDL_Left.MtrPulse++;
 //    HDL_Right.MtrPulse++;

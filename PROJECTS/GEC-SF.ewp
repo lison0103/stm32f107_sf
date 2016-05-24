@@ -4766,10 +4766,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_motor_speed.c</name>
-      <excluded>
-        <configuration>GEC-SF-S</configuration>
-        <configuration>GEC-SF-S-NEW</configuration>
-      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_record_data.c</name>

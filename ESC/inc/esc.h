@@ -57,6 +57,7 @@ typedef struct mtrfreqitem
 /* Exported functions ------------------------------------------------------- */
 
 extern u16 SfBase_EscState;
+extern MTRFREQITEM MTRITEM[2];
 
 
 #endif  /* __ESC_H */
