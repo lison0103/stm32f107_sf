@@ -13,6 +13,8 @@
 #include "safety_test.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
+#include "esc_motor_speed.h"
+#include "esc_handrail_speed.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -69,6 +71,16 @@ void Task_Loop(void)
       Safety_RunCheck1();     
       Safety_RunCheck2();
 #endif  
+      
+//      Motor_Speed_Ready(&MTRITEM[0]);
+//      Motor_Speed_Ready(&MTRITEM[1]);
+      SfBase_EscState = ESC_STATE_RUNNING;
+      Motor_Speed_Run_EN115(&MTRITEM[0]);
+      Motor_Speed_Run_EN115(&MTRITEM[1]);
+      HR_Speed_Run_EN115(&HDL_Right);
+      HR_Speed_Run_EN115(&HDL_Left);
+      
+//      Check_Stopping_Distance(&MTRITEM[0]);
       
 #ifdef GEC_SF_MASTER 
       if( Tms10Counter == 0 )

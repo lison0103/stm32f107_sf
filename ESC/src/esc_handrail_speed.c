@@ -26,14 +26,16 @@ u16 Measure_handrail_speed(HDLITEM* psHDL);
 
 /* parameters */ 
 u16 HR_FAULT_TIME = 10000;
-u16 ROLLER_HR_RADIUS = ( 0.1 * 1000 ); //mm
+u16 ROLLER_HR_RADIUS = ( 0.050 * 1000 ); //mm
 u16 HR_PULSES_PER_REV = 2;
 
 HDLITEM HDL_Left = 
 {
     
   0,0,
-  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+  0,0,
+  (u16*)&EscRTBuff[44]
   
 };
 
@@ -41,14 +43,16 @@ HDLITEM HDL_Right =
 {
     
   0,0,
-  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+  0,0,
+  (u16*)&EscRTBuff[46]
   
 };
 
 
 /*******************************************************************************
 * Function Name  : HR_Speed_Ready
-* Description    : Check the escalator handrail speed ready.
+* Description    : Pulse detection when escalator is stopped
 * Input          : psHDL: handrail speed sensor id          
 * Output         : None
 * Return         : None
@@ -73,7 +77,7 @@ void HR_Speed_Ready(HDLITEM* psHDL)
 
 /*******************************************************************************
 * Function Name  : HR_Speed_Run_EN115
-* Description    : Check the escalator handrail speed run.
+* Description    : Handrail Speed desviation detection,Stuck sensor detection.
 * Input          : psHDL: handrail speed sensor id                
 * Output         : None
 * Return         : None
@@ -81,12 +85,10 @@ void HR_Speed_Ready(HDLITEM* psHDL)
 void HR_Speed_Run_EN115(HDLITEM* psHDL)
 {
     u16 Escalator_speed,Handrail_speed,Handrail_speed_freq,Escalator_speed_freq = 0;
-    static u16 HR_Fault_timer = 0;
-    static u16 delay_no_pulse_tms = 0;
     
     if( ( SfBase_EscState & ESC_STATE_RUNNING ) && ( !(escState_old & ESC_STATE_RUNNING) ) )
     {
-        delay_no_pulse_tms = 0;
+        psHDL->delay_no_pulse_tms = 0;
     }    
 
     
@@ -94,10 +96,14 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
     {
         Handrail_speed_freq = Measure_handrail_speed(psHDL);
         Escalator_speed_freq = ( EscRTBuff[41] << 8 | EscRTBuff[40] );
-        Handrail_speed = (( Handrail_speed_freq * 2 * ( 314 / 100 ) * ROLLER_HR_RADIUS ) / HR_PULSES_PER_REV );    
-        Escalator_speed = (( Escalator_speed_freq * NOMINAL_SPEED * 1000 ) / ( ( MOTOR_RPM * MOTOR_PLUSE_PER_REV ) / 60 ) );
-
-        if( ( delay_no_pulse_tms * SYSTEMTICK ) > DELAY_NO_PULSE_CHECKING )
+        Handrail_speed = (( Handrail_speed_freq * 2 * 314 * ROLLER_HR_RADIUS ) / ( HR_PULSES_PER_REV * 100 ));    
+        Escalator_speed = (( Escalator_speed_freq * NOMINAL_SPEED ) / ( ( MOTOR_RPM * MOTOR_PLUSE_PER_REV ) / 60 ) );
+        EscRTBuff[80] = Handrail_speed >> 8;
+        EscRTBuff[81] = Handrail_speed;
+        EscRTBuff[82] = Escalator_speed >> 8;
+        EscRTBuff[83] = Escalator_speed;
+        
+        if( ( psHDL->delay_no_pulse_tms * SYSTEMTICK ) > DELAY_NO_PULSE_CHECKING )
         {
             if( Handrail_speed_freq < 1 )
             {
@@ -108,20 +114,21 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
                 else
                 {
                     /* handrail speed fault */
+                    EscRTBuff[78] = 1;
                 }            
             }          
         }
         else
         {
-            delay_no_pulse_tms++;
+            psHDL->delay_no_pulse_tms++;
         }
         
 
         
-        HR_Fault_timer++;
+        psHDL->HR_Fault_timer++;
         if( (Handrail_speed <= (( Escalator_speed * 87 ) / 100 )) || (Handrail_speed >= (( Escalator_speed * 113 ) / 100 )) )
         {
-            if( ( HR_Fault_timer * SYSTEMTICK ) >= HR_FAULT_TIME )
+            if( ( psHDL->HR_Fault_timer * SYSTEMTICK ) >= HR_FAULT_TIME )
             {
                 if( SfBase_EscState & ESC_STATE_INSP ) 
                 {         
@@ -130,13 +137,16 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
                 else
                 {
                     /* handrail speed fault */
+                    EscRTBuff[79] = 1;
                 }
             }
         }
         else
         {
-            HR_Fault_timer = 0;
+            psHDL->HR_Fault_timer = 0;
         }
+        
+        *(psHDL->ptHDLDataBuff) = Handrail_speed_freq;
     }
     
     escState_old = SfBase_EscState;
@@ -176,6 +186,22 @@ u16 Measure_handrail_speed(HDLITEM* psHDL)
     }  
     
     return current_hanrail_speed_sensor;
+}
+
+
+/*******************************************************************************
+* Function Name  : Handrail_Speed_Right_Left_Shortcircuit_Run
+* Description    : Handrail Speed Right Left shortcircuit checking
+* Input          : None               
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
+{
+//    u8 First_HS_edge_detected,Timer_HS_shortcircuit = 0;
+    
+    
+    
 }
 
 

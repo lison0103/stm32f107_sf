@@ -52,13 +52,23 @@ typedef struct mtrfreqitem
     u16 PulseCalArray[12];
     
     volatile u16 SensorPulse;
+    
+    u16 delay_no_pulse_tms;
+    u16 last_brake_pulse;
+    u16 rt_brake_stop ;
+    
 }MTRFREQITEM;
 
 typedef struct hdlitem 
 {
     u8 Tms_counter;   
-    volatile u16 hr_pulse;  			//实时飞轮频率计数   
-    u16 pulseArray[20]; 					//脉冲周期数组   
+    volatile u16 hr_pulse;  			
+    u16 pulseArray[20]; 					
+    
+    u16 HR_Fault_timer;
+    u16 delay_no_pulse_tms;
+    
+    u16 *const ptHDLDataBuff;
 	
 }HDLITEM;
 

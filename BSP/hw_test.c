@@ -17,6 +17,7 @@
 #include "esc_error_process.h"
 #include "crc16.h"
 #include "safety_test.h"
+#include "esc.h"
 
 #ifdef GEC_SF_MASTER
 #include "usbd_cdc_vcp.h"
@@ -1285,7 +1286,13 @@ void CAN_Comm(void)
     
     /* just for test */
     CAN1_TX_Data[4] = CAN1_RX_Data[2];
-    CAN1_TX_Data[5] = CAN1_RX_Data[3]; 
+    CAN1_TX_Data[5] = CAN1_RX_Data[3];
+    
+    for( u8 i = 6; i < 50; i++ )
+    {
+        CAN1_TX_Data[i] = EscRTBuff[34+i];
+    }
+
     CAN2_TX_Data[0] = CAN1_RX_Data[2];
     CAN2_TX_Data[1] = CAN1_RX_Data[3];
     

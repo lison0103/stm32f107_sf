@@ -34,9 +34,9 @@ u16 Measure_motor_speed(MTRFREQITEM* ptMTR);
 /* parameters */ 
 u16 MOTOR_RPM = 1000;
 u16 MOTOR_PLUSE_PER_REV = 10;
-u16 UNDERSPEED_TIME = 3000;
-u16 DELAY_NO_PULSE_CHECKING = 100;
-u16 NOMINAL_SPEED = 50;
+u16 UNDERSPEED_TIME = 5000;
+u16 DELAY_NO_PULSE_CHECKING = 1500;
+u16 NOMINAL_SPEED = 500;
 
 /* variable */
 u32 time_running_tms = 0;
@@ -59,7 +59,8 @@ MTRFREQITEM MTRITEM[2]=
     
     0,
     {0,0,0,0,0,0,0,0,0,0,0,0},
-		0
+		0,
+                0,0,0
   },
   {
     0,0,0,0,
@@ -74,7 +75,8 @@ MTRFREQITEM MTRITEM[2]=
     
     0,
     {0,0,0,0,0,0,0,0,0,0,0,0},
-		0
+		0,
+                0,0,0
   }
 };
 
@@ -82,7 +84,7 @@ MTRFREQITEM MTRITEM[2]=
 
 /*******************************************************************************
 * Function Name  : Motor_Speed_Ready
-* Description    : Check the escalator motor speed ready.
+* Description    : Pulse detection when escalator is stopped.
 * Input          : ptMTR: motor speed sensor id          
 * Output         : None
 * Return         : None
@@ -91,17 +93,16 @@ void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
 {
 
     u16 Escalator_speed = 0;
-    static u16 delay_no_pulse_tms = 0;
     
     if( ( SfBase_EscState & ESC_STATE_READY ) && ( !(escState_old & ESC_STATE_READY) ) )
     {
-        delay_no_pulse_tms = 0;
+        ptMTR->delay_no_pulse_tms = 0;
     }
     
     if( SfBase_EscState & ESC_STATE_READY ) 
     {
         
-        if( ( delay_no_pulse_tms * SYSTEMTICK ) > DELAY_NO_PULSE_CHECKING )
+        if( ( ptMTR->delay_no_pulse_tms * SYSTEMTICK ) > DELAY_NO_PULSE_CHECKING )
         {
             Escalator_speed = Measure_motor_speed(ptMTR);
             
@@ -112,7 +113,7 @@ void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
         }
         else
         {
-            delay_no_pulse_tms++;
+            ptMTR->delay_no_pulse_tms++;
         }
         
 
@@ -123,8 +124,8 @@ void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
 
 
 /*******************************************************************************
-* Function Name  : Motor_Speed_Ready
-* Description    : Check the escalator motor speed run.
+* Function Name  : Motor_Speed_Run_EN115
+* Description    : Overspeed and underspeed detection (Sensor X)
 * Input          : ptMTR: motor speed sensor id            
 * Output         : None
 * Return         : None
@@ -153,6 +154,8 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
         }        
         
         Escalator_speed = Measure_motor_speed(ptMTR);
+        EscRTBuff[75] = MAX_SPEED;
+        EscRTBuff[77] = MIN_SPEED;
         
         if( Escalator_speed >= MAX_SPEED )
         {
@@ -162,21 +165,28 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
             if(ptMTR->MtrSpeedHigh115Cnt >= 5)
             {
                 /* overspeed fault */
+                EscRTBuff[74] = 1;
                 
             } 
            
         }
         else
         {
-
-            if( SfBase_EscState & ESC_STATE_RUN5S )
+            
+            ptMTR->MtrSpeedHigh115Cnt = 0;
+            
+        }
+        
+        if( SfBase_EscState & ESC_STATE_RUN5S )
+        {
+            if( Escalator_speed <= MIN_SPEED )
             {
-                if( Escalator_speed <= MIN_SPEED )
-                {
-                    /* underspeed fault */
-                }
+                /* underspeed fault */
+                EscRTBuff[76] = 1;
+                
             }
         }
+     
         
         /* record the escalator speed */
         *ptMTR->ptFreqBuff = Escalator_speed;   
@@ -226,19 +236,17 @@ u16 Measure_motor_speed(MTRFREQITEM* ptMTR)
 
 /*******************************************************************************
 * Function Name  : Check_Stopping_Distance
-* Description    : Check the escalator Stopping Distance.
+* Description    : Stopping distance.
 * Input          : ptMTR: motor speed sensor id            
 * Output         : None
 * Return         : None
 *******************************************************************************/
 void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
-{
-    static u16 last_brake_pulse = 0;
-    
+{   
 
     if( ( SfBase_EscState & ESC_STATE_STOP ) && ( !(escState_old & ESC_STATE_RUNNING) ) )
     {
-        last_brake_pulse = ptMTR->rt_brake_pulse;
+        ptMTR->last_brake_pulse = ptMTR->rt_brake_pulse;
     } 
     
     if(SfBase_EscState & ESC_STATE_STOP) 
@@ -249,24 +257,29 @@ void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
         }   
            
         
-        ptMTR->BrakeCalTms++;
-        if( ( ptMTR->BrakeCalTms * SYSTEMTICK ) > 1000 ) 
+        if( !(ptMTR->rt_brake_stop))
         {
-            
-            if( ptMTR->rt_brake_pulse == last_brake_pulse ) 
+            ptMTR->BrakeCalTms++;
+            if( ( ptMTR->BrakeCalTms * SYSTEMTICK ) > 1000 ) 
             {
-                /* record the escalator stopping distance */
-                *(ptMTR->ptBrakeDistanceBuff) = ptMTR->rt_brake_pulse;
-                ptMTR->rt_brake_pulse = 0;
-            }
-            else
-            {
-                last_brake_pulse = ptMTR->rt_brake_pulse;
-            }
-            
-            ptMTR->BrakeCalTms = 0;
-
-        }    
+                
+                if(( ptMTR->rt_brake_pulse ) && ( ptMTR->rt_brake_pulse == ptMTR->last_brake_pulse )) 
+                {
+                    /* record the escalator stopping distance */
+                    *(ptMTR->ptBrakeDistanceBuff) = ptMTR->rt_brake_pulse;
+                    ptMTR->rt_brake_pulse = 0;
+                    ptMTR->rt_brake_stop = 1;
+                    
+                }
+                else
+                {
+                    ptMTR->last_brake_pulse = ptMTR->rt_brake_pulse;
+                }
+                
+                ptMTR->BrakeCalTms = 0;
+                
+            }    
+        }
     } 
     else
     {

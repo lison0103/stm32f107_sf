@@ -20,7 +20,7 @@
 /* Exported functions ------------------------------------------------------- */
 void HR_Speed_Ready(HDLITEM* psHDL);
 void HR_Speed_Run_EN115(HDLITEM* psHDL);
-
+void Handrail_Speed_Right_Left_Shortcircuit_Run(void);
 
 
 
