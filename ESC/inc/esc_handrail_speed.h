@@ -12,10 +12,14 @@
 #define __ESC_HANDRAIL_SPEED_H
 
 /* Includes ------------------------------------------------------------------*/
+#include "esc.h"
+
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
+void HR_Speed_Ready(HDLITEM* psHDL);
+void HR_Speed_Run_EN115(HDLITEM* psHDL);
 
 
 

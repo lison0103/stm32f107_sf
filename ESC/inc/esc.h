@@ -54,11 +54,26 @@ typedef struct mtrfreqitem
     volatile u16 SensorPulse;
 }MTRFREQITEM;
 
+typedef struct hdlitem 
+{
+    u8 Tms_counter;   
+    volatile u16 hr_pulse;  			//实时飞轮频率计数   
+    u16 pulseArray[20]; 					//脉冲周期数组   
+	
+}HDLITEM;
+
 /* Exported functions ------------------------------------------------------- */
 
 extern u16 SfBase_EscState;
+extern u16 escState_old;
 extern MTRFREQITEM MTRITEM[2];
-
+extern u8 EscRTBuff[200];
+extern u16 DELAY_NO_PULSE_CHECKING;
+extern HDLITEM HDL_Right;
+extern HDLITEM HDL_Left;
+extern u16 NOMINAL_SPEED;
+extern u16 MOTOR_RPM;
+extern u16 MOTOR_PLUSE_PER_REV;
 
 #endif  /* __ESC_H */
 

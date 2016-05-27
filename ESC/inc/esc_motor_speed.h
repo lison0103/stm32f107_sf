@@ -21,6 +21,7 @@
 void Motor_Speed_Ready(MTRFREQITEM* ptMTR);
 void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR);
 void Check_Stopping_Distance(MTRFREQITEM* ptMTR);
+u16 Measure_motor_speed(MTRFREQITEM* ptMTR);
 
 #endif  /* __ESC_MOTOR_SPEED_H */
 

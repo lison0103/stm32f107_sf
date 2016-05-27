@@ -212,13 +212,13 @@ u16 Measure_motor_speed(MTRFREQITEM* ptMTR)
         ptMTR->pulseArray[0] = ptMTR->rt_pulse;
         ptMTR->rt_pulse=0;
         
-        current_motor_speed_sensor = 0;
-        /* 100ms * 10 = 1s */
-        for(i=0;i<10;i++) 
-        {
-            current_motor_speed_sensor += ptMTR->pulseArray[i];
-        }  
     }
+    current_motor_speed_sensor = 0;
+    /* 100ms * 10 = 1s */
+    for(i=0;i<10;i++) 
+    {
+        current_motor_speed_sensor += ptMTR->pulseArray[i];
+    }      
 
     return current_motor_speed_sensor;
 }

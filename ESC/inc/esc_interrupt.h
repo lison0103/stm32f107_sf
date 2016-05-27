@@ -18,7 +18,8 @@
 /* Exported functions ------------------------------------------------------- */
 void mtr_X1_int(void);
 void mtr_X2_int(void);
-
+void handrail_X1_int(void);
+void handrail_X2_int(void);
 
 
 #endif  /* __ESC_INTERRUPT_H */

@@ -35,13 +35,13 @@ void mtr_X1_int(void)
     MTRITEM[0].rt_brake_pulse++; 
     MTRITEM[0].PulseCalCounter++;
     
-//#ifdef GEC_SF_MASTER  
+#ifdef GEC_SF_MASTER  
 //    HDL_Left.MtrPulse++;
 //    HDL_Right.MtrPulse++;
-//    
+    
 //    STPMS_UPPER.MtrPulse++;
 //    STPMS_LOWER.MtrPulse++;
-//#endif
+#endif
   
 }
 
@@ -60,19 +60,46 @@ void mtr_X2_int(void)
     MTRITEM[1].rt_brake_pulse++; 
     MTRITEM[1].PulseCalCounter++;
     
-//#ifndef GEC_SF_MASTER  
+#ifndef GEC_SF_MASTER  
 //    HDL_Left.MtrPulse++;
 //    HDL_Right.MtrPulse++;
-//    
+    
 //    STPMS_UPPER.MtrPulse++;
 //    STPMS_LOWER.MtrPulse++;
-//#endif
+#endif
     
  
 }
 
 
+/*******************************************************************************
+* Function Name  : handrail_X1_int
+* Description    : handrail pulse counter x1.
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void handrail_X1_int(void)
+{  
 
+    HDL_Left.hr_pulse++;
+    
+}
+
+
+/*******************************************************************************
+* Function Name  : handrail_X2_int
+* Description    : handrail pulse counter x2.
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void handrail_X2_int(void)
+{  
+
+    HDL_Right.hr_pulse++;
+    
+}
 
 
 
