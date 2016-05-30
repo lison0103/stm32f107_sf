@@ -84,6 +84,7 @@ extern HDLITEM HDL_Left;
 extern u16 NOMINAL_SPEED;
 extern u16 MOTOR_RPM;
 extern u16 MOTOR_PLUSE_PER_REV;
+extern u16 SSM_SHORTCIRCUIT_TIME;
 
 #endif  /* __ESC_H */
 

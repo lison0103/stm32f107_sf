@@ -17,7 +17,14 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
+#ifdef GEC_SF_S_NEW
+#define TIM5    TIM15
+#endif
+
 /* Exported functions ------------------------------------------------------- */
+void TIM7_Int_Init(u16 arr,u16 psc);
+void TIM6_Int_Init(u16 arr,u16 psc);
+void TIM5_Int_Init(u16 arr,u16 psc);
 void TIM4_Int_Init(u16 arr,u16 psc);
 void TIM3_Int_Init(u16 arr,u16 psc);
 void TIM2_Int_Init(u16 arr,u16 psc);

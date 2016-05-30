@@ -321,8 +321,16 @@ void RCC_Configuration(void)
     
     #ifdef GEC_SF_MASTER
       RCC_APB1PeriphClockCmd( RCC_APB1Periph_CAN2 , ENABLE);    
-      RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM3 , ENABLE);   
+      RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM3 , ENABLE);    
     #endif
+
+#ifdef GEC_SF_S_NEW      
+      RCC_APB2PeriphClockCmd( RCC_APB2Periph_TIM15 , ENABLE);   
+#else
+      RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM5 , ENABLE);   
+#endif
+      RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM6 , ENABLE); 
+      RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM7 , ENABLE); 
       
     /* Enable CSS */
     RCC_ClockSecuritySystemCmd(ENABLE);

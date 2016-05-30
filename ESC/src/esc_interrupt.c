@@ -10,6 +10,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "esc_interrupt.h"
 #include "esc.h"
+#include "esc_motor_speed.h"
+#include "esc_handrail_speed.h"
+#include "esc_missing_step.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -42,7 +45,7 @@ void mtr_X1_int(void)
 //    STPMS_UPPER.MtrPulse++;
 //    STPMS_LOWER.MtrPulse++;
 #endif
-  
+    Motor_Speed_1_2_Shortcircuit_Run();
 }
 
 /*******************************************************************************
@@ -68,7 +71,7 @@ void mtr_X2_int(void)
 //    STPMS_LOWER.MtrPulse++;
 #endif
     
- 
+    Motor_Speed_1_2_Shortcircuit_Run();
 }
 
 
@@ -84,6 +87,7 @@ void handrail_X1_int(void)
 
     HDL_Left.hr_pulse++;
     
+    Handrail_Speed_Right_Left_Shortcircuit_Run();
 }
 
 
@@ -99,9 +103,32 @@ void handrail_X2_int(void)
 
     HDL_Right.hr_pulse++;
     
+    Handrail_Speed_Right_Left_Shortcircuit_Run();
 }
 
+/*******************************************************************************
+* Function Name  : missingstep_X1_int
+* Description    : missingstep pulse counter x1.
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void missingstep_X1_int(void)
+{     
+    Missing_Step_UpperLower_Shortcircuit_Run();
+}
 
+/*******************************************************************************
+* Function Name  : missingstep_X2_int
+* Description    : missingstep pulse counter x2.
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void missingstep_X2_int(void)
+{     
+    Missing_Step_UpperLower_Shortcircuit_Run();
+}
 
 /******************************  END OF FILE  *********************************/
 

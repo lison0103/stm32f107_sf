@@ -174,6 +174,47 @@ void EXTIX_Init(void)
    	EXTI_InitStructure.EXTI_Line=EXTI_Line3;
   	EXTI_Init(&EXTI_InitStructure);	
 
+        /** IN3 **/
+#ifdef GEC_SF_S_NEW
+        SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource2);
+#else        
+  	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD,GPIO_PinSource2);
+#endif
+
+   	EXTI_InitStructure.EXTI_Line=EXTI_Line2;
+  	EXTI_Init(&EXTI_InitStructure);	
+        
+        /** IN4 **/
+#ifdef GEC_SF_S_NEW
+        SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource1);
+#else        
+  	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD,GPIO_PinSource1);
+#endif
+
+   	EXTI_InitStructure.EXTI_Line=EXTI_Line1;
+  	EXTI_Init(&EXTI_InitStructure);		
+
+        /** IN5 **/
+#ifdef GEC_SF_S_NEW
+        SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource0);
+#else        
+  	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD,GPIO_PinSource0);
+#endif
+
+   	EXTI_InitStructure.EXTI_Line=EXTI_Line0;
+  	EXTI_Init(&EXTI_InitStructure);	      
+
+        /** IN6 **/
+#ifdef GEC_SF_S_NEW
+        SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, EXTI_PinSource12);
+#else        
+  	GPIO_EXTILineConfig(GPIO_PortSourceGPIOC,GPIO_PinSource12);
+#endif
+
+   	EXTI_InitStructure.EXTI_Line=EXTI_Line12;
+  	EXTI_Init(&EXTI_InitStructure);	        
+        
+        
         /** IN7 **/
 #ifdef GEC_SF_S_NEW
         SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOC, EXTI_PinSource11);
@@ -207,8 +248,34 @@ void EXTIX_Init(void)
   	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;					
   	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;								
   	NVIC_Init(&NVIC_InitStructure);          
- 
-        /** IN7 IN8 **/
+
+        /** IN3 **/
+#ifdef GEC_SF_S_NEW         
+  	NVIC_InitStructure.NVIC_IRQChannel = EXTI2_TS_IRQn;	
+#else
+        NVIC_InitStructure.NVIC_IRQChannel = EXTI2_IRQn;
+#endif
+        
+  	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;	
+  	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;					
+  	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;								
+  	NVIC_Init(&NVIC_InitStructure);  	  
+	
+        /** IN4 **/
+  	NVIC_InitStructure.NVIC_IRQChannel = EXTI1_IRQn;			
+  	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;	
+  	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;					
+  	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;								
+  	NVIC_Init(&NVIC_InitStructure); 
+
+        /** IN5 **/
+  	NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;			
+  	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;	
+  	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;					
+  	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;								
+  	NVIC_Init(&NVIC_InitStructure);  	  	        
+        
+        /** IN6 IN7 IN8 **/
   	NVIC_InitStructure.NVIC_IRQChannel = EXTI15_10_IRQn;			
   	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;	
   	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;					
@@ -234,8 +301,12 @@ void EXTI0_IRQHandler(void)
     {
         EXTI_ClearFlag(EXTI_Line0);
         EXTI_ClearITPendingBit(EXTI_Line0);
-        	
-        mtr_X2_int();     
+
+#ifdef GEC_SF_MASTER         
+        mtr_X2_int();   
+#else
+        missingstep_X1_int();
+#endif
     }
 }
 
@@ -255,8 +326,34 @@ void EXTI1_IRQHandler(void)
   {
       EXTI_ClearFlag(EXTI_Line1);
       EXTI_ClearITPendingBit(EXTI_Line1);
-	
-      mtr_X1_int();     
+
+#ifdef GEC_SF_MASTER       
+      mtr_X1_int();  
+#else
+      handrail_X2_int();
+#endif
+  }
+}
+
+/*******************************************************************************
+* Function Name  : EXTI2_IRQHandler
+* Description    : This function handles External interrupt Line 2 request.
+*                  MASTER IN1
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void EXTI2_IRQHandler(void)
+{
+
+  if(EXTI_GetITStatus(EXTI_Line2) != RESET)
+  {
+      EXTI_ClearFlag(EXTI_Line2);
+      EXTI_ClearITPendingBit(EXTI_Line2);
+      
+      handrail_X1_int();
+	   
   }
 }
 
@@ -301,8 +398,13 @@ void EXTI4_IRQHandler(void)
   {
       EXTI_ClearFlag(EXTI_Line4);
       EXTI_ClearITPendingBit(EXTI_Line4);
-    	
+
+#ifdef GEC_SF_MASTER        
+      missingstep_X2_int(); 
+#else
       mtr_X1_int();
+#endif
+      
   }
 }
 
@@ -318,20 +420,35 @@ void EXTI4_IRQHandler(void)
 void EXTI9_5_IRQHandler(void)
 {
 
+  if(EXTI_GetITStatus(EXTI_Line5) != RESET)
+  {
+      EXTI_ClearFlag(EXTI_Line5);
+      EXTI_ClearITPendingBit(EXTI_Line5);
+
+#ifdef GEC_SF_MASTER       
+      missingstep_X1_int();
+#endif
+      
+  }
+  
   if(EXTI_GetITStatus(EXTI_Line6) != RESET)
   {
       EXTI_ClearFlag(EXTI_Line6);
       EXTI_ClearITPendingBit(EXTI_Line6);
-    
+
+#ifdef GEC_SF_MASTER       
       handrail_X2_int();
+#endif
   }
     
   if(EXTI_GetITStatus(EXTI_Line7) != RESET)
   {
       EXTI_ClearFlag(EXTI_Line7);
       EXTI_ClearITPendingBit(EXTI_Line7);
-    
+
+#ifdef GEC_SF_MASTER       
       handrail_X1_int();
+#endif
   }
 
   
@@ -362,6 +479,16 @@ void EXTI15_10_IRQHandler(void)
       EXTI_ClearFlag(EXTI_Line11);
       EXTI_ClearITPendingBit(EXTI_Line11);
     
+  }
+
+  if(EXTI_GetITStatus(EXTI_Line12) != RESET)
+  {
+      EXTI_ClearFlag(EXTI_Line12);
+      EXTI_ClearITPendingBit(EXTI_Line12);
+
+#ifndef GEC_SF_MASTER      
+      missingstep_X2_int();
+#endif
   }
   
 }

@@ -20,7 +20,8 @@ void mtr_X1_int(void);
 void mtr_X2_int(void);
 void handrail_X1_int(void);
 void handrail_X2_int(void);
-
+void missingstep_X1_int(void);
+void missingstep_X2_int(void);
 
 #endif  /* __ESC_INTERRUPT_H */
 

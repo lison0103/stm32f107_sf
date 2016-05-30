@@ -18,6 +18,7 @@
 #include "usart.h"
 #endif
 
+
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -28,7 +29,83 @@
 u8 count = 0;
 u32 t_count = 0;
 
+/*******************************************************************************
+* Function Name  : TIM7_Int_Init
+* Description    : Intialization stm32 Timer7.
+*                  
+* Input          : arr: Automatic reload value
+*                  psc: Pre clock divisor
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM7_Int_Init(u16 arr,u16 psc)
+{
+        TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+                
+        /** TIM7 **/
 
+	TIM_TimeBaseStructure.TIM_Period = arr; 
+	TIM_TimeBaseStructure.TIM_Prescaler =psc; 
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; 
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
+	TIM_TimeBaseInit(TIM7, &TIM_TimeBaseStructure);  
+
+	TIM_Cmd(TIM7, ENABLE);  
+        
+}
+
+
+/*******************************************************************************
+* Function Name  : TIM6_Int_Init
+* Description    : Intialization stm32 Timer6.
+*                  
+* Input          : arr: Automatic reload value
+*                  psc: Pre clock divisor
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM6_Int_Init(u16 arr,u16 psc)
+{
+        TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+                
+        /** TIM6 **/
+
+	TIM_TimeBaseStructure.TIM_Period = arr; 
+	TIM_TimeBaseStructure.TIM_Prescaler =psc; 
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; 
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
+	TIM_TimeBaseInit(TIM6, &TIM_TimeBaseStructure);  
+
+	TIM_Cmd(TIM6, ENABLE);  
+        
+}
+
+
+/*******************************************************************************
+* Function Name  : TIM5_Int_Init
+* Description    : Intialization stm32 Timer5.
+*                  
+* Input          : arr: Automatic reload value
+*                  psc: Pre clock divisor
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void TIM5_Int_Init(u16 arr,u16 psc)
+{
+        TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+                
+        /** TIM5 **/
+
+	TIM_TimeBaseStructure.TIM_Period = arr; 
+	TIM_TimeBaseStructure.TIM_Prescaler =psc; 
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; 
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;            
+	TIM_TimeBaseInit(TIM5, &TIM_TimeBaseStructure);      
+        
+	TIM_Cmd(TIM5, ENABLE);
+
+        
+}
 
 /*******************************************************************************
 * Function Name  : TIM4_Int_Init
@@ -45,7 +122,7 @@ void TIM4_Int_Init(u16 arr,u16 psc)
 	NVIC_InitTypeDef NVIC_InitStructure;
         
         
-        /** TIM2 **/
+        /** TIM4 **/
 
 	TIM_TimeBaseStructure.TIM_Period = arr; 
 	TIM_TimeBaseStructure.TIM_Prescaler =psc; 

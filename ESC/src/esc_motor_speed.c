@@ -11,6 +11,7 @@
 #include "esc_motor_speed.h"
 #include "delay.h"
 #include "initial_devices.h"
+#include "timer.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -37,6 +38,7 @@ u16 MOTOR_PLUSE_PER_REV = 10;
 u16 UNDERSPEED_TIME = 5000;
 u16 DELAY_NO_PULSE_CHECKING = 1500;
 u16 NOMINAL_SPEED = 500;
+u16 SSM_SHORTCIRCUIT_TIME = 750;
 
 /* variable */
 u32 time_running_tms = 0;
@@ -233,6 +235,54 @@ u16 Measure_motor_speed(MTRFREQITEM* ptMTR)
     return current_motor_speed_sensor;
 }
 
+/*******************************************************************************
+* Function Name  : Motor_Speed_1_2_Shortcircuit_Run
+* Description    : Motor speed sensor 1 and 2 shortcircuit checking
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Motor_Speed_1_2_Shortcircuit_Run(void)
+{
+    static u16 First_motorspeed_edge_detected,Timer_motorspeed_shortcircuit = 0;
+
+    if( ( SfBase_EscState & ESC_STATE_RUNNING ) && ( !(escState_old & ESC_STATE_RUNNING) ) )
+    {
+        First_motorspeed_edge_detected = 0;
+    } 
+    
+    if( SfBase_EscState & ESC_STATE_RUNNING )
+    {  
+        if( First_motorspeed_edge_detected == 0 )
+        {
+            First_motorspeed_edge_detected = 1;
+            Timer_motorspeed_shortcircuit = 0;
+            TIM5_Int_Init(65535,71);
+            
+        }    
+        else
+        {
+            Timer_motorspeed_shortcircuit = TIM_GetCounter(TIM5);
+            if( Timer_motorspeed_shortcircuit < SSM_SHORTCIRCUIT_TIME )
+            {
+                Timer_motorspeed_shortcircuit = 0;               
+                TIM_SetCounter(TIM5,0); 
+                
+                /* Fault ¨C Motorspeed Sensor shortcircuited */
+                EscRTBuff[66] = 1;
+            }
+            else
+            {
+                Timer_motorspeed_shortcircuit = 0;             
+                TIM_SetCounter(TIM5,0);  
+                
+                EscRTBuff[66] = 0;
+            }
+        }
+    }
+
+
+}
 
 /*******************************************************************************
 * Function Name  : Check_Stopping_Distance

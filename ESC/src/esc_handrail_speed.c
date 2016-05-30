@@ -198,9 +198,42 @@ u16 Measure_handrail_speed(HDLITEM* psHDL)
 *******************************************************************************/
 void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
 {
-//    u8 First_HS_edge_detected,Timer_HS_shortcircuit = 0;
+    static u16 First_HS_edge_detected,Timer_HS_shortcircuit = 0;
     
+    if( ( SfBase_EscState & ESC_STATE_RUNNING ) && ( !(escState_old & ESC_STATE_RUNNING) ) )
+    {
+        First_HS_edge_detected = 0;
+    } 
     
+    if( SfBase_EscState & ESC_STATE_RUNNING )
+    {  
+        if( First_HS_edge_detected == 0 )
+        {
+            First_HS_edge_detected = 1;
+            Timer_HS_shortcircuit = 0;
+            TIM6_Int_Init(65535,71);
+            
+        }    
+        else
+        {
+            Timer_HS_shortcircuit = TIM_GetCounter(TIM6);
+            if( Timer_HS_shortcircuit < SSM_SHORTCIRCUIT_TIME )
+            {
+                Timer_HS_shortcircuit = 0;               
+                TIM_SetCounter(TIM6,0); 
+                
+                /* Fault ¨C Motorspeed Sensor shortcircuited */
+                EscRTBuff[67] = 1;
+            }
+            else
+            {
+                Timer_HS_shortcircuit = 0;             
+                TIM_SetCounter(TIM6,0);     
+                
+                EscRTBuff[67] = 0;
+            }
+        }
+    }    
     
 }
 
