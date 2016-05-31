@@ -17,7 +17,6 @@
 /* Private define ------------------------------------------------------------*/
 
 /* motor speed */
-#define F1      ( ( MOTOR_RPM * MOTOR_PLUSE_PER_REV ) / 60 )
 #define MAX_SPEED       ( ( F1 * 115 ) / 100 )
 #define MIN_SPEED       ( ( F1 * 10 ) / 100 )
 

@@ -15,6 +15,7 @@
 #include "stm32f10x_STLclassBvar.h"
 #include "esc_motor_speed.h"
 #include "esc_handrail_speed.h"
+#include "esc_missing_step.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -79,6 +80,9 @@ void Task_Loop(void)
       Motor_Speed_Run_EN115(&MTRITEM[1]);
       HR_Speed_Run_EN115(&HDL_Right);
       HR_Speed_Run_EN115(&HDL_Left);
+      Missing_StepRun(&STPMS_UPPER);
+      Missing_StepRun(&STPMS_LOWER);
+      Missing_Step_UpperLower_SyncRun();
       
 //      Check_Stopping_Distance(&MTRITEM[0]);
       

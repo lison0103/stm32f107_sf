@@ -17,6 +17,8 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
+#define F1      ( ( MOTOR_RPM * MOTOR_PLUSE_PER_REV ) / 60 )
+
 /* Exported functions ------------------------------------------------------- */
 void Motor_Speed_Ready(MTRFREQITEM* ptMTR);
 void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR);

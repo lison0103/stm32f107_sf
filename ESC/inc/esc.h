@@ -29,6 +29,7 @@
 #define ESC_STATE_UP          ((u16)0x0100)
 #define ESC_STATE_DOWN        ((u16)0x0200)
 #define ESC_STATE_READY       ((u16)0x0400)
+#define ESC_STATE_NORMAL      ((u16)0x0800)
 
 typedef struct mtrfreqitem 
 {    
@@ -72,6 +73,32 @@ typedef struct hdlitem
 	
 }HDLITEM;
 
+typedef struct stepmissingitem 
+{
+  u8 *const pcErrorCodeBuff;  
+  u8 ErrorCodeMask;  
+  
+  u8 *const pcInputPort;
+  u8 InputPortMask;
+  
+  
+  u8 pin_level_high_cnt;
+  u8 pin_level_low_cnt;
+  u8 pin_state;
+  
+  u16 high_pulse_buff;
+  u16 low_pulse_buff;
+  
+  volatile u16 MtrPulse;
+  
+	u16 sensor_error_cnt;
+	u16 sensor_error_tms;	
+        
+        u8 rising_edge_detected[2];
+        u16 *const ptStepMtrBuff;
+        
+}STEPMISSINGITEM;
+
 /* Exported functions ------------------------------------------------------- */
 
 extern u16 SfBase_EscState;
@@ -85,6 +112,8 @@ extern u16 NOMINAL_SPEED;
 extern u16 MOTOR_RPM;
 extern u16 MOTOR_PLUSE_PER_REV;
 extern u16 SSM_SHORTCIRCUIT_TIME;
+extern STEPMISSINGITEM STPMS_UPPER;
+extern STEPMISSINGITEM STPMS_LOWER;
 
 #endif  /* __ESC_H */
 

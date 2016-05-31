@@ -42,8 +42,8 @@ void mtr_X1_int(void)
 //    HDL_Left.MtrPulse++;
 //    HDL_Right.MtrPulse++;
     
-//    STPMS_UPPER.MtrPulse++;
-//    STPMS_LOWER.MtrPulse++;
+    STPMS_UPPER.MtrPulse++;
+    STPMS_LOWER.MtrPulse++;
 #endif
     Motor_Speed_1_2_Shortcircuit_Run();
 }
@@ -67,8 +67,8 @@ void mtr_X2_int(void)
 //    HDL_Left.MtrPulse++;
 //    HDL_Right.MtrPulse++;
     
-//    STPMS_UPPER.MtrPulse++;
-//    STPMS_LOWER.MtrPulse++;
+    STPMS_UPPER.MtrPulse++;
+    STPMS_LOWER.MtrPulse++;
 #endif
     
     Motor_Speed_1_2_Shortcircuit_Run();
@@ -114,7 +114,23 @@ void handrail_X2_int(void)
 * Return         : None
 *******************************************************************************/
 void missingstep_X1_int(void)
-{     
+{    
+    
+//    if(STPMS_UPPER.MtrPulse)
+//    {
+//        STPMS_UPPER.MtrPulse = 0;
+//        STPMS_UPPER.sensor_error_cnt = 0;
+//    }
+//    else if((!(*MTRITEM[0].ptFreqBuff)) && (!(*MTRITEM[1].ptFreqBuff)))
+//    {
+//        STPMS_UPPER.sensor_error_cnt++;
+//    }  
+    
+    STPMS_UPPER.rising_edge_detected[0] = 1;
+    STPMS_UPPER.rising_edge_detected[1] = 1;
+    *(STPMS_UPPER.ptStepMtrBuff) = STPMS_UPPER.MtrPulse;
+    STPMS_UPPER.MtrPulse = 0;     
+    
     Missing_Step_UpperLower_Shortcircuit_Run();
 }
 
@@ -127,6 +143,21 @@ void missingstep_X1_int(void)
 *******************************************************************************/
 void missingstep_X2_int(void)
 {     
+//    if(STPMS_LOWER.MtrPulse)
+//    {
+//        STPMS_LOWER.MtrPulse = 0;
+//        STPMS_LOWER.sensor_error_cnt = 0;
+//    }
+//    else if((!(*MTRITEM[0].ptFreqBuff)) && (!(*MTRITEM[1].ptFreqBuff)))
+//    {
+//        STPMS_LOWER.sensor_error_cnt++;
+//    }
+    
+    STPMS_LOWER.rising_edge_detected[0] = 1;
+    STPMS_LOWER.rising_edge_detected[1] = 1;
+    *(STPMS_LOWER.ptStepMtrBuff) = STPMS_LOWER.MtrPulse;
+    STPMS_LOWER.MtrPulse = 0;  
+    
     Missing_Step_UpperLower_Shortcircuit_Run();
 }
 
