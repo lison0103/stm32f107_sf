@@ -41,45 +41,49 @@ u16 SSM_SHORTCIRCUIT_TIME = 750;
 
 /* variable */
 u32 time_running_tms = 0;
-u16 SfBase_EscState = 0;
-u16 escState_old = 0;
-u8 EscRTBuff[200]; 
+u16 SfBase_EscState = ESC_STATE_READY;;
+u8 EscRTBuff[200];
+u8 First_motorspeed_edge_detected = 0;
+
 
 MTRFREQITEM MTRITEM[2]=
 {
-  {
-    0,0,0,0,
-    
-    0,//实时飞轮频率计数   
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //脉冲周期数组 
-    
-    0,0,//制动距离计数 
-   
-    (u16*)&EscRTBuff[40],  //频率值
-    (u16*)&EscRTBuff[48],  //制动距离
-    
-    0,
-    {0,0,0,0,0,0,0,0,0,0,0,0},
-		0,
-                0,0,0
-  },
-  {
-    0,0,0,0,
-    
-    0,//实时飞轮频率计数   
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //脉冲周期数组
-    
-    0,0,//制动距离计数 
-   
-    (u16*)&EscRTBuff[42],  //频率值
-    (u16*)&EscRTBuff[50],  //制动距离
-    
-    0,
-    {0,0,0,0,0,0,0,0,0,0,0,0},
-		0,
-                0,0,0
-  }
+    {
+        0,0,
+        
+        0,//实时飞轮频率计数   
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //脉冲周期数组 
+        
+        0,0,//制动距离计数 
+        
+        (u16*)&EscRTBuff[40],  //频率值
+        (u16*)&EscRTBuff[44],  //制动距离
+        
+        0,
+        {0,0,0,0,0,0,0,0,0,0,0,0},
+        0,
+        0,0,0,
+        &EscRTBuff[48]
+    },
+    {
+        0,0,
+        
+        0,//实时飞轮频率计数   
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //脉冲周期数组
+        
+        0,0,//制动距离计数 
+        
+        (u16*)&EscRTBuff[42],  //频率值
+        (u16*)&EscRTBuff[46],  //制动距离
+        
+        0,
+        {0,0,0,0,0,0,0,0,0,0,0,0},
+        0,
+        0,0,0,
+        &EscRTBuff[49]
+    }
 };
+
 
 
 
@@ -95,32 +99,19 @@ void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
 
     u16 Escalator_speed = 0;
     
-    if( ( SfBase_EscState & ESC_STATE_READY ) && ( !(escState_old & ESC_STATE_READY) ) )
-    {
-        ptMTR->delay_no_pulse_tms = 0;
-    }
-    
     if( SfBase_EscState & ESC_STATE_READY ) 
     {
+               
+        Escalator_speed = Measure_motor_speed(ptMTR);
         
-        if( ( ptMTR->delay_no_pulse_tms * SYSTEMTICK ) > DELAY_NO_PULSE_CHECKING )
+        if( Escalator_speed > 1 )
         {
-            Escalator_speed = Measure_motor_speed(ptMTR);
-            
-            if( Escalator_speed > 1 )
-            {
-                /* fault */
-            }            
-        }
-        else
-        {
-            ptMTR->delay_no_pulse_tms++;
-        }
-        
-
+            /* fault */
+            *(ptMTR->pcErrorCodeBuff) |= 0x01;
+        }            
     } 
     
-    escState_old = SfBase_EscState;
+
 }
 
 
@@ -136,27 +127,22 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
     
     u16 Escalator_speed = 0;
     	
-    
-    if( ( SfBase_EscState & ESC_STATE_RUNNING ) && ( !(escState_old & ESC_STATE_RUNNING) ) )
-    {
-        time_running_tms = 0;
-    } 
 
     if( SfBase_EscState & ESC_STATE_RUNNING )
     {      
         
-        if( ( time_running_tms * SYSTEMTICK ) > UNDERSPEED_TIME )
-        {
-            SfBase_EscState |= ESC_STATE_RUN5S;                
-        }
-        else
-        {
-            time_running_tms++;
-        }        
+//        if( ( time_running_tms * SYSTEMTICK ) > UNDERSPEED_TIME )
+//        {
+//            SfBase_EscState |= ESC_STATE_RUN5S;                
+//        }
+//        else
+//        {
+//            time_running_tms++;
+//        }        
         
         Escalator_speed = Measure_motor_speed(ptMTR);
-        EscRTBuff[75] = MAX_SPEED;
-        EscRTBuff[77] = MIN_SPEED;
+        MTR_MAX_SPEED = MAX_SPEED;
+        MTR_MIN_SPEED = MIN_SPEED;
         
         if( Escalator_speed >= MAX_SPEED )
         {
@@ -166,7 +152,7 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
             if(ptMTR->MtrSpeedHigh115Cnt >= 5)
             {
                 /* overspeed fault */
-                EscRTBuff[74] = 1;
+                *(ptMTR->pcErrorCodeBuff) |= 0x02;
                 
             } 
            
@@ -183,7 +169,7 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
             if( Escalator_speed <= MIN_SPEED )
             {
                 /* underspeed fault */
-                EscRTBuff[76] = 1;
+                *(ptMTR->pcErrorCodeBuff) |= 0x04;
                 
             }
         }
@@ -194,7 +180,6 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
 
     }
     
-    escState_old = SfBase_EscState;
 }
 
 /*******************************************************************************
@@ -243,12 +228,8 @@ u16 Measure_motor_speed(MTRFREQITEM* ptMTR)
 *******************************************************************************/
 void Motor_Speed_1_2_Shortcircuit_Run(void)
 {
-    static u16 First_motorspeed_edge_detected,Timer_motorspeed_shortcircuit = 0;
+    static u16 Timer_motorspeed_shortcircuit = 0;
 
-    if( ( SfBase_EscState & ESC_STATE_RUNNING ) && ( !(escState_old & ESC_STATE_RUNNING) ) )
-    {
-        First_motorspeed_edge_detected = 0;
-    } 
     
     if( SfBase_EscState & ESC_STATE_RUNNING )
     {  
@@ -256,6 +237,7 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
         {
             First_motorspeed_edge_detected = 1;
             Timer_motorspeed_shortcircuit = 0;
+            TIM_Cmd(TIM5, DISABLE);
             TIM5_Int_Init(65535,71);
             
         }    
@@ -268,14 +250,14 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
                 TIM_SetCounter(TIM5,0); 
                 
                 /* Fault – Motorspeed Sensor shortcircuited */
-                EscRTBuff[66] = 1;
+                SHORTCIRCUIT_ERROR |= 0x01;
             }
             else
             {
                 Timer_motorspeed_shortcircuit = 0;             
                 TIM_SetCounter(TIM5,0);  
                 
-                EscRTBuff[66] = 0;
+                SHORTCIRCUIT_ERROR &= ~0x01;
             }
         }
     }
@@ -292,17 +274,13 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
 *******************************************************************************/
 void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
 {   
-
-    if( ( SfBase_EscState & ESC_STATE_STOP ) && ( !(escState_old & ESC_STATE_RUNNING) ) )
-    {
-        ptMTR->last_brake_pulse = ptMTR->rt_brake_pulse;
-    } 
     
     if(SfBase_EscState & ESC_STATE_STOP) 
     {
         if((ptMTR->rt_brake_pulse) > MAX_DISTANCE)
         {
-            /* stopping distance fault */                     
+            /* stopping distance fault */  
+            *(ptMTR->pcErrorCodeBuff) |= 0x08;
         }   
            
         
@@ -337,6 +315,99 @@ void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
     }   
 
 }
+
+
+/*******************************************************************************
+* Function Name  : ESC_Motor_Check
+* Description    : None
+* Input          : None               
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void ESC_Motor_Check(void)
+{
+    static u16 escState_old = 0; 
+    
+    
+    Motor_Speed_Ready(&MTRITEM[0]);
+    Motor_Speed_Ready(&MTRITEM[1]);		
+    
+    if((SfBase_EscState & ESC_STATE_RUNNING) && (!(escState_old & ESC_STATE_RUNNING))) 
+    { 
+        First_motorspeed_edge_detected = 0;
+    } 
+    else if(( SfBase_EscState & ESC_STATE_STOP ) && ( !(escState_old & ESC_STATE_STOP)))
+    {
+        MTRITEM[0].last_brake_pulse = MTRITEM[0].rt_brake_pulse;
+        MTRITEM[1].last_brake_pulse = MTRITEM[1].rt_brake_pulse;
+        MTRITEM[0].rt_brake_stop = 0;
+        MTRITEM[1].rt_brake_stop = 0;
+    } 
+    
+    Motor_Speed_Run_EN115(&MTRITEM[0]);
+    Motor_Speed_Run_EN115(&MTRITEM[1]);
+    
+    Check_Stopping_Distance(&MTRITEM[0]);
+    Check_Stopping_Distance(&MTRITEM[1]);
+    
+    
+    escState_old = SfBase_EscState;                                      
+
+}
+
+
+/*******************************************************************************
+* Function Name  : sfEscStateCheck
+* Description    : None
+* Input          : None               
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void sfEscStateCheck(void)
+{
+  static u16 sf_running_tms=0;
+
+  
+  //扶梯运行 
+  if( CAN1_TX_Data[2] & ( 1 << 5 )) 
+  {
+    SfBase_EscState &= ~ESC_STATE_STOP;
+    SfBase_EscState &= ~ESC_STATE_READY;
+    
+    SfBase_EscState |= ESC_STATE_RUNNING;
+
+    if(( (sf_running_tms * SYSTEMTICK) > 2500 ) && (*(MTRITEM[0].ptFreqBuff) > MIN_SPEED ) && (*(MTRITEM[1].ptFreqBuff) > MIN_SPEED ))
+    {
+      SfBase_EscState |= ESC_STATE_SPEEDUP;
+    }
+    
+    if( (sf_running_tms * SYSTEMTICK) > 6000 )
+    {
+      SfBase_EscState |= ESC_STATE_RUN5S;
+    }
+    else
+    {
+      sf_running_tms++;
+    }
+  }
+  else
+  {
+    SfBase_EscState &= ~ESC_STATE_RUNNING;
+    SfBase_EscState &= ~ESC_STATE_SPEEDUP;
+    SfBase_EscState &= ~ESC_STATE_RUN5S;
+    
+    SfBase_EscState |= ESC_STATE_STOP;
+    
+    
+    sf_running_tms=0;
+  }
+    
+
+  
+}
+
+
+
 
 
 /******************************  END OF FILE  *********************************/

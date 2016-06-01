@@ -12,10 +12,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-
-
-
-
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -119,7 +115,7 @@ void TandemOutput(void)
     {
         Tandemoutput = 0;
     }
-    if( SfBase_EscState & ESC_STATE_NORMAL )
+    else if( SfBase_EscState & ESC_STATE_NORMAL )
     {
         if( TANDEM_TYPE == 1 )
         {

@@ -73,18 +73,14 @@ void Task_Loop(void)
       Safety_RunCheck2();
 #endif  
       
-//      Motor_Speed_Ready(&MTRITEM[0]);
-//      Motor_Speed_Ready(&MTRITEM[1]);
-      SfBase_EscState = ESC_STATE_RUNNING;
-      Motor_Speed_Run_EN115(&MTRITEM[0]);
-      Motor_Speed_Run_EN115(&MTRITEM[1]);
-      HR_Speed_Run_EN115(&HDL_Right);
-      HR_Speed_Run_EN115(&HDL_Left);
-      Missing_StepRun(&STPMS_UPPER);
-      Missing_StepRun(&STPMS_LOWER);
-      Missing_Step_UpperLower_SyncRun();
-      
-//      Check_Stopping_Distance(&MTRITEM[0]);
+
+  
+      sfEscStateCheck();     
+      ESC_Motor_Check();
+      ESC_Handrail_Check();
+      ESC_Missingstep_Check();
+
+
       
 #ifdef GEC_SF_MASTER 
       if( Tms10Counter == 0 )

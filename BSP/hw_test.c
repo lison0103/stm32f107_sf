@@ -1285,16 +1285,16 @@ void CAN_Comm(void)
     len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
     
     /* just for test */
-    CAN1_TX_Data[4] = CAN1_RX_Data[2];
-    CAN1_TX_Data[5] = CAN1_RX_Data[3];
+    CAN1_TX_Data[4] = CAN1_RX_Data[0];
+    CAN1_TX_Data[5] = CAN1_RX_Data[1];
     
     for( u8 i = 6; i < 50; i++ )
     {
-        CAN1_TX_Data[i] = EscRTBuff[34+i];
+        CAN1_TX_Data[i] = EscRTBuff[30+i];
     }
 
-    CAN2_TX_Data[0] = CAN1_RX_Data[2];
-    CAN2_TX_Data[1] = CAN1_RX_Data[3];
+    CAN2_TX_Data[0] = CAN1_RX_Data[0];
+    CAN2_TX_Data[1] = CAN1_RX_Data[1];
     
     len = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN1_RX_Data, 0);
     len = BSP_CAN_Receive(CAN2, &CAN2_RX_Down, CAN1_RX_Data, 0);

@@ -22,6 +22,7 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void);
 u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS);
 void Missing_StepRun(STEPMISSINGITEM* psSTPMS);
 void Missing_Step_UpperLower_SyncRun(void);
+void ESC_Missingstep_Check(void);
 
 #endif  /* __ESC_MISSING_STEP_H */
 
