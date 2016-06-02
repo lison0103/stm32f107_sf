@@ -618,8 +618,8 @@ uint32_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, u
             if(!MB_CRC16(CanRx->rx_buff, CanRx->recv_len))
             {          
                 /* ok */
-                pstr = CanRx->rx_buff;					
-                len = CanRx->recv_len;
+                pstr = &CanRx->rx_buff[2];					
+                len = CanRx->recv_len - 4;
                 CanRx->recv_len = 0;
             }
             else
