@@ -51,6 +51,8 @@ static u16 comm_timeout = 100;
 static u16 cntt = 0;
 #endif
 
+extern u8 EscRTBuff[200];
+
 /*******************************************************************************
 * Function Name  : SafetyRelayAuxRelayTest
 * Description    : Safety Relay and AuxRelay Test
@@ -392,6 +394,12 @@ void CPU_Exchange_Data(void)
           SPI1_TX_Data[6] = CAN1_TX_Data[1];
           SPI1_TX_Data[7] = CAN1_TX_Data[2];
           SPI1_TX_Data[8] = CAN1_TX_Data[3];
+          
+          /* esc Rtdata --------------------------*/
+          for( i = 0; i < 100; i++)
+          {
+              SPI1_TX_Data[9 + i] = EscRTBuff[i];
+          }
           
           i = MB_CRC16( SPI1_TX_Data, comm_num - 2 );
           SPI1_TX_Data[comm_num - 2] = i;

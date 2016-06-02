@@ -284,7 +284,7 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
 
 /*******************************************************************************
 * Function Name  : ESC_Missingstep_Check
-* Description    : None
+* Description    : Esc Missingstep check.
 * Input          : None               
 * Output         : None
 * Return         : None

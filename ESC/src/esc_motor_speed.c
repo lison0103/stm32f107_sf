@@ -51,13 +51,13 @@ MTRFREQITEM MTRITEM[2]=
     {
         0,0,
         
-        0,//实时飞轮频率计数   
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //脉冲周期数组 
+        0,   
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, 
         
-        0,0,//制动距离计数 
+        0,0,
         
-        (u16*)&EscRTBuff[40],  //频率值
-        (u16*)&EscRTBuff[44],  //制动距离
+        (u16*)&EscRTBuff[40], 
+        (u16*)&EscRTBuff[44],  
         
         0,
         {0,0,0,0,0,0,0,0,0,0,0,0},
@@ -68,13 +68,13 @@ MTRFREQITEM MTRITEM[2]=
     {
         0,0,
         
-        0,//实时飞轮频率计数   
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, //脉冲周期数组
+        0,  
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, 
         
-        0,0,//制动距离计数 
+        0,0,
         
-        (u16*)&EscRTBuff[42],  //频率值
-        (u16*)&EscRTBuff[46],  //制动距离
+        (u16*)&EscRTBuff[42], 
+        (u16*)&EscRTBuff[46],  
         
         0,
         {0,0,0,0,0,0,0,0,0,0,0,0},
@@ -128,7 +128,8 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
     u16 Escalator_speed = 0;
     	
 
-    if( SfBase_EscState & ESC_STATE_RUNNING )
+//    if( SfBase_EscState & ESC_STATE_RUNNING  || SfBase_EscState & ESC_STATE_STOP)
+    if( SfBase_EscState & ESC_STATE_RUNNING  || ( (SfBase_EscState & ESC_STATE_STOP) && (!(SfBase_EscState & ESC_STATE_READY))))
     {      
         
 //        if( ( time_running_tms * SYSTEMTICK ) > UNDERSPEED_TIME )
@@ -319,7 +320,7 @@ void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
 
 /*******************************************************************************
 * Function Name  : ESC_Motor_Check
-* Description    : None
+* Description    : Esc motor speed check.
 * Input          : None               
 * Output         : None
 * Return         : None
@@ -358,17 +359,17 @@ void ESC_Motor_Check(void)
 
 /*******************************************************************************
 * Function Name  : sfEscStateCheck
-* Description    : None
+* Description    : Esc state check.
 * Input          : None               
 * Output         : None
 * Return         : None
 *******************************************************************************/
 void sfEscStateCheck(void)
 {
-  static u16 sf_running_tms=0;
-
+  static u16 sf_running_tms,sf_stopping_tms = 0;
+  static u16 sf_reset_tms = 0;
   
-  //扶梯运行 
+  /* esc running */
   if( CAN1_TX_Data[2] & ( 1 << 5 )) 
   {
     SfBase_EscState &= ~ESC_STATE_STOP;
@@ -389,6 +390,10 @@ void sfEscStateCheck(void)
     {
       sf_running_tms++;
     }
+    
+    sf_stopping_tms = 0;
+    
+    sf_reset_tms = 0;
   }
   else
   {
@@ -398,8 +403,30 @@ void sfEscStateCheck(void)
     
     SfBase_EscState |= ESC_STATE_STOP;
     
+    if(( (sf_stopping_tms * SYSTEMTICK) > 2000 ) && (MTRITEM[0].rt_brake_stop == 1) && (MTRITEM[1].rt_brake_stop == 1) )
+    {
+        SfBase_EscState |= ESC_STATE_READY;
+    }
+    else
+    {        
+        sf_stopping_tms++;
+    }
     
-    sf_running_tms=0;
+    /* for test reset the value-------------------------------------*/
+    if( (sf_reset_tms * SYSTEMTICK) > 20000 )
+    {
+        for(u8 i = 30; i < 200; i++ )
+        {
+            EscRTBuff[i] = 0;
+        }
+        sf_reset_tms = 0;
+    }
+    else
+    {
+        sf_reset_tms++;
+    }
+    
+    sf_running_tms = 0;
   }
     
 

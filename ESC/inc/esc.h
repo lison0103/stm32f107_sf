@@ -52,11 +52,11 @@
 #define CF8_Auto_Fast_Mode1	        ((u8)0x40)
 #define CF8_Auto_Fast_Mode2	        ((u8)0x80)
 
-
-#define SHORTCIRCUIT_ERROR  EscRTBuff[39]
-#define MS_SYNC_RUN_ERROR   EscRTBuff[66]
 #define MTR_MAX_SPEED       EscRTBuff[37]
 #define MTR_MIN_SPEED       EscRTBuff[38]
+#define SHORTCIRCUIT_ERROR  EscRTBuff[39]
+#define MS_SYNC_RUN_ERROR   EscRTBuff[66]
+
 
 typedef struct mtrfreqitem 
 {    

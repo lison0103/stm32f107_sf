@@ -93,8 +93,9 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
 {
     u16 Escalator_speed,Handrail_speed,Handrail_speed_freq,Escalator_speed_freq = 0;
     
-    if( SfBase_EscState & ESC_STATE_RUNNING ) 
+    if( SfBase_EscState & ESC_STATE_RUNNING  || ( (SfBase_EscState & ESC_STATE_STOP) && (!(SfBase_EscState & ESC_STATE_READY))))
     {
+        
         Handrail_speed_freq = Measure_handrail_speed(psHDL);
         Escalator_speed_freq = ( EscRTBuff[41] << 8 | EscRTBuff[40] );
         Handrail_speed = (( Handrail_speed_freq * 2 * 314 * ROLLER_HR_RADIUS ) / ( HR_PULSES_PER_REV * 100 ));    
@@ -103,47 +104,52 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
         *HR_SPEED = Handrail_speed;
         *MOTOR_SPEED = Escalator_speed;
         
-        if( ( psHDL->delay_no_pulse_tms * SYSTEMTICK ) > DELAY_NO_PULSE_CHECKING )
+        if( SfBase_EscState & ESC_STATE_RUNNING )
         {
-            if( Handrail_speed_freq < 1 )
-            {
-                if( SfBase_EscState & ESC_STATE_INSP ) 
-                {         
-                    /* handrail speed warning */
-                }
-                else
-                {
-                    /* handrail speed fault */
-                    *(psHDL->pcErrorCodeBuff) |= 0x02;
-                }            
-            }          
-        }
-        else
-        {
-            psHDL->delay_no_pulse_tms++;
-        }
         
-
-        
-        psHDL->HR_Fault_timer++;
-        if( (Handrail_speed <= (( Escalator_speed * 87 ) / 100 )) || (Handrail_speed >= (( Escalator_speed * 113 ) / 100 )) )
-        {
-            if( ( psHDL->HR_Fault_timer * SYSTEMTICK ) >= HR_FAULT_TIME )
+            if( ( psHDL->delay_no_pulse_tms * SYSTEMTICK ) > DELAY_NO_PULSE_CHECKING )
             {
-                if( SfBase_EscState & ESC_STATE_INSP ) 
-                {         
-                    /* handrail speed warning */
-                }
-                else
+                if( Handrail_speed_freq < 1 )
                 {
-                    /* handrail speed fault */
-                    *(psHDL->pcErrorCodeBuff) |= 0x04;
+                    if( SfBase_EscState & ESC_STATE_INSP ) 
+                    {         
+                        /* handrail speed warning */
+                    }
+                    else
+                    {
+                        /* handrail speed fault */
+                        *(psHDL->pcErrorCodeBuff) |= 0x02;
+                    }            
+                }          
+            }
+            else
+            {
+                psHDL->delay_no_pulse_tms++;
+            }
+            
+            
+            
+            psHDL->HR_Fault_timer++;
+            if( (Handrail_speed <= (( Escalator_speed * 87 ) / 100 )) || (Handrail_speed >= (( Escalator_speed * 113 ) / 100 )) )
+            {
+                if( ( psHDL->HR_Fault_timer * SYSTEMTICK ) >= HR_FAULT_TIME )
+                {
+                    if( SfBase_EscState & ESC_STATE_INSP ) 
+                    {         
+                        /* handrail speed warning */
+                    }
+                    else
+                    {
+                        /* handrail speed fault */
+                        *(psHDL->pcErrorCodeBuff) |= 0x04;
+                    }
                 }
             }
-        }
-        else
-        {
-            psHDL->HR_Fault_timer = 0;
+            else
+            {
+                psHDL->HR_Fault_timer = 0;
+            }
+            
         }
         
         *(psHDL->ptHDLDataBuff) = Handrail_speed_freq;
@@ -235,7 +241,7 @@ void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
 
 /*******************************************************************************
 * Function Name  : ESC_Handrail_Check
-* Description    : None
+* Description    : Esc handrail speed check.
 * Input          : None               
 * Output         : None
 * Return         : None
