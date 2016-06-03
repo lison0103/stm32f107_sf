@@ -75,6 +75,7 @@ void HR_Speed_Ready(HDLITEM* psHDL)
         {
             /* fault */
             *(psHDL->pcErrorCodeBuff) |= 0x01;
+            EN_ERROR2 |= 0x01;
         }            
          
     } 
@@ -119,6 +120,7 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
                     {
                         /* handrail speed fault */
                         *(psHDL->pcErrorCodeBuff) |= 0x02;
+                        EN_ERROR2 |= 0x02;
                     }            
                 }          
             }
@@ -142,6 +144,7 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
                     {
                         /* handrail speed fault */
                         *(psHDL->pcErrorCodeBuff) |= 0x04;
+                        EN_ERROR2 |= 0x04;
                     }
                 }
             }
@@ -225,6 +228,7 @@ void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
                 
                 /* Fault ¨C Motorspeed Sensor shortcircuited */
                 SHORTCIRCUIT_ERROR |= 0x02;
+                EN_ERROR4 |= 0x02;
             }
             else
             {

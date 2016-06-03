@@ -108,6 +108,7 @@ void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
         {
             /* fault */
             *(ptMTR->pcErrorCodeBuff) |= 0x01;
+            EN_ERROR1 |= 0x01;
         }            
     } 
     
@@ -154,7 +155,7 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
             {
                 /* overspeed fault */
                 *(ptMTR->pcErrorCodeBuff) |= 0x02;
-                
+                EN_ERROR1 |= 0x02;
             } 
            
         }
@@ -171,7 +172,7 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
             {
                 /* underspeed fault */
                 *(ptMTR->pcErrorCodeBuff) |= 0x04;
-                
+                EN_ERROR1 |= 0x04;
             }
         }
      
@@ -252,6 +253,7 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
                 
                 /* Fault ¨C Motorspeed Sensor shortcircuited */
                 SHORTCIRCUIT_ERROR |= 0x01;
+                EN_ERROR4 |= 0x01;
             }
             else
             {
@@ -282,6 +284,7 @@ void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
         {
             /* stopping distance fault */  
             *(ptMTR->pcErrorCodeBuff) |= 0x08;
+            EN_ERROR1 |= 0x08;
         }   
            
         

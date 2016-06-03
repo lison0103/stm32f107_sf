@@ -57,6 +57,12 @@
 #define SHORTCIRCUIT_ERROR  EscRTBuff[39]
 #define MS_SYNC_RUN_ERROR   EscRTBuff[66]
 
+#define         EN_ERROR1   	EscRTBuff[70]
+#define  	EN_ERROR2   	EscRTBuff[71]
+#define 	EN_ERROR3   	EscRTBuff[72]
+#define 	EN_ERROR4   	EscRTBuff[73]
+#define 	EN_ERROR5   	EscRTBuff[74]
+
 
 typedef struct mtrfreqitem 
 {    

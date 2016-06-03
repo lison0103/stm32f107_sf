@@ -78,6 +78,7 @@ void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
             {
                 /* fault */ 
                 *(psSTPMS->pcErrorCodeBuff) |= 0x01;
+                EN_ERROR3 |= 0x01;
             }
             else
             {
@@ -123,7 +124,7 @@ void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
             {
                 /* Missing step fault */
                 *(psSTPMS->pcErrorCodeBuff) |= 0x02;
-
+                EN_ERROR3 |= 0x02;
             }
         }
         else
@@ -144,6 +145,7 @@ void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
                     {
                         /* Missing step fault */
                         *(psSTPMS->pcErrorCodeBuff) |= 0x04;
+                        EN_ERROR3 |= 0x04;
                     }
                 }
 
@@ -160,6 +162,7 @@ void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
                 {
                     psSTPMS->sensor_error_cnt++;
                     *(psSTPMS->pcErrorCodeBuff) |= 0x08;
+                    EN_ERROR3 |= 0x08;
                 }                
              
             }
@@ -219,6 +222,7 @@ void Missing_Step_UpperLower_SyncRun(void)
                 {
                     /* Fault */
                     MS_SYNC_RUN_ERROR |= 0x01;
+                    EN_ERROR5 |= 0x01;
                     
                 }
                 else
@@ -238,6 +242,7 @@ void Missing_Step_UpperLower_SyncRun(void)
                 {
                     /* Fault */
                     MS_SYNC_RUN_ERROR |= 0x02;
+                    EN_ERROR5 |= 0x02;
                 }
                 else
                 {
@@ -280,6 +285,7 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
                 
                 /* Fault ¨C Motorspeed Sensor shortcircuited */
                 SHORTCIRCUIT_ERROR |= 0x04;
+                EN_ERROR4 |= 0x04;
             }
             else
             {
