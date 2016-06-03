@@ -103,16 +103,16 @@ typedef struct hdlitem
 
 typedef struct stepmissingitem 
 {
-  u8 *const pcErrorCodeBuff;   
-  
-  volatile u16 MtrPulse;
-  
-	u16 sensor_error_cnt;
-	u16 sensor_error_tms;	
-        
-        u8 rising_edge_detected[2];
-        u16 *const ptStepMtrBuff;
-        u16 ms_ready_delay;
+    u8 *const pcErrorCodeBuff;   
+    
+    volatile u16 MtrPulse;
+    
+    u16 sensor_error_cnt;
+    u16 sensor_error_tms;	
+    
+    u8 rising_edge_detected[2];
+    u16 *const ptStepMtrBuff;
+    u16 ms_ready_delay;
         
 }STEPMISSINGITEM;
 

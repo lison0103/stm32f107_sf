@@ -291,7 +291,8 @@ void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
             if( ( ptMTR->BrakeCalTms * SYSTEMTICK ) > 1000 ) 
             {
                 
-                if(( ptMTR->rt_brake_pulse ) && ( ptMTR->rt_brake_pulse == ptMTR->last_brake_pulse )) 
+//                if(( ptMTR->rt_brake_pulse ) && ( ptMTR->rt_brake_pulse == ptMTR->last_brake_pulse )) 
+                if( ( ptMTR->rt_brake_pulse == ptMTR->last_brake_pulse )) 
                 {
                     /* record the escalator stopping distance */
                     *(ptMTR->ptBrakeDistanceBuff) = ptMTR->rt_brake_pulse;
@@ -370,66 +371,73 @@ void sfEscStateCheck(void)
   static u16 sf_reset_tms = 0;
   
   /* esc running */
-  if( CAN1_TX_Data[2] & ( 1 << 5 )) 
+  if( ( CAN1_TX_Data[2] & ( 1 << 5 )) && (SfBase_EscState & ESC_STATE_READY) )
   {
-    SfBase_EscState &= ~ESC_STATE_STOP;
-    SfBase_EscState &= ~ESC_STATE_READY;
-    
-    SfBase_EscState |= ESC_STATE_RUNNING;
-
-    if(( (sf_running_tms * SYSTEMTICK) > 2500 ) && (*(MTRITEM[0].ptFreqBuff) > MIN_SPEED ) && (*(MTRITEM[1].ptFreqBuff) > MIN_SPEED ))
-    {
-      SfBase_EscState |= ESC_STATE_SPEEDUP;
-    }
-    
-    if( (sf_running_tms * SYSTEMTICK) > 6000 )
-    {
-      SfBase_EscState |= ESC_STATE_RUN5S;
-    }
-    else
-    {
-      sf_running_tms++;
-    }
-    
-    sf_stopping_tms = 0;
-    
-    sf_reset_tms = 0;
+      CMD_FLAG1 |= 0x01;
+  }
+  
+  if( ( CAN1_TX_Data[2] & ( 1 << 5 )) && (CMD_FLAG1 & 0x01) )
+  {
+      SfBase_EscState &= ~ESC_STATE_STOP;
+      SfBase_EscState &= ~ESC_STATE_READY;
+      
+      SfBase_EscState |= ESC_STATE_RUNNING;
+      
+      if(( (sf_running_tms * SYSTEMTICK) > 2500 ) && (*(MTRITEM[0].ptFreqBuff) > MIN_SPEED ) && (*(MTRITEM[1].ptFreqBuff) > MIN_SPEED ))
+      {
+          SfBase_EscState |= ESC_STATE_SPEEDUP;
+      }
+      
+      if( (sf_running_tms * SYSTEMTICK) > 6000 )
+      {
+          SfBase_EscState |= ESC_STATE_RUN5S;
+      }
+      else
+      {
+          sf_running_tms++;
+      }
+      
+      sf_stopping_tms = 0;
+      
+      sf_reset_tms = 0;
   }
   else
   {
-    SfBase_EscState &= ~ESC_STATE_RUNNING;
-    SfBase_EscState &= ~ESC_STATE_SPEEDUP;
-    SfBase_EscState &= ~ESC_STATE_RUN5S;
-    
-    SfBase_EscState |= ESC_STATE_STOP;
-    
-    if(( (sf_stopping_tms * SYSTEMTICK) > 2000 ) && (MTRITEM[0].rt_brake_stop == 1) && (MTRITEM[1].rt_brake_stop == 1) )
-    {
-        SfBase_EscState |= ESC_STATE_READY;
-    }
-    else
-    {        
-        sf_stopping_tms++;
-    }
-    
-    /* for test reset the value-------------------------------------*/
-    if( (sf_reset_tms * SYSTEMTICK) > 20000 )
-    {
-        for(u8 i = 30; i < 200; i++ )
-        {
-            EscRTBuff[i] = 0;
-        }
-        sf_reset_tms = 0;
-    }
-    else
-    {
-        sf_reset_tms++;
-    }
-    
-    sf_running_tms = 0;
+      SfBase_EscState &= ~ESC_STATE_RUNNING;
+      SfBase_EscState &= ~ESC_STATE_SPEEDUP;
+      SfBase_EscState &= ~ESC_STATE_RUN5S;
+      
+      SfBase_EscState |= ESC_STATE_STOP;
+      
+      if(( (sf_stopping_tms * SYSTEMTICK) > 2000 ) && (MTRITEM[0].rt_brake_stop == 1) && (MTRITEM[1].rt_brake_stop == 1) )
+      {
+          SfBase_EscState |= ESC_STATE_READY;
+      }
+      else
+      {        
+          sf_stopping_tms++;
+      }
+      
+      /* for test reset the value-------------------------------------*/
+      if( (sf_reset_tms * SYSTEMTICK) > 20000 )
+      {
+          for(u8 i = 30; i < 200; i++ )
+          {
+              EscRTBuff[i] = 0;
+          }
+          sf_reset_tms = 0;
+      }
+      else
+      {
+          sf_reset_tms++;
+      }
+      
+      sf_running_tms = 0;
+      
+      CMD_FLAG1 &= ~0x01;
   }
     
-
+   
   
 }
 
