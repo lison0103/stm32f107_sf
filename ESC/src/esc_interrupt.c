@@ -128,8 +128,8 @@ void missingstep_X1_int(void)
     
     STPMS_UPPER.rising_edge_detected[0] = 1;
     STPMS_UPPER.rising_edge_detected[1] = 1;
-    *(STPMS_UPPER.ptStepMtrBuff) = STPMS_UPPER.MtrPulse;
-    STPMS_UPPER.MtrPulse = 0;     
+//    *(STPMS_UPPER.ptStepMtrBuff) = STPMS_UPPER.MtrPulse;
+//    STPMS_UPPER.MtrPulse = 0;     
     
     Missing_Step_UpperLower_Shortcircuit_Run();
 }
@@ -155,8 +155,8 @@ void missingstep_X2_int(void)
     
     STPMS_LOWER.rising_edge_detected[0] = 1;
     STPMS_LOWER.rising_edge_detected[1] = 1;
-    *(STPMS_LOWER.ptStepMtrBuff) = STPMS_LOWER.MtrPulse;
-    STPMS_LOWER.MtrPulse = 0;  
+//    *(STPMS_LOWER.ptStepMtrBuff) = STPMS_LOWER.MtrPulse;
+//    STPMS_LOWER.MtrPulse = 0;  
     
     Missing_Step_UpperLower_Shortcircuit_Run();
 }

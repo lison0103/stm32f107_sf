@@ -291,8 +291,8 @@ void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
             if( ( ptMTR->BrakeCalTms * SYSTEMTICK ) > 1000 ) 
             {
                 
-//                if(( ptMTR->rt_brake_pulse ) && ( ptMTR->rt_brake_pulse == ptMTR->last_brake_pulse )) 
-                if( ( ptMTR->rt_brake_pulse == ptMTR->last_brake_pulse )) 
+//                if(( ptMTR->rt_brake_pulse ) && ( ptMTR->rt_brake_pulse == ptMTR->last_brake_pulse ))   
+                if( ptMTR->rt_brake_pulse == ptMTR->last_brake_pulse )     
                 {
                     /* record the escalator stopping distance */
                     *(ptMTR->ptBrakeDistanceBuff) = ptMTR->rt_brake_pulse;
@@ -409,7 +409,7 @@ void sfEscStateCheck(void)
       
       SfBase_EscState |= ESC_STATE_STOP;
       
-      if(( (sf_stopping_tms * SYSTEMTICK) > 2000 ) && (MTRITEM[0].rt_brake_stop == 1) && (MTRITEM[1].rt_brake_stop == 1) )
+      if(( (sf_stopping_tms * SYSTEMTICK) > 3000 ) && (MTRITEM[0].rt_brake_stop == 1) && (MTRITEM[1].rt_brake_stop == 1) )
       {
           SfBase_EscState |= ESC_STATE_READY;
       }

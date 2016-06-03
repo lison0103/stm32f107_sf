@@ -28,8 +28,7 @@ u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS);
 u16 STEP_WIDTH = 400;
 
 /* variable */
-u32 Motor_speed_pulse_counter = 0;
-u8 First_entry_missing_step_detection,First_MS_sync_entry,First_MS_edge_detected = 0;
+u8 First_MS_sync_entry,First_MS_edge_detected = 0;
 u16 *const MS_MTR_PULSE = (u16*)&EscRTBuff[67];
 
 STEPMISSINGITEM STPMS_UPPER=
@@ -40,7 +39,8 @@ STEPMISSINGITEM STPMS_UPPER=
     0,0,
     {0,0},
     (u16*)&EscRTBuff[60],
-    0
+    0,
+    0,0
 };
 
 STEPMISSINGITEM STPMS_LOWER=
@@ -51,7 +51,8 @@ STEPMISSINGITEM STPMS_LOWER=
     0,0,
     {0,0},
     (u16*)&EscRTBuff[62],
-    0
+    0,
+    0,0
 };
 
 
@@ -101,17 +102,17 @@ void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
     if( SfBase_EscState & ESC_STATE_RUNNING )
     {       
         
-        if( First_entry_missing_step_detection == 0 )
+        if( psSTPMS->First_entry_missing_step_detection == 0 )
         {
-            First_entry_missing_step_detection = 1;
-//            Motor_speed_pulse_counter = Pulse_counter_sensor_speed(psSTPMS);
+            psSTPMS->First_entry_missing_step_detection = 1;
+            psSTPMS->Motor_speed_pulse_counter_init = Pulse_counter_sensor_speed(psSTPMS);
         }
         
-//        Motor_speed_pulse_counter =  Pulse_counter_sensor_speed(psSTPMS) - Motor_speed_pulse_counter;
+        psSTPMS->Motor_speed_pulse_counter =  Pulse_counter_sensor_speed(psSTPMS) - psSTPMS->Motor_speed_pulse_counter_init;
         
         *MS_MTR_PULSE = R;
         
-        if( psSTPMS->MtrPulse > R*1.1 )
+        if( psSTPMS->Motor_speed_pulse_counter > R*1.1 )
         {
             if( SfBase_EscState & ESC_STATE_INSP )
             {     
@@ -130,9 +131,9 @@ void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
             if( psSTPMS->rising_edge_detected[0] == 1 )
             {
                 
-//                Motor_speed_pulse_counter =  Pulse_counter_sensor_speed(psSTPMS) - Motor_speed_pulse_counter;
+                psSTPMS->Motor_speed_pulse_counter =  Pulse_counter_sensor_speed(psSTPMS) - psSTPMS->Motor_speed_pulse_counter_init;
                 
-                if( psSTPMS->MtrPulse > R*1.1 )
+                if( psSTPMS->Motor_speed_pulse_counter > R*1.1 )
                 {
                     if( SfBase_EscState & ESC_STATE_INSP )
                     {     
@@ -142,18 +143,28 @@ void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
                     else
                     {
                         /* Missing step fault */
-                        *(psSTPMS->pcErrorCodeBuff) |= 0x04;;
+                        *(psSTPMS->pcErrorCodeBuff) |= 0x04;
                     }
                 }
-                else
+
+                *(psSTPMS->ptStepMtrBuff) = psSTPMS->MtrPulse;
+                psSTPMS->rising_edge_detected[0] = 0;
+                
+                if(psSTPMS->MtrPulse)
                 {
-//                    *(psSTPMS->ptStepMtrBuff) = psSTPMS->MtrPulse;
-                    psSTPMS->rising_edge_detected[0] = 0;
-//                    psSTPMS->MtrPulse = 0;
-//                    Motor_speed_pulse_counter = Pulse_counter_sensor_speed(psSTPMS);
+                    psSTPMS->MtrPulse = 0;
+                    psSTPMS->Motor_speed_pulse_counter_init = Pulse_counter_sensor_speed(psSTPMS);
+                    psSTPMS->sensor_error_cnt = 0;
                 }
+                else if((!(*MTRITEM[0].ptFreqBuff)) && (!(*MTRITEM[1].ptFreqBuff)))
+                {
+                    psSTPMS->sensor_error_cnt++;
+                    *(psSTPMS->pcErrorCodeBuff) |= 0x08;
+                }                
+             
             }
         }
+        
  
     }    
     
@@ -299,7 +310,8 @@ void ESC_Missingstep_Check(void)
  
   if((SfBase_EscState & ESC_STATE_RUNNING) && (!(escState_old & ESC_STATE_RUNNING))) 
   { 
-      First_entry_missing_step_detection = 0;
+      STPMS_UPPER.First_entry_missing_step_detection = 0;
+      STPMS_LOWER.First_entry_missing_step_detection = 0;
       First_MS_sync_entry = 0;
       First_MS_edge_detected = 0;
   } 

@@ -113,6 +113,10 @@ typedef struct stepmissingitem
     u8 rising_edge_detected[2];
     u16 *const ptStepMtrBuff;
     u16 ms_ready_delay;
+    
+    u32 Motor_speed_pulse_counter_init;
+    u32 Motor_speed_pulse_counter;
+    u8 First_entry_missing_step_detection;
         
 }STEPMISSINGITEM;
 
