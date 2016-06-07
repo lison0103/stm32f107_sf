@@ -125,7 +125,7 @@ void Task_Loop(void)
       if( Tms500Counter == 0 )
       {             
 #ifdef GEC_SF_MASTER          
-          USB_VCP_RecvBufandSend();
+//          USB_VCP_RecvBufandSend();
 #endif            
       }
       

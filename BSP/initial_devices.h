@@ -24,15 +24,12 @@
 #include "safety_test.h"
 #include "usart.h"
 
+
 #ifdef GEC_SF_MASTER
 //#include "esc_comm_db.h"
 #include "esc_record_data.h"
 #include "mb85rcxx.h"
-#include "usbd_cdc_core_loopback.h"
-#include "usbd_usr.h"
-#include "usb_conf.h"
-#include "usbd_desc.h"
-#include "usbd_cdc_vcp.h"
+#include "usb_func.h"
 #endif
 
 /* Exported types ------------------------------------------------------------*/
@@ -47,12 +44,7 @@ void RCC_Configuration(void);
 void NVIC_Configuration(void);
 
 
-#ifdef GEC_SF_MASTER
-extern __ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
-extern uint8_t Rxbuffer[64]; 
-extern __IO uint32_t receive_count;
-extern __IO uint32_t  data_sent;
-#endif
+
 
 
 

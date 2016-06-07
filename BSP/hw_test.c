@@ -20,7 +20,6 @@
 #include "esc.h"
 
 #ifdef GEC_SF_MASTER
-#include "usbd_cdc_vcp.h"
 #include "usart.h"
 #include "crc16.h"
 #endif

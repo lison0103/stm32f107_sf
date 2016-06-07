@@ -30,6 +30,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f30x_it.h"
 #include "led.h"
+#include "hw_config.h"
+#include "stm32_it.h"
+#include "usb_lib.h"
+#include "usb_istr.h"
 
 /** @addtogroup STM32F30x_StdPeriph_Templates
   * @{
@@ -159,6 +163,23 @@ void PVD_IRQHandler(void)
     /* store data */
     while(1);
 }
+
+/*******************************************************************************
+* Function Name  : USB_IRQHandler
+* Description    : This function handles USB Low Priority interrupts
+*                  requests.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+//#if defined(STM32L1XX_MD) || defined(STM32L1XX_HD)|| defined(STM32L1XX_MD_PLUS)|| defined (STM32F37X)
+//void USB_LP_IRQHandler(void)
+//#else
+//void USB_LP_CAN1_RX0_IRQHandler(void)
+//#endif
+//{
+//  USB_Istr();
+//}
 
 /******************************************************************************/
 /*                 STM32F30x Peripherals Interrupt Handlers                   */

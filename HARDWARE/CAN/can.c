@@ -13,9 +13,6 @@
 #include "delay.h"
 #include "crc16.h"
 
-#ifdef GEC_SF_MASTER
-#include "usbd_cdc_vcp.h"
-#endif
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/

@@ -31,9 +31,6 @@ void PluseOutputInit(void);
 #ifdef GEC_SF_MASTER
 void DataIntegrityInFRAMCheck(void);
 
-__ALIGN_BEGIN USB_OTG_CORE_HANDLE    USB_OTG_dev __ALIGN_END ;
-uint8_t Rxbuffer[64]; 
-__IO uint32_t receive_count =1;
 #endif
 
 
@@ -109,16 +106,8 @@ void Bsp_Init(void)
         DataIntegrityInFRAMCheck();      
 
         
-        /** USB VCP init **/
-          USBD_Init(&USB_OTG_dev,
-#ifdef USE_USB_OTG_HS 
-            USB_OTG_HS_CORE_ID,
-#else            
-            USB_OTG_FS_CORE_ID,
-#endif  
-            &USR_desc, 
-            &USBD_CDC_cb, 
-            &USR_cb);          
+        /** USB init **/
+//        usb_init();
           
         /** wait slave spi **/
 //        delay_ms(200);       

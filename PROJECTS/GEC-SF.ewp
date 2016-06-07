@@ -2160,8 +2160,8 @@
           <state>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc</state>
           <state>$PROJ_DIR$\..\Libraries\CMSIS</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_ETH_Driver\inc</state>
-          <state>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Class\cdc\inc</state>
-          <state>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\inc</state>
+          <state>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc</state>
+          <state>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Core\inc</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\inc</state>
           <state>$PROJ_DIR$\..\FATFS\src</state>
           <state>$PROJ_DIR$\..\FATFS\exfuns</state>
@@ -2174,12 +2174,12 @@
           <state>$PROJ_DIR$\..\HARDWARE\EXTI</state>
           <state>$PROJ_DIR$\..\HARDWARE\USART</state>
           <state>$PROJ_DIR$\..\MALLOC</state>
-          <state>$PROJ_DIR$\..\VCP\inc</state>
           <state>$PROJ_DIR$\..\ESC\inc</state>
           <state>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib</state>
           <state>$PROJ_DIR$\..\SAFETYTEST\</state>
           <state>$PROJ_DIR$\..\BSP</state>
           <state>$PROJ_DIR$\..\HARDWARE\ADC</state>
+          <state>$PROJ_DIR$\..\USB\USB_MASS_STORAGE\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -3910,6 +3910,7 @@
           <state>STM32F30X</state>
           <state>EWARMv5</state>
           <state>GEC_SF_S_NEW</state>
+          <state>USE_STM32303C_EVAL</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -4042,8 +4043,7 @@
           <state>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\inc</state>
           <state>$PROJ_DIR$\..\Libraries\CMSIS</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_ETH_Driver\inc</state>
-          <state>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Class\cdc\inc</state>
-          <state>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\inc</state>
+          <state>$PROJ_DIR$\..\Libraries\STM32_USB-FS-Device_Driver\inc</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\inc</state>
           <state>$PROJ_DIR$\..\BSP</state>
           <state>$PROJ_DIR$\..\FATFS\src</state>
@@ -4061,6 +4061,7 @@
           <state>$PROJ_DIR$\..\ESC\inc</state>
           <state>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib</state>
           <state>$PROJ_DIR$\..\SAFETYTEST\</state>
+          <state>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\inc</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -4708,34 +4709,6 @@
     <file>
       <name>$PROJ_DIR$\..\BSP\sys.c</name>
     </file>
-    <file>
-      <name>$PROJ_DIR$\..\VCP\src\usb_bsp.c</name>
-      <excluded>
-        <configuration>GEC-SF-S</configuration>
-        <configuration>GEC-SF-S-NEW</configuration>
-      </excluded>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\VCP\src\usbd_cdc_vcp.c</name>
-      <excluded>
-        <configuration>GEC-SF-S</configuration>
-        <configuration>GEC-SF-S-NEW</configuration>
-      </excluded>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\VCP\src\usbd_desc.c</name>
-      <excluded>
-        <configuration>GEC-SF-S</configuration>
-        <configuration>GEC-SF-S-NEW</configuration>
-      </excluded>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\VCP\src\usbd_usr.c</name>
-      <excluded>
-        <configuration>GEC-SF-S</configuration>
-        <configuration>GEC-SF-S-NEW</configuration>
-      </excluded>
-    </file>
   </group>
   <group>
     <name>ESC</name>
@@ -5110,39 +5083,110 @@
     <name>USB</name>
     <excluded>
       <configuration>GEC-SF-S</configuration>
-      <configuration>GEC-SF-S-NEW</configuration>
     </excluded>
     <group>
-      <name>Class</name>
+      <name>USB_DEVICE_VCP</name>
+      <excluded>
+        <configuration>GEC-SF-M</configuration>
+      </excluded>
       <group>
-        <name>CDC</name>
+        <name>Driver</name>
         <file>
-          <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Class\cdc\src\usbd_cdc_core_loopback.c</name>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_core.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_init.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_int.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_mem.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_regs.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_sil.c</name>
         </file>
       </group>
+      <file>
+        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\hw_config.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_desc.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_endp.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_istr.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_prop.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_pwr.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_virtual_com_port.c</name>
+      </file>
     </group>
     <group>
-      <name>Core</name>
+      <name>USB_HOST_MSC</name>
+      <excluded>
+        <configuration>GEC-SF-S-NEW</configuration>
+      </excluded>
+      <group>
+        <name>Class</name>
+        <group>
+          <name>MSC</name>
+          <file>
+            <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_bot.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_core.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_scsi.c</name>
+          </file>
+        </group>
+      </group>
+      <group>
+        <name>Core</name>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Core\src\usbh_core.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Core\src\usbh_hcs.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Core\src\usbh_ioreq.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Core\src\usbh_stdreq.c</name>
+        </file>
+      </group>
+      <group>
+        <name>Driver</name>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_core.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_hcd.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_hcd_int.c</name>
+        </file>
+      </group>
       <file>
-        <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\src\usbd_core.c</name>
+        <name>$PROJ_DIR$\..\USB\USB_MASS_STORAGE\src\usb_bsp.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\src\usbd_ioreq.c</name>
+        <name>$PROJ_DIR$\..\USB\USB_MASS_STORAGE\src\usb_func.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\Libraries\STM32_USB_Device_Library\Core\src\usbd_req.c</name>
-      </file>
-    </group>
-    <group>
-      <name>Driver</name>
-      <file>
-        <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_core.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_dcd.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_dcd_int.c</name>
+        <name>$PROJ_DIR$\..\USB\USB_MASS_STORAGE\src\usbh_usr.c</name>
       </file>
     </group>
   </group>
