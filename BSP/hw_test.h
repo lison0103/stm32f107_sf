@@ -26,9 +26,7 @@ void SafetyExtWdt_StartUpCheck(void);
 void SafetyExtWdt_RunCheck(void);
 void SafetyRelayAuxRelayTest(void);
 void SafetyCTR_Check(void);
-#ifdef GEC_SF_MASTER 
 void CAN_Comm(void);
-#endif
 void CPU_Comm(void);
 void CPU_Data_Check(void);
 void CPU_Exchange_Data(void);

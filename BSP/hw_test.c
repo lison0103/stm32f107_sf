@@ -1253,7 +1253,7 @@ void CrossCommCPUCheck(void)
 
 }
 
-#ifdef GEC_SF_MASTER 
+ 
 /*******************************************************************************
 * Function Name  : CAN_Comm
 * Description    : CAN Communication test.
@@ -1265,6 +1265,7 @@ void CrossCommCPUCheck(void)
 *******************************************************************************/
 void CAN_Comm(void)
 {
+#ifdef GEC_SF_MASTER    
     static u8 can1_comm_timeout,can2_comm_timeout = 0;
     u8 len = 0;
     
@@ -1292,8 +1293,11 @@ void CAN_Comm(void)
     len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
     
     /* just for test */
-    CAN1_TX_Data[4] = CAN1_RX_Data[0];
-    CAN1_TX_Data[5] = CAN1_RX_Data[1];
+    if( len > 0 )
+    {
+        CAN1_TX_Data[4] = CAN1_RX_Data[0];
+        CAN1_TX_Data[5] = CAN1_RX_Data[1];
+    }
     
     for( u8 i = 6; i < 50; i++ )
     {
@@ -1315,8 +1319,54 @@ void CAN_Comm(void)
     /** DBL1 UP SEND ID:0X1234, DBL1 DOWN SEND ID:0x2345 **/
     BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN2TX_UP_ID, CAN2_TX_Data, 8);  
     BSP_CAN_Send(CAN2, &CAN2_TX_Down, CAN2TX_DOWN_ID, CAN2_TX_Data, 8);   
-}
+    
+#else
+    static u8 can1_comm_timeout = 0;
+    u8 len = 0;
+    
+    /* if config tandem, use cpu2 CAN1 to communication */
+    if( TANDEM_TYPE != 0 )
+    {
+        if( can1_receive == 1 )
+        {
+            can1_receive = 0;
+            can1_comm_timeout = 0;
+        }
+        else if( ++can1_comm_timeout >= 3 )
+        {
+            /*  can communication timeout process */
+        }  
+        
+        /** receive a data packet -----------------------------------------------**/ 
+        len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
+        
+        /* for tandem communication */
+        if( len > 0 )
+        {
+            TandemMessageRunAllowed = 0;
+            
+            if( SfBase_EscState & ESC_STATE_READY )
+            {
+                TandemMessageRunAllowed = CAN1_RX_Data[1];
+            }
+            else if( SfBase_EscState & ESC_STATE_RUNNING )
+            {
+                TandemMessageRunAllowed = CAN1_RX_Data[2];
+            }
+
+        }
+        CAN1_TX_Data[0] = TANDEM_TYPE;
+        CAN1_TX_Data[1] = TandemRunEnable;
+        CAN1_TX_Data[2] = Tandemoutput;    
+        
+        /** CAN1 send data ------------------------------------------------------**/
+        /** CB normal SEND ID:0x1314 **/
+        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 20);   
+    }
+    
 #endif
+}
+
 
 
 /******************************  END OF FILE  *********************************/

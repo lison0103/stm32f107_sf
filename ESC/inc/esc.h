@@ -14,6 +14,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "sys.h"
 
+
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
@@ -132,15 +133,27 @@ typedef struct stepmissingitem
 extern u16 SfBase_EscState;
 extern MTRFREQITEM MTRITEM[2];
 extern u8 EscRTBuff[200];
-extern u16 DELAY_NO_PULSE_CHECKING;
 extern HDLITEM HDL_Right;
 extern HDLITEM HDL_Left;
-extern u16 NOMINAL_SPEED;
-extern u16 MOTOR_RPM;
-extern u16 MOTOR_PLUSE_PER_REV;
-extern u16 SSM_SHORTCIRCUIT_TIME;
 extern STEPMISSINGITEM STPMS_UPPER;
 extern STEPMISSINGITEM STPMS_LOWER;
+extern u8 TandemRunEnable;
+extern u8 TandemMessageRunAllowed;
+extern u8 Tandemoutput;
+
+/* parameters */
+extern u16 MOTOR_RPM;
+extern u16 MOTOR_PLUSE_PER_REV;
+extern u16 UNDERSPEED_TIME;
+extern u16 DELAY_NO_PULSE_CHECKING;
+extern u16 NOMINAL_SPEED;
+extern u16 SSM_SHORTCIRCUIT_TIME;
+extern u16 HR_FAULT_TIME;
+extern u16 ROLLER_HR_RADIUS; 
+extern u16 HR_PULSES_PER_REV;
+extern u16 STEP_WIDTH;
+extern u8 TANDEM_TYPE;
+
 
 #endif  /* __ESC_H */
 

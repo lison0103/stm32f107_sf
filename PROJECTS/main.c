@@ -111,10 +111,8 @@ void Task_Loop(void)
               SF_EWDT_TOOGLE();
           }
           
-          Input_Check();
-#ifdef GEC_SF_MASTER            
-          CAN_Comm();  
-#endif 
+          Input_Check();           
+          CAN_Comm();   
       } 
       
       if( Tms100Counter == 0 )

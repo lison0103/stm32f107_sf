@@ -44,15 +44,21 @@ u8 CAN1_TX_Buff[canbuffsize] = { 0 };
 u8 CAN1_RX_Buff[canbuffsize] = { 0 };
 u8 CAN1_TX_Data[canbuffsize] = { 0 };
 u8 CAN1_RX_Data[canbuffsize] = { 0 };
+
 /* CAN2 */
+#ifdef GEC_SF_MASTER
 u8 CAN2_TX_Buff[canbuffsize] = { 0 };
 u8 CAN2_RX_Buff[canbuffsize] = { 0 };
 u8 CAN2_TX_Data[canbuffsize] = { 0 };
 u8 CAN2_RX_Data[canbuffsize] = { 0 };
+#endif
 
 u8 can1_receive = 0;
+#ifdef GEC_SF_MASTER
 u8 can2_receive = 0;
+#endif
 
+#ifdef GEC_SF_MASTER
 CAN_TX_DATA_PROCESS_TypeDef  CAN1_TX_Normal;
 CAN_TX_DATA_PROCESS_TypeDef  CAN1_TX_Urge;
 CAN_TX_DATA_PROCESS_TypeDef  CAN2_TX_Up;
@@ -61,6 +67,10 @@ CAN_TX_DATA_PROCESS_TypeDef  CAN2_TX_Down;
 CAN_RX_DATA_PROCESS_TypeDef  CAN1_RX_Normal;
 CAN_RX_DATA_PROCESS_TypeDef  CAN2_RX_Up;
 CAN_RX_DATA_PROCESS_TypeDef  CAN2_RX_Down;
+#else
+CAN_TX_DATA_PROCESS_TypeDef  CAN1_TX_Normal;
+CAN_RX_DATA_PROCESS_TypeDef  CAN1_RX_Normal;
+#endif
 
 /*******************************************************************************
 * Function Name  : CAN_Int_Init
@@ -564,10 +574,10 @@ void CAN1_TX_IRQHandler(void)
 {
 
     CAN_ITConfig(CAN1, CAN_IT_TME, DISABLE);
-    
+#ifdef GEC_SF_MASTER    
 //    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 0);
     BSP_CAN_Send(CAN1, &CAN1_TX_Urge, CAN1TX_URGE_ID, CAN2_TX_Data, 0);
-   
+#endif   
     
 }
 
