@@ -13,20 +13,19 @@
 #include "crc16.h"
 #include "delay.h"
 #include "esc_error_process.h"
+#include "esc.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 #define ESC_RECORD_ADR 0
 #define ESC_BACKUP_ADR 1024
+#define ESC_RECORD_NUM 500
 
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-
-u8 Sys_Data[100] = {0};
-u8 Sys_Data_Backup[100] = {0};
 
 
 
@@ -39,16 +38,15 @@ u8 Sys_Data_Backup[100] = {0};
 *******************************************************************************/
 void sys_data_write(void)
 {
-  u16 i;
-
-  
-  i = MB_CRC16( Sys_Data, 98 );
-  Sys_Data[98] = i;
-  Sys_Data[99] = i>>8;
-      
-  eeprom_write(ESC_RECORD_ADR,100,Sys_Data);
-  
-  eeprom_write(ESC_BACKUP_ADR,100,Sys_Data); 
+    u16 i;
+        
+    i = MB_CRC16( Sys_Data, ESC_RECORD_NUM - 2 );
+    Sys_Data[ESC_RECORD_NUM - 2] = i;
+    Sys_Data[ESC_RECORD_NUM - 1] = i>>8;
+    
+    eeprom_write(ESC_RECORD_ADR, ESC_RECORD_NUM, Sys_Data);
+    
+    eeprom_write(ESC_BACKUP_ADR, ESC_RECORD_NUM, Sys_Data); 
 }
 
 
@@ -64,49 +62,59 @@ void sys_data_write(void)
 *******************************************************************************/
 void esc_data_check(void)
 {
-  u16 i;
-  u8 result = 0;
-  u8 errorflag = 0;
-  
-  eeprom_read(ESC_RECORD_ADR,100,Sys_Data);
-  if(!MB_CRC16(Sys_Data, 100))
-  {
-    delay_ms(10);
-    eeprom_read(ESC_BACKUP_ADR,100,Sys_Data_Backup);  
-    if(!MB_CRC16(Sys_Data_Backup, 100))
+    u16 i,j = 0;
+    u8 result = 0;
+    u8 errorflag = 0;
+    u8 Sys_Data_Backup[ESC_RECORD_NUM] = {0};
+    
+    eeprom_read(ESC_RECORD_ADR, ESC_RECORD_NUM, Sys_Data);
+    j = Sys_Data[0]<<8 | Sys_Data[0];
+    
+    if(!MB_CRC16(Sys_Data, ESC_RECORD_NUM))
     {
-
-        for(i=0;i<100;i++)
+        delay_ms(10);
+        eeprom_read(ESC_BACKUP_ADR, ESC_RECORD_NUM, Sys_Data_Backup);  
+        if(!MB_CRC16(Sys_Data_Backup, ESC_RECORD_NUM))
         {
-            result = Sys_Data[i]^Sys_Data_Backup[i];
-            if( result )
+            
+            for(i=0; i < ESC_RECORD_NUM; i++)
             {
-                errorflag = 1;
-                break;
+                result = Sys_Data[i]^Sys_Data_Backup[i];
+                if( result )
+                {
+                    errorflag = 1;
+                    break;
+                }
+                
             }
-        
+        } 
+        else
+        {
+            errorflag = 1;
         }
-    } 
+    }  
     else
     {
         errorflag = 1;
-    }
-  }  
-  else
-  {
-      errorflag = 1;
-  }  
-  
-  if(errorflag)
-  {
-      for(i=0;i<100;i++)
-      {
-        Sys_Data[i] = 0;
-      }  
-      sys_data_write();
+    }  
+    
+    if(errorflag)
+    {
+        Sys_Data[0] = 0xf1;
+        Sys_Data[1] = 0xf1;
+        
+        for(i=2; i < ESC_RECORD_NUM; i++)
+        {
+            Sys_Data[i] = 0;
+        }  
+        sys_data_write();
+        
+        if( j == 0xf1f1)
+        {
+            ESC_Fram_Error_Process();
+        }
 
-      ESC_Fram_Error_Process();
-  }
+    }
   
 }
 

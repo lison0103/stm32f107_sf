@@ -24,9 +24,6 @@
 /* Private functions ---------------------------------------------------------*/
 u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS);
 
-/* parameters */ 
-u16 STEP_WIDTH = 400;
-
 /* variable */
 u8 First_MS_sync_entry,First_MS_edge_detected = 0;
 u16 *const MS_MTR_PULSE = (u16*)&EscRTBuff[67];

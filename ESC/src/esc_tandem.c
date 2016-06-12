@@ -21,9 +21,6 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/* parameters */ 
-u8 TANDEM_TYPE = 0;
-
 /* variable */
 u8 TandemRunEnable = 0;
 u8 TandemMessageRunAllowed = 0;

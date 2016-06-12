@@ -24,11 +24,6 @@
 /* Private functions ---------------------------------------------------------*/
 u16 Measure_handrail_speed(HDLITEM* psHDL);
 
-/* parameters */ 
-u16 HR_FAULT_TIME = 10000;
-u16 ROLLER_HR_RADIUS = ( 0.050 * 1000 ); //mm
-u16 HR_PULSES_PER_REV = 2;
-
 
 /* variable */
 u8 First_HS_edge_detected = 0;

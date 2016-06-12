@@ -29,6 +29,13 @@ static u16 Tms10Counter=0,Tms20Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Co
 u32 TimingDelay = 0;
 u32 SysRunTime = 0; 
 u32 timeprintf = 0;
+
+u8 Modbuff[3000];
+/* parameter */
+u8 *const Sys_Data = &Modbuff[1100];
+u16 *const pt_SysBuff = (u16*)&Modbuff[1100];
+
+
 /*******************************************************************************
 * Function Name  : LED_indicator
 * Description    : LED indicator flashes Timing                 

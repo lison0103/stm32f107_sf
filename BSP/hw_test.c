@@ -268,6 +268,14 @@ void CPU_Data_Check(void)
                       EN_ERROR_SYS3 = 0;
                   }
               }
+              
+              /* esc parameter */
+#ifndef GEC_SF_MASTER
+              for( u8 i = 0; i < 100; i++)
+              {
+                  Sys_Data[i] = SPI1_TX_Data[109 + i];
+              }
+#endif                 
           
           }
           else
@@ -399,6 +407,14 @@ void CPU_Exchange_Data(void)
           {
               SPI1_TX_Data[9 + i] = EscRTBuff[i];
           }
+          
+          /* esc parameter */
+#ifdef GEC_SF_MASTER
+          for( i = 0; i < 100; i++)
+          {
+              SPI1_TX_Data[109 + i] = Sys_Data[i];
+          }
+#endif          
           
           i = MB_CRC16( SPI1_TX_Data, comm_num - 2 );
           SPI1_TX_Data[comm_num - 2] = i;

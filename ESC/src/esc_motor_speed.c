@@ -29,15 +29,7 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 u16 Measure_motor_speed(MTRFREQITEM* ptMTR);
- 
 
-/* parameters */ 
-u16 MOTOR_RPM = 1000;
-u16 MOTOR_PLUSE_PER_REV = 10;
-u16 UNDERSPEED_TIME = 5000;
-u16 DELAY_NO_PULSE_CHECKING = 1500;
-u16 NOMINAL_SPEED = 500;
-u16 SSM_SHORTCIRCUIT_TIME = 750;
 
 /* variable */
 u32 time_running_tms = 0;

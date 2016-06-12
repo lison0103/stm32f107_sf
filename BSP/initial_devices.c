@@ -16,6 +16,7 @@
 #include "pc_test.h"
 #include "flag_test.h"
 #include "config_test.h"
+#include "esc_parameter_process.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -142,14 +143,9 @@ void Bsp_Init(void)
 void DataIntegrityInFRAMCheck(void)
 {
     eep_init();
-    if(MB85RCXX_Check())
-    {
-        /** MB85RCXX check fail , do some things **/                   
-    }
-    else
-    {
-        esc_data_check();
-    } 
+    esc_data_check();
+    ParametersLoading();
+
 }
 #endif
 

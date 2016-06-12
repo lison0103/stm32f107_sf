@@ -140,19 +140,23 @@ extern STEPMISSINGITEM STPMS_LOWER;
 extern u8 TandemRunEnable;
 extern u8 TandemMessageRunAllowed;
 extern u8 Tandemoutput;
+extern u8 Modbuff[3000];
+extern u8 *const Sys_Data;
+extern u16 *const pt_SysBuff;
 
 /* parameters */
-extern u16 MOTOR_RPM;
-extern u16 MOTOR_PLUSE_PER_REV;
-extern u16 UNDERSPEED_TIME;
-extern u16 DELAY_NO_PULSE_CHECKING;
-extern u16 NOMINAL_SPEED;
-extern u16 SSM_SHORTCIRCUIT_TIME;
-extern u16 HR_FAULT_TIME;
-extern u16 ROLLER_HR_RADIUS; 
-extern u16 HR_PULSES_PER_REV;
-extern u16 STEP_WIDTH;
-extern u8 TANDEM_TYPE;
+#define MOTOR_RPM                        pt_SysBuff[10]
+#define MOTOR_PLUSE_PER_REV              pt_SysBuff[11]
+#define UNDERSPEED_TIME                 pt_SysBuff[12]
+#define DELAY_NO_PULSE_CHECKING          pt_SysBuff[13]
+#define NOMINAL_SPEED                   pt_SysBuff[14]
+#define SSM_SHORTCIRCUIT_TIME            pt_SysBuff[15]
+#define HR_FAULT_TIME                   pt_SysBuff[16]
+#define ROLLER_HR_RADIUS                pt_SysBuff[17]
+#define HR_PULSES_PER_REV                pt_SysBuff[18]
+#define STEP_WIDTH                      pt_SysBuff[19]
+#define TANDEM_TYPE                     pt_SysBuff[20]
+
 
 
 #endif  /* __ESC_H */
