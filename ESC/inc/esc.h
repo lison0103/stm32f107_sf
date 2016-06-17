@@ -31,7 +31,17 @@
 #define ESC_STATE_DOWN        ((u16)0x0200)
 #define ESC_STATE_READY       ((u16)0x0400)
 #define ESC_STATE_NORMAL      ((u16)0x0800)
+#define ESC_STATE_FAULT       ((u16)0x1000)
 
+
+#define INPUT_PORT1_8       EscRTBuff[4]
+#define INPUT_PORT9_16      EscRTBuff[5]
+#define INPUT_PORT17_24     EscRTBuff[6]
+#define INPUT_PORT24_28     EscRTBuff[7]
+#define INPUT_PORT_EX1_8    EscRTBuff[8]
+#define INPUT_PORT_EX9_16   EscRTBuff[9]
+#define INPUT_PORT_EX17     EscRTBuff[10]
+#define INPUT_FEEDBACK      EscRTBuff[11]
 
 #define CMD_FLAG1 	EscRTBuff[20]
 #define CMD_FLAG2 	EscRTBuff[21]

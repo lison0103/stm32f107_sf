@@ -4884,6 +4884,9 @@
   <group>
     <name>BSP</name>
     <file>
+      <name>$PROJ_DIR$\..\BSP\bsp_input.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\BSP\bsp_iocfg.c</name>
     </file>
     <file>

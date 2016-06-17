@@ -77,6 +77,11 @@ void Input_Output_PinInit(void);
 #define AUX_CTR     PCout(0)
 #define SF_RL_CTR     PEout(2)
 
+#define SF_RELAY_ON()    		GPIO_WriteBit(GPIOE, GPIO_Pin_2, Bit_SET)
+#define SF_RELAY_OFF()    	GPIO_WriteBit(GPIOE, GPIO_Pin_2, Bit_RESET)
+#define AUX_RELAY_ON()   		GPIO_WriteBit(GPIOC, GPIO_Pin_0, Bit_SET)
+#define AUX_RELAY_OFF()    	GPIO_WriteBit(GPIOC, GPIO_Pin_0, Bit_RESET)
+
 #define SF_RL_WDT     PBout(9)
 
 //FEEDBACK
@@ -148,6 +153,11 @@ void Input_Output_PinInit(void);
 //OUTPUT
 #define AUX_CTR     PEout(4)
 #define SF_RL_CTR     PEout(2)
+
+#define SF_RELAY_ON()    		GPIO_WriteBit(GPIOE, GPIO_Pin_2, Bit_SET)
+#define SF_RELAY_OFF()    	GPIO_WriteBit(GPIOE, GPIO_Pin_2, Bit_RESET)
+#define AUX_RELAY_ON()   		GPIO_WriteBit(GPIOE, GPIO_Pin_4, Bit_SET)
+#define AUX_RELAY_OFF()    	GPIO_WriteBit(GPIOE, GPIO_Pin_4, Bit_RESET)
 
 #define SF_RL_WDT     PEout(0)
 

@@ -57,7 +57,7 @@ void Input_Output_PinInit(void)
       GPIO_Init(GPIOE , &GPIO_InitStruct);   
       
       /** feedback gpio **/ 
-      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;       
+      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING;       
         
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;                  
       GPIO_Init(GPIOB , &GPIO_InitStruct);        
@@ -116,7 +116,9 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Pin =  GPIO_Pin_7 | GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;                  
       GPIO_Init(GPIOE , &GPIO_InitStruct);   
       
-      /** feedback gpio **/               
+      /** feedback gpio **/            
+      GPIO_InitStruct.GPIO_PuPd  = GPIO_PuPd_NOPULL;   
+      
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;                  
       GPIO_Init(GPIOB , &GPIO_InitStruct);        
  
@@ -155,7 +157,7 @@ void Input_Output_PinInit(void)
       GPIO_Init(GPIOE , &GPIO_InitStruct);   
       
       /** feedback gpio **/ 
-      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IPD;       
+      GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING;        
         
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;                  
       GPIO_Init(GPIOB , &GPIO_InitStruct);        

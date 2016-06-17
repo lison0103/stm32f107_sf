@@ -16,6 +16,7 @@
 #include "esc_motor_speed.h"
 #include "esc_handrail_speed.h"
 #include "esc_missing_step.h"
+#include "bsp_input.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -81,7 +82,7 @@ void Task_Loop(void)
 #endif  
       
 
-  
+      Get_GpioInput(&EscRTBuff[4]);
       sfEscStateCheck();     
       ESC_Motor_Check();
       ESC_Handrail_Check();

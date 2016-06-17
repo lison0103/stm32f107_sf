@@ -1319,9 +1319,14 @@ void CAN_Comm(void)
     {
         CAN1_TX_Data[i] = EscRTBuff[30+i];
     }
+    for( u8 i = 0; i < 10; i++ )
+    {
+        CAN1_TX_Data[50+i] = EscRTBuff[4+i];
+    }    
 
     CAN2_TX_Data[0] = CMD_FLAG1;
-
+    CAN2_TX_Data[1] = EN_ERROR1;
+    CAN2_TX_Data[2] = EN_ERROR2;
     
     len = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN1_RX_Data, 0);
     len = BSP_CAN_Receive(CAN2, &CAN2_RX_Down, CAN1_RX_Data, 0);
