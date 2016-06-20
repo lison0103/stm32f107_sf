@@ -35,6 +35,12 @@ void Get_GpioInput(u8 inBuff[])
     static u16 PinValue[3][5],ByteAnd[5],ByteOr[5],read_pin_cnt = 0;
     u16 i; 
     
+    /* first, clear the data */
+    for(i =0; i < 8; i++)
+    {
+        inBuff[i] = 0;
+    }
+    
     read_pin_cnt++;  
     if(read_pin_cnt > 2) read_pin_cnt = 0;  
     
@@ -126,7 +132,7 @@ void Get_GpioInput(u8 inBuff[])
     /* SF_RL2_FB_CPU1 */
     if(ByteAnd[4] & 0x0040) inBuff[7] |= 0x08; else if(!(ByteOr[4] & 0x0040)) inBuff[7] &= ~0x08; 
     /* AUX_FB */
-    if(ByteAnd[2] & 0x0002) inBuff[7] |= 0x40; else if(!(ByteOr[2] & 0x0002)) inBuff[7] &= ~0x40; 
+    if(ByteAnd[2] & 0x0002) inBuff[7] |= 0x10; else if(!(ByteOr[2] & 0x0002)) inBuff[7] &= ~0x10; 
 
     
 #else  
@@ -204,7 +210,7 @@ void Get_GpioInput(u8 inBuff[])
     /* SF_RL1_FB_CPU2 */
     if(ByteAnd[1] & 0x0100) inBuff[7] |= 0x08; else if(!(ByteOr[1] & 0x0100)) inBuff[7] &= ~0x08; 
     /* AUX_FB */
-    if(ByteAnd[4] & 0x0008) inBuff[7] |= 0x40; else if(!(ByteOr[4] & 0x0008)) inBuff[7] &= ~0x40; 
+    if(ByteAnd[4] & 0x0008) inBuff[7] |= 0x10; else if(!(ByteOr[4] & 0x0008)) inBuff[7] &= ~0x10; 
     
 #endif    
 

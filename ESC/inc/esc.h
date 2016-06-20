@@ -43,6 +43,64 @@
 #define INPUT_PORT_EX17     EscRTBuff[10]
 #define INPUT_FEEDBACK      EscRTBuff[11]
 
+#define INPUT_PORT1_MASK        ( 1 << 0 )
+#define INPUT_PORT2_MASK        ( 1 << 1 )
+#define INPUT_PORT3_MASK        ( 1 << 2 )
+#define INPUT_PORT4_MASK        ( 1 << 3 )
+#define INPUT_PORT5_MASK        ( 1 << 4 )
+#define INPUT_PORT6_MASK        ( 1 << 5 )
+#define INPUT_PORT7_MASK        ( 1 << 6 )
+#define INPUT_PORT8_MASK        ( 1 << 7 )
+
+#define INPUT_PORT9_MASK        ( 1 << 0 )
+#define INPUT_PORT10_MASK        ( 1 << 1 )
+#define INPUT_PORT11_MASK        ( 1 << 2 )
+#define INPUT_PORT12_MASK        ( 1 << 3 )
+#define INPUT_PORT13_MASK        ( 1 << 4 )
+#define INPUT_PORT14_MASK        ( 1 << 5 )
+#define INPUT_PORT15_MASK        ( 1 << 6 )
+#define INPUT_PORT16_MASK        ( 1 << 7 )
+
+#define INPUT_PORT17_MASK        ( 1 << 0 )
+#define INPUT_PORT18_MASK        ( 1 << 1 )
+#define INPUT_PORT19_MASK        ( 1 << 2 )
+#define INPUT_PORT20_MASK        ( 1 << 3 )
+#define INPUT_PORT21_MASK        ( 1 << 4 )
+#define INPUT_PORT22_MASK        ( 1 << 5 )
+#define INPUT_PORT23_MASK        ( 1 << 6 )
+#define INPUT_PORT24_MASK        ( 1 << 7 )
+
+#define INPUT_PORT25_MASK        ( 1 << 0 )
+#define INPUT_PORT26_MASK        ( 1 << 1 )
+#define INPUT_PORT27_MASK        ( 1 << 2 )
+#define INPUT_PORT28_MASK        ( 1 << 3 )
+
+#define INPUT_PORT_EX1_MASK        ( 1 << 0 )
+#define INPUT_PORT_EX2_MASK        ( 1 << 1 )
+#define INPUT_PORT_EX3_MASK        ( 1 << 2 )
+#define INPUT_PORT_EX4_MASK        ( 1 << 3 )
+#define INPUT_PORT_EX5_MASK        ( 1 << 4 )
+#define INPUT_PORT_EX6_MASK        ( 1 << 5 )
+#define INPUT_PORT_EX7_MASK        ( 1 << 6 )
+#define INPUT_PORT_EX8_MASK        ( 1 << 7 )
+
+#define INPUT_PORT_EX9_MASK        ( 1 << 0 )
+#define INPUT_PORT_EX10_MASK        ( 1 << 1 )
+#define INPUT_PORT_EX11_MASK        ( 1 << 2 )
+#define INPUT_PORT_EX12_MASK        ( 1 << 3 )
+#define INPUT_PORT_EX13_MASK        ( 1 << 4 )
+#define INPUT_PORT_EX14_MASK        ( 1 << 5 )
+#define INPUT_PORT_EX15_MASK        ( 1 << 6 )
+#define INPUT_PORT_EX16_MASK        ( 1 << 7 )
+
+#define INPUT_PORT_EX17_MASK        ( 1 << 0 )
+
+#define INPUT_PORT_SF_RL_DRV_FB_MASK        ( 1 << 0 )
+#define INPUT_PORT_SF_PWR_FB_CPU_MASK        ( 1 << 1 )
+#define INPUT_PORT_SF_RL_FB_MASK        ( 1 << 2 )
+#define INPUT_PORT_SF_RL_FB_CPU_MASK        ( 1 << 3 )
+#define INPUT_PORT_AUX_FB_MASK        ( 1 << 4 )
+
 #define CMD_FLAG1 	EscRTBuff[20]
 #define CMD_FLAG2 	EscRTBuff[21]
 #define CMD_FLAG3 	EscRTBuff[22]

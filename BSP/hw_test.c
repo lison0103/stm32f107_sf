@@ -27,27 +27,23 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-#define CPU_COMM_TIMEOUT  5
+
 
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void CPU_Data_Check(void);
-void CPU_Exchange_Data(void);
+
 
 u8 sflag,inputnum = 0;
 u8 switch_flag = 1;
 u8 sfwdt_checkflag = 0;
-u16 comm_num = 0;
 u8 sf_wdt_check_tms = 0;
-u8 onetime = 0;
 //static u8 test_num = 0;
 #ifdef GEC_SF_MASTER
 u8 R_SF_RL2_FB_CPU1;
 #else
 u8 R_SF_RL_FB_CPU2;
-static u16 comm_timeout = 100;
-static u16 cntt = 0;
+
 #endif
 
 extern u8 EscRTBuff[200];
@@ -168,285 +164,7 @@ void SafetyExtWdt_RunCheck(void)
 }
 
 
-/*******************************************************************************
-* Function Name  : CPU_Comm
-* Description    : Cpu1 and cpu2 communication.
-*                  
-* Input          : None
-*                  None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void CPU_Comm(void)
-{
 
-#ifdef GEC_SF_MASTER
-          if( onetime == 0 )
-          {
-              onetime++;
-              CPU_Exchange_Data();
-          }
-          else
-          {
-              CPU_Data_Check();
-              CPU_Exchange_Data();
-          }
-#else  
-          comm_timeout--;
-//          printf("CPU_Comm---comm_timeout:%d\r\n",comm_timeout);
-          if( comm_timeout == 0 )
-          {
-              printf("CPU_Comm---comm_timeout \r\n");
-              
-              ESC_SPI_Error_Process();
-              comm_timeout = CPU_COMM_TIMEOUT;
-          }
-          if ( ( DMA_GetFlagStatus(DMA1_IT_TC2) ) != RESET )
-          {
-                
-                if(cntt != 0)
-                {
-                    cntt--;
-                    comm_timeout = 100;
-                }
-                else
-                {
-                  comm_timeout = CPU_COMM_TIMEOUT;
-                }
-                CPU_Data_Check();
-                CPU_Exchange_Data();
-          }   
-#endif
-}
-
-/*******************************************************************************
-* Function Name  : CPU_Data_Check
-* Description    : Check the receive data.
-*                  
-* Input          : None
-*                  None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void CPU_Data_Check(void)
-{ 
-    
-    
-#if 1
-    
-          /* communication buffer */
-          comm_num = buffersize;  
-
-    
-         DMA_Check_Flag(2000);    
-             
-          
-          if(!MB_CRC16(SPI1_RX_Data, comm_num))
-          {
-                            
-              if(SPI1_TX_Data[4] == 2 && SPI1_RX_Data[4] == 2)
-              {
-                  switch_flag = 2;
-                  sfwdt_checkflag = 0;
-              }
-              else if( sfwdt_checkflag == 2)
-              {
-                  EN_ERROR_SYS3++;
-                  printf("sfwdt_checkflag error \r\n");
-              }
-              
-              if( switch_flag == 2 )
-              {
-                  if( (SPI1_TX_Data[0] != SPI1_RX_Data[0]) || (SPI1_TX_Data[1] != SPI1_RX_Data[1]) 
-                     || (SPI1_TX_Data[2] != SPI1_RX_Data[2]) || (SPI1_TX_Data[3] != SPI1_RX_Data[3]) )
-                  {
-                      EN_ERROR_SYS3++;
-                      printf("data error \r\n");
-                  }
-                  else
-                  {
-                      EN_ERROR_SYS3 = 0;
-                  }
-              }
-              
-              /* esc parameter */
-#ifndef GEC_SF_MASTER
-              for( u8 i = 0; i < 100; i++)
-              {
-                  Sys_Data[i] = SPI1_TX_Data[109 + i];
-              }
-#endif                 
-          
-          }
-          else
-          {
-              EN_ERROR_SYS3++;     
-              printf("MB_CRC16 error \r\n");
-              
-#if DEBUG_PRINTF            
-
-              printf("SPI1_RX_Data : %01d, %01d, %01d, %01d ,%01d, %01d, %01d \r\n",
-                     SPI1_RX_Data[0],SPI1_RX_Data[1],SPI1_RX_Data[2],SPI1_RX_Data[3]
-                     ,SPI1_RX_Data[4],SPI1_RX_Data[comm_num - 2],SPI1_RX_Data[comm_num - 1]);
-
-              printf("SPI1_TX_Data : %01d, %01d, %01d, %01d ,%01d, %01d, %01d \r\n",
-                     SPI1_TX_Data[0],SPI1_TX_Data[1],SPI1_TX_Data[2],SPI1_TX_Data[3]
-                     ,SPI1_TX_Data[4],SPI1_TX_Data[comm_num - 2],SPI1_TX_Data[comm_num - 1]);
-#endif                
-          }
-          
-          if(EN_ERROR_SYS3 > 2)
-          {
-              EN_ERROR_SYS3 = 0;
-              ESC_SafeRelay_Error_Process();
-              printf("CPU_Exchange_Data_Check error \r\n");
-          }
-          
-          
-#else
-         u8 i;
-          /* communication buffer */
-          comm_num = buffersize;  
-
-    
-         DMA_Check_Flag(2000);          
-         
-        
-              if(!MB_CRC16(SPI1_RX_Data, comm_num))
-              {
-//#ifdef GEC_SF_MASTER 
-//                  for( i=0; i < comm_num - 2; i++ )
-//                  {
-//
-//                      if( (SPI1_RX_Data[i]^(SPI1_TX_Data[i] - 1)) )
-//                      {
-//                          EN_ERROR_SYS3++;
-//                          break;
-//                      }
-//                  
-//                  }
-//#endif
-              } 
-              else
-              {
-                          EN_ERROR_SYS3++;    
-              }          
-
-                        
-
-          
-          if(EN_ERROR_SYS3 > 3)
-          {
-#if DEBUG_PRINTF            
-
-              printf("RX: %01d, %01d, %01d, %01d ,%01d, %01d, %01d \r\n",
-                     SPI1_RX_Data[0],SPI1_RX_Data[1],SPI1_RX_Data[2],SPI1_RX_Data[3]
-                     ,SPI1_RX_Data[4],SPI1_RX_Data[comm_num - 2],SPI1_RX_Data[comm_num - 1]);
-
-              printf("TX : %01d, %01d, %01d, %01d ,%01d, %01d, %01d \r\n",
-                     SPI1_TX_Data[0],SPI1_TX_Data[1],SPI1_TX_Data[2],SPI1_TX_Data[3]
-                     ,SPI1_TX_Data[4],SPI1_TX_Data[comm_num - 2],SPI1_TX_Data[comm_num - 1]);
-#endif 
-                LED = 0;
-                while(1)
-                {
-                    EWDT_TOOGLE(); 
-                    IWDG_ReloadCounter();        
-                }
-          }
-          
-#endif
-             
-}
-
-/*******************************************************************************
-* Function Name  : CPU_Exchange_Data
-* Description    : Cpu send data by spi.
-*                  
-* Input          : None
-*                  None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void CPU_Exchange_Data(void)
-{
-#if 1
-    
-          u16 i;
-         
-          /* communication buffer */
-          comm_num = buffersize;  
-          for(i = 0; i < comm_num - 2; i++)
-          {
-              SPI1_TX_Data[i] = 0;
-          }
-    
-          SPI_DMA_RECEIVE_FLAG = 0;
- 
-          if(SF_RL_DRV_FB)
-            SPI1_TX_Data[0] = 0x01;
-         
-          if(SF_PWR_FB_CPU)
-            SPI1_TX_Data[1] = 0x01;
-          
-          if(SF_RL_FB)
-            SPI1_TX_Data[2] = 0x01;
-            
-          if(AUX_FB)
-            SPI1_TX_Data[3] = 0x01;
-               
-          SPI1_TX_Data[4] = sfwdt_checkflag;
-          
-          SPI1_TX_Data[5] = CAN1_TX_Data[0];
-          SPI1_TX_Data[6] = CAN1_TX_Data[1];
-          SPI1_TX_Data[7] = CAN1_TX_Data[2];
-          SPI1_TX_Data[8] = CAN1_TX_Data[3];
-          
-          /* esc Rtdata --------------------------*/
-          for( i = 0; i < 100; i++)
-          {
-              SPI1_TX_Data[9 + i] = EscRTBuff[i];
-          }
-          
-          /* esc parameter */
-#ifdef GEC_SF_MASTER
-          for( i = 0; i < 100; i++)
-          {
-              SPI1_TX_Data[109 + i] = Sys_Data[i];
-          }
-#endif          
-          
-          i = MB_CRC16( SPI1_TX_Data, comm_num - 2 );
-          SPI1_TX_Data[comm_num - 2] = i;
-          SPI1_TX_Data[comm_num - 1] = i>>8; 
-          
-          SPI1_DMA_ReceiveSendByte(comm_num);
-#else
-          u16 i;
-         
-          /* communication buffer */
-          comm_num = buffersize;  
-#ifdef GEC_SF_MASTER          
-          test_num++;
-          if(test_num > 255)test_num = 0;
-          
-          for( i = 0; i < comm_num - 2; i++ )
-          {
-              SPI1_TX_Data[i] = test_num;
-          }
-#else
-          for( i=0; i < comm_num - 2; i++ )
-          {
-              SPI1_TX_Data[i] = SPI1_RX_Data[i];
-          }   
-#endif          
-          i = MB_CRC16( SPI1_TX_Data, comm_num - 2 );
-          SPI1_TX_Data[comm_num - 2] = i;
-          SPI1_TX_Data[comm_num - 1] = i>>8;
-          
-          SPI1_DMA_ReceiveSendByte(comm_num);
-#endif            
-}
 
 /*******************************************************************************
 * Function Name  : SafetyCTR_Check
@@ -1143,7 +861,7 @@ void CrossCommCPUCheck(void)
   u8 number = 0;
   u8 data_error = 0;
   u32 test_cnt = 100;  
-  comm_num = buffersize;
+  u16 comm_num = buffersize;
   
 #ifdef GEC_SF_MASTER      
     u8 result = 0;

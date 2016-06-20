@@ -34,7 +34,6 @@ u16 Measure_motor_speed(MTRFREQITEM* ptMTR);
 /* variable */
 u32 time_running_tms = 0;
 u16 SfBase_EscState = ESC_STATE_READY;;
-u8 EscRTBuff[200];
 u8 First_motorspeed_edge_detected = 0;
 
 
@@ -366,12 +365,12 @@ void sfEscStateCheck(void)
   static u16 sf_reset_tms = 0;
   
   /* esc running */
-  if( ( CAN1_TX_Data[2] & ( 1 << 5 )) && (SfBase_EscState & ESC_STATE_READY) )
+  if( ( INPUT_PORT17_24 & INPUT_PORT22_MASK ) && (SfBase_EscState & ESC_STATE_READY) )
   {
       CMD_FLAG1 |= 0x01;
   }
   
-  if( ( CAN1_TX_Data[2] & ( 1 << 5 )) && (CMD_FLAG1 & 0x01) )
+  if( ( INPUT_PORT17_24 & INPUT_PORT22_MASK ) && (CMD_FLAG1 & 0x01) )
   {
       SfBase_EscState &= ~ESC_STATE_STOP;
       SfBase_EscState &= ~ESC_STATE_READY;

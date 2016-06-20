@@ -5265,6 +5265,15 @@
       <name>$PROJ_DIR$\..\ESC\inc\esc.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_comm_control.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_comm_diagnostic.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_comm_safety_dualcpu.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_error_process.c</name>
     </file>
     <file>
