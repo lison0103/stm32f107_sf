@@ -14,6 +14,7 @@
 #include "crc16.h"
 #include "esc_error_process.h"
 #include "bsp_iocfg.h"
+#include "initial_devices.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -25,7 +26,7 @@
 /* Private functions ---------------------------------------------------------*/
 void CPU_Data_Check(void);
 void CPU_Exchange_Data(void);
-
+void CPU_Comm(void);
 
 extern u8 switch_flag;
 extern u8 sfwdt_checkflag;
@@ -45,8 +46,79 @@ static u16 comm_timeout = 100;
 *******************************************************************************/
 void Communication_CPU(void)
 {
+    static u8 comm_cpu_tms = 0;
+    
+    CPU_Comm();
+    
+    comm_cpu_tms++;
+#ifdef GEC_SF_MASTER
+    if( comm_cpu_tms * ( SYSTEMTICK * 4 ) >= 200 )
+    {
+        comm_cpu_tms = 0;
+        Receive_IO_status_from_CPU();
+    }
+#else
+    if( comm_cpu_tms * ( SYSTEMTICK * 2 ) >= 200 )
+    {
+        comm_cpu_tms = 0;
+        Receive_IO_status_from_CPU();
+    }    
+    
+#endif
+}
 
+/*******************************************************************************
+* Function Name  : Send_state_to_CPU2
+* Description    : None
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Send_state_to_CPU(void)
+{
 
+}
+
+/*******************************************************************************
+* Function Name  : Send_state_to_CPU2
+* Description    : None
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Receive_state_from_CPU(void)
+{
+
+}
+
+/*******************************************************************************
+* Function Name  : Send_state_to_CPU2
+* Description    : None
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Receive_IO_status_from_CPU(void)
+{
+      static u8 receive_io_error = 0;
+    
+      for( u8 i = 4; i < 12; i++ )
+      {
+          if( pcOMC_EscRTBuff[i] != EscRTBuff[i] )
+          {
+              receive_io_error++;
+              break;
+          }
+      }
+      
+      if( receive_io_error > 5 )
+      {
+          NVIC_SystemReset();
+      }
+      else
+      {
+          receive_io_error = 0;
+      }
 }
 
 /*******************************************************************************
@@ -137,9 +209,16 @@ void CPU_Data_Check(void)
 //            }
 //            else
 //            {
-//                EN_ERROR_SYS3 = 0;
+                EN_ERROR_SYS3 = 0;
 //            }
 //        }
+        
+        
+        /* esc Rtdata receive--------------------------*/
+        for( u8 i = 0; i < 100; i++)
+        {
+            McRxBuff[i] = SPI1_RX_Data[9 + i];
+        }
         
         /* esc parameter */
 #ifndef GEC_SF_MASTER

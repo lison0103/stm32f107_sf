@@ -17,6 +17,7 @@
 #include "flag_test.h"
 #include "config_test.h"
 #include "esc_parameter_process.h"
+#include "esc_safety_check.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -122,6 +123,8 @@ void Bsp_Init(void)
         
         CrossCommCPUCheck();
 
+        /* safety output disable */
+        SafetyOutputDisable();
         
 #if SELF_TEST
         /* Self test routines initialization ---------------------------------------*/

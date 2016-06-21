@@ -17,6 +17,9 @@
 #include "esc_handrail_speed.h"
 #include "esc_missing_step.h"
 #include "bsp_input.h"
+#include "esc_comm_safety_dualcpu.h"
+#include "esc_comm_control.h"
+#include "esc_safety_check.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -33,10 +36,11 @@ u32 timeprintf = 0;
 
 u8 Modbuff[3000];
 u8 EscRTBuff[200];
+u8 McRxBuff[1000];
 /* parameter */
 u8 *const Sys_Data = &Modbuff[1100];
 u16 *const pt_SysBuff = (u16*)&Modbuff[1100];
-
+u8 *const pcOMC_EscRTBuff = &McRxBuff[0]; 
 
 /*******************************************************************************
 * Function Name  : LED_indicator
@@ -88,6 +92,8 @@ void Task_Loop(void)
       ESC_Motor_Check();
       ESC_Handrail_Check();
       ESC_Missingstep_Check();
+      SafetyOutputDisable();
+      SafetyOutputEnable();
 
 
       
@@ -98,12 +104,12 @@ void Task_Loop(void)
       }      
       if( Tms20Counter == 0 )
       {
-          CPU_Comm();
+          Communication_CPU();
       }  
 #else
       if( Tms10Counter == 0 )
       {
-          CPU_Comm();         
+          Communication_CPU();         
       }
       if( Tms20Counter == 0 )
       {
@@ -115,18 +121,17 @@ void Task_Loop(void)
       {                                 
           /* Reload SF_EWDG / EWDT counter */          
           EWDT_TOOGLE();
-          if( sfwdt_checkflag != 1 )
-          {
-              SF_EWDT_TOOGLE();
-          }
           
-//          Input_Check();           
-          CAN_Comm();   
+//          Input_Check(); 
+#ifdef GEC_SF_MASTER            
+          Communication_To_Control();   
+#endif
+          SafetyExtWdt_RunCheck();
       } 
       
       if( Tms100Counter == 0 )
       {         
-          SafetyCTR_Check();
+//          SafetyCTR_Check();
       }
            
       if( Tms500Counter == 0 )

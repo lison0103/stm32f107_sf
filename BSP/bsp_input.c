@@ -158,14 +158,14 @@ void Get_GpioInput(u8 inBuff[])
     if(ByteAnd[2] & 0x0040) inBuff[1] |= 0x80; else if(!(ByteOr[2] & 0x0040)) inBuff[1] &= ~0x80; 
     
     /* INB17 ~ INB24 */
-    if(ByteAnd[4] & 0x8000) inBuff[2] |= 0x01; else if(!(ByteOr[4] & 0x8000)) inBuff[2] &= ~0x01; 
-    if(ByteAnd[4] & 0x4000) inBuff[2] |= 0x02; else if(!(ByteOr[4] & 0x4000)) inBuff[2] &= ~0x02; 
-    if(ByteAnd[4] & 0x2000) inBuff[2] |= 0x04; else if(!(ByteOr[4] & 0x2000)) inBuff[2] &= ~0x04; 
-    if(ByteAnd[4] & 0x1000) inBuff[2] |= 0x08; else if(!(ByteOr[4] & 0x1000)) inBuff[2] &= ~0x08; 
-    if(ByteAnd[4] & 0x0800) inBuff[2] |= 0x10; else if(!(ByteOr[4] & 0x0800)) inBuff[2] &= ~0x10; 
-    if(ByteAnd[4] & 0x0400) inBuff[2] |= 0x20; else if(!(ByteOr[4] & 0x0400)) inBuff[2] &= ~0x20; 
-    if(ByteAnd[4] & 0x0200) inBuff[2] |= 0x40; else if(!(ByteOr[4] & 0x0200)) inBuff[2] &= ~0x40; 
-    if(ByteAnd[4] & 0x0100) inBuff[2] |= 0x80; else if(!(ByteOr[4] & 0x0100)) inBuff[2] &= ~0x80; 
+    if(ByteAnd[3] & 0x8000) inBuff[2] |= 0x01; else if(!(ByteOr[3] & 0x8000)) inBuff[2] &= ~0x01; 
+    if(ByteAnd[3] & 0x4000) inBuff[2] |= 0x02; else if(!(ByteOr[3] & 0x4000)) inBuff[2] &= ~0x02; 
+    if(ByteAnd[3] & 0x2000) inBuff[2] |= 0x04; else if(!(ByteOr[3] & 0x2000)) inBuff[2] &= ~0x04; 
+    if(ByteAnd[3] & 0x1000) inBuff[2] |= 0x08; else if(!(ByteOr[3] & 0x1000)) inBuff[2] &= ~0x08; 
+    if(ByteAnd[3] & 0x0800) inBuff[2] |= 0x10; else if(!(ByteOr[3] & 0x0800)) inBuff[2] &= ~0x10; 
+    if(ByteAnd[3] & 0x0400) inBuff[2] |= 0x20; else if(!(ByteOr[3] & 0x0400)) inBuff[2] &= ~0x20; 
+    if(ByteAnd[3] & 0x0200) inBuff[2] |= 0x40; else if(!(ByteOr[3] & 0x0200)) inBuff[2] &= ~0x40; 
+    if(ByteAnd[3] & 0x0100) inBuff[2] |= 0x80; else if(!(ByteOr[3] & 0x0100)) inBuff[2] &= ~0x80; 
     
     /* INB25 ~ INB28 */
     if(ByteAnd[1] & 0x8000) inBuff[3] |= 0x01; else if(!(ByteOr[1] & 0x8000)) inBuff[3] &= ~0x01; 

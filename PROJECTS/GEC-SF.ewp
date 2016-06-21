@@ -4915,6 +4915,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_comm_control.c</name>
+      <excluded>
+        <configuration>GEC-SF-S</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_comm_diagnostic.c</name>
@@ -4949,6 +4952,9 @@
         <configuration>GEC-SF-S</configuration>
         <configuration>GEC-SF-S-NEW</configuration>
       </excluded>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_safety_check.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_state_machine.c</name>

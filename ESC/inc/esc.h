@@ -201,6 +201,7 @@ typedef struct stepmissingitem
 extern u16 SfBase_EscState;
 extern MTRFREQITEM MTRITEM[2];
 extern u8 EscRTBuff[200];
+extern u8 McRxBuff[1000];
 extern HDLITEM HDL_Right;
 extern HDLITEM HDL_Left;
 extern STEPMISSINGITEM STPMS_UPPER;
@@ -211,6 +212,7 @@ extern u8 Tandemoutput;
 extern u8 Modbuff[3000];
 extern u8 *const Sys_Data;
 extern u16 *const pt_SysBuff;
+extern u8 *const pcOMC_EscRTBuff;
 
 /* parameters */
 #define MOTOR_RPM                        pt_SysBuff[10]

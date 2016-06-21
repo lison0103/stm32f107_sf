@@ -5295,6 +5295,9 @@
       <name>$PROJ_DIR$\..\ESC\src\esc_record_data.c</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_safety_check.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_state_machine.c</name>
     </file>
     <file>
