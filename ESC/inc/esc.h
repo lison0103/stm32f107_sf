@@ -213,6 +213,7 @@ extern u8 Modbuff[3000];
 extern u8 *const Sys_Data;
 extern u16 *const pt_SysBuff;
 extern u8 *const pcOMC_EscRTBuff;
+extern u8 sf_wdt_check_en;
 
 /* parameters */
 #define MOTOR_RPM                        pt_SysBuff[10]

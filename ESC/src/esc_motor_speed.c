@@ -351,6 +351,34 @@ void ESC_Motor_Check(void)
 
 }
 
+/*******************************************************************************
+* Function Name  : key_run_detect
+* Description    : Esc key run.
+* Input          : None               
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void key_run_detect(void)
+{
+    static u16 key_on_tms = 0;   
+    
+    if( ( INPUT_PORT17_24 & INPUT_PORT22_MASK ) && ( sf_wdt_check_en == 0 ))
+    {
+        if(key_on_tms < 5000) key_on_tms++;
+        
+    }
+    
+    if(( key_on_tms * SYSTEMTICK == 2000))
+    {
+        CMD_FLAG1 |= 0x01;
+    }	
+    
+    if(!(INPUT_PORT17_24 & INPUT_PORT22_MASK) || ( sf_wdt_check_en == 1 )) 
+    {
+        key_on_tms = 0;	
+    }
+}
+
 
 /*******************************************************************************
 * Function Name  : sfEscStateCheck
@@ -363,14 +391,19 @@ void sfEscStateCheck(void)
 {
   static u16 sf_running_tms,sf_stopping_tms = 0;
   static u16 sf_reset_tms = 0;
+  static u8 key_on = 0;
+ 
   
   /* esc running */
   if( ( INPUT_PORT17_24 & INPUT_PORT22_MASK ) && (SfBase_EscState & ESC_STATE_READY) )
   {
-      CMD_FLAG1 |= 0x01;
+      key_on = 1;
   }
   
-  if( ( INPUT_PORT17_24 & INPUT_PORT22_MASK ) && (CMD_FLAG1 & 0x01) )
+
+  key_run_detect();
+  
+  if( ( INPUT_PORT17_24 & INPUT_PORT22_MASK ) && (CMD_FLAG1 & 0x01) && ( key_on == 1 ) )
   {
       SfBase_EscState &= ~ESC_STATE_STOP;
       SfBase_EscState &= ~ESC_STATE_READY;
@@ -402,6 +435,8 @@ void sfEscStateCheck(void)
       SfBase_EscState &= ~ESC_STATE_RUN5S;
       
       SfBase_EscState |= ESC_STATE_STOP;
+      
+      key_on = 0;
       
       if(( (sf_stopping_tms * SYSTEMTICK) > 3000 ) && (MTRITEM[0].rt_brake_stop == 1) && (MTRITEM[1].rt_brake_stop == 1) )
       {

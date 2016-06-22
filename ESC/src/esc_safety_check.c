@@ -14,6 +14,7 @@
 #include "bsp_iocfg.h"
 #include "safety_test.h"
 #include "delay.h"
+#include "initial_devices.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -26,6 +27,7 @@ u8 switch_flag = 1;
 u8 sfwdt_checkflag = 0;
 u8 sf_wdt_check_tms = 0;
 u8 sf_wdt_check_en = 0;
+u8 sf_relay_check_cnt = 0;
 //static u8 test_num = 0;
 #ifdef GEC_SF_MASTER
 u8 R_SF_RL2_FB_CPU1;
@@ -46,10 +48,22 @@ u8 R_SF_RL_FB_CPU2;
 *******************************************************************************/
 void SafetyOutputDisable(void)
 {
+    static u8 sf_output_dis_tms = 0; 
     
     if(( sf_wdt_check_en == 0 ) && ( SfBase_EscState & ESC_STATE_STOP )) 
     { 
         SF_RELAY_OFF();
+        
+        if( sf_relay_check_cnt == 1 )
+        {
+            sf_output_dis_tms++;
+            if( sf_output_dis_tms * SYSTEMTICK > 50 )
+            {
+                SafetyRelayAuxRelayTest();
+                sf_relay_check_cnt = 0;
+                sf_output_dis_tms = 0;
+            }
+        }  
         
     }
 
@@ -67,14 +81,26 @@ void SafetyOutputDisable(void)
 void SafetyOutputEnable(void)
 {
 
+    static u8 sf_output_en_tms = 0; 
+    
+    
     if( SfBase_EscState & ESC_STATE_RUNNING ) 
     { 
         SF_RELAY_ON();    
         SF_EWDT_TOOGLE();
         
-        SafetyCTR_Check();
+        if( sf_relay_check_cnt == 0 )
+        {
+            sf_output_en_tms++;
+            if( sf_output_en_tms * SYSTEMTICK > 50 )
+            {
+                SafetyRelayAuxRelayTest();
+                sf_relay_check_cnt = 1;
+                sf_output_en_tms = 0;
+            }
+        }   
         
-//        SafetyRelayAuxRelayTest();
+        SafetyCTR_Check();
     }
 
 }
@@ -92,13 +118,22 @@ void SafetyOutputEnable(void)
 void SafetyRelayAuxRelayTest(void)
 {
    
-    
-    /* SAFETY RELAY AND AUXILIARY BRAKE RELAY  */
-    if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || !AUX_FB )
+    if( SfBase_EscState & ESC_STATE_RUNNING ) 
+    { 
+        /* safety circuit is  connected */
+        if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || !AUX_FB )
+        {
+            FailSafeTest();
+        }   
+    }
+    else if( SfBase_EscState & ESC_STATE_STOP )  
     {
-        FailSafeTest();
-    }   
-
+        /* safety circuit is disconnected */
+        if( !SF_RL_DRV_FB || SF_PWR_FB_CPU || !SF_RL_FB )
+        {
+            FailSafeTest();
+        }  
+    }
 }
 
 /*******************************************************************************
@@ -137,7 +172,11 @@ void SafetyExtWdt_StartUpCheck(void)
     IWDG_ReloadCounter();
     
     /** Safety Relay and AuxRelay Test **/
-    SafetyRelayAuxRelayTest();
+//    SafetyRelayAuxRelayTest();
+    if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || !AUX_FB )
+    {
+        FailSafeTest();
+    }   
     
     delay_ms(600);
     EWDT_TOOGLE();
@@ -228,29 +267,32 @@ void SafetyExtWdt_RunCheck(void)
 *******************************************************************************/
 void SafetyCTR_Check(void)
 {
- 
-//      if(switch_flag == 2)
-//      {
+    static u8 sf_ctr_check_tms = 0;
     
     if( SfBase_EscState & ESC_STATE_RUNNING ) 
-    {     
-        SF_RELAY_OFF();
-        delay_us(150);
-        if(!SF_RL_DRV_FB)
+    {    
+        sf_ctr_check_tms++;
+        /* check period 1s */ 
+        if( sf_ctr_check_tms * SYSTEMTICK > 1000 )
         {
-            EN_ERROR_SYS2++;
-            if(EN_ERROR_SYS2 > 2)
+            SF_RELAY_OFF();
+            delay_us(150);
+            if(!SF_RL_DRV_FB)
             {
-                printf("SafetyCTR_Check error \n");
-                ESC_SafeRelay_Error_Process();
+                EN_ERROR_SYS2++;
+                if(EN_ERROR_SYS2 > 2)
+                {
+                    printf("SafetyCTR_Check error \n");
+                    ESC_SafeRelay_Error_Process();
+                }
             }
+            else
+            {
+                EN_ERROR_SYS2 = 0;
+            }
+            SF_RELAY_ON();
         }
-        else
-        {
-            EN_ERROR_SYS2 = 0;
-        }
-        SF_RELAY_ON();
-      }
+    }
 
 }
 
