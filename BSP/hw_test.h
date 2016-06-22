@@ -25,18 +25,6 @@ void CrossCommCPUCheck(void);
 
 
 
-	
-extern u8 data_error;
-extern u8 onetime;
-extern u8 switch_flag;
-extern u8 sfwdt_checkflag;
-#ifdef GEC_SF_MASTER
-extern u8 R_SF_RL2_FB_CPU1;
-#else
-extern u8 R_SF_RL1_FB_CPU2;
-#endif
-
-
 
 #endif  /* __HW_TEST_H */
 

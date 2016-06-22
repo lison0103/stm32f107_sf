@@ -37,10 +37,6 @@
 u8 sflag,inputnum = 0;
 
 
-
-
-
-
 /*******************************************************************************
 * Function Name  : Input_Check
 * Description    : Monitor the input pin status test.
@@ -52,312 +48,258 @@ u8 sflag,inputnum = 0;
 *******************************************************************************/
 void Input_Check(void)
 {  
-
-  
-        for(u8 i=0;i<4;i++)
-        {
-          CAN1_TX_Data[i]= 0x0;                 
-        }
+    
+    
+    for(u8 i=0;i<4;i++)
+    {
+        CAN1_TX_Data[i]= 0x0;                 
+    }
+    
+    
+    
+    if ( !IN1 ) 
+    { 
+        CAN1_TX_Data[0] |= 1 << 0;                 
+    }
+    if ( !IN2 ) 
+    {       
+        CAN1_TX_Data[0] |= 1 << 1;
+    }
+    if ( !IN3 ) 
+    {                   
+        CAN1_TX_Data[0] |= 1 << 2; 
         
-        /**************************** test input *************
-        IN1 = IN2 = IN3 = IN4 = IN5 = IN6 =  IN7 = IN8 =  0;  
-        IN9 = IN10 = IN11 = IN12 = IN13 = IN14 = IN15 = IN16 = IN17 = IN18 = IN19 = IN20 = IN21 = IN22 = IN23 = IN24 =  IN25 = IN26 = IN27 = IN28 = 1;
-        *****************************************************/
+    }
+    if ( !IN4 ) 
+    {
+        CAN1_TX_Data[0] |= 1 << 3;
+    } 
+    if ( !IN5 ) 
+    {           
+        CAN1_TX_Data[0] |= 1 << 4;
+    }
+    if ( !IN6 ) 
+    {          
+        CAN1_TX_Data[0] |= 1 << 5;
         
-        /****test input,The actual test should be uncommented****/
-        if(switch_flag  /*&& ( !IN1 && !IN2 && !IN3 && !IN4 && !IN5 && !IN6 && !IN7 && !IN8 && 
-                        IN9 && IN10 && IN11 && IN12 && IN13 && IN14 && IN15 && IN16 && 
-                          IN17 && IN18 && IN19 && IN20 && IN21 && IN22 && IN23 && IN24 && IN25 && IN26 && IN27 && IN28 )*/)
-        {
-          
-                /* System does the self-test for safety relay, running relay and auxiliary brake relay. */
-                if( ( sfwdt_checkflag == 1 ) || ( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB && AUX_FB ) )
-                {
-                    
-//                        AUX_CTR = 1;
-                        SF_RL_CTR = 1;                         
-//                        delay_ms(1);
-                        
-//                        SafetyExtWdt_RunCheck();
-                }   
-                /* Online monitoring safety relay drive failure detection */
-                else if( switch_flag == 2 )
-                {
-                    SafetyRelayAuxRelayTest();
-//                    switch_flag = 0;
-//                    printf("Input_Check error \n");
-                }                
-
-                
-//                for(u8 i=0;i<3;i++)
-//                {
-//                    CAN1_TX_Data[i]= 0xff;                 
-//                }
-//                CAN1_TX_Data[3] = 0x0f;
-          
-//        }
-//        else
-//        {
-//                switch_flag = 0;
-//                AUX_CTR = 0; 
-//                SF_RL_CTR = 0;            
-
-                /****test input,The actual test should be commented****/
-//                CAN1_TX_Data[0] = 0xff;
-//                CAN1_TX_Data[1] = 0xff;
-//                CAN1_TX_Data[2] = 0xfc;
-//                CAN1_TX_Data[3] = 0x0f;
-                /*****************************************************/
+    }
+    if ( !IN7 ) 
+    {         
+        CAN1_TX_Data[0] |= 1 << 6;
         
-                  if ( !IN1 ) 
-                  { 
-                      CAN1_TX_Data[0] |= 1 << 0;                 
-                  }
-                  if ( !IN2 ) 
-                  {       
-                      CAN1_TX_Data[0] |= 1 << 1;
-                  }
-                  if ( !IN3 ) 
-                  {                   
-                      CAN1_TX_Data[0] |= 1 << 2; 
-
-                  }
-                  if ( !IN4 ) 
-                  {
-                      CAN1_TX_Data[0] |= 1 << 3;
-                  } 
-                  if ( !IN5 ) 
-                  {           
-                      CAN1_TX_Data[0] |= 1 << 4;
-                  }
-                  if ( !IN6 ) 
-                  {          
-                      CAN1_TX_Data[0] |= 1 << 5;
-
-                  }
-                  if ( !IN7 ) 
-                  {         
-                      CAN1_TX_Data[0] |= 1 << 6;
-
-                  }        
-                  if ( !IN8 ) 
-                  {         
-                      CAN1_TX_Data[0] |= 1 << 7;
-
-                  }
-                  if ( IN9 ) 
-                  {     
-                      CAN1_TX_Data[1] |= 1 << 0;
-
-                  }
-                  if ( IN10 ) 
-                  {                
-                      CAN1_TX_Data[1] |= 1 << 1;
-
-                  } 
-                  if ( IN11 ) 
-                  {          
-                      CAN1_TX_Data[1] |= 1 << 2;
-
-                  }
-                  if ( IN12 ) 
-                  {
-                      CAN1_TX_Data[1] |= 1 << 3;
-
-                  }
-                  if ( IN13 ) 
-                  {   
-                      CAN1_TX_Data[1] |= 1 << 4; 
-
-                  }         
-                  if ( IN14 ) 
-                  {    
-                      CAN1_TX_Data[1] |= 1 << 5; 
-
-                  }
-                  if ( IN15 ) 
-                  { 
-                      CAN1_TX_Data[1] |= 1 << 6;
-
-                  }
-                  if ( IN16 ) 
-                  {
-                      CAN1_TX_Data[1] |= 1 << 7; 
-
-                  }    
-                  if ( IN17 ) 
-                  {          
-                      CAN1_TX_Data[2] |= 1 << 0;
-
-                  }
-                  if ( IN18 ) 
-                  {
-                      CAN1_TX_Data[2] |= 1 << 1;
-
-                  }
-                  if ( IN19 ) 
-                  {   
-                      CAN1_TX_Data[2] |= 1 << 2;
-
-                  }         
-                  if ( IN20 ) 
-                  {    
-                      CAN1_TX_Data[2] |= 1 << 3; 
-
-                  }
-                  if ( IN21 ) 
-                  { 
-                      CAN1_TX_Data[2] |= 1 << 4;
-
-                  }
-                  if ( IN22 ) 
-                  {
-                      CAN1_TX_Data[2] |= 1 << 5;
-
-                  } 
-                  if ( IN23 ) 
-                  {
-                      CAN1_TX_Data[2] |= 1 << 6;
-
-                  }
-                  if ( IN24 ) 
-                  {   
-                      CAN1_TX_Data[2] |= 1 << 7;
-
-                  }         
-                  if ( IN25 ) 
-                  {    
-                      CAN1_TX_Data[3] |= 1 << 0;
-
-                  }
-                  if ( IN26 ) 
-                  { 
-                      CAN1_TX_Data[3] |= 1 << 1;
-
-                  }
-                  if ( IN27 ) 
-                  {
-                      CAN1_TX_Data[3] |= 1 << 2; 
-
-                  }  
-                  if ( IN28 ) 
-                  {
-                      CAN1_TX_Data[3] |= 1 << 3; 
-
-                  } 
-                  
+    }        
+    if ( !IN8 ) 
+    {         
+        CAN1_TX_Data[0] |= 1 << 7;
+        
+    }
+    if ( IN9 ) 
+    {     
+        CAN1_TX_Data[1] |= 1 << 0;
+        
+    }
+    if ( IN10 ) 
+    {                
+        CAN1_TX_Data[1] |= 1 << 1;
+        
+    } 
+    if ( IN11 ) 
+    {          
+        CAN1_TX_Data[1] |= 1 << 2;
+        
+    }
+    if ( IN12 ) 
+    {
+        CAN1_TX_Data[1] |= 1 << 3;
+        
+    }
+    if ( IN13 ) 
+    {   
+        CAN1_TX_Data[1] |= 1 << 4; 
+        
+    }         
+    if ( IN14 ) 
+    {    
+        CAN1_TX_Data[1] |= 1 << 5; 
+        
+    }
+    if ( IN15 ) 
+    { 
+        CAN1_TX_Data[1] |= 1 << 6;
+        
+    }
+    if ( IN16 ) 
+    {
+        CAN1_TX_Data[1] |= 1 << 7; 
+        
+    }    
+    if ( IN17 ) 
+    {          
+        CAN1_TX_Data[2] |= 1 << 0;
+        
+    }
+    if ( IN18 ) 
+    {
+        CAN1_TX_Data[2] |= 1 << 1;
+        
+    }
+    if ( IN19 ) 
+    {   
+        CAN1_TX_Data[2] |= 1 << 2;
+        
+    }         
+    if ( IN20 ) 
+    {    
+        CAN1_TX_Data[2] |= 1 << 3; 
+        
+    }
+    if ( IN21 ) 
+    { 
+        CAN1_TX_Data[2] |= 1 << 4;
+        
+    }
+    if ( IN22 ) 
+    {
+        CAN1_TX_Data[2] |= 1 << 5;
+        
+    } 
+    if ( IN23 ) 
+    {
+        CAN1_TX_Data[2] |= 1 << 6;
+        
+    }
+    if ( IN24 ) 
+    {   
+        CAN1_TX_Data[2] |= 1 << 7;
+        
+    }         
+    if ( IN25 ) 
+    {    
+        CAN1_TX_Data[3] |= 1 << 0;
+        
+    }
+    if ( IN26 ) 
+    { 
+        CAN1_TX_Data[3] |= 1 << 1;
+        
+    }
+    if ( IN27 ) 
+    {
+        CAN1_TX_Data[3] |= 1 << 2; 
+        
+    }  
+    if ( IN28 ) 
+    {
+        CAN1_TX_Data[3] |= 1 << 3; 
+        
+    } 
+    
 #if EXTERNAL_INPUT_TEST
-                  
-                  if ( EX_IN1 )
-                  {
-                      inputnum = 29;
-                      sflag++;
-                  }
-                  if ( EX_IN2 ) 
-                  {       
-                      inputnum = 30;
-                      sflag++;
-                  }
-                  if ( EX_IN3 ) 
-                  {                   
-                      inputnum = 31;
-                      sflag++;
-
-                  }
-                  if ( EX_IN4 ) 
-                  {
-                      inputnum = 32;
-                      sflag++;
-                  } 
-                  if ( EX_IN5 ) 
-                  {           
-                      inputnum = 33;
-                      sflag++;
-                  }
-                  if ( EX_IN6 ) 
-                  {          
-                      inputnum = 34;
-                      sflag++;
-
-                  }
-                  if ( EX_IN7 ) 
-                  {         
-                      inputnum = 35;
-                      sflag++;
-
-                  }        
-                  if ( EX_IN8 ) 
-                  {         
-                      inputnum = 36;
-                      sflag++;
-
-                  }
-                  if ( EX_IN9 ) 
-                  {     
-                      inputnum = 37;
-                      sflag++;
-
-                  }
-                  if ( EX_IN10 ) 
-                  {                
-                      inputnum = 38;
-                      sflag++;
-
-                  } 
-                  if ( EX_IN11 ) 
-                  {          
-                      inputnum = 39;
-                      sflag++;
-
-                  }
-                  if ( EX_IN12 ) 
-                  {
-                      inputnum = 40;
-                      sflag++;
-
-                  }
-                  if ( EX_IN13 ) 
-                  {   
-                      inputnum = 41;
-                      sflag++;
-
-                  }         
-                  if ( EX_IN14 ) 
-                  {    
-                      inputnum = 42;
-                      sflag++;
-
-                  }
-                  if ( EX_IN15 ) 
-                  { 
-                      inputnum = 43;
-                      sflag++;
-
-                  }
-                  if ( EX_IN16 ) 
-                  {
-                      inputnum = 44;
-                      sflag++;
-
-                  }    
-                  if ( EX_IN17 ) 
-                  {          
-                      inputnum = 45;
-                      sflag++;
-
-                  }  
-                  
+    
+    if ( EX_IN1 )
+    {
+        inputnum = 29;
+        sflag++;
+    }
+    if ( EX_IN2 ) 
+    {       
+        inputnum = 30;
+        sflag++;
+    }
+    if ( EX_IN3 ) 
+    {                   
+        inputnum = 31;
+        sflag++;
+        
+    }
+    if ( EX_IN4 ) 
+    {
+        inputnum = 32;
+        sflag++;
+    } 
+    if ( EX_IN5 ) 
+    {           
+        inputnum = 33;
+        sflag++;
+    }
+    if ( EX_IN6 ) 
+    {          
+        inputnum = 34;
+        sflag++;
+        
+    }
+    if ( EX_IN7 ) 
+    {         
+        inputnum = 35;
+        sflag++;
+        
+    }        
+    if ( EX_IN8 ) 
+    {         
+        inputnum = 36;
+        sflag++;
+        
+    }
+    if ( EX_IN9 ) 
+    {     
+        inputnum = 37;
+        sflag++;
+        
+    }
+    if ( EX_IN10 ) 
+    {                
+        inputnum = 38;
+        sflag++;
+        
+    } 
+    if ( EX_IN11 ) 
+    {          
+        inputnum = 39;
+        sflag++;
+        
+    }
+    if ( EX_IN12 ) 
+    {
+        inputnum = 40;
+        sflag++;
+        
+    }
+    if ( EX_IN13 ) 
+    {   
+        inputnum = 41;
+        sflag++;
+        
+    }         
+    if ( EX_IN14 ) 
+    {    
+        inputnum = 42;
+        sflag++;
+        
+    }
+    if ( EX_IN15 ) 
+    { 
+        inputnum = 43;
+        sflag++;
+        
+    }
+    if ( EX_IN16 ) 
+    {
+        inputnum = 44;
+        sflag++;
+        
+    }    
+    if ( EX_IN17 ) 
+    {          
+        inputnum = 45;
+        sflag++;
+        
+    }  
+    
 #endif
-                  
-        }
-        else
-        {
-                switch_flag = 0;
-                AUX_CTR = 0; 
-                SF_RL_CTR = 0;          
-        }
-        
-        
+    
+    
+    
+    
 }        
         
 
@@ -373,14 +315,6 @@ void Input_Check(void)
 void Input_Check2(void)
 {
   
-//    u8 sflag,t,inputnum = 0;
-//  
-//    AUX_CTR = 0;
-//    SF_RL_CTR = 0;
-//    SF_RL_WDT = 1;
-    
-//    while(1)
-//    {
         sflag = 0;
         inputnum = 0;        
         
@@ -669,18 +603,7 @@ void Input_Check2(void)
         {
             SF_RL_CTR = 1; 
         }
-               
-        
-//        delay_ms(1);
-//        t++;
-//        if(t==200)
-//        {
-//            LED=!LED;
-//            SF_RL_WDT=!SF_RL_WDT;
-//            t=0;
-//        }        
-//        
-//    }
+              
               
         
 }
@@ -760,8 +683,7 @@ void CrossCommCPUCheck(void)
                       result = SPI1_RX_Data[i]^(SPI1_TX_Data[i] - 1);
                       if( result )
                       {
-                          data_error++;
-                          printf("1");                             
+                          data_error++;                            
                           break;
 
                       }
@@ -770,8 +692,7 @@ void CrossCommCPUCheck(void)
               } 
               else
               {
-                  data_error++;
-                  printf("2");                  
+                  data_error++;                 
   
               }
               
@@ -798,7 +719,6 @@ void CrossCommCPUCheck(void)
                   data_error++;
                   if( data_error > 2 )
                   {
-                      printf("3");
                       break;
                   }
               }
@@ -817,7 +737,7 @@ void CrossCommCPUCheck(void)
     if( data_error > 2 )
     {
         LED = 0;
-        printf("SPI1_DMA_Check error \r\n");
+        /* SPI1_DMA_Check error */
         while(1)
         {
             EWDT_TOOGLE(); 

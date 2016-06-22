@@ -28,8 +28,6 @@ void CPU_Data_Check(void);
 void CPU_Exchange_Data(void);
 void CPU_Comm(void);
 
-extern u8 switch_flag;
-extern u8 sfwdt_checkflag;
 u16 comm_num = 0;
 u8 onetime = 0;
 #ifndef GEC_SF_MASTER
@@ -188,31 +186,7 @@ void CPU_Data_Check(void)
     if(!MB_CRC16(SPI1_RX_Data, comm_num))
     {
         
-//        if(SPI1_TX_Data[4] == 2 && SPI1_RX_Data[4] == 2)
-//        {
-//            switch_flag = 2;
-//            sfwdt_checkflag = 0;
-//        }
-//        else if( sfwdt_checkflag == 2)
-//        {
-//            EN_ERROR_SYS3++;
-//            printf("sfwdt_checkflag error \r\n");
-//        }
-//        
-//        if( switch_flag == 2 )
-//        {
-//            if( (SPI1_TX_Data[0] != SPI1_RX_Data[0]) || (SPI1_TX_Data[1] != SPI1_RX_Data[1]) 
-//               || (SPI1_TX_Data[2] != SPI1_RX_Data[2]) || (SPI1_TX_Data[3] != SPI1_RX_Data[3]) )
-//            {
-//                EN_ERROR_SYS3++;
-//                printf("data error \r\n");
-//            }
-//            else
-//            {
-                EN_ERROR_SYS3 = 0;
-//            }
-//        }
-        
+        EN_ERROR_SYS3 = 0;       
         
         /* esc Rtdata receive--------------------------*/
         for( u8 i = 0; i < 100; i++)
@@ -232,7 +206,7 @@ void CPU_Data_Check(void)
     else
     {
         EN_ERROR_SYS3++;     
-        printf("MB_CRC16 error \r\n");
+        /* MB_CRC16 error */
                        
     }
     
@@ -240,7 +214,7 @@ void CPU_Data_Check(void)
     {
         EN_ERROR_SYS3 = 0;
         ESC_SafeRelay_Error_Process();
-        printf("CPU_Exchange_Data_Check error \r\n");
+        /* CPU_Exchange_Data_Check error */
     }
           
 
@@ -269,24 +243,6 @@ void CPU_Exchange_Data(void)
     
     SPI_DMA_RECEIVE_FLAG = 0;
     
-//    if(SF_RL_DRV_FB)
-//        SPI1_TX_Data[0] = 0x01;
-//    
-//    if(SF_PWR_FB_CPU)
-//        SPI1_TX_Data[1] = 0x01;
-//    
-//    if(SF_RL_FB)
-//        SPI1_TX_Data[2] = 0x01;
-//    
-//    if(AUX_FB)
-//        SPI1_TX_Data[3] = 0x01;
-//    
-//    SPI1_TX_Data[4] = sfwdt_checkflag;
-//    
-//    SPI1_TX_Data[5] = CAN1_TX_Data[0];
-//    SPI1_TX_Data[6] = CAN1_TX_Data[1];
-//    SPI1_TX_Data[7] = CAN1_TX_Data[2];
-//    SPI1_TX_Data[8] = CAN1_TX_Data[3];
     
     /* esc Rtdata --------------------------*/
     for( i = 0; i < 100; i++)

@@ -23,8 +23,6 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-u8 switch_flag = 1;
-u8 sfwdt_checkflag = 0;
 u8 sf_wdt_check_tms = 0;
 u8 sf_wdt_check_en = 0;
 u8 sf_relay_check_cnt = 0;
@@ -155,7 +153,6 @@ void SafetyExtWdt_StartUpCheck(void)
     if( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB && AUX_FB )
     {
         SF_EWDT_TOOGLE();
-//        AUX_CTR = 1;
         SF_RELAY_ON();   
         SF_EWDT_TOOGLE();
     }   
@@ -172,7 +169,6 @@ void SafetyExtWdt_StartUpCheck(void)
     IWDG_ReloadCounter();
     
     /** Safety Relay and AuxRelay Test **/
-//    SafetyRelayAuxRelayTest();
     if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || !AUX_FB )
     {
         FailSafeTest();
@@ -188,9 +184,7 @@ void SafetyExtWdt_StartUpCheck(void)
     }
     else
     {
-//        AUX_CTR = 0;
         SF_RELAY_OFF(); 
-//        sfwdt_checkflag = 2;
     }   
         
 
@@ -282,7 +276,7 @@ void SafetyCTR_Check(void)
                 EN_ERROR_SYS2++;
                 if(EN_ERROR_SYS2 > 2)
                 {
-                    printf("SafetyCTR_Check error \n");
+                    /* SafetyCTR_Check error */
                     ESC_SafeRelay_Error_Process();
                 }
             }

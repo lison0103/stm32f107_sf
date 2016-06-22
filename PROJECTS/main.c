@@ -37,7 +37,6 @@ u32 timeprintf = 0;
 u8 Modbuff[3000];
 u8 EscRTBuff[200];
 u8 McRxBuff[1000];
-/* parameter */
 u8 *const Sys_Data = &Modbuff[1100];
 u16 *const pt_SysBuff = (u16*)&Modbuff[1100];
 u8 *const pcOMC_EscRTBuff = &McRxBuff[0]; 
@@ -119,10 +118,9 @@ void Task_Loop(void)
       
       if( Tms50Counter == 0 )
       {                                 
-          /* Reload SF_EWDG / EWDT counter */          
+          /* Reload EWDT counter */          
           EWDT_TOOGLE();
-          
-//          Input_Check(); 
+           
 #ifdef GEC_SF_MASTER            
           Communication_To_Control();   
 #endif
@@ -131,19 +129,16 @@ void Task_Loop(void)
       
       if( Tms100Counter == 0 )
       {         
-//          SafetyCTR_Check();
+          
       }
            
       if( Tms500Counter == 0 )
       {             
-#ifdef GEC_SF_MASTER          
-//          USB_VCP_RecvBufandSend();
-#endif            
+          
       }
       
       if( Tms1000Counter == 0 )
-      {
-//          Comm_DisplayBoard();  
+      {  
           if( ++timeprintf >= 600 )
           {
               timeprintf = 0;
