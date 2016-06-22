@@ -15,15 +15,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-
-/* motor speed */
-#define MAX_SPEED       ( ( F1 * 115 ) / 100 )
-#define MIN_SPEED       ( ( F1 * 10 ) / 100 )
-
-/* stopping distance */
-#define CONVERSION      ( ( NOMINAL_SPEED / MOTOR_RPM ) * MOTOR_PLUSE_PER_REV )
-#define MAX_DISTANCE    ( ( 12 * 2 * F1 ) / 10 )
-
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -351,124 +342,7 @@ void ESC_Motor_Check(void)
 
 }
 
-/*******************************************************************************
-* Function Name  : key_run_detect
-* Description    : Esc key run.
-* Input          : None               
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void key_run_detect(void)
-{
-    static u16 key_on_tms = 0;   
-    
-    if( ( INPUT_PORT17_24 & INPUT_PORT22_MASK ) && ( sf_wdt_check_en == 0 ))
-    {
-        if(key_on_tms < 5000) key_on_tms++;
-        
-    }
-    
-    if(( key_on_tms * SYSTEMTICK == 2000))
-    {
-        CMD_FLAG1 |= 0x01;
-    }	
-    
-    if(!(INPUT_PORT17_24 & INPUT_PORT22_MASK) || ( sf_wdt_check_en == 1 )) 
-    {
-        key_on_tms = 0;	
-    }
-}
 
-
-/*******************************************************************************
-* Function Name  : sfEscStateCheck
-* Description    : Esc state check.
-* Input          : None               
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void sfEscStateCheck(void)
-{
-  static u16 sf_running_tms,sf_stopping_tms = 0;
-  static u16 sf_reset_tms = 0;
-  static u8 key_on = 0;
- 
-  
-  /* esc running */
-  if( ( INPUT_PORT17_24 & INPUT_PORT22_MASK ) && (SfBase_EscState & ESC_STATE_READY) )
-  {
-      key_on = 1;
-  }
-  
-
-  key_run_detect();
-  
-  if( ( INPUT_PORT17_24 & INPUT_PORT22_MASK ) && (CMD_FLAG1 & 0x01) && ( key_on == 1 ) )
-  {
-      SfBase_EscState &= ~ESC_STATE_STOP;
-      SfBase_EscState &= ~ESC_STATE_READY;
-      
-      SfBase_EscState |= ESC_STATE_RUNNING;
-      
-      if(( (sf_running_tms * SYSTEMTICK) > 2500 ) && (*(MTRITEM[0].ptFreqBuff) > MIN_SPEED ) && (*(MTRITEM[1].ptFreqBuff) > MIN_SPEED ))
-      {
-          SfBase_EscState |= ESC_STATE_SPEEDUP;
-      }
-      
-      if( (sf_running_tms * SYSTEMTICK) > 6000 )
-      {
-          SfBase_EscState |= ESC_STATE_RUN5S;
-      }
-      else
-      {
-          sf_running_tms++;
-      }
-      
-      sf_stopping_tms = 0;
-      
-      sf_reset_tms = 0;
-  }
-  else
-  {
-      SfBase_EscState &= ~ESC_STATE_RUNNING;
-      SfBase_EscState &= ~ESC_STATE_SPEEDUP;
-      SfBase_EscState &= ~ESC_STATE_RUN5S;
-      
-      SfBase_EscState |= ESC_STATE_STOP;
-      
-      key_on = 0;
-      
-      if(( (sf_stopping_tms * SYSTEMTICK) > 3000 ) && (MTRITEM[0].rt_brake_stop == 1) && (MTRITEM[1].rt_brake_stop == 1) )
-      {
-          SfBase_EscState |= ESC_STATE_READY;
-      }
-      else
-      {        
-          sf_stopping_tms++;
-      }
-      
-      /* for test reset the value-------------------------------------*/
-      if( (sf_reset_tms * SYSTEMTICK) > 20000 )
-      {
-          for(u8 i = 30; i < 200; i++ )
-          {
-              EscRTBuff[i] = 0;
-          }
-          sf_reset_tms = 0;
-      }
-      else
-      {
-          sf_reset_tms++;
-      }
-      
-      sf_running_tms = 0;
-      
-      CMD_FLAG1 &= ~0x01;
-  }
-    
-   
-  
-}
 
 
 

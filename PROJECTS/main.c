@@ -20,6 +20,7 @@
 #include "esc_comm_safety_dualcpu.h"
 #include "esc_comm_control.h"
 #include "esc_safety_check.h"
+#include "esc_cmd_state.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/

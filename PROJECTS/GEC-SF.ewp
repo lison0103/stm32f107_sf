@@ -4914,6 +4914,9 @@
       <name>$PROJ_DIR$\..\ESC\inc\esc.h</name>
     </file>
     <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_cmd_state.c</name>
+    </file>
+    <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_comm_control.c</name>
       <excluded>
         <configuration>GEC-SF-S</configuration>

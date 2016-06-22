@@ -131,7 +131,7 @@
 #define 	EN_ERROR3   	EscRTBuff[72]
 #define 	EN_ERROR4   	EscRTBuff[73]
 #define 	EN_ERROR5   	EscRTBuff[74]
-
+#define 	EN_ERROR6   	EscRTBuff[74]
 
 typedef struct mtrfreqitem 
 {    
