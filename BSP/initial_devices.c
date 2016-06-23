@@ -67,12 +67,6 @@ void Bsp_Init(void)
         
         /** input and relay output init **/
         Input_Output_PinInit();           
-        /*----------------------------------------------------------------------*/
-        /*------------------------- Safety ExtWdt Test -------------------------*/
-        /*---------------------- SafetyRelay AuxRelay Test ---------------------*/
-        /*----------------------------------------------------------------------*/   
-        
-        SafetyExtWdt_StartUpCheck();
 
         
         /** exti init **/
@@ -104,13 +98,7 @@ void Bsp_Init(void)
         /*----------------------------------------------------------------------*/
         
         DataIntegrityInFRAMCheck();      
-
-        
-        /** USB init **/
-//        usb_init();
-          
-        /** wait slave spi **/
-//        delay_ms(200);       
+            
       
 #endif  /* GEC_SF_MASTER */
 
@@ -122,9 +110,18 @@ void Bsp_Init(void)
         /*----------------------------------------------------------------------*/   
         
         CrossCommCPUCheck();
+        
+        /*----------------------------------------------------------------------*/
+        /*------------------------- Safety ExtWdt Test -------------------------*/
+        /*---------------------- SafetyRelay AuxRelay Test ---------------------*/
+        /*----------------------------------------------------------------------*/   
+        
+        SafetyExtWdt_StartUpCheck();    
+        
 
         /* safety output disable */
         SafetyOutputDisable();
+        
         
 #if SELF_TEST
         /* Self test routines initialization ---------------------------------------*/

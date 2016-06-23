@@ -16,7 +16,7 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void usb_init(void);
+void USBH_Mass_Storage_Init(void);
 
 #endif /* _USB_FUNC_H */
 

@@ -293,6 +293,8 @@ void DMA_Check_Flag(u32 times)
           {
               waitus++;
               delay_us(1);
+              EWDT_TOOGLE();
+              IWDG_ReloadCounter();  
           }
           
           if( waitus >= times )

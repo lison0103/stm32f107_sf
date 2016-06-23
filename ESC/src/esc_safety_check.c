@@ -147,7 +147,7 @@ void SafetyExtWdt_StartUpCheck(void)
 {
     
 #ifndef GEC_SF_MASTER    
-    delay_ms(700);
+//    delay_ms(700);
 #endif
 
     if( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB && AUX_FB )

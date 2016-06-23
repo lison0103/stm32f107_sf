@@ -284,7 +284,7 @@ void USBH_USR_OverCurrentDetected (void)
 	printf("Overcurrent detected!!!\r\n");
 } 
 
-extern u8 USH_User_App(void);	
+extern u8 USB_LoadParameter(void);	
 
 
 /**
@@ -306,7 +306,7 @@ int USBH_USR_MSC_Application(void)
                         f_mount(fs[0],"0:",1); 
       		break;
     	case USH_USR_FS_TEST:	
-			res=USH_User_App(); 
+			res = USB_LoadParameter(); 
      		res=0;
 			if(res)AppState=USH_USR_FS_INIT;
       		break;

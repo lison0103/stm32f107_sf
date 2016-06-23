@@ -644,9 +644,12 @@ void CrossCommCPUCheck(void)
     
     
     SPI1_DMA_ReceiveSendByte(comm_num);
-  
+
+#ifdef GEC_SF_MASTER
     DMA_Check_Flag(100000);
-    
+#else
+    DMA_Check_Flag(100000000);
+#endif
     
         
         while(test_cnt--)

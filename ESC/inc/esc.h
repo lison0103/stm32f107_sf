@@ -216,6 +216,8 @@ extern u16 *const pt_SysBuff;
 extern u8 *const pcOMC_EscRTBuff;
 extern u8 sf_wdt_check_en;
 
+#define PARA_INIT                       pt_SysBuff[0]
+#define USB_LOOD_PARA                    pt_SysBuff[1]
 /* parameters */
 #define MOTOR_RPM                        pt_SysBuff[10]
 #define MOTOR_PLUSE_PER_REV              pt_SysBuff[11]

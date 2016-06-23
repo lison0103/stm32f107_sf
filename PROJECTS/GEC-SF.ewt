@@ -5234,6 +5234,9 @@
   </configuration>
   <group>
     <name>BSP</name>
+    <group>
+      <name>MALLOC</name>
+    </group>
     <file>
       <name>$PROJ_DIR$\..\BSP\bsp_input.c</name>
     </file>
@@ -5245,6 +5248,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\BSP\delay.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\BSP\fatfs.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\BSP\hw_test.c</name>
@@ -5305,6 +5311,21 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_tandem.c</name>
+    </file>
+  </group>
+  <group>
+    <name>FATFS</name>
+    <file>
+      <name>$PROJ_DIR$\..\FATFS\src\option\ccsbcs.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\FATFS\src\diskio.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\FATFS\exfuns\exfuns.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\FATFS\src\ff.c</name>
     </file>
   </group>
   <group>
@@ -5506,6 +5527,12 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\USART\usart.c</name>
+    </file>
+  </group>
+  <group>
+    <name>MALLOC</name>
+    <file>
+      <name>$PROJ_DIR$\..\MALLOC\malloc.c</name>
     </file>
   </group>
   <group>

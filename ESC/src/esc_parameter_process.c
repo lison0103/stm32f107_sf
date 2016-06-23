@@ -8,12 +8,14 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
+#include "esc_parameter_process.h"
 #include "esc_record_data.h"
 #include "mb85rcxx.h"
 #include "crc16.h"
 #include "delay.h"
 #include "esc_error_process.h"
 #include "esc.h"
+#include "usb_func.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -48,7 +50,7 @@ void Check_Error_Present_Memory(void)
 void esc_para_init(void)
 {
 
-    if(pt_SysBuff[0] != 0xff01)
+    if(PARA_INIT != 0xff01)
     {
         
         MOTOR_RPM = 1000;
@@ -63,8 +65,9 @@ void esc_para_init(void)
         STEP_WIDTH = 400;
         TANDEM_TYPE = 0;
         
-        pt_SysBuff[0] = 0xff01;
-        
+        PARA_INIT = 0xff01;
+        USB_LOOD_PARA = 0;
+   
         sys_data_write();
         
     }
@@ -79,7 +82,17 @@ void esc_para_init(void)
 *******************************************************************************/
 void get_para_from_usb(void)
 {
-    
+    if( USB_LOOD_PARA == 0 )
+    {
+          USB_LOOD_PARA = 1;
+          sys_data_write();
+          USBH_Mass_Storage_Init();
+    }
+    else
+    {
+          USB_LOOD_PARA = 0;
+          sys_data_write();
+    }
 }
 
 /*******************************************************************************
@@ -91,8 +104,8 @@ void get_para_from_usb(void)
 *******************************************************************************/
 void ParametersLoading(void)
 {
-    get_para_from_usb();
-    esc_para_init();
+      get_para_from_usb();
+      esc_para_init();
 }
 
 
