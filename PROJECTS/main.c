@@ -21,6 +21,8 @@
 #include "esc_comm_control.h"
 #include "esc_safety_check.h"
 #include "esc_cmd_state.h"
+#include "esc_tandem.h"
+#include "esc_comm_diagnostic.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -88,13 +90,14 @@ void Task_Loop(void)
       
 
       Get_GpioInput(&EscRTBuff[4]);
-      sfEscStateCheck();     
+      sfEscStateCheck();  
+      ESC_Tandem_Check();
       ESC_Motor_Check();
       ESC_Handrail_Check();
       ESC_Missingstep_Check();
       SafetyOutputDisable();
       SafetyOutputEnable();
-
+      
 
       
 #ifdef GEC_SF_MASTER 
@@ -130,7 +133,7 @@ void Task_Loop(void)
       
       if( Tms100Counter == 0 )
       {         
-          
+          Safety_Comm_Diag();
       }
            
       if( Tms500Counter == 0 )

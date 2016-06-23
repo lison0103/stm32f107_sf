@@ -254,6 +254,8 @@ void sfEscStateCheck(void)
         
         SfBase_EscState |= ESC_STATE_RUNNING;
         
+        SfBase_EscState |= ESC_STATE_NORMAL;
+        
         if(( (sf_running_tms * SYSTEMTICK) > 2500 ) && (*(MTRITEM[0].ptFreqBuff) > MIN_SPEED ) && (*(MTRITEM[1].ptFreqBuff) > MIN_SPEED ))
         {
             SfBase_EscState |= ESC_STATE_SPEEDUP;
@@ -277,6 +279,8 @@ void sfEscStateCheck(void)
         SfBase_EscState &= ~ESC_STATE_RUNNING;
         SfBase_EscState &= ~ESC_STATE_SPEEDUP;
         SfBase_EscState &= ~ESC_STATE_RUN5S;
+        
+        SfBase_EscState &= ~ESC_STATE_NORMAL;
         
         SfBase_EscState |= ESC_STATE_STOP;
         

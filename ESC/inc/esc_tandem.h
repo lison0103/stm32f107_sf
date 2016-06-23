@@ -21,7 +21,7 @@
 void CheckTandemReady(void);
 void CheckTandemRun(void);
 void TandemOutput(void);
-
+void ESC_Tandem_Check(void);
 
 
 #endif  /* __ESC_TANDEM_H */

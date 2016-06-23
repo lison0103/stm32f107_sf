@@ -26,8 +26,17 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
+/*******************************************************************************
+* Function Name  : Check_Error_Present_Memory
+* Description    : esc check error in memory.                 
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Check_Error_Present_Memory(void)
+{
 
-
+}
 
 /*******************************************************************************
 * Function Name  : esc_para_init

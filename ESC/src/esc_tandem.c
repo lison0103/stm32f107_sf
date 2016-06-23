@@ -13,10 +13,6 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-#define ESC_ORDER_NONE  0
-#define ESC_ORDER_UP    1
-#define ESC_ORDER_DOWN  2
-
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -25,7 +21,6 @@
 u8 TandemRunEnable = 0;
 u8 TandemMessageRunAllowed = 0;
 u8 Tandemoutput = 0;
-u8 sfEsc_Order_UpDown = 0;
 
 /*******************************************************************************
 * Function Name  : CheckTandemReady
@@ -40,7 +35,7 @@ void CheckTandemReady(void)
     if( TANDEM_TYPE == 1 )
     {
         /* Need CheckUpDown_Key() */
-        if( sfEsc_Order_UpDown == ESC_ORDER_UP )
+        if( CMD_FLAG1 & 0x04 )
         {
             /* need allow by other escalator */
             if( TandemMessageRunAllowed == 1 )
@@ -48,7 +43,7 @@ void CheckTandemReady(void)
                 TandemRunEnable = 1;
             }
         }
-        else if( sfEsc_Order_UpDown == ESC_ORDER_DOWN )
+        else if( CMD_FLAG1 & 0x08 )
         {
             TandemRunEnable = 1;
             /* send TandemMessageRunAllowed = 1 */
@@ -58,14 +53,14 @@ void CheckTandemReady(void)
     }
     else if( TANDEM_TYPE == 2 )
     {
-        if( sfEsc_Order_UpDown == ESC_ORDER_DOWN )
+        if( CMD_FLAG1 & 0x08 )
         {
             if( TandemMessageRunAllowed == 1 )
             {
                 TandemRunEnable = 1;
             }
         }
-        else if( sfEsc_Order_UpDown == ESC_ORDER_UP )
+        else if( CMD_FLAG1 & 0x04 )
         {
             TandemRunEnable = 1;
             /* send TandemMessageRunAllowed = 1 */
@@ -97,7 +92,7 @@ void CheckTandemRun(void)
             {
                 /* Tandem fault */
                 /* stop escalator */
-                
+                EN_ERROR7 |= 0x01;
             }
         }           
     }
@@ -109,7 +104,7 @@ void CheckTandemRun(void)
             {
                 /* Tandem fault */
                 /* stop escalator */
-                
+                EN_ERROR7 |= 0x01;
             }
         }      
     }
@@ -163,6 +158,27 @@ void TandemOutput(void)
 
 }
 
+
+/*******************************************************************************
+* Function Name  : ESC_Tandem_Check
+* Description    : esc check tandem.
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void ESC_Tandem_Check(void)
+{
+
+    if( SfBase_EscState & ESC_STATE_READY )
+    {
+        CheckTandemReady();
+    }
+    else if(SfBase_EscState & ESC_STATE_RUNNING)
+    {
+        CheckTandemRun();
+        TandemOutput();
+    }
+}
 
 
 /******************************  END OF FILE  *********************************/
