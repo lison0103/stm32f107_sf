@@ -5234,9 +5234,6 @@
   </configuration>
   <group>
     <name>BSP</name>
-    <group>
-      <name>MALLOC</name>
-    </group>
     <file>
       <name>$PROJ_DIR$\..\BSP\bsp_input.c</name>
     </file>

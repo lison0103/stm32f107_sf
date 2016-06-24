@@ -4,7 +4,23 @@
   <project>
     <path>$WS_DIR$\GEC-SF.ewp</path>
   </project>
-  <batchBuild/>
+  <batchBuild>
+    <batchDefinition>
+      <name>GEC-SF-BUILD</name>
+      <member>
+        <project>GEC-SF</project>
+        <configuration>GEC-SF-M</configuration>
+      </member>
+      <member>
+        <project>GEC-SF</project>
+        <configuration>GEC-SF-S</configuration>
+      </member>
+      <member>
+        <project>GEC-SF</project>
+        <configuration>GEC-SF-S-NEW</configuration>
+      </member>
+    </batchDefinition>
+  </batchBuild>
 </workspace>
 
 
