@@ -10,11 +10,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include "delay.h"
 #include "sys.h"
+#include "timer.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 #define  USE_SYSTICK_DELAY   0
+#define  USE_TIM_DELAY       1
 
 /* Private variables ---------------------------------------------------------*/
 #if USE_SYSTICK_DELAY
@@ -114,6 +116,57 @@ void delay_ms(u16 nms)
         }
 } 
 
+#elif USE_TIM_DELAY
+
+/*******************************************************************************
+* Function Name  : Delay_Init
+* Description    : Delay is managed using TIM
+*                  Initialization delay function
+* Input          : None
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Delay_Init(void)	 
+{
+    TIM1_Int_Init(65535, 71);
+}	
+
+/*******************************************************************************
+* Function Name  : delay_us
+* Description    : delay nus
+*                  
+* Input          : nus: Number of us want to delay
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/		    								   
+void delay_us(u32 nus)
+{		
+    TIM_Cmd(TIM1, ENABLE);
+    TIM1->CNT = nus;
+    while((TIM1->CNT > 0) && (TIM1->CNT <= nus)); 
+    TIM_Cmd(TIM1, DISABLE);
+}
+
+/*******************************************************************************
+* Function Name  : delay_ms
+* Description    : delay nms
+*                  
+* Input          : nms: Number of ms want to delay
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void delay_ms(u16 nms)
+{	 		  	  
+    u16 i=0;
+    
+    for( i = 0; i < nms; i++ )
+    {
+        delay_us(1000);
+    }  
+} 
 
 #else
 
