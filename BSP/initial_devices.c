@@ -29,6 +29,7 @@ void PVD_Configuration(void);
 void SysTickTimerInit(void);
 void ExtCommDeviceInit(void);
 void PluseOutputInit(void);
+void Data_init(void);
 
 #ifdef GEC_SF_MASTER
 void DataIntegrityInFRAMCheck(void);
@@ -37,7 +38,7 @@ void DataIntegrityInFRAMCheck(void);
 
 
 /*******************************************************************************
-* Function Name  : Bsp_Init
+* Function Name  : Initial_Device
 * Description    : Initialize the CPU1,CPU2 and peripherals
 *                  
 * Input          : None
@@ -45,7 +46,7 @@ void DataIntegrityInFRAMCheck(void);
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Bsp_Init(void)
+void Initial_Device(void)
 {
 
         /* self test ---------------------------------------------------------*/
@@ -79,7 +80,10 @@ void Bsp_Init(void)
 #endif        
 
         /** CAN1 init,baud rate 250Kbps **/
-	CAN_Int_Init(CAN1);                               
+	CAN_Int_Init(CAN1);      
+        
+        /** Data array is initialized to 0 **/
+        Data_init();
         
 #ifdef GEC_SF_MASTER           
         
@@ -104,6 +108,7 @@ void Bsp_Init(void)
 
         /** spi communication init **/
         SPI1_Init();
+        
         /*----------------------------------------------------------------------*/
         /*------------------------- Cross Comm CPU test ------------------------*/
         /*------------------------- Data Integrity Test ------------------------*/
@@ -308,8 +313,10 @@ void RCC_Configuration(void)
     #endif
 
 #ifdef GEC_SF_S_NEW      
+      RCC_APB2PeriphClockCmd( RCC_APB2Periph_TIM1 , ENABLE);
       RCC_APB2PeriphClockCmd( RCC_APB2Periph_TIM15 , ENABLE);   
 #else
+      RCC_APB2PeriphClockCmd( RCC_APB2Periph_TIM1 , ENABLE);
       RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM5 , ENABLE);   
 #endif
       RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM6 , ENABLE); 
@@ -378,6 +385,36 @@ void PVD_Configuration(void)
 
 }
 
+
+/*******************************************************************************
+* Function Name  : Data_init
+* Description    : Data initialzation.
+*                  
+* Input          : None
+*                 
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Data_init(void)
+{
+    u16 i;
+    
+    for( i = 0; i < 200; i++ )
+    {
+        EscRTBuff[i] = 0;
+    }  
+    
+    for( i = 0; i < 1000; i++ )
+    {
+        McRxBuff[i] = 0;
+    }  
+  
+    for( i = 0; i < 3000; i++ )
+        
+    {
+        Modbuff[i] = 0;
+    } 
+}
 
 /******************************  END OF FILE  *********************************/
 

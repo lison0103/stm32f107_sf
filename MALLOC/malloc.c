@@ -15,9 +15,9 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /** Memory parameter settings **/
-#define MEM_BLOCK_SIZE			32  	  						//Memory block size
-#define MEM_MAX_SIZE			13*1024           				        //Maximum Memory Management
-#define MEM_ALLOC_TABLE_SIZE	MEM_MAX_SIZE/MEM_BLOCK_SIZE 	                                //Memory size table
+#define MEM_BLOCK_SIZE			( 32 ) 	  						//Memory block size
+#define MEM_MAX_SIZE			( 13 * 1024 )          				        //Maximum Memory Management
+#define MEM_ALLOC_TABLE_SIZE	( MEM_MAX_SIZE / MEM_BLOCK_SIZE )	                        //Memory size table
 
 /* Private variables ---------------------------------------------------------*/
 #pragma pack(push) //memory size table 

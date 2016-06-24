@@ -39,7 +39,7 @@
 #define SYSTEMTICK      ( 5 )
 
 /* Exported functions ------------------------------------------------------- */
-void Bsp_Init(void);
+void Initial_Device(void);
 void RCC_Configuration(void);
 void NVIC_Configuration(void);
 

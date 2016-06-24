@@ -28,51 +28,27 @@
 * Output         : None
 * Return         : None
 *******************************************************************************/  
-#ifdef GEC_SF_MASTER
-#if DEBUG_PRINTF
-int fputc(int ch, FILE *f)
-{   
-  
-//        USB_VCP_SendBuf((u8 *)(&ch), 1);
-      while((USART3->SR&0X40)==0);  
-          USART3->DR = (u8) ch; 
-
-	return ch;
-}
-
-#else
-
-int fputc(int ch, FILE *f)
-{      
-      return ch;
-}
-
-#endif
-
-#else
 
 #if DEBUG_PRINTF
-
 #ifdef GEC_SF_S_NEW
 int fputc(int ch, FILE *f)
 {   
     
-	while((USART3->ISR&0X40)==0);
-            USART3->TDR = (u8) ch;  
-            
-	return ch;
+    while((USART3->ISR&0X40) == 0);
+      USART3->TDR = (u8) ch;  
+    
+    return ch;
 }
 #else
 int fputc(int ch, FILE *f)
 {   
+  
+    while((USART3->SR&0X40) == 0);  
+      USART3->DR = (u8) ch; 
     
-	while((USART3->SR&0X40)==0);
-            USART3->DR = (u8) ch;  
-            
-	return ch;
+    return ch;
 }
-
-#endif
+#endif /* GEC_SF_S_NEW */
 
 #else
 
@@ -81,9 +57,9 @@ int fputc(int ch, FILE *f)
       return ch;
 }
 
-#endif
+#endif /* DEBUG_PRINTF */
 
-#endif
+
 
 
 

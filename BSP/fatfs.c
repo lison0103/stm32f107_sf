@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/23/2016
-* Description        : This file contains app bin update functions.
+* Description        : This file contains fatfs operation functions.
 *                      
 *******************************************************************************/
 

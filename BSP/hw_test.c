@@ -27,14 +27,13 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-
-
 /* Private variables ---------------------------------------------------------*/
+u8 sflag = 0,inputnum = 0;
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
 
-u8 sflag,inputnum = 0;
 
 
 /*******************************************************************************
@@ -621,11 +620,11 @@ void Input_Check2(void)
 void CrossCommCPUCheck(void)
 {    
 
-  u16 i = 0;  
-  u8 number = 0;
-  u8 data_error = 0;
-  u32 test_cnt = 100;  
-  u16 comm_num = buffersize;
+    u16 i = 0;  
+    u8 number = 0;
+    u8 data_error = 0;
+    u32 test_cnt = 100;  
+    u16 comm_num = buffersize;
   
 #ifdef GEC_SF_MASTER      
     u8 result = 0;

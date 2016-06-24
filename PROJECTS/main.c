@@ -28,7 +28,7 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-static u16 Tms10Counter=0,Tms20Counter=0,Tms50Counter=0,Tms100Counter=0,Tms500Counter=0,Tms1000Counter=0;
+static u16 Tms10Counter = 0,Tms20Counter = 0,Tms50Counter = 0,Tms100Counter = 0,Tms500Counter = 0,Tms1000Counter = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -53,14 +53,14 @@ u8 *const pcOMC_EscRTBuff = &McRxBuff[0];
 *******************************************************************************/
 void LED_indicator(void)
 {
-	static u32 led_idr_cnt=0;	 
+	static u32 led_idr_cnt = 0;	 
 	
 	led_idr_cnt++;
 	
 	if( led_idr_cnt >= 100 )
 	{
                 led_idr_cnt = 0;
-		LED=!LED;                
+		LED =! LED;                
 	}   
 }
 
@@ -75,12 +75,12 @@ void LED_indicator(void)
 void Task_Loop(void)
 {          
 
-      if( ++Tms10Counter>=2 ) Tms10Counter=0;
-      if( ++Tms20Counter>=4 ) Tms20Counter=0;
-      if( ++Tms50Counter>=9 ) Tms50Counter=0;
-      if( ++Tms100Counter>=19 ) Tms100Counter=0;
-      if( ++Tms500Counter>=99 ) Tms500Counter=0;
-      if( ++Tms1000Counter>=200 ) Tms1000Counter=0;      
+      if( ++Tms10Counter >= 2 ) Tms10Counter = 0;
+      if( ++Tms20Counter >= 4 ) Tms20Counter = 0;
+      if( ++Tms50Counter >= 9 ) Tms50Counter = 0;
+      if( ++Tms100Counter >= 19 ) Tms100Counter = 0;
+      if( ++Tms500Counter >= 99 ) Tms500Counter = 0;
+      if( ++Tms1000Counter >= 200 ) Tms1000Counter = 0;      
 
 #if SELF_TEST      
       /* self check */
@@ -165,7 +165,7 @@ int main(void)
 {        
 
     /** hardware init **/
-    Bsp_Init();    
+    Initial_Device();    
     
     while(1)
     {

@@ -26,7 +26,6 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void LED_indicator1(void);
 
 /* variable is located in the stack */
 volatile type_testResult_t result = IEC61508_testFailed;   
@@ -44,10 +43,10 @@ u32 SafetyTestFlowCntInv = 0xFFFFFFFFuL;
 *******************************************************************************/
 void FailSafeTest(void)
 {
-  while(1)
-  {
-    NVIC_SystemReset();
-  }
+    while(1)
+    {
+        NVIC_SystemReset();
+    }
 }
     
 /*******************************************************************************

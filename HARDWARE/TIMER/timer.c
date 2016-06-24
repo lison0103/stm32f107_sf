@@ -228,7 +228,7 @@ void TIM2_Int_Init(u16 arr,u16 psc)
 }
 
 /*******************************************************************************
-* Function Name  : TIM5_Int_Init
+* Function Name  : TIM1_Int_Init
 * Description    : Intialization stm32 Timer1.
 *                  
 * Input          : arr: Automatic reload value
