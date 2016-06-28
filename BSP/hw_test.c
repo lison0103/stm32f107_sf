@@ -48,257 +48,25 @@ u8 sflag = 0,inputnum = 0;
 void Input_Check(void)
 {  
     
+    u32 *ulPt_Input,*pc_can_tx;
+    u8 i;
     
-    for(u8 i=0;i<4;i++)
+    ulPt_Input = (u32*)&EscRTBuff[4];
+    pc_can_tx = (u32*)&CAN1_TX_Data[0];
+    
+    for( u8 i = 0; i < 4; i++ )
     {
         CAN1_TX_Data[i]= 0x0;                 
     }
     
-    
-    
-    if ( !IN1 ) 
-    { 
-        CAN1_TX_Data[0] |= 1 << 0;                 
-    }
-    if ( !IN2 ) 
-    {       
-        CAN1_TX_Data[0] |= 1 << 1;
-    }
-    if ( !IN3 ) 
-    {                   
-        CAN1_TX_Data[0] |= 1 << 2; 
-        
-    }
-    if ( !IN4 ) 
+    for( i = 0; i < 28; i++ )
     {
-        CAN1_TX_Data[0] |= 1 << 3;
+        if( ulPt_Input[0] & ( 1 << i ))
+        {
+            *pc_can_tx |= 1 << i;
+        }
     } 
-    if ( !IN5 ) 
-    {           
-        CAN1_TX_Data[0] |= 1 << 4;
-    }
-    if ( !IN6 ) 
-    {          
-        CAN1_TX_Data[0] |= 1 << 5;
-        
-    }
-    if ( !IN7 ) 
-    {         
-        CAN1_TX_Data[0] |= 1 << 6;
-        
-    }        
-    if ( !IN8 ) 
-    {         
-        CAN1_TX_Data[0] |= 1 << 7;
-        
-    }
-    if ( IN9 ) 
-    {     
-        CAN1_TX_Data[1] |= 1 << 0;
-        
-    }
-    if ( IN10 ) 
-    {                
-        CAN1_TX_Data[1] |= 1 << 1;
-        
-    } 
-    if ( IN11 ) 
-    {          
-        CAN1_TX_Data[1] |= 1 << 2;
-        
-    }
-    if ( IN12 ) 
-    {
-        CAN1_TX_Data[1] |= 1 << 3;
-        
-    }
-    if ( IN13 ) 
-    {   
-        CAN1_TX_Data[1] |= 1 << 4; 
-        
-    }         
-    if ( IN14 ) 
-    {    
-        CAN1_TX_Data[1] |= 1 << 5; 
-        
-    }
-    if ( IN15 ) 
-    { 
-        CAN1_TX_Data[1] |= 1 << 6;
-        
-    }
-    if ( IN16 ) 
-    {
-        CAN1_TX_Data[1] |= 1 << 7; 
-        
-    }    
-    if ( IN17 ) 
-    {          
-        CAN1_TX_Data[2] |= 1 << 0;
-        
-    }
-    if ( IN18 ) 
-    {
-        CAN1_TX_Data[2] |= 1 << 1;
-        
-    }
-    if ( IN19 ) 
-    {   
-        CAN1_TX_Data[2] |= 1 << 2;
-        
-    }         
-    if ( IN20 ) 
-    {    
-        CAN1_TX_Data[2] |= 1 << 3; 
-        
-    }
-    if ( IN21 ) 
-    { 
-        CAN1_TX_Data[2] |= 1 << 4;
-        
-    }
-    if ( IN22 ) 
-    {
-        CAN1_TX_Data[2] |= 1 << 5;
-        
-    } 
-    if ( IN23 ) 
-    {
-        CAN1_TX_Data[2] |= 1 << 6;
-        
-    }
-    if ( IN24 ) 
-    {   
-        CAN1_TX_Data[2] |= 1 << 7;
-        
-    }         
-    if ( IN25 ) 
-    {    
-        CAN1_TX_Data[3] |= 1 << 0;
-        
-    }
-    if ( IN26 ) 
-    { 
-        CAN1_TX_Data[3] |= 1 << 1;
-        
-    }
-    if ( IN27 ) 
-    {
-        CAN1_TX_Data[3] |= 1 << 2; 
-        
-    }  
-    if ( IN28 ) 
-    {
-        CAN1_TX_Data[3] |= 1 << 3; 
-        
-    } 
-    
-#if EXTERNAL_INPUT_TEST
-    
-    if ( EX_IN1 )
-    {
-        inputnum = 29;
-        sflag++;
-    }
-    if ( EX_IN2 ) 
-    {       
-        inputnum = 30;
-        sflag++;
-    }
-    if ( EX_IN3 ) 
-    {                   
-        inputnum = 31;
-        sflag++;
-        
-    }
-    if ( EX_IN4 ) 
-    {
-        inputnum = 32;
-        sflag++;
-    } 
-    if ( EX_IN5 ) 
-    {           
-        inputnum = 33;
-        sflag++;
-    }
-    if ( EX_IN6 ) 
-    {          
-        inputnum = 34;
-        sflag++;
-        
-    }
-    if ( EX_IN7 ) 
-    {         
-        inputnum = 35;
-        sflag++;
-        
-    }        
-    if ( EX_IN8 ) 
-    {         
-        inputnum = 36;
-        sflag++;
-        
-    }
-    if ( EX_IN9 ) 
-    {     
-        inputnum = 37;
-        sflag++;
-        
-    }
-    if ( EX_IN10 ) 
-    {                
-        inputnum = 38;
-        sflag++;
-        
-    } 
-    if ( EX_IN11 ) 
-    {          
-        inputnum = 39;
-        sflag++;
-        
-    }
-    if ( EX_IN12 ) 
-    {
-        inputnum = 40;
-        sflag++;
-        
-    }
-    if ( EX_IN13 ) 
-    {   
-        inputnum = 41;
-        sflag++;
-        
-    }         
-    if ( EX_IN14 ) 
-    {    
-        inputnum = 42;
-        sflag++;
-        
-    }
-    if ( EX_IN15 ) 
-    { 
-        inputnum = 43;
-        sflag++;
-        
-    }
-    if ( EX_IN16 ) 
-    {
-        inputnum = 44;
-        sflag++;
-        
-    }    
-    if ( EX_IN17 ) 
-    {          
-        inputnum = 45;
-        sflag++;
-        
-    }  
-    
-#endif
-    
-    
-    
-    
+
 }        
         
 
@@ -314,297 +82,48 @@ void Input_Check(void)
 void Input_Check2(void)
 {
   
+        u32 *ulPt_Input1,*ulPt_Input2;
+        u8 i;
+        
+        ulPt_Input1 = (u32*)&EscRTBuff[4];       
+        ulPt_Input2 = (u32*)&EscRTBuff[8];
         sflag = 0;
         inputnum = 0;        
         
-        if ( !IN1 )
-        {
-            inputnum = 1;
-            sflag++;
-        }
-        if ( !IN2 ) 
-        {       
-            inputnum = 2;
-            sflag++;
-        }
-        if ( !IN3 ) 
-        {                   
-            inputnum = 3;
-            sflag++;
-
-        }
-        if ( !IN4 ) 
-        {
-            inputnum = 4;
-            sflag++;
-        } 
-        if ( !IN5 ) 
-        {           
-            inputnum = 5;
-            sflag++;
-        }
-        if ( !IN6 ) 
-        {          
-            inputnum = 6;
-            sflag++;
-
-        }
-        if ( !IN7 ) 
-        {         
-            inputnum = 7;
-            sflag++;
-
-        }        
-        if ( !IN8 ) 
-        {         
-            inputnum = 8;
-            sflag++;
-
-        }
-        if ( IN9 ) 
-        {     
-            inputnum = 9;
-            sflag++;
-
-        }
-        if ( IN10 ) 
-        {                
-            inputnum = 10;
-            sflag++;
-
-        } 
-        if ( IN11 ) 
-        {          
-            inputnum = 11;
-            sflag++;
-
-        }
-        if ( IN12 ) 
-        {
-            inputnum = 12;
-            sflag++;
-
-        }
-        if ( IN13 ) 
-        {   
-            inputnum = 13;
-            sflag++;
-
-        }         
-        if ( IN14 ) 
-        {    
-            inputnum = 14;
-            sflag++;
-
-        }
-        if ( IN15 ) 
-        { 
-            inputnum = 15;
-            sflag++;
-
-        }
-        if ( IN16 ) 
-        {
-            inputnum = 16;
-            sflag++;
-
-        }    
-        if ( IN17 ) 
-        {          
-            inputnum = 17;
-            sflag++;
-
-        }
-        if ( IN18 ) 
-        {
-            inputnum = 18;
-            sflag++;
-
-        }
-        if ( IN19 ) 
-        {   
-            inputnum = 19;
-            sflag++;
-
-        }         
-        if ( IN20 ) 
-        {    
-            inputnum = 20;
-            sflag++;
-
-        }
-        if ( IN21 ) 
-        { 
-            inputnum = 21;
-            sflag++;
-
-        }
-        if ( IN22 ) 
-        {
-            inputnum = 22;
-            sflag++;
-
-        } 
-        if ( IN23 ) 
-        {
-            inputnum = 23;
-            sflag++;
-
-        }
-        if ( IN24 ) 
-        {   
-            inputnum = 24;
-            sflag++;
-
-        }         
-        if ( IN25 ) 
-        {    
-            inputnum = 25;
-            sflag++;
-
-        }
-        if ( IN26 ) 
-        { 
-            inputnum = 26;
-            sflag++;
-
-        }
-        if ( IN27 ) 
-        {
-            inputnum = 27;
-            sflag++;
-
-        }  
-        if ( IN28 ) 
-        {
-            inputnum = 28;
-            sflag++;
-
-        } 
-
-#if EXTERNAL_INPUT_TEST        
         
-        if ( EX_IN1 )
+        for( i = 0; i < 28; i++ )
         {
-            inputnum = 29;
-            sflag++;
+            if( *ulPt_Input1 & ((u32)( 1 << i )))
+            {
+                sflag++;
+                inputnum = i + 1;
+            }
         }
-        if ( EX_IN2 ) 
-        {       
-            inputnum = 30;
-            sflag++;
-        }
-        if ( EX_IN3 ) 
-        {                   
-            inputnum = 31;
-            sflag++;
-
-        }
-        if ( EX_IN4 ) 
+        
+        for( i = 0; i < 17; i++ )
         {
-            inputnum = 32;
-            sflag++;
-        } 
-        if ( EX_IN5 ) 
-        {           
-            inputnum = 33;
-            sflag++;
-        }
-        if ( EX_IN6 ) 
-        {          
-            inputnum = 34;
-            sflag++;
-
-        }
-        if ( EX_IN7 ) 
-        {         
-            inputnum = 35;
-            sflag++;
-
+            if( *ulPt_Input2 & ((u32)( 1 << i )))
+            {
+                sflag++;
+                inputnum = i + 29;
+            }
         }        
-        if ( EX_IN8 ) 
-        {         
-            inputnum = 36;
-            sflag++;
+                       
 
-        }
-        if ( EX_IN9 ) 
-        {     
-            inputnum = 37;
-            sflag++;
-
-        }
-        if ( EX_IN10 ) 
-        {                
-            inputnum = 38;
-            sflag++;
-
-        } 
-        if ( EX_IN11 ) 
-        {          
-            inputnum = 39;
-            sflag++;
-
-        }
-        if ( EX_IN12 ) 
+        if (( inputnum == 0 ) || ( sflag > 1 ))
         {
-            inputnum = 40;
-            sflag++;
-
-        }
-        if ( EX_IN13 ) 
-        {   
-            inputnum = 41;
-            sflag++;
-
-        }         
-        if ( EX_IN14 ) 
-        {    
-            inputnum = 42;
-            sflag++;
-
-        }
-        if ( EX_IN15 ) 
-        { 
-            inputnum = 43;
-            sflag++;
-
-        }
-        if ( EX_IN16 ) 
-        {
-            inputnum = 44;
-            sflag++;
-
-        }    
-        if ( EX_IN17 ) 
-        {          
-            inputnum = 45;
-            sflag++;
-
-        }       
-#endif        
-
-        if ( inputnum == 0 )
-        {
-            AUX_CTR = 0; 
-            SF_RL_CTR = 0;
-        }
-        else if ( sflag > 1 )
-        {
-            AUX_CTR = 0; 
-            SF_RL_CTR = 0;
+            SF_RELAY_OFF(); 
+            AUX_RELAY_OFF();
         }
         else if ( inputnum && ( inputnum % 2 ) )
         {
-            AUX_CTR = 1; 
+            SF_RELAY_ON(); 
         }
         else if ( inputnum )
         {
-            SF_RL_CTR = 1; 
+            AUX_RELAY_ON(); 
         }
-              
-              
-        
+       
 }
 
 

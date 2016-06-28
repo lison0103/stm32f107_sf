@@ -138,7 +138,7 @@ void Task_Loop(void)
            
       if( Tms500Counter == 0 )
       {             
-          
+//          Input_Check2();
       }
       
       if( Tms1000Counter == 0 )
