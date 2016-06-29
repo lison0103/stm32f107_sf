@@ -17,8 +17,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 //#define CAN_BAUDRATE  1000      /* 1MBps   */
-//#define CAN_BAUDRATE  500  /* 500kBps */
-#define CAN_BAUDRATE  250  /* 250kBps */
+#define CAN_BAUDRATE  500  /* 500kBps */
+//#define CAN_BAUDRATE  250  /* 250kBps */
 //#define CAN_BAUDRATE  125  /* 125kBps */
 //#define CAN_BAUDRATE  100  /* 100kBps */ 
 //#define CAN_BAUDRATE  50   /* 50kBps  */ 

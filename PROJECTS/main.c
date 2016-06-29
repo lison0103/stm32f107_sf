@@ -90,6 +90,8 @@ void Task_Loop(void)
       
 
       Get_GpioInput(&EscRTBuff[4]);
+      
+      /*  ESC  */
       sfEscStateCheck();  
       ESC_Tandem_Check();
       ESC_Motor_Check();
@@ -106,8 +108,9 @@ void Task_Loop(void)
         
       }      
       if( Tms20Counter == 0 )
-      {
+      {                
           Communication_CPU();
+          Communication_To_Control();  
       }  
 #else
       if( Tms10Counter == 0 )
@@ -124,16 +127,14 @@ void Task_Loop(void)
       {                                 
           /* Reload EWDT counter */          
           EWDT_TOOGLE();
-           
-#ifdef GEC_SF_MASTER            
-          Communication_To_Control();   
-#endif
+          Safety_Comm_Diag();
+          
           SafetyExtWdt_RunCheck();
       } 
       
       if( Tms100Counter == 0 )
       {         
-          Safety_Comm_Diag();
+          
       }
            
       if( Tms500Counter == 0 )
