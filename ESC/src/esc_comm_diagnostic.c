@@ -45,15 +45,39 @@ void Safety_Comm_Diag(void)
     {
         /*  can communication timeout process */
     }  
-    
-    
+
     len = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN2_RX_Data, 0);
-    len = BSP_CAN_Receive(CAN2, &CAN2_RX_Down, CAN2_RX_Data, 0);
+    
+    /* DBL1 UP, just for test */
+    if( len > 0 )
+    {
+        CAN2_TX_Data[0] = 0x11;
+        CAN2_TX_Data[1] = 0x33;
+    }
+    else
+    {
+        CAN2_RX_Data[0] = 0x00;
+        CAN2_RX_Data[1] = 0x00;      
+    }
+  
+    len = BSP_CAN_Receive(CAN2, &CAN2_RX_Down, CAN2_RX2_Data, 0);
+    
+    /* DBL1 DOWN, just for test */
+    if( len > 0 )
+    {
+        CAN2_TX2_Data[0] = 0x22;
+        CAN2_TX2_Data[1] = 0x55;
+    }
+    else
+    {
+        CAN2_RX2_Data[0] = 0x00;
+        CAN2_RX2_Data[1] = 0x00;      
+    }    
     
     /** CAN2 send data ------------------------------------------------------**/
-    /** DBL1 UP SEND ID:0X1234, DBL1 DOWN SEND ID:0x2345 **/
-    BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN2TX_UP_ID, CAN2_TX_Data, 8);  
-    BSP_CAN_Send(CAN2, &CAN2_TX_Down, CAN2TX_DOWN_ID, CAN2_TX_Data, 8);   
+    /** DBL1 UP SEND ID:0x1234, DBL1 DOWN SEND ID:0x2345 **/
+    BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN2TX_UP_ID, CAN2_TX_Data, 8);   
+    BSP_CAN_Send(CAN2, &CAN2_TX_Down, CAN2TX_DOWN_ID, CAN2_TX2_Data, 8);   
     
 #else
     static u8 can1_comm_timeout = 0;

@@ -79,7 +79,7 @@ void Initial_Device(void)
         USART3_Init();
 #endif        
 
-        /** CAN1 init,baud rate 250Kbps **/
+        /** CAN1 init,baud rate 500Kbps **/
 	CAN_Int_Init(CAN1);      
         
         /** Data array is initialized to 0 **/
@@ -87,7 +87,7 @@ void Initial_Device(void)
         
 #ifdef GEC_SF_MASTER           
         
-        /** CAN2 init,baud rate 250Kbps **/
+        /** CAN2 init,baud rate 500Kbps **/
         /** note : use CAN2 , must CAN1 init **/
         CAN_Int_Init(CAN2);         
         

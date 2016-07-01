@@ -40,17 +40,17 @@
 /* Private functions ---------------------------------------------------------*/
 
 /* CAN1 */
-u8 CAN1_TX_Buff[canbuffsize] = { 0 };
-u8 CAN1_RX_Buff[canbuffsize] = { 0 };
 u8 CAN1_TX_Data[canbuffsize] = { 0 };
 u8 CAN1_RX_Data[canbuffsize] = { 0 };
 
 /* CAN2 */
 #ifdef GEC_SF_MASTER
-u8 CAN2_TX_Buff[canbuffsize] = { 0 };
-u8 CAN2_RX_Buff[canbuffsize] = { 0 };
+u8 CAN1_TX2_Data[canbuffsize] = { 0 };
+u8 CAN1_RX2_Data[canbuffsize] = { 0 };
 u8 CAN2_TX_Data[canbuffsize] = { 0 };
 u8 CAN2_RX_Data[canbuffsize] = { 0 };
+u8 CAN2_TX2_Data[canbuffsize] = { 0 };
+u8 CAN2_RX2_Data[canbuffsize] = { 0 };
 #endif
 
 u8 can1_receive = 0;
@@ -81,7 +81,7 @@ CAN_RX_DATA_PROCESS_TypeDef  CAN1_RX_Normal;
 * CAN_Prescaler: 1~1024;  tq=(brp)*tpclk1
 * baud rate = Fpclk1/((tbs1+1+tbs2+1+1)*brp)
 * if Fpclk is 36M, baud rate:36M/((1+3+2)*24)=250Kbps               
-* Input          : None
+* Input          : CANx: CAN1 or CAN2
 *                  None
 * Output         : None
 * Return         : None
@@ -186,6 +186,8 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             CAN_Init(CANx, &CAN_InitStructure);        	
 
             /* CAN1 filter init */
+            /* 16 bit mask: STDID[10:0], IDE, RTR, EXTDID[17:15] */
+            /* 32 bit mask: STDID[10:0], EXTDID[17:0], IDE, RTR,0 */
             CAN_FilterInitStructure.CAN_FilterNumber=0;	
             CAN_FilterInitStructure.CAN_FilterMode=CAN_FilterMode_IdMask; 	
             CAN_FilterInitStructure.CAN_FilterScale=CAN_FilterScale_32bit; 	
@@ -203,10 +205,10 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
 //            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xfffc;
             
             //ext id
-            CAN_FilterInitStructure.CAN_FilterIdHigh=(((u32)0x3234<<3)&0xFFFF0000)>>16;	
-            CAN_FilterInitStructure.CAN_FilterIdLow=(((u32)0x3234<<3)|CAN_ID_EXT|CAN_RTR_DATA)&0xFFFF;
+            CAN_FilterInitStructure.CAN_FilterIdHigh=(((u32)0x00C8<<3)&0xFFFF0000)>>16;	
+            CAN_FilterInitStructure.CAN_FilterIdLow=(((u32)0x00C8<<3)|CAN_ID_EXT|CAN_RTR_DATA)&0xFFFF;
             CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0xffff;//32 bit MASK
-            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xfffc;            
+            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xffff;            
             CAN_FilterInitStructure.CAN_FilterFIFOAssignment=CAN_Filter_FIFO0;
             CAN_FilterInitStructure.CAN_FilterActivation=ENABLE;
 
@@ -295,20 +297,30 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             CAN_FilterInitStructure.CAN_FilterNumber=14;	
             CAN_FilterInitStructure.CAN_FilterMode=CAN_FilterMode_IdMask; 	
             CAN_FilterInitStructure.CAN_FilterScale=CAN_FilterScale_32bit; 
+
+            //any id
+//            CAN_FilterInitStructure.CAN_FilterIdHigh=0x0000;	//32-bit ID
+//            CAN_FilterInitStructure.CAN_FilterIdLow=0x0000;
+//            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0x0000;//32-bit MASK
+//            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0x0000;   
             
             //ext id
-            CAN_FilterInitStructure.CAN_FilterIdHigh=(((u32)0x3456<<3)&0xFFFF0000)>>16;	
-            CAN_FilterInitStructure.CAN_FilterIdLow=(((u32)0x3456<<3)|CAN_ID_EXT|CAN_RTR_DATA)&0xFFFF;
-            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0xffff;//32 bit MASK
-            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xff00;            
-            CAN_FilterInitStructure.CAN_FilterFIFOAssignment=CAN_Filter_FIFO0;
-            CAN_FilterInitStructure.CAN_FilterActivation=ENABLE;
+//            CAN_FilterInitStructure.CAN_FilterIdHigh=(((u32)0x3456<<3)&0xFFFF0000)>>16;	
+//            CAN_FilterInitStructure.CAN_FilterIdLow=(((u32)0x3456<<3)|CAN_ID_EXT|CAN_RTR_DATA)&0xFFFF;
+//            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0xffff;//32 bit MASK
+//            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xf807;  
+            CAN_FilterInitStructure.CAN_FilterIdHigh = (((u32)CAN2RX_UP_ID << 3) & 0xFFFF0000 ) >> 16;	
+            CAN_FilterInitStructure.CAN_FilterIdLow = (((u32)CAN2RX_UP_ID << 3) | CAN_ID_EXT | CAN_RTR_DATA ) & 0xFFFF;
+            CAN_FilterInitStructure.CAN_FilterMaskIdHigh = ((((u32)(~( CAN2RX_UP_ID ^ CAN2RX_DOWN_ID ))) << 3) & 0xFFFF0000) >> 16;
+            CAN_FilterInitStructure.CAN_FilterMaskIdLow = ((((u32)(~( CAN2RX_UP_ID ^ CAN2RX_DOWN_ID ))) << 3) | CAN_ID_EXT | CAN_RTR_DATA ) & 0xFFFF;             
+            CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_Filter_FIFO0;
+            CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
 
             CAN_FilterInit(&CAN_FilterInitStructure);			
             
 #if CAN2_RX0_INT_ENABLE 
             /* IT Configuration for CAN2 */ 
-            CAN_ITConfig(CAN1,CAN_IT_FMP0 | CAN_IT_FF0 | CAN_IT_FOV0, ENABLE); 						    
+            CAN_ITConfig(CAN2,CAN_IT_FMP0 | CAN_IT_FF0 | CAN_IT_FOV0, ENABLE); 						    
 
             NVIC_InitStructure.NVIC_IRQChannel = CAN2_RX0_IRQn;
             NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;     
@@ -317,7 +329,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             NVIC_Init(&NVIC_InitStructure);
 #endif             
             CAN_ITConfig(CAN2, CAN_IT_TME, DISABLE);                
-            /* Enable CAN1 TX0 interrupt IRQ channel */
+            /* Enable CAN2 TX0 interrupt IRQ channel */
             NVIC_InitStructure.NVIC_IRQChannel = CAN2_TX_IRQn;
             NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
             NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
@@ -437,12 +449,11 @@ void CAN2_RX0_IRQHandler(void)
     {
         CAN_ClearITPendingBit(CAN2,CAN_IT_FOV0);
     }
-    else if( CAN_GetITStatus(CAN2,CAN_FLAG_FMP0) != RESET )
+    else
     {
-        CAN_ClearITPendingBit(CAN2,CAN_FLAG_FMP0);
         
         CAN_Receive(CAN2, CAN_FIFO0, &RxMessage);
-        /** SF urge data RECEIVE **/
+        /** DBL1 UP data RECEIVE **/
         if( ( RxMessage.ExtId == CAN2RX_UP_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
             can2_receive = 1;        
@@ -450,7 +461,7 @@ void CAN2_RX0_IRQHandler(void)
             CAN_RX_Process( RxMessage, &CAN2_RX_Up );
             
         }
-        /** SF normal data RECEIVE **/
+        /** DBL1 DOWN data RECEIVE **/
         else if( ( RxMessage.ExtId == CAN2RX_DOWN_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
             can2_receive = 1;        
@@ -503,7 +514,7 @@ void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_
         } 
         
         
-        /** CAN1 send data ---------------------------------**/
+        /** CAN send data ---------------------------------**/
         if( CanTx->sending == 1 )
         {
             
@@ -576,7 +587,7 @@ void CAN1_TX_IRQHandler(void)
     CAN_ITConfig(CAN1, CAN_IT_TME, DISABLE);
 #ifdef GEC_SF_MASTER    
 //    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 0);
-    BSP_CAN_Send(CAN1, &CAN1_TX_Urge, CAN1TX_URGE_ID, CAN2_TX_Data, 0);
+    BSP_CAN_Send(CAN1, &CAN1_TX_Urge, CAN1TX_URGE_ID, CAN1_TX2_Data, 0);
 #endif   
     
 }
@@ -642,7 +653,27 @@ uint32_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, u
         break;	
 #ifdef GEC_SF_MASTER
        case CAN2_BASE: 
-
+        
+        /** receive a data packet **/
+        if( CanRx->data_packet == 1 )
+        {
+            if(!MB_CRC16(CanRx->rx_buff, CanRx->recv_len))
+            {          
+                /* ok */
+                pstr = &CanRx->rx_buff[2];					
+                len = CanRx->recv_len - 4;
+                CanRx->recv_len = 0;
+            }
+            else
+            {
+                /* fail */
+                for( u8 i = 0; i < CanRx->recv_len; i++ )
+                {
+                    CanRx->rx_buff[i] = 0;
+                }
+            }
+            CanRx->data_packet = 0;
+        } 
         break;	
 #endif
     }	   
