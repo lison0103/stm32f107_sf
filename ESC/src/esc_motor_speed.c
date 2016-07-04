@@ -44,7 +44,7 @@ MTRFREQITEM MTRITEM[2]=
         0,
         {0,0,0,0,0,0,0,0,0,0,0,0},
         0,
-        0,0,0,
+        0,0,1,
         &EscRTBuff[48]
     },
     {
@@ -61,7 +61,7 @@ MTRFREQITEM MTRITEM[2]=
         0,
         {0,0,0,0,0,0,0,0,0,0,0,0},
         0,
-        0,0,0,
+        0,0,1,
         &EscRTBuff[49]
     }
 };
@@ -185,17 +185,17 @@ u16 Measure_motor_speed(MTRFREQITEM* ptMTR)
     { 
         ptMTR->Tms_counter = 0; 
         
-        for(i=9; i>0; i--)                                                   
+        for( i = 9; i > 0; i-- )                                                   
         {   
             ptMTR->pulseArray[i] = ptMTR->pulseArray[i-1];
         }
         ptMTR->pulseArray[0] = ptMTR->rt_pulse;
-        ptMTR->rt_pulse=0;
+        ptMTR->rt_pulse = 0;
         
     }
     current_motor_speed_sensor = 0;
     /* 100ms * 10 = 1s */
-    for(i=0;i<10;i++) 
+    for( i = 0; i < 10; i++ ) 
     {
         current_motor_speed_sensor += ptMTR->pulseArray[i];
     }      
@@ -260,7 +260,7 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
 void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
 {   
     
-    if(SfBase_EscState & ESC_STATE_STOP) 
+    if((SfBase_EscState & ESC_STATE_STOP ) && ( ptMTR->rt_brake_stop == 0 )) 
     {
         if((ptMTR->rt_brake_pulse) > MAX_DISTANCE)
         {
@@ -297,7 +297,7 @@ void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
     } 
     else
     {
-        ptMTR->BrakeCalTms=0;
+        ptMTR->BrakeCalTms = 0;
         ptMTR->rt_brake_pulse = 0;
     }   
 

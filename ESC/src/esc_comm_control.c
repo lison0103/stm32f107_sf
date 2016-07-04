@@ -31,6 +31,7 @@
 void Communication_To_Control(void)
 {
     static u8 can1_comm_timeout = 0;
+    u16 *pc_sfescstate = (u16*)&CAN1_TX2_Data[0];
     u8 len = 0;
     
     if( can1_receive == 1 )
@@ -66,9 +67,8 @@ void Communication_To_Control(void)
     }   
  
     
-    CAN1_TX2_Data[0] = CMD_FLAG1;
-    CAN1_TX2_Data[1] = EN_ERROR1;
-    CAN1_TX2_Data[2] = EN_ERROR2;
+    *pc_sfescstate = SfBase_EscState;
+    CAN1_TX2_Data[2] = EN_ERROR1;
     
     
     /** CAN1 send data ------------------------------------------------------**/
