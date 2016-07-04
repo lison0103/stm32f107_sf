@@ -201,7 +201,8 @@ void CPU_Data_Check(void)
             Sys_Data[i] = SPI1_TX_Data[109 + i];
         }
 #endif                 
-        
+        /* esc state */
+        pcOMC_SfBase_EscState = ( SPI1_TX_Data[211] << 8 | SPI1_TX_Data[210] );
     }
     else
     {
@@ -256,7 +257,12 @@ void CPU_Exchange_Data(void)
     {
         SPI1_TX_Data[109 + i] = Sys_Data[i];
     }
-#endif          
+#endif      
+
+    /* esc state --------------------------*/
+    
+    SPI1_TX_Data[210] = (u8)SfBase_EscState;
+    SPI1_TX_Data[211] = (u8)(SfBase_EscState >> 8);
     
     i = MB_CRC16( SPI1_TX_Data, comm_num - 2 );
     SPI1_TX_Data[comm_num - 2] = i;

@@ -48,7 +48,8 @@ void CheckUpDown_Key(void)
 *******************************************************************************/
 void key_run_detect(void)
 {
-    static u16 key_on_tms = 0,key_up_tms = 0,key_down_tms = 0;   
+    static u16 key_on_tms = 0,key_up_tms = 0,key_down_tms = 0; 
+    static u16 auto_cmd_differ_tms=0;
     
     if(!(CMD_FLAG1 & 0x02) && ( sf_wdt_check_en == 0 ))
     {   
@@ -92,7 +93,31 @@ void key_run_detect(void)
     if(!(CMD_FLAG6 & 0x03)) key_on_tms = 0;	
     if(!(CMD_FLAG6 & 0x01)) key_up_tms=0;
     if(!(CMD_FLAG6 & 0x02)) key_down_tms=0;
-    
+
+    /* dual cpu check */
+    if( CMD_FLAG1 & 0x0E )
+    {
+        if((CMD_FLAG1&0x0f) != (CMD_OMC_FLAG1&0x0f))
+        {
+            if(auto_cmd_differ_tms > 20)
+            {
+                CMD_FLAG1 = 0;      
+            } 
+            else
+            {
+                auto_cmd_differ_tms++;      
+            }  
+        }
+        else
+        {
+            auto_cmd_differ_tms = 0;
+        }  
+    }  
+    else
+    {
+        auto_cmd_differ_tms = 0;
+    }  
+      
 }
 
 /*******************************************************************************
@@ -247,7 +272,7 @@ void sfEscStateCheck(void)
     CheckUpDown_Key();
     
     /* esc running */
-    if( (CMD_FLAG1 & 0x0c) && ( key_on == 1 ) )
+    if( (CMD_FLAG1 & 0x0c) && (CMD_OMC_FLAG1 & 0x0c) && ( key_on == 1 ) )
     {
         SfBase_EscState &= ~ESC_STATE_STOP;
         SfBase_EscState &= ~ESC_STATE_READY;

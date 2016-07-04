@@ -112,6 +112,17 @@
 #define CMD_FLAG9 	EscRTBuff[28]
 #define CMD_FLAG10 	EscRTBuff[29]
 
+#define CMD_OMC_FLAG1 	pcOMC_EscRTBuff[20]
+#define CMD_OMC_FLAG2 	pcOMC_EscRTBuff[21]
+#define CMD_OMC_FLAG3 	pcOMC_EscRTBuff[22]
+#define CMD_OMC_FLAG4 	pcOMC_EscRTBuff[23]
+#define CMD_OMC_FLAG5 	pcOMC_EscRTBuff[24]
+#define CMD_OMC_FLAG6 	pcOMC_EscRTBuff[25]
+#define CMD_OMC_FLAG7 	pcOMC_EscRTBuff[26]
+#define CMD_OMC_FLAG8 	pcOMC_EscRTBuff[27]
+#define CMD_OMC_FLAG9 	pcOMC_EscRTBuff[28]
+#define CMD_OMC_FLAG10 	pcOMC_EscRTBuff[29]
+
 #define CF8_ESC_Driver_On           ((u8)0x01)
 #define CF8_ESC_Driver_Feedback	    ((u8)0x02)
 #define CF8_3	                      ((u8)0x04)
@@ -215,6 +226,7 @@ extern u8 *const Sys_Data;
 extern u16 *const pt_SysBuff;
 extern u8 *const pcOMC_EscRTBuff;
 extern u8 sf_wdt_check_en;
+extern u16 pcOMC_SfBase_EscState;
 
 #define PARA_INIT                       pt_SysBuff[0]
 #define USB_LOOD_PARA                    pt_SysBuff[1]

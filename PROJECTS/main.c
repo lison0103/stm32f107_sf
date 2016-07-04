@@ -43,6 +43,7 @@ u8 McRxBuff[1000];
 u8 *const Sys_Data = &Modbuff[1100];
 u16 *const pt_SysBuff = (u16*)&Modbuff[1100];
 u8 *const pcOMC_EscRTBuff = &McRxBuff[0]; 
+u16 pcOMC_SfBase_EscState;
 
 /*******************************************************************************
 * Function Name  : LED_indicator
