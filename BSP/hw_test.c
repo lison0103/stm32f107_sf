@@ -259,11 +259,12 @@ void CrossCommCPUCheck(void)
     {
         LED = 0;
         /* SPI1_DMA_Check error */
-        while(1)
-        {
-            EWDT_TOOGLE(); 
-            IWDG_ReloadCounter();        
-        }
+        FailSafeTest();
+//        while(1)
+//        {
+//            EWDT_TOOGLE(); 
+//            IWDG_ReloadCounter();        
+//        }
     }
 
 
