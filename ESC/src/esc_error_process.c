@@ -11,6 +11,7 @@
 #include "esc_error_process.h"
 #include "hw_test.h"
 #include "sys.h"
+#include "esc.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -19,9 +20,71 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-
 int EscBuff[10] = {0};
 
+
+/*******************************************************************************
+* Function Name  : fault_code_decode
+* Description    : The maxium number of decode is 5.
+* Input          : code_buff : recode fault parameter.            
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void fault_code_decode(u8* code_buff)
+{  
+    
+    u8 i=0,j=0,error_counter=0,error_code_temp=0;
+    u8 error_temp[5]={0,0,0,0,0};
+    
+       
+    for( i = 0; i < 7; i++ ) 
+    {
+        pcEscErrorBuff[i] = pcErrorBuff[i] | pcOmcErrorBuff[i];				
+    }  
+    
+    error_counter = 0;
+    error_code_temp = 0;
+    
+    for( i = 0; i < 7; i++ )
+    {
+        error_code_temp = i*8;
+        
+        if(pcEscErrorBuff[i])
+        {
+            for( j = 0; j < 8; j++ )
+            {
+                error_code_temp++;
+                if(pcEscErrorBuff[i] & (1<<j)) 
+                {
+                    error_temp[error_counter] = error_code_temp; 
+                    error_counter++;
+                    
+                    if(error_counter >= 5) break;
+                }  
+            }    
+        } 
+        
+        if(error_counter >= 5) break;
+    }    
+    
+    
+    if(error_temp[0])
+    {
+        code_buff[0] = error_temp[0];
+        code_buff[1] = error_temp[1];
+        code_buff[2] = error_temp[2];
+        code_buff[3] = error_temp[3];
+        code_buff[4] = error_temp[4];
+    }
+    else
+    {
+        code_buff[0] = 0;	
+        code_buff[1] = 0;	
+        code_buff[2] = 0;	
+        code_buff[3] = 0;	
+        code_buff[4] = 0;	
+    }  
+}
 
 
 /*******************************************************************************

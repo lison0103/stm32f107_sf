@@ -137,13 +137,13 @@
 #define SHORTCIRCUIT_ERROR  EscRTBuff[39]
 #define MS_SYNC_RUN_ERROR   EscRTBuff[66]
 
-#define         EN_ERROR1   	EscRTBuff[70]
-#define  	EN_ERROR2   	EscRTBuff[71]
-#define 	EN_ERROR3   	EscRTBuff[72]
-#define 	EN_ERROR4   	EscRTBuff[73]
-#define 	EN_ERROR5   	EscRTBuff[74]
-#define 	EN_ERROR6   	EscRTBuff[75]
-#define 	EN_ERROR7   	EscRTBuff[76]
+#define         EN_ERROR1   	pcErrorBuff[0]
+#define  	EN_ERROR2   	pcErrorBuff[1]
+#define 	EN_ERROR3   	pcErrorBuff[2]
+#define 	EN_ERROR4   	pcErrorBuff[3]
+#define 	EN_ERROR5   	pcErrorBuff[4]
+#define 	EN_ERROR6   	pcErrorBuff[5]
+#define 	EN_ERROR7   	pcErrorBuff[6]
 
 typedef struct mtrfreqitem 
 {    
@@ -227,6 +227,10 @@ extern u16 *const pt_SysBuff;
 extern u8 *const pcOMC_EscRTBuff;
 extern u8 sf_wdt_check_en;
 extern u16 pcOMC_SfBase_EscState;
+extern u8 *const pcErrorBuff;
+extern u8 *const pcEscErrorCodeBuff;
+extern u8 *const pcEscErrorBuff;
+extern u8 *const pcOmcErrorBuff;
 
 #define PARA_INIT                       pt_SysBuff[0]
 #define USB_LOOD_PARA                    pt_SysBuff[1]

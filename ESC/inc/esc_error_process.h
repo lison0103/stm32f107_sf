@@ -28,6 +28,7 @@ void ESC_Flash_Error_Process(void);
 void ESC_Fram_Error_Process(void);
 void ESC_SPI_Error_Process(void);
 void ESC_SafeRelay_Error_Process(void);
+void fault_code_decode(u8* code_buff);
 
 extern int EscBuff[10];
 

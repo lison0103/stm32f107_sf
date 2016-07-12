@@ -43,6 +43,10 @@ u8 McRxBuff[1000];
 u8 *const Sys_Data = &Modbuff[1100];
 u16 *const pt_SysBuff = (u16*)&Modbuff[1100];
 u8 *const pcOMC_EscRTBuff = &McRxBuff[0]; 
+u8 *const pcOmcErrorBuff = &McRxBuff[70];
+u8 *const pcErrorBuff = &EscRTBuff[70];
+u8 *const pcEscErrorCodeBuff = &Modbuff[454];
+u8 *const pcEscErrorBuff = &Modbuff[468];
 u16 pcOMC_SfBase_EscState;
 
 /*******************************************************************************
@@ -106,7 +110,7 @@ void Task_Loop(void)
 #ifdef GEC_SF_MASTER 
       if( Tms10Counter == 0 )
       {
-        
+          fault_code_decode(pcEscErrorCodeBuff);
       }      
       if( Tms20Counter == 0 )
       {                

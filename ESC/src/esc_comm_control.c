@@ -68,7 +68,7 @@ void Communication_To_Control(void)
  
     
     *pc_sfescstate = SfBase_EscState;
-    CAN1_TX2_Data[2] = EN_ERROR1;
+    CAN1_TX2_Data[2] = pcEscErrorCodeBuff[0];
     
     
     /** CAN1 send data ------------------------------------------------------**/
