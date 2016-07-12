@@ -40,10 +40,12 @@ void Safety_Comm_Diag(void)
     {
         can2_receive = 0;
         can2_comm_timeout = 0;
+        EN_ERROR7 &= ~0x08;
     }
     else if( ++can2_comm_timeout >= 3 )
     {
         /*  can communication timeout process */
+        EN_ERROR7 |= 0x08;
     }  
 
     len = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN2_RX_Data, 0);
@@ -90,10 +92,12 @@ void Safety_Comm_Diag(void)
         {
             can1_receive = 0;
             can1_comm_timeout = 0;
+            EN_ERROR7 &= ~0x10;
         }
         else if( ++can1_comm_timeout >= 3 )
         {
             /*  can communication timeout process */
+            EN_ERROR7 |= 0x10;
         }  
         
         /** receive a data packet -----------------------------------------------**/ 

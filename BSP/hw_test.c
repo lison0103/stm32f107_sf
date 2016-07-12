@@ -257,9 +257,10 @@ void CrossCommCPUCheck(void)
 #endif
     if( data_error > 2 )
     {
-        LED = 0;
+//        LED = 0;
         /* SPI1_DMA_Check error */
-        FailSafeTest();
+        EN_ERROR7 |= 0x01;
+//        FailSafeTest();
 //        while(1)
 //        {
 //            EWDT_TOOGLE(); 

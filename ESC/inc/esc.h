@@ -123,15 +123,6 @@
 #define CMD_OMC_FLAG9 	pcOMC_EscRTBuff[28]
 #define CMD_OMC_FLAG10 	pcOMC_EscRTBuff[29]
 
-#define CF8_ESC_Driver_On           ((u8)0x01)
-#define CF8_ESC_Driver_Feedback	    ((u8)0x02)
-#define CF8_3	                      ((u8)0x04)
-#define CF8_4	                      ((u8)0x08)
-#define CF8_DY_State_Star	          ((u8)0x10)
-#define CF8_DY_State_Delta	        ((u8)0x20)
-#define CF8_Auto_Fast_Mode1	        ((u8)0x40)
-#define CF8_Auto_Fast_Mode2	        ((u8)0x80)
-
 #define MTR_MAX_SPEED       EscRTBuff[37]
 #define MTR_MIN_SPEED       EscRTBuff[38]
 #define SHORTCIRCUIT_ERROR  EscRTBuff[39]
@@ -144,6 +135,9 @@
 #define 	EN_ERROR5   	pcErrorBuff[4]
 #define 	EN_ERROR6   	pcErrorBuff[5]
 #define 	EN_ERROR7   	pcErrorBuff[6]
+#define 	EN_ERROR8   	pcErrorBuff[7]
+#define 	EN_ERROR9   	pcErrorBuff[8]
+#define 	EN_ERROR10   	pcErrorBuff[9]
 
 typedef struct mtrfreqitem 
 {    

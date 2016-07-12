@@ -37,7 +37,7 @@ void fault_code_decode(u8* code_buff)
     u8 error_temp[5]={0,0,0,0,0};
     
        
-    for( i = 0; i < 7; i++ ) 
+    for( i = 0; i < 10; i++ ) 
     {
         pcEscErrorBuff[i] = pcErrorBuff[i] | pcOmcErrorBuff[i];				
     }  
@@ -45,7 +45,7 @@ void fault_code_decode(u8* code_buff)
     error_counter = 0;
     error_code_temp = 0;
     
-    for( i = 0; i < 7; i++ )
+    for( i = 0; i < 10; i++ )
     {
         error_code_temp = i*8;
         
@@ -54,7 +54,7 @@ void fault_code_decode(u8* code_buff)
             for( j = 0; j < 8; j++ )
             {
                 error_code_temp++;
-                if(pcEscErrorBuff[i] & (1<<j)) 
+                if(pcEscErrorBuff[i] & (1 << j)) 
                 {
                     error_temp[error_counter] = error_code_temp; 
                     error_counter++;

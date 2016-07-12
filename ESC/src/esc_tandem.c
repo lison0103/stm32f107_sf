@@ -92,7 +92,7 @@ void CheckTandemRun(void)
             {
                 /* Tandem fault */
                 /* stop escalator */
-                EN_ERROR7 |= 0x01;
+                EN_ERROR6 |= 0x01;
             }
         }           
     }
@@ -104,7 +104,7 @@ void CheckTandemRun(void)
             {
                 /* Tandem fault */
                 /* stop escalator */
-                EN_ERROR7 |= 0x01;
+                EN_ERROR6 |= 0x01;
             }
         }      
     }

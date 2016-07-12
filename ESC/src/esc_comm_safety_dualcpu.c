@@ -148,17 +148,19 @@ void CPU_Comm(void)
     if( comm_timeout == 0 )
     {
         /* CPU_Comm---comm_timeout */
-        
+        EN_ERROR7 |= 0x01;
         ESC_SPI_Error_Process();
         comm_timeout = CPU_COMM_TIMEOUT;
     }
     if ( ( DMA_GetFlagStatus(DMA1_IT_TC2) ) != RESET )
     {
-
+        
         comm_timeout = CPU_COMM_TIMEOUT;
 
         CPU_Data_Check();
         CPU_Exchange_Data();
+        
+        EN_ERROR7 &= ~0x01;
     }   
 #endif
 }
@@ -216,6 +218,7 @@ void CPU_Data_Check(void)
         EN_ERROR_SYS3 = 0;
         ESC_SafeRelay_Error_Process();
         /* CPU_Exchange_Data_Check error */
+        EN_ERROR7 |= 0x02;
     }
           
 

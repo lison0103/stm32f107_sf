@@ -121,7 +121,8 @@ void SafetyRelayAuxRelayTest(void)
         /* safety circuit is  connected */
         if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || !AUX_FB )
         {
-            FailSafeTest();
+//            FailSafeTest();
+            EN_ERROR8 |= 0x01;
         }   
     }
     else if( SfBase_EscState & ESC_STATE_STOP )  
@@ -129,7 +130,8 @@ void SafetyRelayAuxRelayTest(void)
         /* safety circuit is disconnected */
         if( !SF_RL_DRV_FB || SF_PWR_FB_CPU || !SF_RL_FB )
         {
-            FailSafeTest();
+//            FailSafeTest();
+            EN_ERROR8 |= 0x01;
         }  
     }
 }
@@ -171,7 +173,8 @@ void SafetyExtWdt_StartUpCheck(void)
     /** Safety Relay and AuxRelay Test **/
     if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || !AUX_FB )
     {
-        FailSafeTest();
+//        FailSafeTest();
+        EN_ERROR8 |= 0x01;
     }   
     
     delay_ms(600);
@@ -180,7 +183,8 @@ void SafetyExtWdt_StartUpCheck(void)
    
     if( !SF_RL_FB )
     {
-        FailSafeTest();
+//        FailSafeTest();
+        EN_ERROR8 |= 0x02;
     }
     else
     {
@@ -230,7 +234,8 @@ void SafetyExtWdt_RunCheck(void)
             
             if( !SF_RL_FB )
             {
-                FailSafeTest();
+//                FailSafeTest();
+                EN_ERROR8 |= 0x02;
             }
             else
             {
@@ -277,7 +282,8 @@ void SafetyCTR_Check(void)
                 if(EN_ERROR_SYS2 > 2)
                 {
                     /* SafetyCTR_Check error */
-                    ESC_SafeRelay_Error_Process();
+//                    ESC_SafeRelay_Error_Process();
+                    EN_ERROR8 |= 0x04;
                 }
             }
             else

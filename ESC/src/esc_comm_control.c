@@ -38,10 +38,12 @@ void Communication_To_Control(void)
     {
         can1_receive = 0;
         can1_comm_timeout = 0;
+        EN_ERROR7 &= ~0x04;
     }
     else if( ++can1_comm_timeout >= 3 )
     {
         /*  can communication timeout process */
+        EN_ERROR7 |= 0x04;
     }  
      
     
