@@ -104,6 +104,7 @@ u8 CopyFile(char *readfilename, char *newfilename)
         
       myfree(fp1);    
       myfree(fp2);
+      myfree(tempbuf);
   }  
     
   return res;

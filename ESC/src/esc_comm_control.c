@@ -57,11 +57,11 @@ void Communication_To_Control(void)
     
     for( u8 i = 6; i < 50; i++ )
     {
-        CAN1_TX_Data[i] = EscRTBuff[30+i];
+        CAN1_TX_Data[i] = EscRTBuff[30+i] | McRxBuff[30+i];
     }
     for( u8 i = 0; i < 10; i++ )
     {
-        CAN1_TX_Data[50+i] = EscRTBuff[4+i];
+        CAN1_TX_Data[50+i] = EscRTBuff[4+i] | McRxBuff[4+i];
         CAN1_TX_Data[60+i] = CAN2_RX_Data[i];//DBL1 UP
         CAN1_TX_Data[70+i] = CAN2_RX2_Data[i];//DBL1 DOWN
     }   

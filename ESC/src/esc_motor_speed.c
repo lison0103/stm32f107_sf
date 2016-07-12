@@ -313,7 +313,7 @@ void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
 *******************************************************************************/
 void ESC_Motor_Check(void)
 {
-    static u16 escState_old = 0; 
+    static u16 escState_old = ESC_STATE_STOP; 
     
     
     Motor_Speed_Ready(&MTRITEM[0]);

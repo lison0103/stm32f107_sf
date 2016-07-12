@@ -191,18 +191,18 @@ void CPU_Data_Check(void)
         /* esc Rtdata receive--------------------------*/
         for( u8 i = 0; i < 100; i++)
         {
-            McRxBuff[i] = SPI1_RX_Data[9 + i];
+            McRxBuff[i] = SPI1_RX_Data[i];
         }
         
         /* esc parameter */
 #ifndef GEC_SF_MASTER
         for( u8 i = 0; i < 100; i++)
         {
-            Sys_Data[i] = SPI1_TX_Data[109 + i];
+            Sys_Data[i] = SPI1_RX_Data[100 + i];
         }
 #endif                 
         /* esc state */
-        pcOMC_SfBase_EscState = ( SPI1_TX_Data[211] << 8 | SPI1_TX_Data[210] );
+        pcOMC_SfBase_EscState = ( SPI1_TX_Data[201] << 8 | SPI1_TX_Data[200] );
     }
     else
     {
@@ -248,21 +248,21 @@ void CPU_Exchange_Data(void)
     /* esc Rtdata --------------------------*/
     for( i = 0; i < 100; i++)
     {
-        SPI1_TX_Data[9 + i] = EscRTBuff[i];
+        SPI1_TX_Data[i] = EscRTBuff[i];
     }
     
     /* esc parameter */
 #ifdef GEC_SF_MASTER
     for( i = 0; i < 100; i++)
     {
-        SPI1_TX_Data[109 + i] = Sys_Data[i];
+        SPI1_TX_Data[100 + i] = Sys_Data[i];
     }
 #endif      
 
     /* esc state --------------------------*/
     
-    SPI1_TX_Data[210] = (u8)SfBase_EscState;
-    SPI1_TX_Data[211] = (u8)(SfBase_EscState >> 8);
+    SPI1_TX_Data[200] = (u8)SfBase_EscState;
+    SPI1_TX_Data[201] = (u8)(SfBase_EscState >> 8);
     
     i = MB_CRC16( SPI1_TX_Data, comm_num - 2 );
     SPI1_TX_Data[comm_num - 2] = i;
