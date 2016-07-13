@@ -20,7 +20,23 @@
 /* Private functions ---------------------------------------------------------*/
 
 
+FATFS *fs[1];           //Logical Disk Workspace.	 		
 
+
+/*******************************************************************************
+* Function Name  : fatfs_init
+* Description    : Allocate memory for the fatfs                 
+* Input          : None                 
+* Output         : None
+* Return         : 0 Success, 1 failure
+*******************************************************************************/
+u8 fatfs_init(void)
+{
+	fs[0]=(FATFS*)mymalloc(sizeof(FATFS));			
+        
+	if(fs[0])return 0; 
+	else return 1;	
+}
 
 /*******************************************************************************
 * Function Name  : isFileExist
@@ -41,7 +57,6 @@ u8 isFileExist(char *filename)
   {    
       
       res = f_open(fp,filename,FA_READ);  
-      printf("\r\n open res = %d \r\n",res);
       
       if(res==FR_OK)
       {
@@ -52,6 +67,59 @@ u8 isFileExist(char *filename)
     
   return res;
   
+}
+
+/*******************************************************************************
+* Function Name  : ReadFile
+* Description    : Read a file to buffer.
+*                  
+* Input          : readfilename: Read files name string
+                   buffer: copy the contents of file to buffer.
+*                  
+* Output         : None
+* Return         : 0 success
+*******************************************************************************/
+u8 ReadFile(char *readfilename, char *buffer)
+{
+    FIL* fp1;
+    FRESULT res = FR_NO_FILE;
+    u8 *tempbuf;
+    u16 bread = 0;
+    u32 offx = 0;
+    
+    fp1 = (FIL*)mymalloc(sizeof(FIL));		
+    tempbuf = mymalloc(512);
+    
+    
+    if( fp1 != NULL && tempbuf != NULL )
+    {
+        
+        res = f_open( fp1, readfilename, FA_READ );       
+        
+        while( res == FR_OK )
+        {
+            res = f_read( fp1, tempbuf, 512, (UINT *)&bread );		
+            if( res != FR_OK )break;
+            
+            for( u16 i = 0; i < bread; i++ )
+            {
+                buffer[ offx + i ] = tempbuf[i];
+            }
+	  
+            offx += bread;
+            if( bread != 512 )
+            {                
+                break;					
+            }
+        }       
+                
+        f_close(fp1);          
+        myfree(fp1);    
+        myfree(tempbuf);
+    }  
+    
+    return res;
+    
 }
 
 /*******************************************************************************
@@ -66,48 +134,44 @@ u8 isFileExist(char *filename)
 *******************************************************************************/
 u8 CopyFile(char *readfilename, char *newfilename)
 {
-  FIL* fp1;
-  FIL* fp2;
-  FRESULT res = FR_NO_FILE;
+    FIL* fp1;
+    FIL* fp2;
+    FRESULT res = FR_NO_FILE;
     u8 *tempbuf;
     u16 bread;
     u32 offx=0;
-  
-  fp1 = (FIL*)mymalloc(sizeof(FIL));	
-  fp2 = (FIL*)mymalloc(sizeof(FIL));	
-  tempbuf = mymalloc(1024);
-  
-  
-  if(fp1 != NULL && fp2 != NULL && tempbuf != NULL)
-  {
     
-      res = f_open(fp1,readfilename,FA_READ);
-      
-      res = f_open(fp2,newfilename,FA_CREATE_NEW | FA_WRITE);  
-      printf("\r\n open res = %d \r\n",res);
-      
+    fp1 = (FIL*)mymalloc(sizeof(FIL));	
+    fp2 = (FIL*)mymalloc(sizeof(FIL));	
+    tempbuf = mymalloc(1024);
+        
+    if(fp1 != NULL && fp2 != NULL && tempbuf != NULL)
+    {
+        
+        res = f_open(fp1,readfilename,FA_READ);       
+        res = f_open(fp2,newfilename,FA_CREATE_NEW | FA_WRITE);  
+        
         while(res==FR_OK)
         {
-          res = f_read(fp1,tempbuf,1024,(UINT *)&bread);		
-          if(res!=FR_OK)break;					
-          res = f_write(fp2,tempbuf,bread,&offx);	  
-          offx+=bread;
-          if(bread!=1024)
-          {                
+            res = f_read(fp1,tempbuf,1024,(UINT *)&bread);		
+            if(res != FR_OK)break;					
+            res = f_write(fp2,tempbuf,bread,&offx);	  
+            offx += bread;
+            if( bread != 1024 )
+            {                
                 break;					
-          }
+            }
         }       
-      
         
-       f_close(fp1); 
-       f_close(fp2); 
         
-      myfree(fp1);    
-      myfree(fp2);
-      myfree(tempbuf);
-  }  
+        f_close(fp1); 
+        f_close(fp2);        
+        myfree(fp1);    
+        myfree(fp2);
+        myfree(tempbuf);
+    }  
     
-  return res;
+    return res;
   
 }
 

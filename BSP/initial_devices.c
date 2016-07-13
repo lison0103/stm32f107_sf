@@ -148,8 +148,7 @@ void Initial_Device(void)
 void DataIntegrityInFRAMCheck(void)
 {
     eep_init();
-    esc_data_check();
-    ParametersLoading();
+    esc_data_check();    
 
 }
 #endif

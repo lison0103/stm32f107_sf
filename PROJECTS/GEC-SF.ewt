@@ -5319,9 +5319,6 @@
       <name>$PROJ_DIR$\..\FATFS\src\diskio.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\FATFS\exfuns\exfuns.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\FATFS\src\ff.c</name>
     </file>
   </group>

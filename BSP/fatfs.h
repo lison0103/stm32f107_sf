@@ -13,10 +13,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "ff.h"  
-#include "exfuns.h"
 #include "malloc.h" 
 #include "delay.h"
-#include "usart.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -25,7 +23,10 @@
 u8 isFileExist(char *filename);
 u8 DeleteFile(char *filename);
 u8 CopyFile(char *readfilename, char *newfilename);
+u8 fatfs_init(void);	
+u8 ReadFile(char *readfilename, char *buffer);
 
+extern FATFS *fs[1]; 
 
 #endif /* __FATFS_H */
 

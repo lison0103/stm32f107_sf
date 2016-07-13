@@ -13,13 +13,14 @@
 #include "usbh_usr.h" 
 #include "malloc.h" 
 #include "ff.h"  
-#include "exfuns.h" 
 #include "delay.h"
 #include "ewdt.h"
 #include "fatfs.h"
 #include "usb_func.h"
 #include "led.h"
 #include "esc.h"
+#include "crc16.h"
+#include "can.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -31,7 +32,7 @@
 USBH_HOST  USB_Host;
 USB_OTG_CORE_HANDLE  USB_OTG_Core;
 
-
+u8 ParaLoadFinsh = 0;
 
 /*******************************************************************************
 * Function Name  : USB_LoadParameter
@@ -44,55 +45,82 @@ USB_OTG_CORE_HANDLE  USB_OTG_Core;
 *******************************************************************************/ 
 u8 USB_LoadParameter(void)
 { 
-        
-      u32 total,free;
+
       u8 res = 0;
-      printf("Device connect success!.\n");	 
-      
-      
-      
-      
-      res=exf_getfree("0:",&total,&free);
-      if(res==0)
-      {	   
-            total = total>>10;
-            free  = free>>10;
-            printf("FATFS OK!\n");	
-            printf("U Disk Total Size:  %d   MB\n",total);
-            printf("U Disk  Free Size:  %d   MB\n",free); 	    	
-      } 
+
+      LED = 1;
+      ParaLoadFinsh |= 0x01;
       
       /* usb load parameter start ---------------------------*/
-      if(isFileExist("0:123.txt"))
+
+      /* 1. S0001 file present */
+      if(!isFileExist("0:123.txt"))
       {
-            printf("File not exists\n");
+          
+          /* 2. Read parameters from usb stick to buffer */
+//          ReadFile( "0:S0001.bin", parabuffer );
+          
+          /* 3. decrypt */
+          
+          /* 4. Check crc16 is it ok */
+//          if( !MB_CRC16( parabuffer, ESC_PARA_NUMBER ))
+//          {
+//              
+//          }
+          
+          /* 5. Store the parameters in the fram */
+//          eeprom_write(ESC_RECORD_ADR, ESC_PARA_NUMBER, parabuffer);
+          
+          /* just for test */
+          DeleteFile("0:abc.txt");       
+          CopyFile("0:123.txt", "0:abc.txt");
+          
+          
+          ParaLoadFinsh |= 0x02;
+          
       }
-      else
+
+      /* 1. C0001 file present */
+      if(!isFileExist("0:123.txt"))
       {
-            printf("File exists\n");
-            
-            DeleteFile("0:abc.txt");
-            
-            
-            
-            CopyFile("0:123.txt", "0:abc.txt");
-       
-      }
-      
+          
+          /* 2. Read parameters from usb stick to buffer */
+//          ReadFile( "0:C0001.bin", parabuffer );
+          
+          /* 3. decrypt */
+          
+          /* 4. Check crc16 is it ok */
+//          if( !MB_CRC16( parabuffer, ESC_PARA_NUMBER ))
+//          {
+//              
+//          }
+          
+          /* 5. Send the parameters to the cb board */
+//          BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, parabuffer, 100);
+                    
+          ParaLoadFinsh |= 0x04;
+          
+      }      
       /* usb load parameter finish ---------------------------*/ 
       
       
-      while(HCD_IsDeviceConnected(&USB_OTG_Core))
+      while( HCD_IsDeviceConnected( &USB_OTG_Core ))
       {	
+            if( ParaLoadFinsh & 0x06 ) 
+            {
+                LED=!LED;                
+            }
+            else
+            {
+                LED = 0;
+            }
             
             delay_ms(200);
-            
             EWDT_TOOGLE();
             IWDG_ReloadCounter();
              
       }
       
-      printf("Device is connecting...\n");
       
       return res;
 }
@@ -120,15 +148,13 @@ void USBH_Mass_Storage_Init(void)
       mmem_init(); 
       
       /** fatfs apply memory **/ 
-      if(exfuns_init())			
+      if(fatfs_init())			
       {
             printf("fatfs memory apply fail \n");           
       }
       
       /** USB HOST init **/
-      USBH_Init(&USB_OTG_Core,USB_OTG_FS_CORE_ID,&USB_Host,&USBH_MSC_cb,&USR_cb);    
-      printf("wait usb mass storage connected...\n");
-      
+      USBH_Init(&USB_OTG_Core,USB_OTG_FS_CORE_ID,&USB_Host,&USBH_MSC_cb,&USR_cb);       
            
       while(1)
       {
@@ -138,18 +164,22 @@ void USBH_Mass_Storage_Init(void)
             t++;
             timecounter++;
             
-            /* wait for the usb connect 3s */
-            if( timecounter == 3000 )
+            if( ParaLoadFinsh & 0x01 )
+            {
+                while(1)
+                {
+                    NVIC_SystemReset();
+                }                
+            }
+            else if( timecounter == 1000 )
             {                             
-                  while(1)
-                  {
-                        NVIC_SystemReset();
-                  }
+                USBH_DeInit(&USB_OTG_Core, &USB_Host);
+                break;
             }
             
             if( t == 200 )
             {      
-                  LED =! LED;
+                  LED=!LED;
                   t = 0;
                   
                   EWDT_TOOGLE();
