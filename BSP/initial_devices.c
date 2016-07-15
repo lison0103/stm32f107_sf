@@ -123,6 +123,10 @@ void Initial_Device(void)
         
         SafetyExtWdt_StartUpCheck();    
         
+        
+        /* Parameters Loading */
+        ParametersLoading();
+        
 
         /* safety output disable */
         SafetyOutputDisable();

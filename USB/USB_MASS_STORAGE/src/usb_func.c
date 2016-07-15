@@ -51,6 +51,11 @@ u8 USB_LoadParameter(void)
       LED = 1;
       ParaLoadFinsh |= 0x01;
       
+      /* USB-stick detected */
+      /* Message to Control */
+      /* Message to CPU2 */
+      
+      
       /* usb load parameter start ---------------------------*/
 
       /* 1. S0001 file present */
@@ -174,6 +179,7 @@ void USBH_Mass_Storage_Init(void)
             else if( timecounter == 1000 )
             {                             
                 USBH_DeInit(&USB_OTG_Core, &USB_Host);
+                myfree(fs[0]);
                 break;
             }
             

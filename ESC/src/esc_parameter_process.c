@@ -9,13 +9,17 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "esc_parameter_process.h"
-#include "esc_record_data.h"
-#include "mb85rcxx.h"
 #include "crc16.h"
 #include "delay.h"
 #include "esc_error_process.h"
 #include "esc.h"
+#include "esc_comm_safety_dualcpu.h"
+
+#ifdef GEC_SF_MASTER
+#include "mb85rcxx.h"
 #include "usb_func.h"
+#include "esc_record_data.h"
+#endif
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -36,9 +40,10 @@ void Check_Error_Present_Memory(void)
 
 }
 
+#ifdef GEC_SF_MASTER
 /*******************************************************************************
 * Function Name  : esc_para_init
-* Description    : esc parameter initialization.                 
+* Description    : esc parameter initialization, set the default value.                 
 * Input          : None          
 * Output         : None
 * Return         : None
@@ -62,12 +67,12 @@ void esc_para_init(void)
         TANDEM_TYPE = 0;
         
         PARA_INIT = 0xff01;
-        USB_LOOD_PARA = 0;
    
         sys_data_write();
         
     }
 }
+#endif
 
 /*******************************************************************************
 * Function Name  : get_para_from_usb
@@ -78,17 +83,70 @@ void esc_para_init(void)
 *******************************************************************************/
 void get_para_from_usb(void)
 {
-    if( USB_LOOD_PARA == 0 )
+    u8 senddata[50],recvdata[50];
+    u8 len = 0;
+    
+#ifdef GEC_SF_MASTER 
+    USBH_Mass_Storage_Init();
+    
+    /* USB-stick undetected */
+    /* Message to Control */
+    /* Message to CPU2 */
+    senddata[0] = 0x11;
+    senddata[1] = 0x00;
+    CPU_Exchange_Data(senddata, 2);
+    CPU_Data_Check(recvdata, &len);
+    
+    /* Send parameters to CPU2 */
+    for( u8 i = 0; i < 50; i++)
     {
-          USB_LOOD_PARA = 1;
-          sys_data_write();
-          USBH_Mass_Storage_Init();
-    }
-    else
+        senddata[i] = Sys_Data[i];
+    }    
+    CPU_Exchange_Data(senddata, 50);
+    CPU_Data_Check(recvdata, &len);
+    
+    /* Message received from CPU2 */
+//    CPU_Data_Check(recvdata, &len);
+    
+    esc_para_init();
+#else
+    /* Waiting for message from CPU1 to 
+    start parameter loading process */
+    CPU_Exchange_Data(senddata, 2);
+    CPU_Data_Check(recvdata, &len);
+    if( len == 0x02 && recvdata[0] == 0x11 )
     {
-          USB_LOOD_PARA = 0;
-          sys_data_write();
+        if( recvdata[1] == 1 )
+        {
+            //wait cpu1 load usb-stick
+            senddata[0] = 0x22;
+            
+        }
+        else
+        {
+            //recv para from cpu1
+            senddata[0] = 0x33;
+        }
     }
+
+    
+    /* Message received with parameters from CPU1 */
+    CPU_Exchange_Data(senddata, 2);
+    CPU_Data_Check(recvdata, &len);
+    if( len == 50 )
+    {
+        for( u8 i = 0; i < 50; i++)
+        {
+            Sys_Data[i] = recvdata[i];
+        }
+    }
+    CPU_Exchange_Data(senddata, 2);
+    
+    /* Check paremeters received, CRC16 is ok */
+    
+    /* Send confirmation to CPU1 or Send error to CPU1 */
+    
+#endif
 }
 
 /*******************************************************************************
@@ -101,7 +159,7 @@ void get_para_from_usb(void)
 void ParametersLoading(void)
 {
       get_para_from_usb();
-      esc_para_init();
+      
 }
 
 

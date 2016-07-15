@@ -4952,10 +4952,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_parameter_process.c</name>
-      <excluded>
-        <configuration>GEC-SF-S</configuration>
-        <configuration>GEC-SF-S-NEW</configuration>
-      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_record_data.c</name>
