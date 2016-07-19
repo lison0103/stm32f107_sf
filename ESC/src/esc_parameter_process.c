@@ -14,6 +14,7 @@
 #include "esc_error_process.h"
 #include "esc.h"
 #include "esc_comm_safety_dualcpu.h"
+#include "can.h"
 
 #ifdef GEC_SF_MASTER
 #include "mb85rcxx.h"
@@ -90,14 +91,19 @@ void get_para_from_usb(void)
     USBH_Mass_Storage_Init();
     
     /* USB-stick undetected */
-    /* Message to Control */
-    /* Message to CPU2 */
+    /* 1. Message to CPU2 */
     senddata[0] = 0x11;
-    senddata[1] = 0x00;
+    senddata[1] |= 0x02;
     CPU_Exchange_Data(senddata, 2);
     CPU_Data_Check(recvdata, &len);
     
-    /* Send parameters to CPU2 */
+    /* 2. Message to Control */    
+    senddata[0] = 0x22;
+    senddata[1] |= 0x02;
+    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, 2);
+    
+    /* cpu1 read parameters and check in power on */
+    /* 2. Send parameters to CPU2 */
     for( u8 i = 0; i < 50; i++)
     {
         senddata[i] = Sys_Data[i];
@@ -105,46 +111,77 @@ void get_para_from_usb(void)
     CPU_Exchange_Data(senddata, 50);
     CPU_Data_Check(recvdata, &len);
     
-    /* Message received from CPU2 */
-//    CPU_Data_Check(recvdata, &len);
+    /* 3. Message received from CPU2 */
+    delay_ms(50);
+    CPU_Exchange_Data(senddata, 2);
+    CPU_Data_Check(recvdata, &len);
     
-    esc_para_init();
+    
+    if( len == 0x02 && recvdata[0] == 0x11 )
+    {
+        if( recvdata[1] & 0x08 )
+        {
+            /* 4. Save parameters into variables */
+            esc_para_init();
+        }
+        else if( recvdata[1] & 0x04 )
+        {        
+            /* Error message. Abort parameter loading due to CRC fault in CPU2. 
+            System remains in Init Fault. */
+            EN_ERROR9 |= 0x01;
+        }
+    }
+    
 #else
-    /* Waiting for message from CPU1 to 
-    start parameter loading process */
+    
+    /* 1. Waiting for message from CPU1 to start parameter loading process */
     CPU_Exchange_Data(senddata, 2);
     CPU_Data_Check(recvdata, &len);
     if( len == 0x02 && recvdata[0] == 0x11 )
     {
-        if( recvdata[1] == 1 )
+        if( recvdata[1] & 0x01 )
         {
-            //wait cpu1 load usb-stick
-            senddata[0] = 0x22;
+            /* CPU2 wait until unit restarts. */
+            delay_ms(10);
+        }
+        else if( recvdata[1] & 0x02 )
+        {
+            /* 2. Message received with parameters from CPU1 */
+            CPU_Exchange_Data(senddata, 2);
+            CPU_Data_Check(recvdata, &len);
             
+            /* 3. Check paremeters received, CRC16 is ok */
+            if( MB_CRC16( recvdata, len ))
+            {
+                /* Send error to CPU1. ¡°CPU2 parameters error¡± System remains in Init Fault. */
+                senddata[0] = 0x11;
+                senddata[1] |= 0x04;
+            }
+            else
+            {
+                /* 4. Save parameters into variables */
+                for( u8 i = 0; i < len - 2; i++)
+                {
+                    Sys_Data[i] = recvdata[i];
+                }  
+                
+                senddata[0] = 0x11;
+                senddata[1] |= 0x08; 
+            }
         }
-        else
-        {
-            //recv para from cpu1
-            senddata[0] = 0x33;
-        }
+    }
+    else
+    {
+        /* para init error */
     }
 
     
-    /* Message received with parameters from CPU1 */
+    /* 5. Send confirmation to CPU1 or Send error to CPU1 */  
     CPU_Exchange_Data(senddata, 2);
-    CPU_Data_Check(recvdata, &len);
-    if( len == 50 )
-    {
-        for( u8 i = 0; i < 50; i++)
-        {
-            Sys_Data[i] = recvdata[i];
-        }
-    }
+    CPU_Data_Check(recvdata, &len);    
+    
+    
     CPU_Exchange_Data(senddata, 2);
-    
-    /* Check paremeters received, CRC16 is ok */
-    
-    /* Send confirmation to CPU1 or Send error to CPU1 */
     
 #endif
 }

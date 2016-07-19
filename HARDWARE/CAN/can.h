@@ -34,7 +34,7 @@ typedef struct  {
 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-#define canbuffsize 100
+#define canbuffsize 120
 
 /* SAFETY TO CONTROL  Speed: 500kbps  Message ID 100: transmitted every 20ms */
 /* CONTROL TO SAFETY  Speed: 500kbps  Message ID 200: transmitted every 20ms */

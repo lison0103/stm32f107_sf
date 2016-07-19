@@ -21,6 +21,8 @@
 #include "esc.h"
 #include "crc16.h"
 #include "can.h"
+#include "esc_comm_safety_dualcpu.h"
+#include "mb85rcxx.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -47,66 +49,76 @@ u8 USB_LoadParameter(void)
 { 
 
       u8 res = 0;
+      u8 parabuffer[100];
+      u8 len,senddata[50],recvdata[50];
+      u16 filelen = 0;
 
       LED = 1;
       ParaLoadFinsh |= 0x01;
       
-      /* USB-stick detected */
-      /* Message to Control */
-      /* Message to CPU2 */
+      /* USB-stick detected */     
+      /* 1. Message to CPU2 */
+      senddata[0] = 0x11;
+      senddata[1] |= 0x01;
+      CPU_Exchange_Data(senddata, 2);
+      CPU_Data_Check(recvdata, &len);  
       
+      /* 2. Message to Control */
+      senddata[0] = 0x22;
+      senddata[1] |= 0x01;
+      BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, 2);
       
-      /* usb load parameter start ---------------------------*/
-
+      /* usb load parameter start -------------------------------------------*/
       /* 1. S0001 file present */
-      if(!isFileExist("0:123.txt"))
+      if(!isFileExist("0:S0001.bin"))
       {
           
           /* 2. Read parameters from usb stick to buffer */
-//          ReadFile( "0:S0001.bin", parabuffer );
+          filelen = ReadFile( "0:S0001.bin", parabuffer );
           
           /* 3. decrypt */
           
           /* 4. Check crc16 is it ok */
-//          if( !MB_CRC16( parabuffer, ESC_PARA_NUMBER ))
-//          {
-//              
-//          }
-          
-          /* 5. Store the parameters in the fram */
-//          eeprom_write(ESC_RECORD_ADR, ESC_PARA_NUMBER, parabuffer);
-          
-          /* just for test */
-          DeleteFile("0:abc.txt");       
-          CopyFile("0:123.txt", "0:abc.txt");
-          
-          
+          if( MB_CRC16( parabuffer, filelen ))
+          {
+              /* Error message. Abort parameter loading. System remains in Init Fault. */
+              EN_ERROR9 |= 0x01;
+          }
+          else
+          {
+              /* 5. Store the parameters in the fram */
+              eeprom_write(0, filelen, parabuffer);
+          }
+       
           ParaLoadFinsh |= 0x02;
           
       }
 
       /* 1. C0001 file present */
-      if(!isFileExist("0:123.txt"))
+      if(!isFileExist("0:C0001.bin"))
       {
           
           /* 2. Read parameters from usb stick to buffer */
-//          ReadFile( "0:C0001.bin", parabuffer );
+          filelen = ReadFile( "0:C0001.bin", parabuffer );
           
           /* 3. decrypt */
           
           /* 4. Check crc16 is it ok */
-//          if( !MB_CRC16( parabuffer, ESC_PARA_NUMBER ))
-//          {
-//              
-//          }
-          
-          /* 5. Send the parameters to the cb board */
-//          BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, parabuffer, 100);
+          if( MB_CRC16( parabuffer, filelen ))
+          {
+              /* Error message. Abort parameter loading. System remains in Init Fault. */
+              EN_ERROR9 |= 0x01;              
+          }
+          else
+          {         
+              /* 5. Send the parameters to the cb board */
+              BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, parabuffer, filelen);
+          }
                     
           ParaLoadFinsh |= 0x04;
           
       }      
-      /* usb load parameter finish ---------------------------*/ 
+      /* usb load parameter finish -------------------------------------------*/ 
       
       
       while( HCD_IsDeviceConnected( &USB_OTG_Core ))

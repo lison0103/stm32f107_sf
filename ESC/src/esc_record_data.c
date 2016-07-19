@@ -42,7 +42,7 @@ void sys_data_write(void)
         
     i = MB_CRC16( Sys_Data, ESC_RECORD_NUM - 2 );
     Sys_Data[ESC_RECORD_NUM - 2] = i;
-    Sys_Data[ESC_RECORD_NUM - 1] = i>>8;
+    Sys_Data[ESC_RECORD_NUM - 1] = i >> 8;
     
     eeprom_write(ESC_RECORD_ADR, ESC_RECORD_NUM, Sys_Data);
     
@@ -68,7 +68,7 @@ void esc_data_check(void)
     u8 Sys_Data_Backup[ESC_RECORD_NUM] = {0};
     
     eeprom_read(ESC_RECORD_ADR, ESC_RECORD_NUM, Sys_Data);
-    j = Sys_Data[0]<<8 | Sys_Data[0];
+    j = Sys_Data[1] << 8 | Sys_Data[0];
     
     if(!MB_CRC16(Sys_Data, ESC_RECORD_NUM))
     {
@@ -77,7 +77,7 @@ void esc_data_check(void)
         if(!MB_CRC16(Sys_Data_Backup, ESC_RECORD_NUM))
         {
             
-            for(i=0; i < ESC_RECORD_NUM; i++)
+            for(i = 0; i < ESC_RECORD_NUM; i++)
             {
                 result = Sys_Data[i]^Sys_Data_Backup[i];
                 if( result )
@@ -100,10 +100,11 @@ void esc_data_check(void)
     
     if(errorflag)
     {
+        /* eeprom init first time */
         Sys_Data[0] = 0xf1;
         Sys_Data[1] = 0xf1;
         
-        for(i=2; i < ESC_RECORD_NUM; i++)
+        for(i = 2; i < ESC_RECORD_NUM; i++)
         {
             Sys_Data[i] = 0;
         }  

@@ -77,15 +77,15 @@ u8 isFileExist(char *filename)
                    buffer: copy the contents of file to buffer.
 *                  
 * Output         : None
-* Return         : 0 success
+* Return         : read buffer len 
 *******************************************************************************/
-u8 ReadFile(char *readfilename, char *buffer)
+u16 ReadFile(char *readfilename, u8 *buffer)
 {
     FIL* fp1;
     FRESULT res = FR_NO_FILE;
     u8 *tempbuf;
     u16 bread = 0;
-    u32 offx = 0;
+    u16 offx = 0;
     
     fp1 = (FIL*)mymalloc(sizeof(FIL));		
     tempbuf = mymalloc(512);
@@ -108,7 +108,7 @@ u8 ReadFile(char *readfilename, char *buffer)
 	  
             offx += bread;
             if( bread != 512 )
-            {                
+            {              
                 break;					
             }
         }       
@@ -118,7 +118,7 @@ u8 ReadFile(char *readfilename, char *buffer)
         myfree(tempbuf);
     }  
     
-    return res;
+    return offx;
     
 }
 
