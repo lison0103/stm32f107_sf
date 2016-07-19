@@ -93,13 +93,13 @@ void get_para_from_usb(void)
     /* USB-stick undetected */
     /* 1. Message to CPU2 */
     senddata[0] = 0x11;
-    senddata[1] |= 0x02;
-    CPU_Exchange_Data(senddata, 2);
+    senddata[1] = 0x02;
+    CPU_Exchange_Data(senddata, 2);//send
     CPU_Data_Check(recvdata, &len);
     
     /* 2. Message to Control */    
     senddata[0] = 0x22;
-    senddata[1] |= 0x02;
+    senddata[1] = 0x02;
     BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, 2);
     
     /* cpu1 read parameters and check in power on */
@@ -108,23 +108,23 @@ void get_para_from_usb(void)
     {
         senddata[i] = Sys_Data[i];
     }    
-    CPU_Exchange_Data(senddata, 50);
+    CPU_Exchange_Data(senddata, 50);//send
     CPU_Data_Check(recvdata, &len);
     
     /* 3. Message received from CPU2 */
     delay_ms(50);
     CPU_Exchange_Data(senddata, 2);
-    CPU_Data_Check(recvdata, &len);
+    CPU_Data_Check(recvdata, &len);//recv
     
     
     if( len == 0x02 && recvdata[0] == 0x11 )
     {
-        if( recvdata[1] & 0x08 )
+        if( recvdata[1] == 0x08 )
         {
             /* 4. Save parameters into variables */
             esc_para_init();
         }
-        else if( recvdata[1] & 0x04 )
+        else if( recvdata[1] == 0x04 )
         {        
             /* Error message. Abort parameter loading due to CRC fault in CPU2. 
             System remains in Init Fault. */
@@ -136,26 +136,27 @@ void get_para_from_usb(void)
     
     /* 1. Waiting for message from CPU1 to start parameter loading process */
     CPU_Exchange_Data(senddata, 2);
-    CPU_Data_Check(recvdata, &len);
+    CPU_Data_Check(recvdata, &len);//recv
     if( len == 0x02 && recvdata[0] == 0x11 )
     {
-        if( recvdata[1] & 0x01 )
+        if( recvdata[1] == 0x01 )
         {
             /* CPU2 wait until unit restarts. */
             delay_ms(10);
         }
-        else if( recvdata[1] & 0x02 )
+        else if( recvdata[1] == 0x02 )
         {
             /* 2. Message received with parameters from CPU1 */
             CPU_Exchange_Data(senddata, 2);
-            CPU_Data_Check(recvdata, &len);
+            CPU_Data_Check(recvdata, &len);//recv
             
             /* 3. Check paremeters received, CRC16 is ok */
-            if( MB_CRC16( recvdata, len ))
+//            if( MB_CRC16( recvdata, len ))
+            if( len != 50 )
             {
                 /* Send error to CPU1. ¡°CPU2 parameters error¡± System remains in Init Fault. */
                 senddata[0] = 0x11;
-                senddata[1] |= 0x04;
+                senddata[1] = 0x04;
             }
             else
             {
@@ -166,7 +167,7 @@ void get_para_from_usb(void)
                 }  
                 
                 senddata[0] = 0x11;
-                senddata[1] |= 0x08; 
+                senddata[1] = 0x08; 
             }
         }
     }
@@ -177,7 +178,7 @@ void get_para_from_usb(void)
 
     
     /* 5. Send confirmation to CPU1 or Send error to CPU1 */  
-    CPU_Exchange_Data(senddata, 2);
+    CPU_Exchange_Data(senddata, 2);//send
     CPU_Data_Check(recvdata, &len);    
     
     

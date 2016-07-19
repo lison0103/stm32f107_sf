@@ -59,7 +59,7 @@ void Communication_To_Control(void)
     
     for( u8 i = 6; i < 50; i++ )
     {
-        CAN1_TX_Data[i] = EscRTBuff[30+i] | McRxBuff[30+i];
+        CAN1_TX_Data[i] = EscRTBuff[30+i] ;//| McRxBuff[30+i];
     }
     for( u8 i = 0; i < 10; i++ )
     {
@@ -67,7 +67,10 @@ void Communication_To_Control(void)
         CAN1_TX_Data[60+i] = CAN2_RX_Data[i];//DBL1 UP
         CAN1_TX_Data[70+i] = CAN2_RX2_Data[i];//DBL1 DOWN
     }   
- 
+    for( u8 i = 80; i < 124; i++ )
+    {
+        CAN1_TX_Data[i] =  McRxBuff[ i - 44 ];
+    } 
     
     *pc_sfescstate = SfBase_EscState;
     CAN1_TX2_Data[2] = pcEscErrorCodeBuff[0];

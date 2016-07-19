@@ -59,13 +59,13 @@ u8 USB_LoadParameter(void)
       /* USB-stick detected */     
       /* 1. Message to CPU2 */
       senddata[0] = 0x11;
-      senddata[1] |= 0x01;
+      senddata[1] = 0x01;
       CPU_Exchange_Data(senddata, 2);
       CPU_Data_Check(recvdata, &len);  
       
       /* 2. Message to Control */
       senddata[0] = 0x22;
-      senddata[1] |= 0x01;
+      senddata[1] = 0x01;
       BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, 2);
       
       /* usb load parameter start -------------------------------------------*/
