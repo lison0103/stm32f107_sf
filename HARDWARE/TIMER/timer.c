@@ -392,12 +392,12 @@ void TIM3_IRQHandler(void)
           count++;
           if(count == 17)
           {
-              PLUSE_OUT = 1;
+              PLUSE_OUT_SET();
           }
           
           if(count == 25)
           {
-              PLUSE_OUT = 0;
+              PLUSE_OUT_CLR();
               count = 0;
           } 
         

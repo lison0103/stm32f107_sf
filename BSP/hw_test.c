@@ -91,7 +91,7 @@ void Input_Check2(void)
         inputnum = 0;        
         
         
-        for( i = 0; i < 28; i++ )
+        for( i = 0; i < 29; i++ )
         {
             if( *ulPt_Input1 & ((u32)( 1 << i )))
             {
@@ -105,7 +105,7 @@ void Input_Check2(void)
             if( *ulPt_Input2 & ((u32)( 1 << i )))
             {
                 sflag++;
-                inputnum = i + 29;
+                inputnum = i + 30;
             }
         }        
                        

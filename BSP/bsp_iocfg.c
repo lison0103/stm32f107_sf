@@ -269,8 +269,8 @@ void Input_Output_PinInit(void)
       GPIO_Init(GPIOE , &GPIO_InitStruct);  
       
       /** pluse out gpio -------------------------------------------------- **/
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5; 
-      GPIO_Init(GPIOC , &GPIO_InitStruct);        
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10; 
+      GPIO_Init(GPIOA , &GPIO_InitStruct);        
       
       
       /** relay output init **/
