@@ -61,11 +61,11 @@ void LED_indicator(void)
 	static u32 led_idr_cnt = 0;	 
 	
 	led_idr_cnt++;
-	
-	if( led_idr_cnt >= 100 )
+	 
+	if(led_idr_cnt >= 100)   
 	{
-                led_idr_cnt = 0;
-		LED =! LED;                
+            led_idr_cnt = 0;
+            LED_FLASH();       
 	}   
 }
 

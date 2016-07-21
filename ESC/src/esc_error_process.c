@@ -100,20 +100,20 @@ void ESC_EWDT_Error_Process(void)
 {
  
     /** Disconnect the safety relay **/
-    SF_RL_CTR = 0;
-    SF_RL_WDT = 0;
+    SF_RL_CTR_CLR();
+    SF_RL_WDT_CLR();
    
     while(1)
     {
         /** In the error handling routine in an infinite loop **/
           /**  Wait manual reset fault **/
-          if( IN10 )
-          {
-                __set_FAULTMASK(1);   
-                /** soft reset **/
-                NVIC_SystemReset();
-          
-          }
+//          if( IN10 )
+//          {
+//                __set_FAULTMASK(1);   
+//                /** soft reset **/
+//                NVIC_SystemReset();
+//          
+//          }
     }
 
 }
@@ -133,8 +133,8 @@ void ESC_Flash_Error_Process(void)
 {
  
     /** Disconnect the safety relay **/
-    SF_RL_CTR = 0;
-    SF_RL_WDT = 0;  
+    SF_RL_CTR_CLR();
+    SF_RL_WDT_CLR();  
 
 }
 
@@ -154,8 +154,8 @@ void ESC_Fram_Error_Process(void)
 {
 #ifdef GEC_SF_MASTER  
     /** Disconnect the safety relay **/
-    SF_RL_CTR = 0;
-    SF_RL_WDT = 0;    
+    SF_RL_CTR_CLR();
+    SF_RL_WDT_CLR();    
 #endif    
 
 }
@@ -174,8 +174,8 @@ void ESC_SPI_Error_Process(void)
 {
   
     /** Disconnect the safety relay **/
-//    SF_RL_CTR = 0;
-//    SF_RL_WDT = 0;
+//    SF_RL_CTR_CLR();
+//    SF_RL_WDT_CLR();
     printf("ESC_SPI_Error_Process \r\n");
 }
 
@@ -193,7 +193,7 @@ void ESC_SafeRelay_Error_Process(void)
 {
  
     /** Disconnect the safety relay **/
-    SF_RL_CTR = 0;
-    SF_RL_WDT = 0;
+    SF_RL_CTR_CLR();
+    SF_RL_WDT_CLR();
     printf("ESC_SafeRelay_Error_Process \r\n");
 }

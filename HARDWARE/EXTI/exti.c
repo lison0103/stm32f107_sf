@@ -344,7 +344,11 @@ void EXTI1_IRQHandler(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
+#ifdef GEC_SF_S_NEW
+void EXTI2_TS_IRQHandler(void)
+#else
 void EXTI2_IRQHandler(void)
+#endif
 {
 
   if(EXTI_GetITStatus(EXTI_Line2) != RESET)

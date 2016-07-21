@@ -33,11 +33,11 @@ void LED_Init(void)
 #ifdef GEC_SF_MASTER
       GPIO_InitTypeDef  GPIO_InitStructure;	
       
-      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;				
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;				
       GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP; 		 
       GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;		
       GPIO_Init(GPIOA, &GPIO_InitStructure);					 
-      GPIO_SetBits(GPIOA,GPIO_Pin_2);	
+      GPIO_SetBits(GPIOA,GPIO_Pin_4);	
 
 #else 
 #ifdef GEC_SF_S_NEW

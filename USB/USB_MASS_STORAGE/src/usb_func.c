@@ -53,7 +53,7 @@ u8 USB_LoadParameter(void)
       u8 len,senddata[50],recvdata[50];
       u16 filelen = 0;
 
-      LED = 1;
+      LED_ON();
       ParaLoadFinsh |= 0x01;
       
       /* USB-stick detected */     
@@ -125,11 +125,11 @@ u8 USB_LoadParameter(void)
       {	
             if( ParaLoadFinsh & 0x06 ) 
             {
-                LED=!LED;                
+                LED_FLASH();                
             }
             else
             {
-                LED = 0;
+                LED_OFF();
             }
             
             delay_ms(200);
@@ -196,12 +196,12 @@ void USBH_Mass_Storage_Init(void)
             }
             
             if( t == 200 )
-            {      
-                  LED=!LED;
+            {                       
                   t = 0;
+                  LED_FLASH();
                   
                   EWDT_TOOGLE();
-                  IWDG_ReloadCounter();  
+                  IWDG_ReloadCounter();                  
             }
       } 
          

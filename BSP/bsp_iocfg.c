@@ -43,20 +43,20 @@ void Input_Output_PinInit(void)
 
       /** SAFETY input gpio ------------------------------------------------ **/     
       /* INA1 */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;
-      GPIO_Init(GPIOE , &GPIO_InitStruct);   
-
-      /* INA2 */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
-      GPIO_Init(GPIOE , &GPIO_InitStruct);   
-
-      /* INA3 */
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_7;
       GPIO_Init(GPIOB , &GPIO_InitStruct);   
 
-      /* INA4 */
+      /* INA2 */
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6;
       GPIO_Init(GPIOB , &GPIO_InitStruct);   
+
+      /* INA3 */
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
+      GPIO_Init(GPIOE , &GPIO_InitStruct);   
+
+      /* INA4 */
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;
+      GPIO_Init(GPIOE , &GPIO_InitStruct);   
 
       /* INA5 */
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5;
@@ -71,7 +71,7 @@ void Input_Output_PinInit(void)
       GPIO_Init(GPIOB , &GPIO_InitStruct);   
 
       /* INA8 */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_7;
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2;
       GPIO_Init(GPIOD , &GPIO_InitStruct);   
 
       /* INA9 */
@@ -91,7 +91,7 @@ void Input_Output_PinInit(void)
       GPIO_Init(GPIOD , &GPIO_InitStruct);   
 
       /* INA13 */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2;
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_7;
       GPIO_Init(GPIOD , &GPIO_InitStruct); 
 
       /* INA14 */
@@ -154,6 +154,10 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
       GPIO_Init(GPIOB , &GPIO_InitStruct);   
 
+      /* INA29 */
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5;
+      GPIO_Init(GPIOC , &GPIO_InitStruct);
+      
        /** SAFETY EXTEND input gpio ---------------------------------------- **/
       /* AX1 */
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6;
@@ -270,9 +274,9 @@ void Input_Output_PinInit(void)
       
       
       /** relay output init **/
-      AUX_CTR = 0;
-      SF_RL_CTR = 0;
-      SF_RL_WDT = 1;
+      AUX_CTR_CLR();
+      SF_RL_CTR_CLR();
+      SF_RL_WDT_SET(); 
       
       
       
@@ -294,36 +298,36 @@ void Input_Output_PinInit(void)
 
       /** SAFETY input gpio ------------------------------------------------ **/     
       /* INB1 */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
-      GPIO_Init(GPIOD , &GPIO_InitStruct);   
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_7;
+      GPIO_Init(GPIOB , &GPIO_InitStruct);   
 
       /* INB2 */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;
-      GPIO_Init(GPIOD , &GPIO_InitStruct);   
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6;
+      GPIO_Init(GPIOB , &GPIO_InitStruct);   
 
       /* INB3 */
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5;
+      GPIO_Init(GPIOB , &GPIO_InitStruct);   
+
+      /* INB4 */
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
+      GPIO_Init(GPIOB , &GPIO_InitStruct);   
+
+      /* INB5 */
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;
+      GPIO_Init(GPIOB , &GPIO_InitStruct);   
+
+      /* INB6 */
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2;
       GPIO_Init(GPIOD , &GPIO_InitStruct);   
 
-      /* INB4 */
+      /* INB7 */
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;
       GPIO_Init(GPIOD , &GPIO_InitStruct);   
 
-      /* INB5 */
+      /* INB8 */
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;
       GPIO_Init(GPIOD , &GPIO_InitStruct);   
-
-      /* INB6 */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_12;
-      GPIO_Init(GPIOC , &GPIO_InitStruct);   
-
-      /* INB7 */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
-      GPIO_Init(GPIOC , &GPIO_InitStruct);   
-
-      /* INB8 */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
-      GPIO_Init(GPIOC , &GPIO_InitStruct);   
 
       /* INB9 */
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_15;
@@ -405,6 +409,10 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_12;
       GPIO_Init(GPIOB , &GPIO_InitStruct);   
 
+      /* INB29 */
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;
+      GPIO_Init(GPIOD , &GPIO_InitStruct); 
+      
        /** SAFETY EXTEND input gpio ---------------------------------------- **/
       /* BX1 */
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
@@ -484,23 +492,23 @@ void Input_Output_PinInit(void)
 #endif
         
       /* SF_RL_DRV_FB */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;                  
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2;                  
       GPIO_Init(GPIOE , &GPIO_InitStruct);      
       
       /* SF_PWR_FB_CPU */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;                  
-      GPIO_Init(GPIOB , &GPIO_InitStruct);        
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0;                  
+      GPIO_Init(GPIOE , &GPIO_InitStruct);        
 
       /* SF_RL_FB */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5;                  
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6;                  
       GPIO_Init(GPIOE , &GPIO_InitStruct);       
 
       /* SF_RL1_FB_CPU2 */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;                  
-      GPIO_Init(GPIOB , &GPIO_InitStruct);        
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2;                  
+      GPIO_Init(GPIOC , &GPIO_InitStruct);        
 
       /* AUX_FB */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;                  
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;                  
       GPIO_Init(GPIOE , &GPIO_InitStruct); 
    
       
@@ -513,22 +521,22 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
 #endif
       /* SF_RL_WDT */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0; 
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1; 
       GPIO_Init(GPIOE , &GPIO_InitStruct);       
       
       /* AUX_CTR */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4; 
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5; 
       GPIO_Init(GPIOE , &GPIO_InitStruct);        
       
       /* SF_RL_CTR */
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2; 
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3; 
       GPIO_Init(GPIOE , &GPIO_InitStruct);  
 
       
       /** relay output init **/
-      AUX_CTR = 0;
-      SF_RL_CTR = 0;
-      SF_RL_WDT = 1;   
+      AUX_CTR_CLR();
+      SF_RL_CTR_CLR();
+      SF_RL_WDT_SET();   
 
 
 #endif      

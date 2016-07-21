@@ -19,9 +19,13 @@
 /* Exported macro ------------------------------------------------------------*/
 /** LED Port **/
 #ifdef GEC_SF_MASTER
-#define LED PAout(2)
+#define LED_ON()   GPIO_ResetBits(GPIOA,GPIO_Pin_4)	
+#define LED_OFF()   GPIO_SetBits(GPIOA,GPIO_Pin_4)
+#define LED_FLASH()   GPIOA->ODR ^= 0X0010
 #else
-#define LED PAout(1)
+#define LED_ON()   GPIO_ResetBits(GPIOA,GPIO_Pin_1)	
+#define LED_OFF()   GPIO_SetBits(GPIOA,GPIO_Pin_1)
+#define LED_FLASH()   GPIOA->ODR ^= 0X0002
 #endif
 /* Exported functions ------------------------------------------------------- */
 void LED_Init(void); 

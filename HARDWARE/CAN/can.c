@@ -116,16 +116,16 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
 
 #ifdef GEC_SF_S_NEW
             /* Connect CAN pins to AF9 */
-            GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_9);
-            GPIO_PinAFConfig(GPIOA, GPIO_PinSource12, GPIO_AF_9); 
+            GPIO_PinAFConfig(GPIOB, GPIO_PinSource8, GPIO_AF_9);
+            GPIO_PinAFConfig(GPIOB, GPIO_PinSource9, GPIO_AF_9); 
             
             /* Configure CAN RX and TX pins */
-            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12;
+            GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9;
             GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
             GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
             GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
             GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
-            GPIO_Init(GPIOA, &GPIO_InitStructure);
+            GPIO_Init(GPIOB, &GPIO_InitStructure);
 #else
             GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
             GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;

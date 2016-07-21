@@ -125,7 +125,7 @@ void Initial_Device(void)
         
         
         /* Parameters Loading */
-        ParametersLoading();
+//        ParametersLoading();
         
 
         /* safety output disable */
@@ -288,6 +288,8 @@ void RCC_Configuration(void)
                            |RCC_AHBPeriph_GPIOD
                            |RCC_AHBPeriph_GPIOE ,
                            ENABLE);
+    
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 | RCC_AHBPeriph_CRC, ENABLE);
 #else     
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_BKP | RCC_APB1Periph_PWR, ENABLE );
     

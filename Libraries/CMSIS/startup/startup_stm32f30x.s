@@ -60,8 +60,8 @@
         DATA
 __vector_table
         DCD     sfe(CSTACK)
-        DCD     Safety_StartupCheck1             ; To be executed before __iar_program_start 
-//        DCD     Reset_Handler             ; Reset Handler
+//        DCD     Safety_StartupCheck1             ; To be executed before __iar_program_start 
+        DCD     Reset_Handler             ; Reset Handler
 
         DCD     NMI_Handler               ; NMI Handler
         DCD     HardFault_Handler         ; Hard Fault Handler

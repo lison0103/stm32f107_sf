@@ -23,6 +23,7 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
+#ifndef GEC_SF_S_NEW
 /** Bit operating **/
 /** IO port operations macros **/
 #define BITBAND(addr, bitnum) ((addr & 0xF0000000)+0x2000000+((addr &0xFFFFF)<<5)+(bitnum<<2)) 
@@ -67,7 +68,7 @@
 
 #define PGout(n)   BIT_ADDR(GPIOG_ODR_Addr,n)  /** OUTPUT **/ 
 #define PGin(n)    BIT_ADDR(GPIOG_IDR_Addr,n)  /** INPUT **/
-
+#endif
 
 /* if not use usb debug ,this macro should be 0 */
 #ifdef GEC_SF_MASTER
