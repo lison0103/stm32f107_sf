@@ -22,8 +22,9 @@
 void Input_Check(void);
 void Input_Check2(void);
 void CrossCommCPUCheck(void);
+void HardwareTEST(void);
 
-
+extern u8 testmode;
 
 
 #endif  /* __HW_TEST_H */

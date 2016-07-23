@@ -11,6 +11,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "esc_comm_diagnostic.h"
 #include "can.h"
+#include "hw_test.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -76,10 +77,17 @@ void Safety_Comm_Diag(void)
         CAN2_RX2_Data[1] = 0x00;      
     }    
     
-    /** CAN2 send data ------------------------------------------------------**/
-    /** DBL1 UP SEND ID:0x1234, DBL1 DOWN SEND ID:0x2345 **/
-    BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN2TX_UP_ID, CAN2_TX_Data, 8);   
-    BSP_CAN_Send(CAN2, &CAN2_TX_Down, CAN2TX_DOWN_ID, CAN2_TX2_Data, 8);   
+    if( testmode == 0 )
+    {
+        /** CAN2 send data ------------------------------------------------------**/
+        /** DBL1 UP SEND ID:0x1234, DBL1 DOWN SEND ID:0x2345 **/
+        BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN2TX_UP_ID, CAN2_TX_Data, 8);   
+        BSP_CAN_Send(CAN2, &CAN2_TX_Down, CAN2TX_DOWN_ID, CAN2_TX2_Data, 8);  
+    }
+    else if( testmode == 1 )
+    {
+        BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN1_TEST_ID, CAN2_TX_Data, 8);   
+    }
     
 #else
     static u8 can1_comm_timeout = 0;
@@ -125,6 +133,11 @@ void Safety_Comm_Diag(void)
         /** CAN1 send data ------------------------------------------------------**/
         /** tandem normal SEND ID:0x1314 **/
         BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 20);   
+    }
+    
+    if( testmode == 1 )
+    {
+        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10);
     }
     
 #endif

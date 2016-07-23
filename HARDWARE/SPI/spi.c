@@ -71,7 +71,8 @@ void SPI1_Configuration(void)
 	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
         /* CRC polynomial value calculation */
 	SPI_InitStructure.SPI_CRCPolynomial = 7;	                        
-	SPI_Init(SPI1, &SPI_InitStructure);                                     
+	SPI_Init(SPI1, &SPI_InitStructure);   
+        
  
         //DMA 
         SPI1_DMA_Configuration();       
@@ -79,7 +80,7 @@ void SPI1_Configuration(void)
         SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
            
         //CRC
-        SPI_CalculateCRC(SPI1, ENABLE);
+//        SPI_CalculateCRC(SPI1, ENABLE);
         
         //SPI enable
 	SPI_Cmd(SPI1, ENABLE); 

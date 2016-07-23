@@ -11,6 +11,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "esc_comm_control.h"
 #include "can.h"
+#include "hw_test.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -53,6 +54,10 @@ void Communication_To_Control(void)
     /* just for test */
     if( len > 0 )
     {
+        CAN1_TX_Data[0] = 0;
+        CAN1_TX_Data[1] = 0;
+//        CAN1_TX_Data[2] = 0;
+//        CAN1_TX_Data[3] = 0;        
         CAN1_TX_Data[4] = CAN1_RX_Data[0];
         CAN1_TX_Data[5] = CAN1_RX_Data[1];
     }
@@ -76,11 +81,17 @@ void Communication_To_Control(void)
     CAN1_TX2_Data[2] = pcEscErrorCodeBuff[0];
     
     
+    if( testmode == 0 )
+    {
     /** CAN1 send data ------------------------------------------------------**/
     /** CB normal SEND ID:0x1314, CB URGE SEND ID:0x1234 **/
     BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 100);
     BSP_CAN_Send(CAN1, &CAN1_TX_Urge, CAN1TX_URGE_ID, CAN1_TX2_Data, 20);
-    
+    }
+    else if( testmode == 1 )
+    {
+        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10);
+    }
 }
 
 

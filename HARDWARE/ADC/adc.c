@@ -108,19 +108,17 @@ s32 Get_Adc_Average(void)
 {
 	static u32 temp_val = 0;
 	static u8 sf_get_adc_times = 0;
-        s32 val = 0;
+        static s32 val = 0;
         
-        temp_val+=Get_Adc();
+        temp_val += Get_Adc();
         sf_get_adc_times++;
         if( sf_get_adc_times == 5 )
         {
             val = temp_val*24/4096/5;
             temp_val = 0;
-            sf_get_adc_times = 0;
-            
-            return val;
+            sf_get_adc_times = 0;           
         }
-        return -1;
+        return val;
 } 	 
 
 

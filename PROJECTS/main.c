@@ -35,8 +35,9 @@ static u16 Tms10Counter = 0,Tms20Counter = 0,Tms50Counter = 0,Tms100Counter = 0,
 
 u32 TimingDelay = 0;
 u32 SysRunTime = 0; 
-u32 timeprintf = 0;
+u8 testmode = 0;
 
+/* ESC */
 u8 Modbuff[3000];
 u8 EscRTBuff[200];
 u8 McRxBuff[1000];
@@ -97,14 +98,16 @@ void Task_Loop(void)
       Get_GpioInput(&EscRTBuff[4]);
       
       /*  ESC  */
-      sfEscStateCheck();  
-      ESC_Tandem_Check();
-      ESC_Motor_Check();
-      ESC_Handrail_Check();
-      ESC_Missingstep_Check();
-      SafetyOutputDisable();
-      SafetyOutputEnable();
-      
+      if( testmode == 0 )
+      {
+          sfEscStateCheck();  
+          ESC_Tandem_Check();
+          ESC_Motor_Check();
+          ESC_Handrail_Check();
+          ESC_Missingstep_Check();
+          SafetyOutputDisable();
+          SafetyOutputEnable();
+      }
 
       
 #ifdef GEC_SF_MASTER 
@@ -138,22 +141,21 @@ void Task_Loop(void)
       } 
       
       if( Tms100Counter == 0 )
-      {         
-          
+      {   
+#ifdef GEC_SF_MASTER 
+          CAN1_TX_Data[2] = SW_SPDT_KEY;
+          CAN1_TX_Data[3] = Get_Adc_Average();
+#endif
       }
            
       if( Tms500Counter == 0 )
       {             
-//          Input_Check2();
+          Input_Check2();
       }
       
       if( Tms1000Counter == 0 )
       {  
-          if( ++timeprintf >= 600 )
-          {
-              timeprintf = 0;
-              printf("%d\r\n",SysRunTime);
-          }
+
       }
      
 

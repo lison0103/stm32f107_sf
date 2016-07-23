@@ -57,6 +57,8 @@ void Input_Output_PinInit(void);
 #define SF_EWDT_TOOGLE() 	GPIOB->ODR ^= 0X0200
 
 
+#define SW_SPDT_KEY       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_3)
+
 #else
 
 

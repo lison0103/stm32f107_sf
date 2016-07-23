@@ -30,6 +30,7 @@
 #include "esc_record_data.h"
 #include "mb85rcxx.h"
 #include "usb_func.h"
+#include "adc.h"
 #endif
 
 /* Exported types ------------------------------------------------------------*/

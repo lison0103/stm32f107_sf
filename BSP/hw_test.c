@@ -18,6 +18,7 @@
 #include "crc16.h"
 #include "safety_test.h"
 #include "esc.h"
+#include "esc_comm_safety_dualcpu.h"
 
 #ifdef GEC_SF_MASTER
 #include "usart.h"
@@ -84,46 +85,86 @@ void Input_Check2(void)
   
         u32 *ulPt_Input1,*ulPt_Input2;
         u8 i;
-        
-        ulPt_Input1 = (u32*)&EscRTBuff[4];       
-        ulPt_Input2 = (u32*)&EscRTBuff[8];
-        sflag = 0;
-        inputnum = 0;        
-        
-        
-        for( i = 0; i < 29; i++ )
-        {
-            if( *ulPt_Input1 & ((u32)( 1 << i )))
-            {
-                sflag++;
-                inputnum = i + 1;
-            }
-        }
-        
-        for( i = 0; i < 17; i++ )
-        {
-            if( *ulPt_Input2 & ((u32)( 1 << i )))
-            {
-                sflag++;
-                inputnum = i + 30;
-            }
-        }        
-                       
 
-        if (( inputnum == 0 ) || ( sflag > 1 ))
+
+        if( testmode == 1 )
         {
-            SF_RELAY_OFF(); 
-            AUX_RELAY_OFF();
+            ulPt_Input1 = (u32*)&EscRTBuff[4];       
+            ulPt_Input2 = (u32*)&EscRTBuff[8];
+            sflag = 0;
+            inputnum = 0;        
+            
+            
+            for( i = 0; i < 29; i++ )
+            {
+                if( *ulPt_Input1 & ((u32)( 1 << i )))
+                {
+                    sflag++;
+                    inputnum = i + 1;
+                }
+            }
+            
+            for( i = 0; i < 17; i++ )
+            {
+                if( *ulPt_Input2 & ((u32)( 1 << i )))
+                {
+                    sflag++;
+                    inputnum = i + 30;
+                }
+            }   
+            
+#ifdef GEC_SF_MASTER             
+            CAN2_TX_Data[0] = inputnum;
+            CAN2_TX_Data[1] = sflag;            
+#endif         
+            
+            if (( inputnum == 0 ) || ( sflag > 1 ))
+            {
+                SF_RELAY_OFF(); 
+                AUX_RELAY_OFF();
+            }
+#ifdef GEC_SF_MASTER   
+            else if( inputnum & 0x0A )
+            {
+                if ( inputnum & 0x08 )
+                {
+                    SF_RELAY_ON(); 
+                }
+                
+                if ( inputnum & 0x02 )
+                {
+                    AUX_RELAY_ON(); 
+                } 
+            }
+#else
+            else if( inputnum & 0x05 )
+            {
+                if ( inputnum & 0x04 )
+                {
+                    SF_RELAY_ON(); 
+                }
+                
+                if ( inputnum & 0x01 )
+                {
+                    AUX_RELAY_ON(); 
+                }   
+            }
+#endif
+            else
+            {
+                SF_RELAY_OFF(); 
+                AUX_RELAY_OFF();                
+            }
+//            else if ( inputnum && ( inputnum % 2 ) )
+//            {
+//                SF_RELAY_ON(); 
+//            }
+//            else if ( inputnum )
+//            {
+//                AUX_RELAY_ON(); 
+//            }
+            
         }
-        else if ( inputnum && ( inputnum % 2 ) )
-        {
-            SF_RELAY_ON(); 
-        }
-        else if ( inputnum )
-        {
-            AUX_RELAY_ON(); 
-        }
-       
 }
 
 
@@ -271,9 +312,429 @@ void CrossCommCPUCheck(void)
 
 }
 
- 
+
+#ifdef GEC_SF_MASTER 
+/*******************************************************************************
+* Function Name  : HardwareTEST
+* Description    : Test the board.
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void HardwareTEST(void)
+{
+    u8 testdata1[10],testdata2[10];
+    u8 testerror = 0;
+    u8 len = 0, len1 = 0, len2 = 0;
+    u16 waittms = 0;
+    u8 senddata[50],recvdata[50];
+    
+    CAN1_TX_Data[0] = 0xf1;
+    CAN2_TX_Data[0] = 0xf1;
+    testdata1[0] = 0xf1;
+    testdata2[0] = 0xf1;
+    for( u8 i = 1; i < 10 ; i++ )
+    {
+        CAN1_TX_Data[i] = i + 0xd0;
+        testdata1[i] = i + 0xd0;
+        CAN2_TX_Data[i] = i + 0xe0;
+        testdata2[i] = i + 0xe0;        
+    }
+    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10);
+    BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN1_TEST_ID, CAN2_TX_Data, 10);
+    
+    do
+    {
+        len1 = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
+        delay_ms(1);
+        EWDT_TOOGLE();
+        waittms++;
+        if( waittms > 5000 )
+        {
+            waittms = 0;
+            break;
+        }
+    }
+    while( len1 != 10 || CAN1_RX_Data[0] != 0xf1 );     
+
+    waittms = 0;
+    do
+    {
+        len2 = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN2_RX_Data, 0);
+        delay_ms(1);
+        EWDT_TOOGLE();
+        waittms++;
+        if( waittms > 10000 )
+        {
+            waittms = 0;
+            break;
+        }
+    }
+    while( len2 != 10 || CAN2_RX_Data[0] != 0xf1 );   
+    
+    if( len1 == 10 && CAN1_RX_Data[0] == 0xf1 )
+    {
+        waittms = 0;
+        for( u8 i = 2; i < 10 ; i++ )
+        {
+            CAN1_TX_Data[i] = CAN1_RX_Data[i];
+        }
+        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10);
+        
+        if( len2 == 10 && CAN2_RX_Data[0] == 0xf1 )
+        {
+            waittms = 0;
+            for( u8 i = 2; i < 10 ; i++ )
+            {
+                CAN2_TX_Data[i] = CAN2_RX_Data[i];
+            }
+            BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN1_TEST_ID, CAN2_TX_Data, 10);
+        }        
+        
+        waittms = 0;
+        do
+        {
+            len1 = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
+            delay_ms(1);
+            EWDT_TOOGLE();
+            waittms++;
+            if( waittms > 2000 )
+            {
+                waittms = 0;
+                break;
+            }
+        }
+        while( len1 != 10 || CAN1_RX_Data[0] != 0xf1 ); 
+        
+        waittms = 0;
+        do
+        {
+            len2 = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN2_RX_Data, 0);
+            delay_ms(1);
+            EWDT_TOOGLE();
+            waittms++;
+            if( waittms > 2000 )
+            {
+                waittms = 0;
+                break;
+            }
+        }
+        while( len2 != 10 || CAN2_RX_Data[0] != 0xf1 );         
+        
+        
+        if( len1 == 10 && CAN1_RX_Data[0] == 0xf1 && len2 == 10 && CAN2_RX_Data[0] == 0xf1 )
+        {
+            for( u8 i = 2; i < 10 ; i++ )
+            {
+                if( CAN1_RX_Data[i] != testdata1[i] )
+                {
+                    testerror++;
+                    break;
+                }
+            }
+
+//            if( len2 == 10 && CAN2_RX_Data[0] == 0xf1 )
+//            {
+                for( u8 i = 2; i < 10 ; i++ )
+                {
+                    if( CAN2_RX_Data[i] != testdata2[i] )
+                    {
+                        testerror++;
+                        break;
+                    }
+                }
+//            }  
+            
+            if( testerror == 0 )
+            {
+                if( ( CAN1_RX_Data[1] == 0xc1 && CAN2_RX_Data[1] == 0xb1 ) 
+                   || ( CAN1_RX_Data[1] == 0xf1 && CAN2_RX_Data[1] == 0xb1 ) )
+                {
+                    testmode = 1;
+                }
+            }
+        } 
+        
+        
+    }
+//    else if( len2 == 10 && CAN2_RX_Data[0] == 0xf1 )
+//    {
+//        waittms = 0;
+//        for( u8 i = 2; i < 10 ; i++ )
+//        {
+//            CAN2_TX_Data[i] = CAN2_RX_Data[i];
+//        }
+//        BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN1_TEST_ID, CAN2_TX_Data, 10);
+//        
+////        if( len1 == 10 && CAN1_RX_Data[0] == 0xf1 )
+////        {
+////            waittms = 0;
+////            for( u8 i = 2; i < 10 ; i++ )
+////            {
+////                CAN1_TX_Data[i] = CAN1_RX_Data[i];
+////            }
+////            BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10);
+////        }        
+//        
+//        waittms = 0;
+//        do
+//        {
+//            len2 = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN2_RX_Data, 0);
+//            delay_ms(1);
+//            EWDT_TOOGLE();
+//            waittms++;
+//            if( waittms > 2000 )
+//            {
+//                waittms = 0;
+//                break;
+//            }
+//        }
+//        while( len2 != 10 || CAN2_RX_Data[0] != 0xf1 );         
+//        
+////        waittms = 0;
+////        do
+////        {
+////            len1 = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
+////            delay_ms(1);
+////            EWDT_TOOGLE();
+////            waittms++;
+////            if( waittms > 2000 )
+////            {
+////                waittms = 0;
+////                break;
+////            }
+////        }
+////        while( len1 != 10 || CAN1_RX_Data[0] != 0xf1 ); 
+//        
+//        if( len2 == 10 && CAN2_RX_Data[0] == 0xf1 )
+//        {
+//            for( u8 i = 2; i < 10 ; i++ )
+//            {
+//                if( CAN2_RX_Data[i] != testdata2[i] )
+//                {
+//                    testerror++;
+//                    break;
+//                }
+//            }
+//
+////            if( len1 == 10 && CAN1_RX_Data[0] == 0xf1 )
+////            {
+////                for( u8 i = 2; i < 10 ; i++ )
+////                {
+////                    if( CAN1_RX_Data[i] != testdata1[i] )
+////                    {
+////                        testerror++;
+////                        break;
+////                    }
+////                }
+////            }  
+//            
+//            if( testerror == 0 )
+//            {
+//                testmode = 1;
+//            }
+//        } 
+//        
+//        
+//    }    
+    else
+    {
+        CAN_FilterInitTypeDef  	        CAN_FilterInitStructure;
+        
+        /* CAN1 filter init */
+        CAN_FilterInitStructure.CAN_FilterNumber=0;	
+        CAN_FilterInitStructure.CAN_FilterMode=CAN_FilterMode_IdMask; 	
+        CAN_FilterInitStructure.CAN_FilterScale=CAN_FilterScale_32bit; 	
+        
+        CAN_FilterInitStructure.CAN_FilterIdHigh=(((u32)0x00C8<<3)&0xFFFF0000)>>16;	
+        CAN_FilterInitStructure.CAN_FilterIdLow=(((u32)0x00C8<<3)|CAN_ID_EXT|CAN_RTR_DATA)&0xFFFF;
+        CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0xffff;//32 bit MASK
+        CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xffff; 
+        
+        CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_Filter_FIFO0;
+        CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+        CAN_FilterInit(&CAN_FilterInitStructure);    
+
+        /* CAN2 filter init */
+        CAN_FilterInitStructure.CAN_FilterNumber=14;	
+        CAN_FilterInitStructure.CAN_FilterMode=CAN_FilterMode_IdMask; 	
+        CAN_FilterInitStructure.CAN_FilterScale=CAN_FilterScale_32bit; 
+        
+        CAN_FilterInitStructure.CAN_FilterIdHigh = (((u32)CAN2RX_UP_ID << 3) & 0xFFFF0000 ) >> 16;	
+        CAN_FilterInitStructure.CAN_FilterIdLow = (((u32)CAN2RX_UP_ID << 3) | CAN_ID_EXT | CAN_RTR_DATA ) & 0xFFFF;
+        CAN_FilterInitStructure.CAN_FilterMaskIdHigh = ((((u32)(~( CAN2RX_UP_ID ^ CAN2RX_DOWN_ID ))) << 3) & 0xFFFF0000) >> 16;
+        CAN_FilterInitStructure.CAN_FilterMaskIdLow = ((((u32)(~( CAN2RX_UP_ID ^ CAN2RX_DOWN_ID ))) << 3) | CAN_ID_EXT | CAN_RTR_DATA ) & 0xFFFF;   
+        
+        CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_Filter_FIFO0;
+        CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+        CAN_FilterInit(&CAN_FilterInitStructure);	        
+    }
+    
+
+    senddata[0] = 0xbc;
+    if( testmode == 1 )
+    {
+        senddata[1] = 0x01;
+    }
+    else
+    {
+        senddata[1] = 0x02;
+    }
+    CPU_Exchange_Data(senddata, 2);//send
+    CPU_Data_Check(recvdata, &len);
+    
+//    delay_ms(10);
+//    CPU_Exchange_Data(senddata, 2);
+//    CPU_Data_Check(recvdata, &len); //recv  
+//    
+//    if( len == 0x02 && recvdata[0] == 0xbc )
+//    {
+//        delay_ms(10);
+//        CPU_Exchange_Data(senddata, 2);
+//        CPU_Data_Check(recvdata, &len); //recv      
+//        if( len == 0x02 && recvdata[0] == 0xbc )
+//        {
+//            if( recvdata[1] == 0xf1 )
+//            {
+//                testmode = 1;
+//            }
+//            else
+//            {
+//                testmode = 0;
+//            }            
+//        }
+//    }
+}
+#else
+/*******************************************************************************
+* Function Name  : HardwareTEST
+* Description    : Test the board.
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void HardwareTEST(void)
+{
+    u8 testdata[10];
+    u8 testerror = 0;
+    u8 len = 0;
+    u16 waittms = 0;
+    u8 senddata[10],recvdata[10];
+
+    CAN1_TX_Data[0] = 0xf1;
+    testdata[0] = 0xf1;
+    for( u8 i = 1; i < 10 ; i++ )
+    {
+        CAN1_TX_Data[i] = i + 0xf0;
+        testdata[i] = i + 0xf0;
+    }
+    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10);
+    
+    do
+    {
+        len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
+        delay_ms(1);
+        EWDT_TOOGLE();
+        waittms++;
+        if( waittms > 2000 )
+        {
+            waittms = 0;
+            break;
+        }
+    }
+    while( len != 10 || CAN1_RX_Data[0] != 0xf1 );     
+    
+    if( len == 10 && CAN1_RX_Data[0] == 0xf1 )
+    {
+        waittms = 0;
+        for( u8 i = 2; i < 10 ; i++ )
+        {
+            CAN1_TX_Data[i] = CAN1_RX_Data[i];
+        }
+        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10);
+        
+        do
+        {
+            len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
+            delay_ms(1);
+            EWDT_TOOGLE();
+            waittms++;
+            if( waittms > 8000 )
+            {
+                waittms = 0;
+                break;
+            }
+        }
+        while( len != 10 || CAN1_RX_Data[0] != 0xf1 ); 
+        
+        if( len == 10 && CAN1_RX_Data[0] == 0xf1 )
+        {
+            for( u8 i = 2; i < 10 ; i++ )
+            {
+                if( CAN1_RX_Data[i] != testdata[i] )
+                {
+                    testerror = 1;
+                    break;
+                }
+            }
+            
+            if( testerror == 0 )
+            {
+                if( CAN1_RX_Data[1] == 0xd1 )
+                {
+                    testmode = 1;
+                }   
+            }
+        } 
+        
+        
+    }
+    else
+    {
+        
+    }
+    
+    
+    senddata[0] = 0xbc;
+    if( testmode == 1 )
+    {
+        senddata[1] = 0x01;
+    }
+    else
+    {
+        senddata[1] = 0x02;
+    }
+    CPU_Exchange_Data(senddata, 2);
+    CPU_Data_Check(recvdata, &len);//recv  
+    
+    if( len == 0x02 && recvdata[0] == 0xbc )
+    {
+        if( recvdata[1] == 1 )
+        {
+            testmode = 1;
+        }
+        else if( recvdata[1] == 2 )
+        {
+            testmode = 0;
+        }
+        
+//        CPU_Exchange_Data(senddata, 2);
+//        CPU_Data_Check(recvdata, &len);//recv 
+//        
+//        senddata[1] = 0xf1;
+//        CPU_Exchange_Data(senddata, 2);//send
+//        CPU_Data_Check(recvdata, &len);  
+    } 
+    
+//    CPU_Exchange_Data(senddata, 2);
+}
 
 
+#endif
 
 
 /******************************  END OF FILE  *********************************/

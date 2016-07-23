@@ -102,6 +102,10 @@ void Initial_Device(void)
         /*----------------------------------------------------------------------*/
         
         DataIntegrityInFRAMCheck();      
+        
+        
+        /* ADC init, measure the sf_in voltage */
+        Adc_Init();
             
       
 #endif  /* GEC_SF_MASTER */
@@ -122,10 +126,12 @@ void Initial_Device(void)
         /*----------------------------------------------------------------------*/   
         
         SafetyExtWdt_StartUpCheck();    
-        
+
+        /* HardwareTest */
+        HardwareTEST();        
         
         /* Parameters Loading */
-//        ParametersLoading();
+        ParametersLoading();
         
 
         /* safety output disable */

@@ -272,6 +272,9 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10; 
       GPIO_Init(GPIOA , &GPIO_InitStruct);        
       
+      /** SW-SPDT key gpio -------------------------------------------------- **/
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3; 
+      GPIO_Init(GPIOC , &GPIO_InitStruct);    
       
       /** relay output init **/
       AUX_CTR_CLR();
