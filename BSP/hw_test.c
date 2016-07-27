@@ -155,14 +155,6 @@ void Input_Check2(void)
                 SF_RELAY_OFF(); 
                 AUX_RELAY_OFF();                
             }
-//            else if ( inputnum && ( inputnum % 2 ) )
-//            {
-//                SF_RELAY_ON(); 
-//            }
-//            else if ( inputnum )
-//            {
-//                AUX_RELAY_ON(); 
-//            }
             
         }
 }
@@ -298,15 +290,9 @@ void CrossCommCPUCheck(void)
 #endif
     if( data_error > 2 )
     {
-//        LED = 0;
         /* SPI1_DMA_Check error */
         EN_ERROR7 |= 0x01;
 //        FailSafeTest();
-//        while(1)
-//        {
-//            EWDT_TOOGLE(); 
-//            IWDG_ReloadCounter();        
-//        }
     }
 
 
@@ -458,87 +444,7 @@ void HardwareTEST(void)
         } 
         
         
-    }
-//    else if( len2 == 10 && CAN2_RX_Data[0] == 0xf1 )
-//    {
-//        waittms = 0;
-//        for( u8 i = 2; i < 10 ; i++ )
-//        {
-//            CAN2_TX_Data[i] = CAN2_RX_Data[i];
-//        }
-//        BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN1_TEST_ID, CAN2_TX_Data, 10);
-//        
-////        if( len1 == 10 && CAN1_RX_Data[0] == 0xf1 )
-////        {
-////            waittms = 0;
-////            for( u8 i = 2; i < 10 ; i++ )
-////            {
-////                CAN1_TX_Data[i] = CAN1_RX_Data[i];
-////            }
-////            BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10);
-////        }        
-//        
-//        waittms = 0;
-//        do
-//        {
-//            len2 = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN2_RX_Data, 0);
-//            delay_ms(1);
-//            EWDT_TOOGLE();
-//            waittms++;
-//            if( waittms > 2000 )
-//            {
-//                waittms = 0;
-//                break;
-//            }
-//        }
-//        while( len2 != 10 || CAN2_RX_Data[0] != 0xf1 );         
-//        
-////        waittms = 0;
-////        do
-////        {
-////            len1 = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
-////            delay_ms(1);
-////            EWDT_TOOGLE();
-////            waittms++;
-////            if( waittms > 2000 )
-////            {
-////                waittms = 0;
-////                break;
-////            }
-////        }
-////        while( len1 != 10 || CAN1_RX_Data[0] != 0xf1 ); 
-//        
-//        if( len2 == 10 && CAN2_RX_Data[0] == 0xf1 )
-//        {
-//            for( u8 i = 2; i < 10 ; i++ )
-//            {
-//                if( CAN2_RX_Data[i] != testdata2[i] )
-//                {
-//                    testerror++;
-//                    break;
-//                }
-//            }
-//
-////            if( len1 == 10 && CAN1_RX_Data[0] == 0xf1 )
-////            {
-////                for( u8 i = 2; i < 10 ; i++ )
-////                {
-////                    if( CAN1_RX_Data[i] != testdata1[i] )
-////                    {
-////                        testerror++;
-////                        break;
-////                    }
-////                }
-////            }  
-//            
-//            if( testerror == 0 )
-//            {
-//                testmode = 1;
-//            }
-//        } 
-//        
-//        
-//    }    
+    }   
     else
     {
         CAN_FilterInitTypeDef  	        CAN_FilterInitStructure;

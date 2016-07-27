@@ -5304,9 +5304,6 @@
       <name>$PROJ_DIR$\..\ESC\src\esc_safety_check.c</name>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\ESC\src\esc_state_machine.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_tandem.c</name>
     </file>
   </group>
