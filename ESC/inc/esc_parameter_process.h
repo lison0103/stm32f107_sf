@@ -15,6 +15,13 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
+#define MESSAGE_TO_CPU      0x11
+#define MESSAGE_TO_CONTROL      0x22
+#define USB_DETECTED        0x01
+#define USB_NOT_DETECTED        0x02
+#define PARAMETER_ERROR        0x04
+#define PARAMETER_CORRECT        0x08
+
 /* Exported functions ------------------------------------------------------- */
 void ParametersLoading(void);
 

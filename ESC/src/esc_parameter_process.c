@@ -15,6 +15,8 @@
 #include "esc.h"
 #include "esc_comm_safety_dualcpu.h"
 #include "can.h"
+#include "ewdt.h"
+#include "led.h"
 
 #ifdef GEC_SF_MASTER
 #include "mb85rcxx.h"
@@ -92,14 +94,14 @@ void get_para_from_usb(void)
     
     /* USB-stick undetected */
     /* 1. Message to CPU2 */
-    senddata[0] = 0x11;
-    senddata[1] = 0x02;
+    senddata[0] = MESSAGE_TO_CPU;
+    senddata[1] = USB_NOT_DETECTED;
     CPU_Exchange_Data(senddata, 2);//send
     CPU_Data_Check(recvdata, &len);
     
     /* 2. Message to Control */    
-    senddata[0] = 0x22;
-    senddata[1] = 0x02;
+    senddata[0] = MESSAGE_TO_CONTROL;
+    senddata[1] = USB_NOT_DETECTED;
     BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, 2);
     
     /* cpu1 read parameters and check in power on */
@@ -117,14 +119,14 @@ void get_para_from_usb(void)
     CPU_Data_Check(recvdata, &len);//recv
     
     
-    if( len == 0x02 && recvdata[0] == 0x11 )
+    if( len == 0x02 && recvdata[0] == MESSAGE_TO_CPU )
     {
-        if( recvdata[1] == 0x08 )
+        if( recvdata[1] == PARAMETER_CORRECT )
         {
             /* 4. Save parameters into variables */
             esc_para_init();
         }
-        else if( recvdata[1] == 0x04 )
+        else if( recvdata[1] == PARAMETER_ERROR )
         {        
             /* Error message. Abort parameter loading due to CRC fault in CPU2. 
             System remains in Init Fault. */
@@ -137,14 +139,20 @@ void get_para_from_usb(void)
     /* 1. Waiting for message from CPU1 to start parameter loading process */
     CPU_Exchange_Data(senddata, 2);
     CPU_Data_Check(recvdata, &len);//recv
-    if( len == 0x02 && recvdata[0] == 0x11 )
+    if( len == 0x02 && recvdata[0] == MESSAGE_TO_CPU )
     {
-        if( recvdata[1] == 0x01 )
+        if( recvdata[1] == USB_DETECTED )
         {
             /* CPU2 wait until unit restarts. */
-            delay_ms(10);
+            while(1)
+            {
+                LED_FLASH();                                                
+                delay_ms(200);
+                EWDT_TOOGLE();
+                IWDG_ReloadCounter();
+            }
         }
-        else if( recvdata[1] == 0x02 )
+        else if( recvdata[1] == USB_NOT_DETECTED )
         {
             /* 2. Message received with parameters from CPU1 */
             CPU_Exchange_Data(senddata, 2);
@@ -155,8 +163,8 @@ void get_para_from_usb(void)
             if( len != 50 )
             {
                 /* Send error to CPU1. ¡°CPU2 parameters error¡± System remains in Init Fault. */
-                senddata[0] = 0x11;
-                senddata[1] = 0x04;
+                senddata[0] = MESSAGE_TO_CPU;
+                senddata[1] = PARAMETER_ERROR;
             }
             else
             {
@@ -166,8 +174,8 @@ void get_para_from_usb(void)
                     Sys_Data[i] = recvdata[i];
                 }  
                 
-                senddata[0] = 0x11;
-                senddata[1] = 0x08; 
+                senddata[0] = MESSAGE_TO_CPU;
+                senddata[1] = PARAMETER_CORRECT; 
             }
         }
     }

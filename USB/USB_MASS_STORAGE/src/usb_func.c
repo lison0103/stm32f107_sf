@@ -23,6 +23,7 @@
 #include "can.h"
 #include "esc_comm_safety_dualcpu.h"
 #include "mb85rcxx.h"
+#include "esc_parameter_process.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -58,14 +59,14 @@ u8 USB_LoadParameter(void)
       
       /* USB-stick detected */     
       /* 1. Message to CPU2 */
-      senddata[0] = 0x11;
-      senddata[1] = 0x01;
+      senddata[0] = MESSAGE_TO_CPU;
+      senddata[1] = USB_DETECTED;
       CPU_Exchange_Data(senddata, 2);
       CPU_Data_Check(recvdata, &len);  
       
       /* 2. Message to Control */
-      senddata[0] = 0x22;
-      senddata[1] = 0x01;
+      senddata[0] = MESSAGE_TO_CONTROL;
+      senddata[1] = USB_DETECTED;
       BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, 2);
       
       /* usb load parameter start -------------------------------------------*/
@@ -157,7 +158,7 @@ u8 USB_LoadParameter(void)
 *******************************************************************************/ 
 void USBH_Mass_Storage_Init(void)
 {
-        
+      u8 wait_for_restart = 0;  
       u16 t = 0;
       u32 timecounter = 0;
       
@@ -175,34 +176,39 @@ void USBH_Mass_Storage_Init(void)
            
       while(1)
       {
-            
-            USBH_Process(&USB_OTG_Core, &USB_Host);
-            delay_ms(1);
-            t++;
-            timecounter++;
-            
-            if( ParaLoadFinsh & 0x01 )
-            {
-                while(1)
-                {
-                    NVIC_SystemReset();
-                }                
-            }
-            else if( timecounter == 1000 )
-            {                             
-                USBH_DeInit(&USB_OTG_Core, &USB_Host);
-                myfree(fs[0]);
-                break;
-            }
-            
-            if( t == 200 )
-            {                       
-                  t = 0;
-                  LED_FLASH();
-                  
-                  EWDT_TOOGLE();
-                  IWDG_ReloadCounter();                  
-            }
+          
+          if( ParaLoadFinsh & 0x01 )
+          {
+              if( wait_for_restart == 0 )
+              {
+                  USBH_DeInit(&USB_OTG_Core, &USB_Host);
+                  myfree(fs[0]);   
+                  wait_for_restart = 1;
+              }
+          }
+          else if( timecounter == 1000 )
+          {                             
+              USBH_DeInit(&USB_OTG_Core, &USB_Host);
+              myfree(fs[0]);
+              break;
+          }
+          else
+          {
+              USBH_Process(&USB_OTG_Core, &USB_Host);
+              timecounter++;
+          }
+          
+          delay_ms(1);
+          t++;
+          
+          if( t == 200 )
+          {                       
+              t = 0;
+              LED_FLASH();
+              
+              EWDT_TOOGLE();
+              IWDG_ReloadCounter();                  
+          }
       } 
          
 }
