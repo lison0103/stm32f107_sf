@@ -226,7 +226,7 @@ extern u8 *const pcEscErrorCodeBuff;
 extern u8 *const pcEscErrorBuff;
 extern u8 *const pcOmcErrorBuff;
 
-#define PARA_INIT                       pt_SysBuff[0]
+#define PARA_INIT                       pt_SysBuff[1]
 /* parameters */
 #define MOTOR_RPM                        pt_SysBuff[10]
 #define MOTOR_PLUSE_PER_REV              pt_SysBuff[11]

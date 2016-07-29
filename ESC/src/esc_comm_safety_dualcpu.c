@@ -67,7 +67,7 @@ void Communication_CPU(void)
 }
 
 /*******************************************************************************
-* Function Name  : Send_state_to_CPU2
+* Function Name  : Send_state_to_CPU
 * Description    : None
 * Input          : None          
 * Output         : None
@@ -87,7 +87,7 @@ void Send_state_to_CPU(void)
 }
 
 /*******************************************************************************
-* Function Name  : Send_state_to_CPU2
+* Function Name  : Receive_state_from_CPU
 * Description    : None
 * Input          : None          
 * Output         : None
@@ -109,7 +109,7 @@ void Receive_state_from_CPU(void)
 }
 
 /*******************************************************************************
-* Function Name  : Send_state_to_CPU2
+* Function Name  : Receive_IO_status_from_CPU
 * Description    : None
 * Input          : None          
 * Output         : None

@@ -24,6 +24,8 @@
 #include "esc_comm_safety_dualcpu.h"
 #include "mb85rcxx.h"
 #include "esc_parameter_process.h"
+#include "esc_error_process.h"
+#include "esc_record_data.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -35,7 +37,8 @@
 USBH_HOST  USB_Host;
 USB_OTG_CORE_HANDLE  USB_OTG_Core;
 
-u8 ParaLoadFinsh = 0;
+u8 ParaLoad = 0;
+
 
 /*******************************************************************************
 * Function Name  : USB_LoadParameter
@@ -51,28 +54,24 @@ u8 USB_LoadParameter(void)
 
       u8 res = 0;
       u8 parabuffer[100];
-      u8 len,senddata[50],recvdata[50];
       u16 filelen = 0;
 
       LED_ON();
-      ParaLoadFinsh |= 0x01;
+      ParaLoad |= USB_DETECTED;
       
       /* USB-stick detected */     
       /* 1. Message to CPU2 */
-      senddata[0] = MESSAGE_TO_CPU;
-      senddata[1] = USB_DETECTED;
-      CPU_Exchange_Data(senddata, 2);
-      CPU_Data_Check(recvdata, &len);  
+      Send_State_Message( MESSAGE_TO_CPU, USB_DETECTED, NULL, 0 );
       
       /* 2. Message to Control */
-      senddata[0] = MESSAGE_TO_CONTROL;
-      senddata[1] = USB_DETECTED;
-      BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, 2);
+      Send_State_Message( MESSAGE_TO_CONTROL, USB_DETECTED, NULL, 0 );
       
       /* usb load parameter start -------------------------------------------*/
       /* 1. S0001 file present */
       if(!isFileExist("0:S0001.bin"))
       {
+          
+          Send_State_Message( MESSAGE_TO_CONTROL, SAFETY_PARAMETER_EXIST, NULL, 0 );
           
           /* 2. Read parameters from usb stick to buffer */
           filelen = ReadFile( "0:S0001.bin", parabuffer );
@@ -84,20 +83,30 @@ u8 USB_LoadParameter(void)
           {
               /* Error message. Abort parameter loading. System remains in Init Fault. */
               EN_ERROR9 |= 0x01;
+              
+              Send_State_Message( MESSAGE_TO_CONTROL, PARAMETER_ERROR, NULL, 0 );
+              
+              ESC_Init_Fault();
           }
           else
           {
               /* 5. Store the parameters in the fram */
-              eeprom_write(0, filelen, parabuffer);
+              fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, parabuffer);
+              
+              ParaLoad |= SAFETY_PARAMETER_LOADED;
           }
-       
-          ParaLoadFinsh |= 0x02;
           
+      }
+      else
+      {
+          Send_State_Message( MESSAGE_TO_CONTROL, SAFETY_PARAMETER_NOT_EXIST, NULL, 0 );
       }
 
       /* 1. C0001 file present */
       if(!isFileExist("0:C0001.bin"))
       {
+          
+          Send_State_Message( MESSAGE_TO_CONTROL, CONTROL_PARAMETER_EXIST, NULL, 0 );
           
           /* 2. Read parameters from usb stick to buffer */
           filelen = ReadFile( "0:C0001.bin", parabuffer );
@@ -108,23 +117,32 @@ u8 USB_LoadParameter(void)
           if( MB_CRC16( parabuffer, filelen ))
           {
               /* Error message. Abort parameter loading. System remains in Init Fault. */
-              EN_ERROR9 |= 0x01;              
+              EN_ERROR9 |= 0x01;   
+              
+              Send_State_Message( MESSAGE_TO_CONTROL, PARAMETER_ERROR, NULL, 0 );
+              
+              ESC_Init_Fault();
           }
           else
           {         
               /* 5. Send the parameters to the cb board */
-              BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, parabuffer, filelen);
+              Send_State_Message( MESSAGE_TO_CONTROL, SEND_PARAMETER, parabuffer, filelen );
+              
+              ParaLoad |= CONTROL_PARAMETER_LOADED;
           }
-                    
-          ParaLoadFinsh |= 0x04;
-          
-      }      
+                      
+      }   
+      else
+      {
+          Send_State_Message( MESSAGE_TO_CONTROL, CONTROL_PARAMETER_NOT_EXIST, NULL, 0 );
+      }
       /* usb load parameter finish -------------------------------------------*/ 
       
       
       while( HCD_IsDeviceConnected( &USB_OTG_Core ))
       {	
-            if( ParaLoadFinsh & 0x06 ) 
+          
+            if( ParaLoad & ( SAFETY_PARAMETER_LOADED | CONTROL_PARAMETER_LOADED ) ) 
             {
                 LED_FLASH();                
             }
@@ -177,7 +195,7 @@ void USBH_Mass_Storage_Init(void)
       while(1)
       {
           
-          if( ParaLoadFinsh & 0x01 )
+          if( ParaLoad & USB_DETECTED )
           {
               if( wait_for_restart == 0 )
               {

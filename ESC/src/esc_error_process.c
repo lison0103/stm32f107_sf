@@ -12,6 +12,7 @@
 #include "hw_test.h"
 #include "sys.h"
 #include "esc.h"
+#include "ewdt.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -86,6 +87,28 @@ void fault_code_decode(u8* code_buff)
     }  
 }
 
+
+/*******************************************************************************
+* Function Name  : ESC_Init_Fault
+* Description    : Esc init fault.
+* Input          : None            
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void ESC_Init_Fault(void)
+{
+ 
+    /** Disconnect the safety relay **/
+    SF_RL_CTR_CLR();
+    SF_RL_WDT_CLR();
+   
+    while(1)
+    {
+        EWDT_TOOGLE();
+        IWDG_ReloadCounter();
+    }
+
+}
 
 /*******************************************************************************
 * Function Name  : ESC_EWDT_Error_Process

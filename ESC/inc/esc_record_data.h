@@ -12,13 +12,15 @@
 #define __ESC_RECORD_DATA_H
 
 /* Includes ------------------------------------------------------------------*/
+#include "sys.h"
+
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void esc_data_check(void);
-void sys_data_write(void);
-
+u8 fram_data_read(u8 Adr, u8 len, u8 *ReadData);
+void fram_data_write(u8 Adr, u8 len, u8 *WriteData);
 
 #endif  /* __ESC_RECORD_DATA_H */
 

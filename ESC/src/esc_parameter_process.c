@@ -17,6 +17,7 @@
 #include "can.h"
 #include "ewdt.h"
 #include "led.h"
+#include "hw_test.h"
 
 #ifdef GEC_SF_MASTER
 #include "mb85rcxx.h"
@@ -71,11 +72,78 @@ void esc_para_init(void)
         
         PARA_INIT = 0xff01;
    
-        sys_data_write();
+        fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, &Modbuff[1100]);
         
     }
 }
 #endif
+
+
+/*******************************************************************************
+* Function Name  : Send_State_Message
+* Description    : Send state to control or CPU2.
+*                  
+* Input          : board: CPU or control board.
+*                  state: load the parameter state.
+* Output         : None
+* Return         : None
+*******************************************************************************/ 
+u8 Send_State_Message(u8 board, u8 state, u8 *buff, u8 len)
+{
+    u8 senddata[100],recvdata[100];
+
+    senddata[0] = board;
+    senddata[1] = state;    
+    
+    /* Send the state to the CPU */
+    if( board == MESSAGE_TO_CPU )
+    {
+        if( state == SEND_PARAMETER )
+        {
+            for( u8 i = 0; i < len; i++)
+            {
+                senddata[i + 2] = buff[i];
+            } 
+            CPU_Exchange_Data(senddata, len + 2);
+            CPU_Data_Check(recvdata, &len);            
+        }
+        else if( state == RECEIVE_PARAMETER )
+        {
+            CPU_Exchange_Data(senddata, 2);
+            CPU_Data_Check(recvdata, &len); 
+            
+            for( u8 i = 0; i < len; i++)
+            {
+                buff[i] = recvdata[i];
+            }    
+            
+            return len;
+        }
+        else
+        {
+            CPU_Exchange_Data(senddata, 2);
+            CPU_Data_Check(recvdata, &len);            
+        }
+    }
+    /* Send the state to the cb board */
+    else if( board == MESSAGE_TO_CONTROL )
+    {
+        if( state == SEND_PARAMETER )
+        {
+            for( u8 i = 0; i < len; i++)
+            {
+                senddata[i + 2] = buff[i];
+            } 
+            BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, len + 2);            
+        }
+        else
+        {        
+            BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, 2);
+        }
+    }
+    
+    return 0;
+}
 
 /*******************************************************************************
 * Function Name  : get_para_from_usb
@@ -86,7 +154,7 @@ void esc_para_init(void)
 *******************************************************************************/
 void get_para_from_usb(void)
 {
-    u8 senddata[50],recvdata[50];
+    u8 recvdata[50];
     u8 len = 0;
     
 #ifdef GEC_SF_MASTER 
@@ -94,51 +162,75 @@ void get_para_from_usb(void)
     
     /* USB-stick undetected */
     /* 1. Message to CPU2 */
-    senddata[0] = MESSAGE_TO_CPU;
-    senddata[1] = USB_NOT_DETECTED;
-    CPU_Exchange_Data(senddata, 2);//send
-    CPU_Data_Check(recvdata, &len);
+    Send_State_Message( MESSAGE_TO_CPU, USB_NOT_DETECTED, NULL, 0 );
     
     /* 2. Message to Control */    
-    senddata[0] = MESSAGE_TO_CONTROL;
-    senddata[1] = USB_NOT_DETECTED;
-    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, 2);
+    Send_State_Message( MESSAGE_TO_CONTROL, USB_NOT_DETECTED, NULL, 0 );
     
-    /* cpu1 read parameters and check in power on */
-    /* 2. Send parameters to CPU2 */
-    for( u8 i = 0; i < 50; i++)
+    /* 3. cpu1 read parameters and check in power on */
+    if(!fram_data_read(ESC_PARA_ADR, ESC_PARA_NUM, Sys_Data))
     {
-        senddata[i] = Sys_Data[i];
-    }    
-    CPU_Exchange_Data(senddata, 50);//send
-    CPU_Data_Check(recvdata, &len);
+        /* 4. Check crc16 is it ok */
+        if( MB_CRC16( Sys_Data, ESC_PARA_NUM ))
+        {
+            /* Error message. Abort parameter loading. System remains in Init Fault. */
+            EN_ERROR9 |= 0x01;
+            
+            ESC_Init_Fault();
+        }
+        else
+        {
+            /* 5. Send parameters to CPU2 */
+            Send_State_Message( MESSAGE_TO_CPU, SEND_PARAMETER, Sys_Data, ESC_PARA_NUM );
+        }
+    }
+    else
+    {
+        EN_ERROR9 |= 0x01;
+        
+        ESC_Init_Fault();    
+    }
+          
     
-    /* 3. Message received from CPU2 */
+    /* 6. Message received from CPU2 */
     delay_ms(50);
-    CPU_Exchange_Data(senddata, 2);
-    CPU_Data_Check(recvdata, &len);//recv
-    
+    len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0 );   
     
     if( len == 0x02 && recvdata[0] == MESSAGE_TO_CPU )
     {
         if( recvdata[1] == PARAMETER_CORRECT )
         {
-            /* 4. Save parameters into variables */
+            /* 7. Save parameters into variables */
             esc_para_init();
+            
+            /* 8. Parametrization Loading Finished. Send Finish message to CPU2 */
+            Send_State_Message( MESSAGE_TO_CPU, PARAMETER_LOADED_FINSH, NULL, 0 );
         }
         else if( recvdata[1] == PARAMETER_ERROR )
         {        
             /* Error message. Abort parameter loading due to CRC fault in CPU2. 
             System remains in Init Fault. */
             EN_ERROR9 |= 0x01;
+            
+            ESC_Init_Fault();
         }
+    }
+    else
+    {
+        /* Message received timeout. Send error to CPU2. Restart required. 
+        System remains in Init Fault. */
+        EN_ERROR9 |= 0x01;
+        
+        ESC_Init_Fault();
     }
     
 #else
     
+    u8 senddata[5];
+    
     /* 1. Waiting for message from CPU1 to start parameter loading process */
-    CPU_Exchange_Data(senddata, 2);
-    CPU_Data_Check(recvdata, &len);//recv
+    len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0 ); 
+
     if( len == 0x02 && recvdata[0] == MESSAGE_TO_CPU )
     {
         if( recvdata[1] == USB_DETECTED )
@@ -155,42 +247,63 @@ void get_para_from_usb(void)
         else if( recvdata[1] == USB_NOT_DETECTED )
         {
             /* 2. Message received with parameters from CPU1 */
-            CPU_Exchange_Data(senddata, 2);
-            CPU_Data_Check(recvdata, &len);//recv
+            len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0 ); 
             
             /* 3. Check paremeters received, CRC16 is ok */
-//            if( MB_CRC16( recvdata, len ))
-            if( len != 50 )
+            if( recvdata[0] == MESSAGE_TO_CPU && recvdata[1] == SEND_PARAMETER )
             {
-                /* Send error to CPU1. ¡°CPU2 parameters error¡± System remains in Init Fault. */
-                senddata[0] = MESSAGE_TO_CPU;
-                senddata[1] = PARAMETER_ERROR;
+                if( MB_CRC16( recvdata, len ))
+                {
+                    /* Send error to CPU1. ¡°CPU2 parameters error¡± System remains in Init Fault. */
+                    Send_State_Message( MESSAGE_TO_CPU, PARAMETER_ERROR, NULL, 0 );
+                    
+                    ESC_Init_Fault();
+                }
+                else
+                {
+                    /* 4. Save parameters into variables */
+                    for( u8 i = 0; i < len - 2; i++)
+                    {
+                        Sys_Data[i] = recvdata[i];
+                    }  
+                    
+                    /* 5. Send confirmation to CPU1 or Send error to CPU1 */  
+                    Send_State_Message( MESSAGE_TO_CPU, PARAMETER_CORRECT, NULL, 0 );
+                    
+                    /* Received Finish message from CPU1 */  
+                    len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0 ); 
+                    if( recvdata[0] == MESSAGE_TO_CPU && recvdata[1] == PARAMETER_LOADED_FINSH )
+                    {
+                        /* SPI Slave Send */
+                        CPU_Exchange_Data(senddata, 2);
+                    }
+                    else
+                    {
+                        EN_ERROR9 |= 0x01;
+                        
+                        ESC_Init_Fault(); 
+                    }
+                }
             }
             else
             {
-                /* 4. Save parameters into variables */
-                for( u8 i = 0; i < len - 2; i++)
-                {
-                    Sys_Data[i] = recvdata[i];
-                }  
+                /* Message received timeout. Send error to CPU1. ¡°CPU2 parameters 
+                communication error. Timeout message from CPU1¡± */
+                EN_ERROR9 |= 0x01;
                 
-                senddata[0] = MESSAGE_TO_CPU;
-                senddata[1] = PARAMETER_CORRECT; 
+                ESC_Init_Fault();                
             }
         }
     }
     else
     {
         /* para init error */
+        EN_ERROR9 |= 0x01;
+        
+        ESC_Init_Fault();
     }
 
-    
-    /* 5. Send confirmation to CPU1 or Send error to CPU1 */  
-    CPU_Exchange_Data(senddata, 2);//send
-    CPU_Data_Check(recvdata, &len);    
-    
-    
-    CPU_Exchange_Data(senddata, 2);
+
     
 #endif
 }
@@ -204,8 +317,15 @@ void get_para_from_usb(void)
 *******************************************************************************/
 void ParametersLoading(void)
 {
-      get_para_from_usb();
-      
+    if( testmode == 0 )
+    {
+        get_para_from_usb();
+        
+        /* for test */
+#ifdef GEC_SF_MASTER 
+        esc_para_init();
+#endif
+    }
 }
 
 
