@@ -44,7 +44,7 @@ void Check_Error_Present_Memory(void)
 
 }
 
-#ifdef GEC_SF_MASTER
+//#ifdef GEC_SF_MASTER
 /*******************************************************************************
 * Function Name  : esc_para_init
 * Description    : esc parameter initialization, set the default value.                 
@@ -72,11 +72,11 @@ void esc_para_init(void)
         
         PARA_INIT = 0xff01;
    
-        fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, &Modbuff[1100]);
+//        fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, &Modbuff[1100]);
         
     }
 }
-#endif
+//#endif
 
 
 /*******************************************************************************
@@ -322,11 +322,11 @@ void ParametersLoading(void)
 //        get_para_from_usb();
         
         /* for test */
-#ifdef GEC_SF_MASTER 
+//#ifdef GEC_SF_MASTER 
         esc_para_init();
-#else
+//#else
 
-#endif
+//#endif
     }
 }
 
