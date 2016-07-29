@@ -13,6 +13,9 @@
 #include "delay.h"
 #include "crc16.h"
 
+#ifdef GEC_SF_S_NEW
+#include "usb_istr.h"
+#endif
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -409,7 +412,7 @@ void CAN1_RX0_IRQHandler(void)
     {
         CAN_ClearITPendingBit(CAN1,CAN_IT_FOV0);
     }
-    else
+    else if( CAN_GetITStatus(CAN1,CAN_IT_FMP0) != RESET)
     {
         
         CAN_Receive(CAN1, CAN_FIFO0, &RxMessage);
@@ -428,6 +431,12 @@ void CAN1_RX0_IRQHandler(void)
             CAN_RX_Process( RxMessage, &CAN1_RX_Normal );
         }           
     }
+#ifdef GEC_SF_S_NEW 
+    else
+    {
+        USB_Istr();
+    }
+#endif
 }
 #endif
 

@@ -141,10 +141,10 @@
   #define RCC_AHBPeriph_GPIO_DISCONNECT       RCC_AHBPeriph_GPIOC
 
 #elif defined (USE_STM32303C_EVAL)
-  #define USB_DISCONNECT                      GPIOB  
-  #define USB_DISCONNECT_PIN                  GPIO_Pin_8
+  #define USB_DISCONNECT                      GPIOC  
+  #define USB_DISCONNECT_PIN                  GPIO_Pin_12
 
-  #define RCC_AHBPeriph_GPIO_DISCONNECT       RCC_AHBPeriph_GPIOB
+  #define RCC_AHBPeriph_GPIO_DISCONNECT       RCC_AHBPeriph_GPIOC
 #endif /* USE_STM3210B_EVAL */
 
 /* Exported macro ------------------------------------------------------------*/

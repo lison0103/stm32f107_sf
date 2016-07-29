@@ -23,6 +23,9 @@
 #include "esc_cmd_state.h"
 #include "esc_tandem.h"
 #include "esc_comm_diagnostic.h"
+#ifdef GEC_SF_S_NEW
+#include "usb_virtual_com_port.h"
+#endif
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -127,7 +130,7 @@ void Task_Loop(void)
       }
       if( Tms20Counter == 0 )
       {
-
+         
       }       
 #endif     
       
@@ -145,6 +148,8 @@ void Task_Loop(void)
 #ifdef GEC_SF_MASTER 
           CAN1_TX_Data[2] = SW_SPDT_KEY;
           CAN1_TX_Data[3] = Get_Adc_Average();
+#else
+          USB_Receive_Data_Send();
 #endif
       }
            

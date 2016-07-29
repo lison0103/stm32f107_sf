@@ -319,11 +319,13 @@ void ParametersLoading(void)
 {
     if( testmode == 0 )
     {
-        get_para_from_usb();
+//        get_para_from_usb();
         
         /* for test */
 #ifdef GEC_SF_MASTER 
         esc_para_init();
+#else
+
 #endif
     }
 }

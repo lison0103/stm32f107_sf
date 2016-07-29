@@ -142,7 +142,7 @@ void USB_Receive_Data_Send(void)
     {
       CDC_Receive_DATA();//usb_endp.c   EP3_OUT_Callback
       /*Check to see if we have data yet */
-      while(!packet_receive);
+//      while(!packet_receive);
       while(Receive_length  != 0)
       {
           CDC_Send_DATA ((unsigned char*)Receive_Buffer,Receive_length);

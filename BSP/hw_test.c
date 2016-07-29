@@ -636,7 +636,7 @@ void HardwareTEST(void)
 //        CPU_Data_Check(recvdata, &len);  
     } 
     
-//    CPU_Exchange_Data(senddata, 2);
+    CPU_Exchange_Data(senddata, 2);
 }
 
 

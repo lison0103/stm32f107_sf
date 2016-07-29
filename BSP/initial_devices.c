@@ -18,6 +18,9 @@
 #include "config_test.h"
 #include "esc_parameter_process.h"
 #include "esc_safety_check.h"
+#ifdef GEC_SF_S_NEW
+#include "usb_virtual_com_port.h"
+#endif
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -106,7 +109,11 @@ void Initial_Device(void)
         
         /* ADC init, measure the sf_in voltage */
         Adc_Init();
-            
+        
+#else
+        
+        /* micro usb vcp init */
+        Connect_To_COM();
       
 #endif  /* GEC_SF_MASTER */
 
