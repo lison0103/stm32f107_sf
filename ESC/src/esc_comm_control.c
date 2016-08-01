@@ -85,7 +85,7 @@ void Communication_To_Control(void)
     {
     /** CAN1 send data ------------------------------------------------------**/
     /** CB normal SEND ID:0x1314, CB URGE SEND ID:0x1234 **/
-    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 100);
+    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 125);
     BSP_CAN_Send(CAN1, &CAN1_TX_Urge, CAN1TX_URGE_ID, CAN1_TX2_Data, 20);
     }
     else if( testmode == 1 )

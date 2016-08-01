@@ -228,18 +228,17 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
             NVIC_Init(&NVIC_InitStructure);
 #endif
-//            CAN_ITConfig(CAN1, CAN_IT_TME, DISABLE);                
-//            /* Enable CAN1 TX0 interrupt IRQ channel */
-//#ifdef GEC_SF_MASTER
-//            NVIC_InitStructure.NVIC_IRQChannel = CAN1_TX_IRQn;
-//#else
-//            NVIC_InitStructure.NVIC_IRQChannel = USB_HP_CAN1_TX_IRQn;
-//#endif
-//            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-//            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
-//            NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//            NVIC_Init(&NVIC_InitStructure);            
             
+#ifdef GEC_SF_MASTER
+            CAN_ITConfig(CAN1, CAN_IT_TME, DISABLE);                
+            /* Enable CAN1 TX0 interrupt IRQ channel */
+            NVIC_InitStructure.NVIC_IRQChannel = CAN1_TX_IRQn;
+//            NVIC_InitStructure.NVIC_IRQChannel = USB_HP_CAN1_TX_IRQn;
+            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+            NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+            NVIC_Init(&NVIC_InitStructure);            
+#endif            
             
         }
 #ifdef GEC_SF_MASTER        
@@ -589,7 +588,9 @@ void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_
                 }
                 
             }
-//            CAN_ITConfig(CAN1, CAN_IT_TME, ENABLE);
+#ifdef GEC_SF_MASTER
+            CAN_ITConfig(CAN1, CAN_IT_TME, ENABLE);
+#endif
         } 
     
 }

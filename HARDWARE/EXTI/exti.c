@@ -318,8 +318,6 @@ void EXTI0_IRQHandler(void)
 
 #ifdef GEC_SF_MASTER          
         handrail_X1_int();
-#else
-        missingstep_X1_int();
 #endif
     }
 }

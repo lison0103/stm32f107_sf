@@ -84,6 +84,14 @@ void Send_state_to_CPU(void)
     /* 2. esc state --------------------------*/        
     cpu_senddata_buffer[100] = (u8)SfBase_EscState;
     cpu_senddata_buffer[101] = (u8)(SfBase_EscState >> 8);
+
+#ifdef GEC_SF_MASTER    
+    /* 3. esc para, just for test */
+    for( u8 i = 102; i < 162; i++)
+    {
+        cpu_senddata_buffer[i] = Modbuff[1120 + i - 102];
+    }    
+#endif
 }
 
 /*******************************************************************************
@@ -95,7 +103,8 @@ void Send_state_to_CPU(void)
 *******************************************************************************/
 void Receive_state_from_CPU(void)
 {
-    if( recvlen == 102 )
+#ifdef GEC_SF_MASTER 
+    if( recvlen == 102 )       
     {
         /* 1. esc Rtdata receive--------------------------*/
         for( u8 i = 0; i < 100; i++)
@@ -106,6 +115,25 @@ void Receive_state_from_CPU(void)
         /* 2. esc state */
         pcOMC_SfBase_EscState = ( cpu_recvdata_buffer[101] << 8 | cpu_recvdata_buffer[100] );    
     }
+#else
+    if( recvlen == 162 )       
+    {
+        /* 1. esc Rtdata receive--------------------------*/
+        for( u8 i = 0; i < 100; i++)
+        {
+            McRxBuff[i] = cpu_recvdata_buffer[i];
+        }
+        
+        /* 2. esc state */
+        pcOMC_SfBase_EscState = ( cpu_recvdata_buffer[101] << 8 | cpu_recvdata_buffer[100] );    
+        
+        /* 3. esc para receive, just for test --------------*/
+        for( u8 i = 102; i < 162; i++)
+        {
+            Modbuff[1120 + i - 102] = cpu_recvdata_buffer[i];
+        }        
+    }
+#endif    
 }
 
 /*******************************************************************************
@@ -164,7 +192,7 @@ void CPU_Comm(void)
         Receive_state_from_CPU();
                
         Send_state_to_CPU();        
-        CPU_Exchange_Data(cpu_senddata_buffer, 102);
+        CPU_Exchange_Data(cpu_senddata_buffer, 102 + 60);
     }
 #else  
     comm_timeout--;

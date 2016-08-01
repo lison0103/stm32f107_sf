@@ -51,6 +51,8 @@ void Safety_Comm_Diag(void)
 
     len = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN2_RX_Data, 0);
     
+    CAN2_TX_Data[2] = pcEscErrorCodeBuff[0];
+    
     /* DBL1 UP, just for test */
     if( len > 0 )
     {
@@ -64,6 +66,8 @@ void Safety_Comm_Diag(void)
     }
   
     len = BSP_CAN_Receive(CAN2, &CAN2_RX_Down, CAN2_RX2_Data, 0);
+    
+    CAN2_TX2_Data[2] = pcEscErrorCodeBuff[0];
     
     /* DBL1 DOWN, just for test */
     if( len > 0 )
