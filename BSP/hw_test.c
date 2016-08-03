@@ -336,6 +336,7 @@ void HardwareTEST(void)
         len1 = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
         delay_ms(1);
         EWDT_TOOGLE();
+        IWDG_ReloadCounter(); 
         waittms++;
         if( waittms > 5000 )
         {
@@ -351,6 +352,7 @@ void HardwareTEST(void)
         len2 = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN2_RX_Data, 0);
         delay_ms(1);
         EWDT_TOOGLE();
+        IWDG_ReloadCounter(); 
         waittms++;
         if( waittms > 10000 )
         {
@@ -385,6 +387,7 @@ void HardwareTEST(void)
             len1 = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
             delay_ms(1);
             EWDT_TOOGLE();
+            IWDG_ReloadCounter(); 
             waittms++;
             if( waittms > 2000 )
             {
@@ -400,6 +403,7 @@ void HardwareTEST(void)
             len2 = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN2_RX_Data, 0);
             delay_ms(1);
             EWDT_TOOGLE();
+            IWDG_ReloadCounter(); 
             waittms++;
             if( waittms > 2000 )
             {
@@ -545,6 +549,7 @@ void HardwareTEST(void)
         len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
         delay_ms(1);
         EWDT_TOOGLE();
+        IWDG_ReloadCounter(); 
         waittms++;
         if( waittms > 2000 )
         {
@@ -568,6 +573,7 @@ void HardwareTEST(void)
             len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
             delay_ms(1);
             EWDT_TOOGLE();
+            IWDG_ReloadCounter(); 
             waittms++;
             if( waittms > 8000 )
             {

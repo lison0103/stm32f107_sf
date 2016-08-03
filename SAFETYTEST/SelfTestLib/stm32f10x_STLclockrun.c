@@ -84,6 +84,8 @@ void STL_SysTickRTCSync(void)
   RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); /* Select LSI as RTC Clock Source */
   
   RCC_RTCCLKCmd(ENABLE);                  /* Start RTC counter */
+  
+  RTC_BypassShadowCmd(ENABLE);
 
   /* Configure the RTC data register and RTC prescaler */
   RTC_InitStructure.RTC_AsynchPrediv = 0x00;
@@ -92,16 +94,16 @@ void STL_SysTickRTCSync(void)
   
   /* Wait for RTC registers synchronization */
   RTC_WaitForSynchro();
-
-  RTC_WakeUpCmd( DISABLE );
-  RTC_WakeUpClockConfig( RTC_WakeUpClock_RTCCLK_Div2 );
   
   /** TIM4 init 10khz, counting to 20 is 2ms **/
   TIM4_Int_Init(19,7199);
   
-  /* Reset RTC */
-  RTC_SetWakeUpCounter(0xFFFF);
-  RTC_WakeUpCmd( ENABLE );
+  RTC->WPR=0xCA;
+  RTC->WPR=0x53; 
+  RTC->ISR|=1<<7;	
+  while(((RTC->ISR&(1<<6))==0x00));
+  RTC->TR = 0;                                  /* Reset RTC */ 
+  RTC->ISR&=~(1<<7);
   
 #else
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, ENABLE);
@@ -167,17 +169,24 @@ ClockStatus STL_ClockFreqTest(void)
 {
     u32 HSEPeriod, ClockFrequency;
     ClockStatus Result = TEST_ONGOING; /* In case of unexpected exit */
-
+#ifdef GEC_SF_S_NEW
+    u32 PeriodConversion = 0;
+#endif
   ISRCtrlFlowCnt += CLOCKPERIOD_ISR_CALLEE;
 
   /*-------------------------- HSE Measurement -------------------------------*/
   /* Assuming this routine is called on each and every SysTick interrupt
     and that SysTick interrupt rate is constant */
 #ifdef GEC_SF_S_NEW
-  HSEPeriod = ( (0xFFFF - RTC_GetWakeUpCounter()) * 2 );   /* HSE frequency measurement */
-  RTC_WakeUpCmd( DISABLE );
-  RTC_SetWakeUpCounter(0xFFFF);
-  RTC_WakeUpCmd( ENABLE );
+  PeriodConversion = 0;
+  PeriodConversion = (uint32_t)(RTC->TR & ((uint32_t)0x007F7F7F));
+  HSEPeriod = (uint32_t)((PeriodConversion>>8)&0x7f)*60 + (uint32_t)(PeriodConversion&0x7f);   /* HSE frequency measurement */ 
+  RTC->WPR=0xCA;
+  RTC->WPR=0x53; 
+  RTC->ISR|=1<<7;	
+  while(((RTC->ISR&(1<<6))==0x00));
+  RTC->TR = 0;                          /* Reset RTC */
+  RTC->ISR&=~(1<<7);
 #else
   RTC_WaitForLastTask();          /* Verify last write operation completed*/
   HSEPeriod = RTC_GetCounter();   /* HSE frequency measurement */
@@ -241,6 +250,9 @@ ClockStatus STL_ClockFreqTest(void)
 u32 STL_MeasurePeriod(void)
 {
     u32 Period;
+#ifdef GEC_SF_S_NEW
+    u32 PeriodConversion = 0;
+#endif
 
   ISRCtrlFlowCnt += MEASPERIOD_ISR_CALLEE;
 
@@ -248,10 +260,15 @@ u32 STL_MeasurePeriod(void)
   /* Assuming this routine can only be called in a SysTick interrupt
     and that SysTick interrupt rate is constant */
 #ifdef GEC_SF_S_NEW  
-  Period = ( (0xFFFF - RTC_GetWakeUpCounter()) * 2 );   /* HSE frequency measurement */
-  RTC_WakeUpCmd( DISABLE );
-  RTC_SetWakeUpCounter(0xFFFF);
-  RTC_WakeUpCmd( ENABLE );
+  PeriodConversion = 0;
+  PeriodConversion = (uint32_t)(RTC->TR & ((uint32_t)0x007F7F7F));
+  Period = (uint32_t)((PeriodConversion>>8)&0x7f)*60 + (uint32_t)(PeriodConversion&0x7f);   /* HSE frequency measurement */  
+  RTC->WPR=0xCA;
+  RTC->WPR=0x53; 
+  RTC->ISR|=1<<7;	
+  while(((RTC->ISR&(1<<6))==0x00));
+  RTC->TR = 0;                          /* Reset RTC */
+  RTC->ISR&=~(1<<7);
 #else  
   RTC_WaitForLastTask();          /* Verify last write operation completed*/
   Period = RTC_GetCounter();   /* HSE frequency measurement */

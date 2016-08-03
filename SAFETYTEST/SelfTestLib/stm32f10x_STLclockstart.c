@@ -50,6 +50,9 @@ ClockStatus STL_ClockStartUpTest(void)
 {
       vu32 LSIPeriod, ClockFrequency;
       ClockStatus Result = TEST_ONGOING; /* In case of unexpected exit */
+#ifdef GEC_SF_S_NEW
+      uint32_t PeriodConversion = 0;
+#endif
 
   CtrlFlowCnt += CLOCK_TEST_CALLEE;
 
@@ -76,8 +79,9 @@ ClockStatus STL_ClockStartUpTest(void)
       }
       /*-------------- Reference Measurement ---------------------------------*/
 #ifdef GEC_SF_S_NEW
-      LSIPeriod = ( (0xFFFF - RTC_GetWakeUpCounter()) * 2 );   /* HSE frequency measurement */
-      RTC_WakeUpCmd( DISABLE );     
+      PeriodConversion = 0;
+      PeriodConversion = (uint32_t)(RTC->TR & ((uint32_t)0x007F7F7F));
+      LSIPeriod = (uint32_t)((PeriodConversion>>8)&0x7f)*60 + (uint32_t)(PeriodConversion&0x7f);   /* LSI frequency measurement */     
 #else
       LSIPeriod = RTC_GetCounter(); /* LSI frequency measurement */
 #endif
@@ -89,8 +93,12 @@ ClockStatus STL_ClockStartUpTest(void)
       else    /* Clock switched correctly */
       {
 #ifdef GEC_SF_S_NEW
-      RTC_SetWakeUpCounter(0xFFFF);
-      RTC_WakeUpCmd( ENABLE );      
+	RTC->WPR=0xCA;
+	RTC->WPR=0x53; 
+        RTC->ISR|=1<<7;	
+	while(((RTC->ISR&(1<<6))==0x00));
+	RTC->TR = 0;                                  /* Reset RTC */ 
+	RTC->ISR&=~(1<<7);		
 #else          
         RTC_SetCounter(0);                            /* Reset RTC */
         RTC_WaitForLastTask();
@@ -104,8 +112,9 @@ ClockStatus STL_ClockStartUpTest(void)
 
         /*-------------------- HSE Measurement -------------------------------*/
 #ifdef GEC_SF_S_NEW
-        RefHSEPeriod = ( (0xFFFF - RTC_GetWakeUpCounter()) * 2 );   /* HSE frequency measurement */
-        RTC_WakeUpCmd( DISABLE );     
+        PeriodConversion = 0;
+        PeriodConversion = (uint32_t)(RTC->TR & ((uint32_t)0x007F7F7F));
+        RefHSEPeriod = (uint32_t)((PeriodConversion>>8)&0x7f)*60 + (uint32_t)(PeriodConversion&0x7f);   /* HSE frequency measurement */  
 #else        
         RefHSEPeriod = RTC_GetCounter();   /* HSE frequency measurement */
 #endif
@@ -282,6 +291,8 @@ void STL_RTCinit(void)
   RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); /* Select LSI as RTC Clock Source */
   
   RCC_RTCCLKCmd(ENABLE);                  /* Start RTC counter */
+  
+  RTC_BypassShadowCmd(ENABLE);
 
   /* Configure the RTC data register and RTC prescaler */
   RTC_InitStructure.RTC_AsynchPrediv = 0x00;
@@ -290,14 +301,6 @@ void STL_RTCinit(void)
   
   /* Wait for RTC registers synchronization */
   RTC_WaitForSynchro();
-
-  RTC_WakeUpCmd( DISABLE );
-  RTC_WakeUpClockConfig( RTC_WakeUpClock_RTCCLK_Div2 );
-  
-  
-  /* Reset RTC */
-  RTC_SetWakeUpCounter(0xFFFF);
-  RTC_WakeUpCmd( ENABLE );
   
 #else  
   RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); /* Select LSI as RTC Clock Source */
