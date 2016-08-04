@@ -80,12 +80,11 @@ void SPI1_Configuration(void)
         SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
            
         //CRC
-//        SPI_CalculateCRC(SPI1, ENABLE);
+        SPI_CalculateCRC(SPI1, ENABLE);
         
         //SPI enable
 	SPI_Cmd(SPI1, ENABLE); 
         
-        printf("SPI INIT \r\n");
 } 
 
 
@@ -354,11 +353,10 @@ void DMA_Check_Flag(u32 times)
               SPI_I2S_ClearFlag(SPI1, SPI_FLAG_CRCERR);
               
               //SPI CRC ERROR
-              printf("Channel2 CRCERR \r\n");
               EN_ERROR_SYS4++;
 #ifdef GEC_SF_MASTER          
-              SPI1_Configuration();
-              delay_ms(200);
+//              SPI1_Configuration();
+//              delay_ms(200);
 #else
               SPI1_Configuration();
 #endif              
