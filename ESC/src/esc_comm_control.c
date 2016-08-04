@@ -54,8 +54,8 @@ void Communication_To_Control(void)
     /* just for test */
     if( len > 0 )
     {
-        CAN1_TX_Data[0] = 0;
-        CAN1_TX_Data[1] = 0;
+        CAN1_TX_Data[0] = SAFETY_SWITCH_STATUS[0];
+        CAN1_TX_Data[1] = McRxBuff[80];
 //        CAN1_TX_Data[2] = 0;
 //        CAN1_TX_Data[3] = 0;        
         CAN1_TX_Data[4] = CAN1_RX_Data[0];

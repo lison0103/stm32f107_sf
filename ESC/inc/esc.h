@@ -37,7 +37,7 @@
 #define INPUT_PORT1_8       EscRTBuff[4]
 #define INPUT_PORT9_16      EscRTBuff[5]
 #define INPUT_PORT17_24     EscRTBuff[6]
-#define INPUT_PORT24_28     EscRTBuff[7]
+#define INPUT_PORT24_29     EscRTBuff[7]
 #define INPUT_PORT_EX1_8    EscRTBuff[8]
 #define INPUT_PORT_EX9_16   EscRTBuff[9]
 #define INPUT_PORT_EX17     EscRTBuff[10]
@@ -74,6 +74,7 @@
 #define INPUT_PORT26_MASK        ( 1 << 1 )
 #define INPUT_PORT27_MASK        ( 1 << 2 )
 #define INPUT_PORT28_MASK        ( 1 << 3 )
+#define INPUT_PORT29_MASK        ( 1 << 4 )
 
 #define INPUT_PORT_EX1_MASK        ( 1 << 0 )
 #define INPUT_PORT_EX2_MASK        ( 1 << 1 )
@@ -100,6 +101,7 @@
 #define INPUT_PORT_SF_RL_FB_MASK        ( 1 << 2 )
 #define INPUT_PORT_SF_RL_FB_CPU_MASK        ( 1 << 3 )
 #define INPUT_PORT_AUX_FB_MASK        ( 1 << 4 )
+#define INPUT_PORT_PLUSE_OUTPUT_FB_MASK        ( 1 << 5 )
 
 #define CMD_FLAG1 	EscRTBuff[20]
 #define CMD_FLAG2 	EscRTBuff[21]
@@ -225,6 +227,8 @@ extern u8 *const pcErrorBuff;
 extern u8 *const pcEscErrorCodeBuff;
 extern u8 *const pcEscErrorBuff;
 extern u8 *const pcOmcErrorBuff;
+extern u8 SAFETY_SWITCH_STATUS[4];
+extern u8 *const pcEscSafetySwitchStatus;
 
 #define PARA_INIT                       pt_SysBuff[1]
 /* parameters */

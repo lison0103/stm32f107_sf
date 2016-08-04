@@ -252,6 +252,28 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;                  
       GPIO_Init(GPIOC , &GPIO_InitStruct); 
  
+      /** PLUSE_OUTPUT_FB **/
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4; 
+      GPIO_Init(GPIOC , &GPIO_InitStruct);  
+      
+      /** SINA_BUSY_BA -------------------------------------------------- **/
+      PWR_BackupAccessCmd(ENABLE);  
+      RCC_LSEConfig(RCC_LSE_OFF);       /* PC13/PC14/PC15 use for gpio */
+      PWR_BackupAccessCmd(DISABLE);
+      GPIO_InitStruct.GPIO_Speed = GPIO_Speed_2MHz;
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_14; 
+      GPIO_Init(GPIOC , &GPIO_InitStruct);  
+
+      /** SYNC_SYS_BA -------------------------------------------------- **/
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_15; 
+      GPIO_Init(GPIOC , &GPIO_InitStruct);           
+      
+      
+      /** SW-SPDT key gpio -------------------------------------------------- **/
+      GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3; 
+      GPIO_Init(GPIOC , &GPIO_InitStruct);   
+
       
       /** output gpio ----------------------------------------------------- **/
       GPIO_InitStruct.GPIO_Mode = GPIO_Mode_Out_PP;
@@ -268,13 +290,17 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2; 
       GPIO_Init(GPIOE , &GPIO_InitStruct);  
       
-      /** pluse out gpio -------------------------------------------------- **/
+      /** PLUSE_OUTPUT_CTR **/
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10; 
       GPIO_Init(GPIOA , &GPIO_InitStruct);        
       
-      /** SW-SPDT key gpio -------------------------------------------------- **/
-      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3; 
-      GPIO_Init(GPIOC , &GPIO_InitStruct);    
+      /** SINA_BUSY_AB -------------------------------------------------- **/
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10; 
+      GPIO_Init(GPIOB , &GPIO_InitStruct);  
+
+      /** SYNC_SYS_AB -------------------------------------------------- **/
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11; 
+      GPIO_Init(GPIOB , &GPIO_InitStruct);        
       
       /** relay output init **/
       AUX_CTR_CLR();
@@ -484,7 +510,6 @@ void Input_Output_PinInit(void)
       /* BX17 */
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;
       GPIO_Init(GPIOA , &GPIO_InitStruct); 
-
       
       
       /** feedback gpio -------------------------------------------------- **/ 
@@ -514,6 +539,18 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;                  
       GPIO_Init(GPIOE , &GPIO_InitStruct); 
    
+      /** PLUSE_OUTPUT_FB **/
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1; 
+      GPIO_Init(GPIOC , &GPIO_InitStruct);  
+      
+      /** SINA_BUSY_AB -------------------------------------------------- **/
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11; 
+      GPIO_Init(GPIOC , &GPIO_InitStruct);  
+
+      /** SYNC_SYS_AB -------------------------------------------------- **/
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10; 
+      GPIO_Init(GPIOC , &GPIO_InitStruct);  
+      
       
       /** output gpio ----------------------------------------------------- **/
 #ifdef GEC_SF_S_NEW 
@@ -535,6 +572,17 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3; 
       GPIO_Init(GPIOE , &GPIO_InitStruct);  
 
+      /** PLUSE_OUTPUT_CTR **/
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0; 
+      GPIO_Init(GPIOC , &GPIO_InitStruct);  
+
+      /** SYNC_SYS_BA -------------------------------------------------- **/
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_5; 
+      GPIO_Init(GPIOD , &GPIO_InitStruct);  
+
+      /** SINA_BUSY_BA -------------------------------------------------- **/
+      GPIO_InitStruct.GPIO_Pin = GPIO_Pin_6; 
+      GPIO_Init(GPIOD , &GPIO_InitStruct); 
       
       /** relay output init **/
       AUX_CTR_CLR();

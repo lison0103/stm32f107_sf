@@ -34,6 +34,243 @@ u8 R_SF_RL_FB_CPU2;
 
 #endif
 
+u8 SAFETY_SWITCH[4][4];
+u8 SAFETY_SWITCH_STATUS[4];
+
+#define UNDEFINED       0
+#define OPEN       1
+#define CLOSED       2
+#define ERROR       3 
+#define SYNCLINE        4
+#define FEEDBACK_PULSE_OUTPUT   5
+/*******************************************************************************
+* Function Name  : SafetySwitchStatus
+* Description    : Safety Switch.
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void SafetySwitchStatus(void)
+{
+    static u8 Pulse_Generation = 0;
+    static u8 SwitchState = 0;
+    static u8 Timeout_SYNC_Line = 0;
+    static u8 SafetySwitchInit = 0;
+    static u8 FAULT = 0;
+    
+    if( SafetySwitchInit == 0 )
+    {
+#ifdef GEC_SF_MASTER
+        SYNC_SYS_OUT_SET();
+#else
+        SYNC_SYS_OUT_CLR();
+#endif    
+        
+        PLUSE_OUTPUT_CLR();
+        Pulse_Generation = 0;
+        for( u8 switch_num = 0; switch_num < 4; switch_num++ )
+        {
+            SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
+            pcEscSafetySwitchStatus[switch_num] = UNDEFINED;
+        }
+        
+        
+        SafetySwitchInit = 1;
+    }   
+
+#if 1   
+    switch( SwitchState )
+    {
+       case 0:
+        {
+            if( SYNC_SYS_IN == 0 || Pulse_Generation == 1 )
+            {
+                Timeout_SYNC_Line = 0;
+                
+                if( Pulse_Generation != 1 )
+                {
+                    Pulse_Generation = 1;
+                    SwitchState = 1;
+                }
+                
+                SYNC_SYS_OUT_SET();
+                if( SYNC_SYS_IN != 0 )
+                {
+                    FAULT = SYNCLINE;
+                    EN_ERROR8 |= 0x08;
+                    SwitchState = 6;
+                }
+            }
+            else
+            {
+                if( Timeout_SYNC_Line > 10 )
+                {
+                    FAULT = SYNCLINE;
+                    EN_ERROR8 |= 0x08;
+                    SwitchState = 6;            
+                }
+                else
+                {
+                    Timeout_SYNC_Line++;
+                }
+            } 
+            break;
+        }
+       case 1:
+        {
+            PLUSE_OUTPUT_SET();            
+            FAULT = 0;/* for test */
+            SwitchState = 2;
+            break;
+        }
+       case 2:
+        {
+            if( PLUSE_OUTPUT_FB == 0 )
+            {
+                if( INPUT_PORT24_29 & INPUT_PORT29_MASK )
+                {
+                    SAFETY_SWITCH[0][0] = CLOSED;
+                }
+                else
+                {
+                    SAFETY_SWITCH[0][0] = OPEN;
+                }
+            }
+            else
+            {
+                FAULT = FEEDBACK_PULSE_OUTPUT;
+                EN_ERROR8 |= 0x10;
+            }
+            
+            PLUSE_OUTPUT_CLR();
+            SwitchState = 3;
+            break;
+        }
+       case 3:
+        {
+            if( PLUSE_OUTPUT_FB == 1 )
+            {
+                if( INPUT_PORT24_29 & INPUT_PORT29_MASK )
+                {
+                    SAFETY_SWITCH[0][1] = ERROR;
+                }
+                else
+                {
+                    SAFETY_SWITCH[0][1] = UNDEFINED;
+                }
+            }
+            else
+            {
+                FAULT = FEEDBACK_PULSE_OUTPUT;
+                EN_ERROR8 |= 0x10;
+            }
+            
+            PLUSE_OUTPUT_CLR();
+            SwitchState = 4;
+            break;
+        }   
+       case 4:
+        {
+            if( PLUSE_OUTPUT_FB == 1 )
+            {
+                if( INPUT_PORT24_29 & INPUT_PORT29_MASK )
+                {
+                    SAFETY_SWITCH[0][2] = ERROR;
+                }
+                else
+                {
+                    SAFETY_SWITCH[0][2] = UNDEFINED;
+                }
+            }
+            else
+            {
+                FAULT = FEEDBACK_PULSE_OUTPUT;
+                EN_ERROR8 |= 0x10;
+            }
+            
+            PLUSE_OUTPUT_SET();
+            SwitchState = 5;
+            break;
+        }          
+       case 5:
+        {
+            if( PLUSE_OUTPUT_FB == 0 )
+            {
+                if( INPUT_PORT24_29 & INPUT_PORT29_MASK )
+                {
+                    SAFETY_SWITCH[0][3] = CLOSED;
+                }
+                else
+                {
+                    SAFETY_SWITCH[0][3] = OPEN;
+                }
+            }
+            else
+            {
+                FAULT = FEEDBACK_PULSE_OUTPUT;
+                EN_ERROR8 |= 0x10;
+            }
+            
+            for( u8 switch_num = 0; switch_num < 1; switch_num++ )
+            {
+                if( FAULT == FEEDBACK_PULSE_OUTPUT )
+                {
+                    SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
+                    pcEscSafetySwitchStatus[switch_num] = UNDEFINED;
+                }
+                else if ( SAFETY_SWITCH[switch_num][0] == ERROR || SAFETY_SWITCH[switch_num][1] == ERROR || SAFETY_SWITCH[switch_num][2] == ERROR || SAFETY_SWITCH[switch_num][3] == ERROR )
+                {
+                    SAFETY_SWITCH_STATUS[switch_num] = ERROR;
+                    pcEscSafetySwitchStatus[switch_num] = ERROR;
+                }
+                else if ( SAFETY_SWITCH[switch_num][0] == OPEN || SAFETY_SWITCH[switch_num][1] == OPEN || SAFETY_SWITCH[switch_num][2] == OPEN || SAFETY_SWITCH[switch_num][3] == OPEN )
+                {
+                    SAFETY_SWITCH_STATUS[switch_num]  = OPEN;
+                    pcEscSafetySwitchStatus[switch_num] = OPEN;
+                }
+                else if ( SAFETY_SWITCH[switch_num][0] == CLOSED || SAFETY_SWITCH[switch_num][1] == CLOSED || SAFETY_SWITCH[switch_num][2] == CLOSED || SAFETY_SWITCH[switch_num][3] == CLOSED )
+                {
+                    SAFETY_SWITCH_STATUS[switch_num]  = CLOSED;
+                    pcEscSafetySwitchStatus[switch_num] = CLOSED;
+                }
+                else
+                {
+                    SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
+                    pcEscSafetySwitchStatus[switch_num] = UNDEFINED;
+                }
+            }           
+            
+            Pulse_Generation = 0;
+            PLUSE_OUTPUT_CLR();
+            SYNC_SYS_OUT_CLR();
+            SwitchState = 7;
+            break;
+        }
+       case 6:
+        {
+            SAFETY_SWITCH_STATUS[0] = UNDEFINED;
+            pcEscSafetySwitchStatus[0] = UNDEFINED;
+            
+            Pulse_Generation = 0;
+            PLUSE_OUTPUT_CLR();
+            SYNC_SYS_OUT_CLR();
+            SwitchState = 7;
+            break;            
+        }
+       case 7:
+        {
+            SwitchState = 0;
+            break;            
+        }       
+       default:
+        break;
+        
+    }
+#endif 
+    
+}
 
 /*******************************************************************************
 * Function Name  : SafetyOutputDisable

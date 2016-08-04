@@ -40,6 +40,9 @@ void Get_GpioInput(u8 inBuff[])
     {
         inBuff[i] = 0;
     }
+
+#if 0
+    /* read the pin value three times */
     
     read_pin_cnt++;  
     if(read_pin_cnt > 2) read_pin_cnt = 0;  
@@ -56,6 +59,26 @@ void Get_GpioInput(u8 inBuff[])
         ByteAnd[i] = PinValue[0][i] & PinValue[1][i] & PinValue[2][i];
         ByteOr[i] = PinValue[0][i] | PinValue[1][i] | PinValue[2][i]; 
     }
+#else
+    /* read the pin value only one times */
+    
+    read_pin_cnt = 0;
+    
+    /* Read I/O port */                      
+    PinValue[read_pin_cnt][0] = GPIO_ReadInputData(GPIOA);
+    PinValue[read_pin_cnt][1] = GPIO_ReadInputData(GPIOB);
+    PinValue[read_pin_cnt][2] = GPIO_ReadInputData(GPIOC);
+    PinValue[read_pin_cnt][3] = GPIO_ReadInputData(GPIOD);
+    PinValue[read_pin_cnt][4] = GPIO_ReadInputData(GPIOE);
+    
+    for( i = 0; i < 5; i++ )
+    {   
+        ByteAnd[i] = PinValue[0][i]; 
+        ByteOr[i] = PinValue[0][i];
+    }    
+    
+#endif
+    
     
 #ifdef GEC_SF_MASTER
     
@@ -134,7 +157,8 @@ void Get_GpioInput(u8 inBuff[])
     if(ByteAnd[4] & 0x0040) inBuff[7] |= 0x08; else if(!(ByteOr[4] & 0x0040)) inBuff[7] &= ~0x08; 
     /* AUX_FB */
     if(ByteAnd[2] & 0x0002) inBuff[7] |= 0x10; else if(!(ByteOr[2] & 0x0002)) inBuff[7] &= ~0x10; 
-
+    /* PLUSE_OUTPUT_FB */
+    if(ByteAnd[2] & 0x0010) inBuff[7] |= 0x20; else if(!(ByteOr[2] & 0x0010)) inBuff[7] &= ~0x20; 
     
 #else  
     
@@ -213,6 +237,8 @@ void Get_GpioInput(u8 inBuff[])
     if(ByteAnd[2] & 0x0004) inBuff[7] |= 0x08; else if(!(ByteOr[2] & 0x0004)) inBuff[7] &= ~0x08; 
     /* AUX_FB */
     if(ByteAnd[4] & 0x0010) inBuff[7] |= 0x10; else if(!(ByteOr[4] & 0x0010)) inBuff[7] &= ~0x10; 
+    /* PLUSE_OUTPUT_FB */
+    if(ByteAnd[2] & 0x0002) inBuff[7] |= 0x20; else if(!(ByteOr[2] & 0x0002)) inBuff[7] &= ~0x20; 
     
 #endif    
 

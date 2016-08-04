@@ -51,6 +51,7 @@ u8 *const pcOmcErrorBuff = &McRxBuff[70];
 u8 *const pcErrorBuff = &EscRTBuff[70];
 u8 *const pcEscErrorCodeBuff = &Modbuff[454];
 u8 *const pcEscErrorBuff = &Modbuff[468];
+u8 *const pcEscSafetySwitchStatus = &EscRTBuff[80];
 u16 pcOMC_SfBase_EscState;
 
 /*******************************************************************************
@@ -110,6 +111,7 @@ void Task_Loop(void)
           ESC_Missingstep_Check();
           SafetyOutputDisable();
           SafetyOutputEnable();
+          SafetySwitchStatus();
       }
 
       

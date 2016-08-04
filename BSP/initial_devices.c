@@ -94,8 +94,8 @@ void Initial_Device(void)
         /** note : use CAN2 , must CAN1 init **/
         CAN_Int_Init(CAN2);         
         
-        /** pluse output init **/
-        PluseOutputInit();
+        /** pluse output init, for test **/
+//        PluseOutputInit();
         
         /** Extenal communication device init **/
         ExtCommDeviceInit();
@@ -135,7 +135,7 @@ void Initial_Device(void)
         SafetyExtWdt_StartUpCheck();    
 
         /* HardwareTest */
-        HardwareTEST();        
+//        HardwareTEST();        
         
         /* Parameters Loading */
         ParametersLoading();
@@ -182,7 +182,7 @@ void DataIntegrityInFRAMCheck(void)
 void ExtCommDeviceInit(void)
 {
   
-    USART3_Init();   
+//    USART3_Init();   
     
     /** timer for usart3 **/
     /** TIM init 10khz, counting to 10 is 1ms **/

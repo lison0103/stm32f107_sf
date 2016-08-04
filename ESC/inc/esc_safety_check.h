@@ -24,7 +24,7 @@ void SafetyRelayAuxRelayTest(void);
 void SafetyCTR_Check(void);
 void SafetyOutputDisable(void);
 void SafetyOutputEnable(void);
-
+void SafetySwitchStatus(void);
 
 #endif  /* __ESC_SAFETY_CHECK_H */
 
