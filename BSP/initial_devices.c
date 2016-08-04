@@ -88,17 +88,15 @@ void Initial_Device(void)
         /** Data array is initialized to 0 **/
         Data_init();
         
+        
 #ifdef GEC_SF_MASTER           
         
         /** CAN2 init,baud rate 500Kbps **/
         /** note : use CAN2 , must CAN1 init **/
-        CAN_Int_Init(CAN2);         
-        
-        /** pluse output init, for test **/
-//        PluseOutputInit();
+        CAN_Int_Init(CAN2);                
         
         /** Extenal communication device init **/
-        ExtCommDeviceInit();
+//        ExtCommDeviceInit();
         
         /*----------------------------------------------------------------------*/
         /*----------------------------- FRAM Test ------------------------------*/
@@ -140,7 +138,9 @@ void Initial_Device(void)
         /* Parameters Loading */
         ParametersLoading();
         
-
+        /** safety switch 1ms timer **/
+        PluseOutputInit();
+        
         /* safety output disable */
         SafetyOutputDisable();
         
@@ -182,7 +182,7 @@ void DataIntegrityInFRAMCheck(void)
 void ExtCommDeviceInit(void)
 {
   
-//    USART3_Init();   
+    USART3_Init();   
     
     /** timer for usart3 **/
     /** TIM init 10khz, counting to 10 is 1ms **/
@@ -202,8 +202,8 @@ void ExtCommDeviceInit(void)
 void PluseOutputInit(void)
 {
   
-    /** TIM init 1000Khz¡ê?counting to 10 is 10us **/
-    TIM3_Int_Init(9,71); 
+    /** TIM init 10khz, counting to 10 is 1ms **/
+    TIM3_Int_Init(9,7199); 
 
 }
 
@@ -325,10 +325,11 @@ void RCC_Configuration(void)
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 | RCC_AHBPeriph_CRC, ENABLE); 
 #endif
     
-    #ifdef GEC_SF_MASTER
-      RCC_APB1PeriphClockCmd( RCC_APB1Periph_CAN2 , ENABLE);    
+#ifdef GEC_SF_MASTER
+      RCC_APB1PeriphClockCmd( RCC_APB1Periph_CAN2 , ENABLE); 
+#endif
       RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM3 , ENABLE);    
-    #endif
+    
 
 #ifdef GEC_SF_S_NEW      
       RCC_APB2PeriphClockCmd( RCC_APB2Periph_TIM1 , ENABLE);

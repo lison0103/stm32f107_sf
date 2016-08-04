@@ -13,6 +13,7 @@
 #include "sys.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
+#include "esc_safety_check.h"
 
 #ifdef GEC_SF_MASTER
 #include "usart.h"
@@ -157,7 +158,7 @@ void TIM4_Int_Init(u16 arr,u16 psc)
 *******************************************************************************/
 void TIM3_Int_Init(u16 arr,u16 psc)
 {
-#ifdef GEC_SF_MASTER
+
         TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
 
@@ -181,12 +182,7 @@ void TIM3_Int_Init(u16 arr,u16 psc)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
 	NVIC_Init(&NVIC_InitStructure);  
 
-	TIM_Cmd(TIM3, ENABLE);  
-#endif
-        
-      
-        
-							 
+	TIM_Cmd(TIM3, ENABLE);  							 
 }
 
 /*******************************************************************************
@@ -381,7 +377,6 @@ void TIM4_IRQHandler(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-#ifdef GEC_SF_MASTER
 void TIM3_IRQHandler(void)   
 {
       if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET) 
@@ -389,21 +384,10 @@ void TIM3_IRQHandler(void)
         
           TIM_ClearITPendingBit(TIM3, TIM_IT_Update  );  
 
-          count++;
-          if(count == 17)
-          {
-              PLUSE_OUTPUT_SET();
-          }
-          
-          if(count == 25)
-          {
-              PLUSE_OUTPUT_CLR();
-              count = 0;
-          } 
-        
+          SafetySwitchStatus();
       }
 }
-#endif
+
 
 
 /*******************************************************************************

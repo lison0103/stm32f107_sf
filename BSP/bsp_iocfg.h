@@ -23,7 +23,7 @@ void Input_Output_PinInit(void);
 
 #ifdef GEC_SF_MASTER
 
-//OUTPUT
+/** OUTPUT **/
 #define AUX_CTR_SET()    		GPIO_WriteBit(GPIOC, GPIO_Pin_0, Bit_SET)
 #define AUX_CTR_CLR()    	GPIO_WriteBit(GPIOC, GPIO_Pin_0, Bit_RESET)
 #define SF_RL_CTR_SET()    		GPIO_WriteBit(GPIOE, GPIO_Pin_2, Bit_SET)
@@ -37,15 +37,15 @@ void Input_Output_PinInit(void);
 #define SF_RL_WDT_SET()   		GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_SET)
 #define SF_RL_WDT_CLR()    	GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_RESET)
 
-#define PLUSE_OUTPUT_SET()                 GPIO_WriteBit(GPIOA, GPIO_Pin_10, Bit_SET)
-#define PLUSE_OUTPUT_CLR()       GPIO_WriteBit(GPIOA, GPIO_Pin_10, Bit_RESET)
+#define PULSE_OUTPUT_SET()                 GPIO_WriteBit(GPIOA, GPIO_Pin_10, Bit_SET)
+#define PULSE_OUTPUT_CLR()       GPIO_WriteBit(GPIOA, GPIO_Pin_10, Bit_RESET)
 
 #define SINA_BUSY_OUT_SET()       GPIO_WriteBit(GPIOB, GPIO_Pin_10, Bit_SET)
 #define SINA_BUSY_OUT_CLR()       GPIO_WriteBit(GPIOB, GPIO_Pin_10, Bit_RESET)
 #define SYNC_SYS_OUT_SET()       GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_SET)
 #define SYNC_SYS_OUT_CLR()       GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_RESET)
 
-//FEEDBACK
+/** FEEDBACK **/
 #define SF_RL_DRV_FB   GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_3)
 #define SF_PWR_FB_CPU   GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8)
 #define SF_RL_FB       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2)
@@ -54,10 +54,17 @@ void Input_Output_PinInit(void);
 
 #define AUX_FB       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_1)
 
-#define PLUSE_OUTPUT_FB       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4)
+#define PULSE_OUTPUT_FB       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4)
 
 #define SINA_BUSY_IN       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_14)
 #define SYNC_SYS_IN       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_15)
+
+/** SAFETY SWITCH INPUT**/
+#define SAFETY_SWITCH_INPUT_1       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_5)
+#define SAFETY_SWITCH_INPUT_2       GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_12)
+#define SAFETY_SWITCH_INPUT_3       GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_11)
+#define SAFETY_SWITCH_INPUT_4       GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_10)
+
 
 //EWDT
 #define SF_EWDT_TOOGLE() 	GPIOB->ODR ^= 0X0200
@@ -82,8 +89,8 @@ void Input_Output_PinInit(void);
 #define SF_RL_WDT_SET()   		GPIO_WriteBit(GPIOE, GPIO_Pin_1, Bit_SET)
 #define SF_RL_WDT_CLR()    	GPIO_WriteBit(GPIOE, GPIO_Pin_1, Bit_RESET)
 
-#define PLUSE_OUTPUT_SET()                 GPIO_WriteBit(GPIOC, GPIO_Pin_0, Bit_SET)
-#define PLUSE_OUTPUT_CLR()       GPIO_WriteBit(GPIOC, GPIO_Pin_0, Bit_RESET)
+#define PULSE_OUTPUT_SET()                 GPIO_WriteBit(GPIOC, GPIO_Pin_0, Bit_SET)
+#define PULSE_OUTPUT_CLR()       GPIO_WriteBit(GPIOC, GPIO_Pin_0, Bit_RESET)
 
 #define SINA_BUSY_OUT_SET()       GPIO_WriteBit(GPIOD, GPIO_Pin_6, Bit_SET)
 #define SINA_BUSY_OUT_CLR()       GPIO_WriteBit(GPIOD, GPIO_Pin_6, Bit_RESET)
@@ -99,10 +106,16 @@ void Input_Output_PinInit(void);
 
 #define AUX_FB       GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_4)
 
-#define PLUSE_OUTPUT_FB       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_1)
+#define PULSE_OUTPUT_FB       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_1)
 
 #define SINA_BUSY_IN       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_11)
 #define SYNC_SYS_IN       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_10)
+
+/** SAFETY SWITCH INPUT**/
+#define SAFETY_SWITCH_INPUT_1       GPIO_ReadInputDataBit(GPIOD, GPIO_Pin_3)
+#define SAFETY_SWITCH_INPUT_2       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_5)
+#define SAFETY_SWITCH_INPUT_3       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4)
+#define SAFETY_SWITCH_INPUT_4       GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4)
 
 //EWDT
 #define SF_EWDT_TOOGLE() 	GPIOE->ODR ^= 0X0002

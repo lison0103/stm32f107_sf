@@ -252,7 +252,7 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1;                  
       GPIO_Init(GPIOC , &GPIO_InitStruct); 
  
-      /** PLUSE_OUTPUT_FB **/
+      /** PULSE_OUTPUT_FB **/
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4; 
       GPIO_Init(GPIOC , &GPIO_InitStruct);  
       
@@ -290,7 +290,7 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2; 
       GPIO_Init(GPIOE , &GPIO_InitStruct);  
       
-      /** PLUSE_OUTPUT_CTR **/
+      /** PULSE_OUTPUT_CTR **/
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10; 
       GPIO_Init(GPIOA , &GPIO_InitStruct);        
       
@@ -539,7 +539,7 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_4;                  
       GPIO_Init(GPIOE , &GPIO_InitStruct); 
    
-      /** PLUSE_OUTPUT_FB **/
+      /** PULSE_OUTPUT_FB **/
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_1; 
       GPIO_Init(GPIOC , &GPIO_InitStruct);  
       
@@ -572,7 +572,7 @@ void Input_Output_PinInit(void)
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3; 
       GPIO_Init(GPIOE , &GPIO_InitStruct);  
 
-      /** PLUSE_OUTPUT_CTR **/
+      /** PULSE_OUTPUT_CTR **/
       GPIO_InitStruct.GPIO_Pin = GPIO_Pin_0; 
       GPIO_Init(GPIOC , &GPIO_InitStruct);  
 

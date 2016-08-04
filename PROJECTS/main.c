@@ -111,7 +111,7 @@ void Task_Loop(void)
           ESC_Missingstep_Check();
           SafetyOutputDisable();
           SafetyOutputEnable();
-          SafetySwitchStatus();
+//          SafetySwitchStatus();
       }
 
       
