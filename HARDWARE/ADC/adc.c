@@ -114,7 +114,7 @@ s32 Get_Adc_Average(void)
         sf_get_adc_times++;
         if( sf_get_adc_times == 5 )
         {
-            val = temp_val*24/4096/5;
+            val = temp_val*60/4096/5;
             temp_val = 0;
             sf_get_adc_times = 0;           
         }
