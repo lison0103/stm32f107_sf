@@ -327,8 +327,8 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 
 
 //#define USART1_EN     	1
-//#define USART2_EN    			1
-#define USART3_EN         1
+#define USART2_EN    			1
+//#define USART3_EN         1
 //#define USART3_REMAP_EN		1		
 
 

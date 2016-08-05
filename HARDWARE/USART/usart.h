@@ -17,7 +17,7 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-#define USING_USART3_OVERTIME
+//#define USING_USART3_OVERTIME
 
 #ifndef USART3_BUF_SIZE
 #define USART3_BUF_SIZE                512             

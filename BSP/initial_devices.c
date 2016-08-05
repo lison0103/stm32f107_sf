@@ -96,7 +96,7 @@ void Initial_Device(void)
         CAN_Int_Init(CAN2);                
         
         /** Extenal communication device init **/
-//        ExtCommDeviceInit();
+        ExtCommDeviceInit();
         
         /*----------------------------------------------------------------------*/
         /*----------------------------- FRAM Test ------------------------------*/
@@ -180,14 +180,8 @@ void DataIntegrityInFRAMCheck(void)
 * Return         : None
 *******************************************************************************/
 void ExtCommDeviceInit(void)
-{
-  
-    USART3_Init();   
-    
-    /** timer for usart3 **/
-    /** TIM init 10khz, counting to 10 is 1ms **/
-    TIM2_Int_Init(9,7199); 
-
+{  
+    USART2_Init();   
 }
 
 /*******************************************************************************

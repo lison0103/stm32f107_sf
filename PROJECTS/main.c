@@ -23,6 +23,7 @@
 #include "esc_cmd_state.h"
 #include "esc_tandem.h"
 #include "esc_comm_diagnostic.h"
+#include "comm_display_board.h"
 #ifdef GEC_SF_S_NEW
 #include "usb_virtual_com_port.h"
 #endif
@@ -148,6 +149,7 @@ void Task_Loop(void)
       if( Tms100Counter == 0 )
       {   
 #ifdef GEC_SF_MASTER 
+          Comm_DisplayBoard();
           CAN1_TX_Data[2] = SW_SPDT_KEY;
           CAN1_TX_Data[3] = Get_Adc_Average();
 #else
@@ -179,6 +181,11 @@ void Task_Loop(void)
 int main(void)
 {        
 
+    u16 i; 
+    
+    /* Power up delay */
+    for( i = 0; i < 10000; i++ );
+    
     /** hardware init **/
     Initial_Device();    
     
