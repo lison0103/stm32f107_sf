@@ -44,7 +44,7 @@ void Check_Error_Present_Memory(void)
 
 }
 
-//#ifdef GEC_SF_MASTER
+#ifdef GEC_SF_MASTER
 /*******************************************************************************
 * Function Name  : esc_para_init
 * Description    : esc parameter initialization, set the default value.                 
@@ -72,11 +72,11 @@ void esc_para_init(void)
         
         PARA_INIT = 0xff01;
    
-//        fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, &Modbuff[1100]);
+        fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, &Modbuff[1100]);
         
     }
 }
-//#endif
+#endif
 
 
 /*******************************************************************************
@@ -90,7 +90,7 @@ void esc_para_init(void)
 *******************************************************************************/ 
 u8 Send_State_Message(u8 board, u8 state, u8 *buff, u8 len)
 {
-    u8 senddata[100],recvdata[100];
+    u8 senddata[120],recvdata[120];
 
     senddata[0] = board;
     senddata[1] = state;    
@@ -122,7 +122,7 @@ u8 Send_State_Message(u8 board, u8 state, u8 *buff, u8 len)
         else
         {
             CPU_Exchange_Data(senddata, 2);
-            CPU_Data_Check(recvdata, &len);            
+            CPU_Data_Check(recvdata, &len);                         
         }
     }
     /* Send the state to the cb board */
@@ -154,10 +154,14 @@ u8 Send_State_Message(u8 board, u8 state, u8 *buff, u8 len)
 *******************************************************************************/
 void get_para_from_usb(void)
 {
-    u8 recvdata[50];
+    
     u8 len = 0;
     
 #ifdef GEC_SF_MASTER 
+    
+    u8 recvdata[10];
+    u8 paradata[120];
+    
     USBH_Mass_Storage_Init();
     
     /* USB-stick undetected */
@@ -168,10 +172,10 @@ void get_para_from_usb(void)
     Send_State_Message( MESSAGE_TO_CONTROL, USB_NOT_DETECTED, NULL, 0 );
     
     /* 3. cpu1 read parameters and check in power on */
-    if(!fram_data_read(ESC_PARA_ADR, ESC_PARA_NUM, Sys_Data))
+    if(!fram_data_read(ESC_PARA_ADR, ESC_PARA_NUM, paradata))
     {
         /* 4. Check crc16 is it ok */
-        if( MB_CRC16( Sys_Data, ESC_PARA_NUM ))
+        if( MB_CRC16( paradata, ESC_PARA_NUM ))
         {
             /* Error message. Abort parameter loading. System remains in Init Fault. */
             EN_ERROR9 |= 0x01;
@@ -181,7 +185,7 @@ void get_para_from_usb(void)
         else
         {
             /* 5. Send parameters to CPU2 */
-            Send_State_Message( MESSAGE_TO_CPU, SEND_PARAMETER, Sys_Data, ESC_PARA_NUM );
+            Send_State_Message( MESSAGE_TO_CPU, SEND_PARAMETER, paradata, ESC_PARA_NUM );
         }
     }
     else
@@ -201,7 +205,10 @@ void get_para_from_usb(void)
         if( recvdata[1] == PARAMETER_CORRECT )
         {
             /* 7. Save parameters into variables */
-            esc_para_init();
+            for( u8 i = 0; i < len - 2; i++)
+            {
+                Sys_Data[i] = paradata[i];
+            } 
             
             /* 8. Parametrization Loading Finished. Send Finish message to CPU2 */
             Send_State_Message( MESSAGE_TO_CPU, PARAMETER_LOADED_FINSH, NULL, 0 );
@@ -227,6 +234,7 @@ void get_para_from_usb(void)
 #else
     
     u8 senddata[5];
+    u8 recvdata[120];
     
     /* 1. Waiting for message from CPU1 to start parameter loading process */
     len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0 ); 
@@ -252,7 +260,7 @@ void get_para_from_usb(void)
             /* 3. Check paremeters received, CRC16 is ok */
             if( recvdata[0] == MESSAGE_TO_CPU && recvdata[1] == SEND_PARAMETER )
             {
-                if( MB_CRC16( recvdata, len ))
+                if( MB_CRC16( &recvdata[2], (len - 2) ))
                 {
                     /* Send error to CPU1. ¡°CPU2 parameters error¡± System remains in Init Fault. */
                     Send_State_Message( MESSAGE_TO_CPU, PARAMETER_ERROR, NULL, 0 );
@@ -262,9 +270,9 @@ void get_para_from_usb(void)
                 else
                 {
                     /* 4. Save parameters into variables */
-                    for( u8 i = 0; i < len - 2; i++)
+                    for( u8 i = 0; i < len - 4; i++)
                     {
-                        Sys_Data[i] = recvdata[i];
+                        Sys_Data[i] = recvdata[i + 2];
                     }  
                     
                     /* 5. Send confirmation to CPU1 or Send error to CPU1 */  
@@ -318,15 +326,14 @@ void get_para_from_usb(void)
 void ParametersLoading(void)
 {
     if( testmode == 0 )
-    {
-//        get_para_from_usb();
-        
+    {       
         /* for test */
 #ifdef GEC_SF_MASTER 
         esc_para_init();
 #else
 
 #endif
+        get_para_from_usb();
     }
 }
 

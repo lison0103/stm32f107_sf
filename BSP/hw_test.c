@@ -286,7 +286,7 @@ void CrossCommCPUCheck(void)
 
 #ifdef GEC_SF_MASTER 
 #else
-        SPI1_DMA_ReceiveSendByte(comm_num);
+//        SPI1_DMA_ReceiveSendByte(comm_num);
 #endif
     if( data_error > 2 )
     {
