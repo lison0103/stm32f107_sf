@@ -29,7 +29,8 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-u8 sflag = 0,inputnum = 0;
+u8 sflag1 = 0,inputnum1 = 0;
+u8 sflag2 = 0,inputnum2 = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -84,6 +85,7 @@ void Input_Check2(void)
 {
   
         u32 *ulPt_Input1,*ulPt_Input2;
+        u32 *ulPt_Input3,*ulPt_Input4;
         u8 i;
 
 
@@ -91,16 +93,21 @@ void Input_Check2(void)
         {
             ulPt_Input1 = (u32*)&EscRTBuff[4];       
             ulPt_Input2 = (u32*)&EscRTBuff[8];
-            sflag = 0;
-            inputnum = 0;        
+            ulPt_Input3 = (u32*)&McRxBuff[4];       
+            ulPt_Input4 = (u32*)&McRxBuff[8];      
+            
+            sflag1 = 0;
+            inputnum1 = 0;      
+            sflag2 = 0;
+            inputnum2 = 0;       
             
             
             for( i = 0; i < 29; i++ )
             {
                 if( *ulPt_Input1 & ((u32)( 1 << i )))
                 {
-                    sflag++;
-                    inputnum = i + 1;
+                    sflag1++;
+                    inputnum1 = i + 1;
                 }
             }
             
@@ -108,43 +115,66 @@ void Input_Check2(void)
             {
                 if( *ulPt_Input2 & ((u32)( 1 << i )))
                 {
-                    sflag++;
-                    inputnum = i + 30;
+                    sflag1++;
+                    inputnum1 = i + 30;
                 }
-            }   
+            }  
+            
+            for( i = 0; i < 29; i++ )
+            {
+                if( *ulPt_Input3 & ((u32)( 1 << i )))
+                {
+                    sflag2++;
+                    inputnum2 = i + 1;
+                }
+            }
+            
+            for( i = 0; i < 17; i++ )
+            {
+                if( *ulPt_Input4 & ((u32)( 1 << i )))
+                {
+                    sflag2++;
+                    inputnum2 = i + 30;
+                }
+            }             
+
+            if( sflag1 != sflag2 || inputnum1 != inputnum2 )
+            {
+                sflag1 = 2;
+            }
             
 #ifdef GEC_SF_MASTER             
-            CAN2_TX_Data[0] = inputnum;
-            CAN2_TX_Data[1] = sflag;            
+            CAN2_TX_Data[0] = inputnum1;
+            CAN2_TX_Data[1] = sflag1;            
 #endif         
             
-            if (( inputnum == 0 ) || ( sflag > 1 ))
+            if (( inputnum1== 0 ) || ( sflag1 > 1 ))
             {
                 SF_RELAY_OFF(); 
                 AUX_RELAY_OFF();
             }
 #ifdef GEC_SF_MASTER   
-            else if( inputnum & 0x0A )
+            else if( inputnum1 & 0x0A )
             {
-                if ( inputnum & 0x08 )
+                if ( inputnum1 & 0x08 )
                 {
                     SF_RELAY_ON(); 
                 }
                 
-                if ( inputnum & 0x02 )
+                if ( inputnum1 & 0x02 )
                 {
                     AUX_RELAY_ON(); 
                 } 
             }
 #else
-            else if( inputnum & 0x05 )
+            else if( inputnum1 & 0x05 )
             {
-                if ( inputnum & 0x04 )
+                if ( inputnum1 & 0x04 )
                 {
                     SF_RELAY_ON(); 
                 }
                 
-                if ( inputnum & 0x01 )
+                if ( inputnum1 & 0x01 )
                 {
                     AUX_RELAY_ON(); 
                 }   
