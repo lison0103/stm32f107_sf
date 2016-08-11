@@ -17,7 +17,7 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-//#define USING_USART3_OVERTIME
+/* #define USING_USART3_OVERTIME */
 
 #ifndef USART3_BUF_SIZE
 #define USART3_BUF_SIZE                512             
@@ -41,7 +41,7 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen);
 
 void USART3_ISR(void);
 void USART_ReceiveOvertimeProcess(void);
-extern uint8_t USART3_ready_buf[];
+extern uint8_t USART3_ready_buf[USART3_BUF_SIZE];
 extern __IO uint8_t USART3_ready_buf_ok;
 extern __IO uint16_t USART3_ready_buf_len;
 

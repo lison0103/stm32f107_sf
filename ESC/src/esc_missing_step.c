@@ -25,7 +25,7 @@
 u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS);
 
 /* variable */
-u8 First_MS_sync_entry,First_MS_edge_detected = 0;
+u8 First_MS_sync_entry,First_MS_edge_detected = 0u;
 u16 *const MS_MTR_PULSE = (u16*)&EscRTBuff[67];
 
 STEPMISSINGITEM STPMS_UPPER=
@@ -37,7 +37,7 @@ STEPMISSINGITEM STPMS_UPPER=
     {0,0},
     (u16*)&EscRTBuff[60],
     0,
-    0,0
+    0,0,0
 };
 
 STEPMISSINGITEM STPMS_LOWER=
@@ -49,7 +49,7 @@ STEPMISSINGITEM STPMS_LOWER=
     {0,0},
     (u16*)&EscRTBuff[62],
     0,
-    0,0
+    0,0,0
 };
 
 
@@ -67,19 +67,19 @@ void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
     {                
         psSTPMS->ms_ready_delay++;
         
-        if( psSTPMS->rising_edge_detected[0] == 1 )
+        if( psSTPMS->rising_edge_detected[0] == 1u )
         {
-            psSTPMS->rising_edge_detected[0] = 0;
+            psSTPMS->rising_edge_detected[0] = 0u;
 
-            if( psSTPMS->ms_ready_delay * SYSTEMTICK < 1000 )
+            if( psSTPMS->ms_ready_delay * SYSTEMTICK < 1000u )
             {
                 /* fault */ 
-                *(psSTPMS->pcErrorCodeBuff) |= 0x01;
-                EN_ERROR3 |= 0x01;
+                *(psSTPMS->pcErrorCodeBuff) |= 0x01u;
+                EN_ERROR3 |= 0x01u;
             }
             else
             {
-                psSTPMS->ms_ready_delay = 0;
+                psSTPMS->ms_ready_delay = 0u;
             }
         }
          
@@ -100,9 +100,9 @@ void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
     if( SfBase_EscState & ESC_STATE_RUNNING )
     {       
         
-        if( psSTPMS->First_entry_missing_step_detection == 0 )
+        if( psSTPMS->First_entry_missing_step_detection == 0u )
         {
-            psSTPMS->First_entry_missing_step_detection = 1;
+            psSTPMS->First_entry_missing_step_detection = 1u;
             psSTPMS->Motor_speed_pulse_counter_init = Pulse_counter_sensor_speed(psSTPMS);
         }
         
@@ -110,7 +110,7 @@ void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
         
         *MS_MTR_PULSE = R;
         
-        if( psSTPMS->Motor_speed_pulse_counter > R*1.1 )
+        if( psSTPMS->Motor_speed_pulse_counter > (( R * 11u ) / 10u ) )
         {
             if( SfBase_EscState & ESC_STATE_INSP )
             {     
@@ -120,18 +120,18 @@ void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
             else
             {
                 /* Missing step fault */
-                *(psSTPMS->pcErrorCodeBuff) |= 0x02;
-                EN_ERROR3 |= 0x02;
+                *(psSTPMS->pcErrorCodeBuff) |= 0x02u;
+                EN_ERROR3 |= 0x02u;
             }
         }
         else
         {
-            if( psSTPMS->rising_edge_detected[0] == 1 )
+            if( psSTPMS->rising_edge_detected[0] == 1u )
             {
                 
                 psSTPMS->Motor_speed_pulse_counter =  Pulse_counter_sensor_speed(psSTPMS) - psSTPMS->Motor_speed_pulse_counter_init;
                 
-                if( psSTPMS->Motor_speed_pulse_counter > R*1.1 )
+                if( psSTPMS->Motor_speed_pulse_counter > (( R * 11u ) / 10u ))
                 {
                     if( SfBase_EscState & ESC_STATE_INSP )
                     {     
@@ -141,26 +141,30 @@ void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
                     else
                     {
                         /* Missing step fault */
-                        *(psSTPMS->pcErrorCodeBuff) |= 0x04;
-                        EN_ERROR3 |= 0x04;
+                        *(psSTPMS->pcErrorCodeBuff) |= 0x04u;
+                        EN_ERROR3 |= 0x04u;
                     }
                 }
 
                 *(psSTPMS->ptStepMtrBuff) = psSTPMS->MtrPulse;
-                psSTPMS->rising_edge_detected[0] = 0;
+                psSTPMS->rising_edge_detected[0] = 0u;
                 
                 if(psSTPMS->MtrPulse)
                 {
-                    psSTPMS->MtrPulse = 0;
+                    psSTPMS->MtrPulse = 0u;
                     psSTPMS->Motor_speed_pulse_counter_init = Pulse_counter_sensor_speed(psSTPMS);
-                    psSTPMS->sensor_error_cnt = 0;
+                    psSTPMS->sensor_error_cnt = 0u;
                 }
                 else if((!(*MTRITEM[0].ptFreqBuff)) && (!(*MTRITEM[1].ptFreqBuff)))
                 {
                     psSTPMS->sensor_error_cnt++;
-                    *(psSTPMS->pcErrorCodeBuff) |= 0x08;
-                    EN_ERROR3 |= 0x08;
-                }                
+                    *(psSTPMS->pcErrorCodeBuff) |= 0x08u;
+                    EN_ERROR3 |= 0x08u;
+                }
+                else
+                {
+                
+                }
              
             }
         }
@@ -179,7 +183,7 @@ void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
 *******************************************************************************/
 u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS)
 {
-    u16 current_pulse_counter_sensor = 0;    
+    u16 current_pulse_counter_sensor = 0u;    
     
     current_pulse_counter_sensor = psSTPMS->MtrPulse;
     
@@ -196,54 +200,54 @@ u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS)
 *******************************************************************************/
 void Missing_Step_UpperLower_SyncRun(void)
 {
-    static u8 Upper_MS_counter,Lower_MS_counter = 0;    
+    static u8 Upper_MS_counter,Lower_MS_counter = 0u;    
     
     if( SfBase_EscState & ESC_STATE_RUNNING )
     {  
-        if( First_MS_sync_entry == 0 )
+        if( First_MS_sync_entry == 0u )
         {
-            First_MS_sync_entry = 1;
-            Upper_MS_counter = 0;
-            Lower_MS_counter = 0;
+            First_MS_sync_entry = 1u;
+            Upper_MS_counter = 0u;
+            Lower_MS_counter = 0u;
         } 
         else
         {
-            if( STPMS_UPPER.rising_edge_detected[1] == 1 )
+            if( STPMS_UPPER.rising_edge_detected[1] == 1u )
             {
-                STPMS_UPPER.rising_edge_detected[1] = 0;
+                STPMS_UPPER.rising_edge_detected[1] = 0u;
                 
-                Upper_MS_counter += 1;
-                Lower_MS_counter = 0;
+                Upper_MS_counter += 1u;
+                Lower_MS_counter = 0u;
                 
-                if( Upper_MS_counter > 2 )
+                if( Upper_MS_counter > 2u )
                 {
                     /* Fault */
-                    MS_SYNC_RUN_ERROR |= 0x01;
-                    EN_ERROR5 |= 0x01;
+                    MS_SYNC_RUN_ERROR |= 0x01u;
+                    EN_ERROR5 |= 0x01u;
                     
                 }
                 else
                 {
-                    MS_SYNC_RUN_ERROR &= ~0x01;
+                    MS_SYNC_RUN_ERROR &= ~0x01u;
                 }
             }
             
-            if( STPMS_LOWER.rising_edge_detected[1] == 1 )
+            if( STPMS_LOWER.rising_edge_detected[1] == 1u )
             {
-                STPMS_LOWER.rising_edge_detected[1] = 0;
+                STPMS_LOWER.rising_edge_detected[1] = 0u;
                 
-                Lower_MS_counter += 1;
-                Upper_MS_counter = 0;
+                Lower_MS_counter += 1u;
+                Upper_MS_counter = 0u;
                 
-                if( Lower_MS_counter > 2 )
+                if( Lower_MS_counter > 2u )
                 {
                     /* Fault */
-                    MS_SYNC_RUN_ERROR |= 0x02;
-                    EN_ERROR5 |= 0x02;
+                    MS_SYNC_RUN_ERROR |= 0x02u;
+                    EN_ERROR5 |= 0x02u;
                 }
                 else
                 {
-                    MS_SYNC_RUN_ERROR &= ~0x02;
+                    MS_SYNC_RUN_ERROR &= ~0x02u;
                 }
             }
         
@@ -260,16 +264,16 @@ void Missing_Step_UpperLower_SyncRun(void)
 *******************************************************************************/
 void Missing_Step_UpperLower_Shortcircuit_Run(void)
 {
-    static u16 Timer_MS_shortcircuit = 0;
+    static u16 Timer_MS_shortcircuit = 0u;
     
     if( SfBase_EscState & ESC_STATE_RUNNING )
     {  
-        if( First_MS_edge_detected == 0 )
+        if( First_MS_edge_detected == 0u )
         {
-            First_MS_edge_detected = 1;
-            Timer_MS_shortcircuit = 0;
+            First_MS_edge_detected = 1u;
+            Timer_MS_shortcircuit = 0u;
             TIM_Cmd(TIM7, DISABLE); 
-            TIM7_Int_Init(65535,71);
+            TIM7_Int_Init(65535u,71u);
             
         }    
         else
@@ -277,19 +281,19 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
             Timer_MS_shortcircuit = TIM_GetCounter(TIM7);
             if( Timer_MS_shortcircuit < SSM_SHORTCIRCUIT_TIME )
             {
-                Timer_MS_shortcircuit = 0;               
-                TIM_SetCounter(TIM7,0); 
+                Timer_MS_shortcircuit = 0u;               
+                TIM_SetCounter(TIM7,0u); 
                 
                 /* Fault ¨C Motorspeed Sensor shortcircuited */
-                SHORTCIRCUIT_ERROR |= 0x04;
-                EN_ERROR4 |= 0x04;
+                SHORTCIRCUIT_ERROR |= 0x04u;
+                EN_ERROR4 |= 0x04u;
             }
             else
             {
-                Timer_MS_shortcircuit = 0;             
-                TIM_SetCounter(TIM7,0);     
+                Timer_MS_shortcircuit = 0u;             
+                TIM_SetCounter(TIM7,0u);     
                 
-                SHORTCIRCUIT_ERROR &= ~0x04;
+                SHORTCIRCUIT_ERROR &= ~0x04u;
             }
         }
     }    
@@ -305,7 +309,7 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
 *******************************************************************************/
 void ESC_Missingstep_Check(void)
 {
-  static u16 escState_old = 0; 
+  static u16 escState_old = 0u; 
   
   
   Missing_Step_Ready(&STPMS_UPPER);
@@ -313,10 +317,10 @@ void ESC_Missingstep_Check(void)
  
   if((SfBase_EscState & ESC_STATE_RUNNING) && (!(escState_old & ESC_STATE_RUNNING))) 
   { 
-      STPMS_UPPER.First_entry_missing_step_detection = 0;
-      STPMS_LOWER.First_entry_missing_step_detection = 0;
-      First_MS_sync_entry = 0;
-      First_MS_edge_detected = 0;
+      STPMS_UPPER.First_entry_missing_step_detection = 0u;
+      STPMS_LOWER.First_entry_missing_step_detection = 0u;
+      First_MS_sync_entry = 0u;
+      First_MS_edge_detected = 0u;
   } 
   
   Missing_StepRun(&STPMS_UPPER);

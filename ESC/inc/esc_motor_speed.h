@@ -17,15 +17,15 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-#define F1      ( ( MOTOR_RPM * MOTOR_PLUSE_PER_REV ) / 60 )
+#define F1      ( ( MOTOR_RPM * MOTOR_PLUSE_PER_REV ) / 60u )
 
 /* motor speed */
-#define MAX_SPEED       ( ( F1 * 115 ) / 100 )
-#define MIN_SPEED       ( ( F1 * 10 ) / 100 )
+#define MAX_SPEED       ( ( F1 * 115u ) / 100u )
+#define MIN_SPEED       ( ( F1 * 10u ) / 100u )
 
 /* stopping distance */
 #define CONVERSION      ( ( NOMINAL_SPEED / MOTOR_RPM ) * MOTOR_PLUSE_PER_REV )
-#define MAX_DISTANCE    ( ( 12 * 2 * F1 ) / 10 )
+#define MAX_DISTANCE    ( ( 12u * 2u * F1 ) / 10u )
 
 /* Exported functions ------------------------------------------------------- */
 void Motor_Speed_Ready(MTRFREQITEM* ptMTR);

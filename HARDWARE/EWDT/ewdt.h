@@ -18,10 +18,10 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 #ifdef GEC_SF_MASTER
-#define EWDT_TOOGLE() 	GPIOA->ODR ^= 0X0002
+#define EWDT_TOOGLE() 	GPIOA->ODR ^= 0X0002u
 #define EWDT_ON     PAout(1)
 #else
-#define EWDT_TOOGLE() 	GPIOA->ODR ^= 0X0001
+#define EWDT_TOOGLE() 	GPIOA->ODR ^= 0X0001u
 #endif
 
 /* Exported functions ------------------------------------------------------- */

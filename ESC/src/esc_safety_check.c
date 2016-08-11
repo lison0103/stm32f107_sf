@@ -22,11 +22,12 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+void SafetySwitchCheck( u8 pulse_on, u8 test_num );
 
-u8 sf_wdt_check_tms = 0;
-u8 sf_wdt_check_en = 0;
-u8 sf_relay_check_cnt = 0;
-//static u8 test_num = 0;
+u8 sf_wdt_check_tms = 0u;
+u8 sf_wdt_check_en = 0u;
+u8 sf_relay_check_cnt = 0u;
+/* static u8 test_num = 0;*/
 #ifdef GEC_SF_MASTER
 u8 R_SF_RL2_FB_CPU1;
 #else
@@ -36,20 +37,20 @@ u8 R_SF_RL_FB_CPU2;
 
 u8 SAFETY_SWITCH[4][4];
 u8 SAFETY_SWITCH_STATUS[4];
-u8 FAULT = 0;
+u8 FAULT = 0u;
 
 #ifdef GEC_SF_MASTER
-#define TEST_PATTERN    0x09
+#define TEST_PATTERN    0x09u
 #else
-#define TEST_PATTERN    0x06
+#define TEST_PATTERN    0x06u
 #endif
 
-#define UNDEFINED       0
-#define OPEN       1
-#define CLOSED       2
-#define ERROR       3 
-#define SYNCLINE        4
-#define FEEDBACK_PULSE_OUTPUT   5
+#define UNDEFINED       0u
+#define OPEN       1u
+#define CLOSED       2u
+#define ERROR       3u 
+#define SYNCLINE        4u
+#define FEEDBACK_PULSE_OUTPUT   5u
 
 /*******************************************************************************
 * Function Name  : SafetySwitchCheck
@@ -62,10 +63,10 @@ u8 FAULT = 0;
 *******************************************************************************/
 void SafetySwitchCheck( u8 pulse_on, u8 test_num )
 {
-    
-    if( pulse_on != 0 )
+
+    if( pulse_on != 0u )
     {
-        if( PULSE_OUTPUT_FB == 0 )
+        if( PULSE_OUTPUT_FB == 0u )
         {
             if( SAFETY_SWITCH_INPUT_1 )
             {
@@ -106,12 +107,12 @@ void SafetySwitchCheck( u8 pulse_on, u8 test_num )
         else
         {
             FAULT = FEEDBACK_PULSE_OUTPUT;
-            EN_ERROR8 |= 0x10;
+            EN_ERROR8 |= 0x10u;
         }    
     }
     else
     {
-        if( PULSE_OUTPUT_FB == 1 )
+        if( PULSE_OUTPUT_FB == 1u )
         {
             if( SAFETY_SWITCH_INPUT_1 )
             {
@@ -151,7 +152,7 @@ void SafetySwitchCheck( u8 pulse_on, u8 test_num )
         else
         {
             FAULT = FEEDBACK_PULSE_OUTPUT;
-            EN_ERROR8 |= 0x10;
+            EN_ERROR8 |= 0x10u;
         }   
     }
 }
@@ -165,13 +166,14 @@ void SafetySwitchCheck( u8 pulse_on, u8 test_num )
 *******************************************************************************/
 void SafetySwitchStatus(void)
 {
-    static u8 Pulse_Generation = 0;
-    static u8 SwitchState = 0;
-    static u8 Timeout_SYNC_Line = 0;
-    static u8 SafetySwitchInit = 0;
-    static u8 test_pattern = 0;
+    static u8 Pulse_Generation = 0u;
+    static u8 SwitchState = 0u;
+    static u8 Timeout_SYNC_Line = 0u;
+    static u8 SafetySwitchInit = 0u;
+    static u8 test_pattern = 0u;
+    u8 switch_num;
     
-    if( SafetySwitchInit == 0 )
+    if( SafetySwitchInit == 0u )
     {
 #ifdef GEC_SF_MASTER
         SYNC_SYS_OUT_SET();
@@ -180,8 +182,8 @@ void SafetySwitchStatus(void)
 #endif    
         
         PULSE_OUTPUT_CLR();
-        Pulse_Generation = 0;
-        for( u8 switch_num = 0; switch_num < 4; switch_num++ )
+        Pulse_Generation = 0u;
+        for( switch_num = 0u; switch_num < 4u; switch_num++ )
         {
             SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
             pcEscSafetySwitchStatus[switch_num] = UNDEFINED;
@@ -189,7 +191,7 @@ void SafetySwitchStatus(void)
         
         test_pattern = TEST_PATTERN;
         
-        SafetySwitchInit = 1;
+        SafetySwitchInit = 1u;
     }   
 
 #if 1   
@@ -197,31 +199,31 @@ void SafetySwitchStatus(void)
     {
        case 0:
         {
-            if( SYNC_SYS_IN == 0 || Pulse_Generation == 1 )
+            if( (SYNC_SYS_IN == 0u) || (Pulse_Generation == 1u) )
             {
-                Timeout_SYNC_Line = 0;
+                Timeout_SYNC_Line = 0u;
                 
-                if( Pulse_Generation != 1 )
+                if( Pulse_Generation != 1u )
                 {
-                    Pulse_Generation = 1;
-                    SwitchState = 1;
+                    Pulse_Generation = 1u;
+                    SwitchState = 1u;
                 }
                 
                 SYNC_SYS_OUT_SET();
-                if( SYNC_SYS_IN != 0 )
+                if( SYNC_SYS_IN != 0u )
                 {
                     FAULT = SYNCLINE;
-                    EN_ERROR8 |= 0x08;
-                    SwitchState = 6;
+                    EN_ERROR8 |= 0x08u;
+                    SwitchState = 6u;
                 }
             }
             else
             {
-                if( Timeout_SYNC_Line > 10 )
+                if( Timeout_SYNC_Line > 10u )
                 {
                     FAULT = SYNCLINE;
-                    EN_ERROR8 |= 0x08;
-                    SwitchState = 6;            
+                    EN_ERROR8 |= 0x08u;
+                    SwitchState = 6u;            
                 }
                 else
                 {
@@ -232,7 +234,7 @@ void SafetySwitchStatus(void)
         }
        case 1:
         {
-            if( test_pattern & 0x01 )
+            if( test_pattern & 0x01u )
             {
                 PULSE_OUTPUT_SET(); 
             }
@@ -240,14 +242,14 @@ void SafetySwitchStatus(void)
             {
                 PULSE_OUTPUT_CLR(); 
             }
-            SwitchState = 2;
+            SwitchState = 2u;
             break;
         }
        case 2:
         {
-            SafetySwitchCheck( (test_pattern & 0x01), 0 );
+            SafetySwitchCheck( (test_pattern & 0x01u), 0u );
             
-            if( test_pattern & 0x02 )
+            if( test_pattern & 0x02u )
             {
                 PULSE_OUTPUT_SET(); 
             }
@@ -255,15 +257,15 @@ void SafetySwitchStatus(void)
             {
                 PULSE_OUTPUT_CLR(); 
             }
-            SwitchState = 3;
+            SwitchState = 3u;
             break;
         }
        case 3:
         {
 
-            SafetySwitchCheck( (test_pattern & 0x02), 1 );
+            SafetySwitchCheck( (test_pattern & 0x02u), 1u );
             
-            if( test_pattern & 0x04 )
+            if( test_pattern & 0x04u )
             {
                 PULSE_OUTPUT_SET(); 
             }
@@ -271,15 +273,15 @@ void SafetySwitchStatus(void)
             {
                 PULSE_OUTPUT_CLR(); 
             }
-            SwitchState = 4;
+            SwitchState = 4u;
             break;
         }   
        case 4:
         {
 
-            SafetySwitchCheck( (test_pattern & 0x04), 2 );
+            SafetySwitchCheck( (test_pattern & 0x04u), 2u );
             
-            if( test_pattern & 0x08 )
+            if( test_pattern & 0x08u )
             {
                 PULSE_OUTPUT_SET(); 
             }
@@ -287,32 +289,32 @@ void SafetySwitchStatus(void)
             {
                 PULSE_OUTPUT_CLR(); 
             }
-            SwitchState = 5;
+            SwitchState = 5u;
             break;
         }          
        case 5:
         {
 
-            SafetySwitchCheck( (test_pattern & 0x08), 3 );
+            SafetySwitchCheck( (test_pattern & 0x08u), 3u );
             
-            for( u8 switch_num = 0; switch_num < 4; switch_num++ )
+            for( switch_num = 0u; switch_num < 4u; switch_num++ )
             {
                 if( FAULT == FEEDBACK_PULSE_OUTPUT )
                 {
                     SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
                     pcEscSafetySwitchStatus[switch_num] = UNDEFINED;
                 }
-                else if ( SAFETY_SWITCH[switch_num][0] == ERROR || SAFETY_SWITCH[switch_num][1] == ERROR || SAFETY_SWITCH[switch_num][2] == ERROR || SAFETY_SWITCH[switch_num][3] == ERROR )
+                else if ( (SAFETY_SWITCH[switch_num][0] == ERROR) || (SAFETY_SWITCH[switch_num][1] == ERROR) || (SAFETY_SWITCH[switch_num][2] == ERROR) || (SAFETY_SWITCH[switch_num][3] == ERROR) )
                 {
                     SAFETY_SWITCH_STATUS[switch_num] = ERROR;
                     pcEscSafetySwitchStatus[switch_num] = ERROR;
                 }
-                else if ( SAFETY_SWITCH[switch_num][0] == OPEN || SAFETY_SWITCH[switch_num][1] == OPEN || SAFETY_SWITCH[switch_num][2] == OPEN || SAFETY_SWITCH[switch_num][3] == OPEN )
+                else if ( (SAFETY_SWITCH[switch_num][0] == OPEN) || (SAFETY_SWITCH[switch_num][1] == OPEN) || (SAFETY_SWITCH[switch_num][2] == OPEN) || (SAFETY_SWITCH[switch_num][3] == OPEN) )
                 {
                     SAFETY_SWITCH_STATUS[switch_num]  = OPEN;
                     pcEscSafetySwitchStatus[switch_num] = OPEN;
                 }
-                else if ( SAFETY_SWITCH[switch_num][0] == CLOSED || SAFETY_SWITCH[switch_num][1] == CLOSED || SAFETY_SWITCH[switch_num][2] == CLOSED || SAFETY_SWITCH[switch_num][3] == CLOSED )
+                else if ( (SAFETY_SWITCH[switch_num][0] == CLOSED) || (SAFETY_SWITCH[switch_num][1] == CLOSED) || (SAFETY_SWITCH[switch_num][2] == CLOSED) || (SAFETY_SWITCH[switch_num][3] == CLOSED) )
                 {
                     SAFETY_SWITCH_STATUS[switch_num]  = CLOSED;
                     pcEscSafetySwitchStatus[switch_num] = CLOSED;
@@ -324,29 +326,29 @@ void SafetySwitchStatus(void)
                 }
             }           
             
-            Pulse_Generation = 0;
+            Pulse_Generation = 0u;
             PULSE_OUTPUT_CLR();
             SYNC_SYS_OUT_CLR();
-            SwitchState = 7;
+            SwitchState = 7u;
             break;
         }
        case 6:
         {
-            for( u8 switch_num = 0; switch_num < 4; switch_num++ )
+            for( switch_num = 0u; switch_num < 4u; switch_num++ )
             {
                 SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
                 pcEscSafetySwitchStatus[switch_num] = UNDEFINED;
             }
             
-            Pulse_Generation = 0;
+            Pulse_Generation = 0u;
             PULSE_OUTPUT_CLR();
             SYNC_SYS_OUT_CLR();
-            SwitchState = 7;
+            SwitchState = 7u;
             break;            
         }
        case 7:
         {
-            SwitchState = 0;
+            SwitchState = 0u;
             break;            
         }       
        default:
@@ -368,20 +370,20 @@ void SafetySwitchStatus(void)
 *******************************************************************************/
 void SafetyOutputDisable(void)
 {
-    static u8 sf_output_dis_tms = 0; 
+    static u8 sf_output_dis_tms = 0u; 
     
-    if(( sf_wdt_check_en == 0 ) && ( SfBase_EscState & ESC_STATE_STOP )) 
+    if(( sf_wdt_check_en == 0u ) && ( SfBase_EscState & ESC_STATE_STOP )) 
     { 
         SF_RELAY_OFF();
         
-        if( sf_relay_check_cnt == 1 )
+        if( sf_relay_check_cnt == 1u )
         {
             sf_output_dis_tms++;
-            if( sf_output_dis_tms * SYSTEMTICK > 50 )
+            if( sf_output_dis_tms * SYSTEMTICK > 50u )
             {
                 SafetyRelayAuxRelayTest();
-                sf_relay_check_cnt = 0;
-                sf_output_dis_tms = 0;
+                sf_relay_check_cnt = 0u;
+                sf_output_dis_tms = 0u;
             }
         }  
         
@@ -401,7 +403,7 @@ void SafetyOutputDisable(void)
 void SafetyOutputEnable(void)
 {
 
-    static u8 sf_output_en_tms = 0; 
+    static u8 sf_output_en_tms = 0u; 
     
     
     if( SfBase_EscState & ESC_STATE_RUNNING ) 
@@ -409,14 +411,14 @@ void SafetyOutputEnable(void)
         SF_RELAY_ON();    
         SF_EWDT_TOOGLE();
         
-        if( sf_relay_check_cnt == 0 )
+        if( sf_relay_check_cnt == 0u )
         {
             sf_output_en_tms++;
-            if( sf_output_en_tms * SYSTEMTICK > 50 )
+            if( sf_output_en_tms * SYSTEMTICK > 50u )
             {
                 SafetyRelayAuxRelayTest();
-                sf_relay_check_cnt = 1;
-                sf_output_en_tms = 0;
+                sf_relay_check_cnt = 1u;
+                sf_output_en_tms = 0u;
             }
         }   
         
@@ -441,10 +443,10 @@ void SafetyRelayAuxRelayTest(void)
     if( SfBase_EscState & ESC_STATE_RUNNING ) 
     { 
         /* safety circuit is  connected */
-        if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || !AUX_FB )
+        if( (GPIOE->IDR & GPIO_Pin_3) || (GPIOB->IDR & GPIO_Pin_8) )/*|| SF_RL_FB || !AUX_FB )*/
         {
-//            FailSafeTest();
-            EN_ERROR8 |= 0x01;
+            /*FailSafeTest();*/
+            EN_ERROR8 |= 0x01u;
         }   
     }
     else if( SfBase_EscState & ESC_STATE_STOP )  
@@ -452,9 +454,13 @@ void SafetyRelayAuxRelayTest(void)
         /* safety circuit is disconnected */
         if( !SF_RL_DRV_FB || SF_PWR_FB_CPU || !SF_RL_FB )
         {
-//            FailSafeTest();
-            EN_ERROR8 |= 0x01;
+            /*FailSafeTest();*/
+            EN_ERROR8 |= 0x01u;
         }  
+    }
+    else
+    {
+    
     }
 }
 
@@ -485,28 +491,28 @@ void SafetyExtWdt_StartUpCheck(void)
     /*  wait 1800ms */
     EWDT_TOOGLE();
     IWDG_ReloadCounter();    
-    delay_ms(600);
+    delay_ms(600u);
     EWDT_TOOGLE();
     IWDG_ReloadCounter();
-    delay_ms(600);
+    delay_ms(600u);
     EWDT_TOOGLE();
     IWDG_ReloadCounter();
     
     /** Safety Relay and AuxRelay Test **/
-    if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || !AUX_FB )
+    if( (SF_RL_DRV_FB) || (SF_PWR_FB_CPU) || (SF_RL_FB) || (!AUX_FB) )
     {
-//        FailSafeTest();
-        EN_ERROR8 |= 0x01;
+        /*FailSafeTest();*/
+        EN_ERROR8 |= 0x01u;
     }   
     
-    delay_ms(600);
+    delay_ms(600u);
     EWDT_TOOGLE();
     IWDG_ReloadCounter();    
    
     if( !SF_RL_FB )
     {
-//        FailSafeTest();
-        EN_ERROR8 |= 0x02;
+        /*FailSafeTest();*/
+        EN_ERROR8 |= 0x02u;
     }
     else
     {
@@ -533,13 +539,13 @@ void SafetyExtWdt_RunCheck(void)
     
     if(( SfBase_EscState & ESC_STATE_READY ) && ( !(escState_old & ESC_STATE_READY)))
     {
-        sf_wdt_check_en = 1;
+        sf_wdt_check_en = 1u;
     }
 
     
-    if( sf_wdt_check_en == 1 )
+    if( sf_wdt_check_en == 1u )
     {
-        if(( sf_wdt_check_tms == 0 ) && ( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB ))
+        if(( sf_wdt_check_tms == 0u ) && ( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB ))
         {
             SF_EWDT_TOOGLE();
             SF_RELAY_ON();  
@@ -548,16 +554,16 @@ void SafetyExtWdt_RunCheck(void)
         
         sf_wdt_check_tms++;
         /*  (41 - 1)*45ms = 1800ms */
-        if( sf_wdt_check_tms >= 41)
+        if( sf_wdt_check_tms >= 41u)
         {
             
-            sf_wdt_check_tms = 0;
-            sf_wdt_check_en = 0;
+            sf_wdt_check_tms = 0u;
+            sf_wdt_check_en = 0u;
             
             if( !SF_RL_FB )
             {
-//                FailSafeTest();
-                EN_ERROR8 |= 0x02;
+                /*FailSafeTest();*/
+                EN_ERROR8 |= 0x02u;
             }
             else
             {
@@ -588,29 +594,29 @@ void SafetyExtWdt_RunCheck(void)
 *******************************************************************************/
 void SafetyCTR_Check(void)
 {
-    static u8 sf_ctr_check_tms = 0;
+    static u16 sf_ctr_check_tms = 0u;
     
     if( SfBase_EscState & ESC_STATE_RUNNING ) 
     {    
         sf_ctr_check_tms++;
         /* check period 1s */ 
-        if( sf_ctr_check_tms * SYSTEMTICK > 1000 )
+        if( sf_ctr_check_tms * SYSTEMTICK > 1000u )
         {
             SF_RELAY_OFF();
-            delay_us(150);
+            delay_us(150u);
             if(!SF_RL_DRV_FB)
             {
                 EN_ERROR_SYS2++;
-                if(EN_ERROR_SYS2 > 2)
+                if(EN_ERROR_SYS2 > 2u)
                 {
                     /* SafetyCTR_Check error */
-//                    ESC_SafeRelay_Error_Process();
-                    EN_ERROR8 |= 0x04;
+                    /*ESC_SafeRelay_Error_Process();*/
+                    EN_ERROR8 |= 0x04u;
                 }
             }
             else
             {
-                EN_ERROR_SYS2 = 0;
+                EN_ERROR_SYS2 = 0u;
             }
             SF_RELAY_ON();
         }

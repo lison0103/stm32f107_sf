@@ -52,10 +52,7 @@ int fputc(int ch, FILE *f)
 
 #else
 
-int fputc(int ch, FILE *f)
-{      
-      return ch;
-}
+
 
 #endif /* DEBUG_PRINTF */
 
@@ -110,7 +107,7 @@ void INTX_ENABLE(void)
 *******************************************************************************/ 
 void MSR_MSP(u32 addr) 
 {
-    __ASM("MSR MSP, r0"); 			//set Main Stack value
+    __ASM("MSR MSP, r0"); 			/* set Main Stack value */
     __ASM("BX r14");
 }
 

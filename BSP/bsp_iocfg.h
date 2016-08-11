@@ -47,7 +47,7 @@ void Input_Output_PinInit(void);
 
 /** FEEDBACK **/
 #define SF_RL_DRV_FB   GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_3)
-#define SF_PWR_FB_CPU   GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8)
+#define SF_PWR_FB_CPU   GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8) 
 #define SF_RL_FB       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2)
 
 #define SF_RL2_FB_CPU1       GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6)
@@ -66,8 +66,8 @@ void Input_Output_PinInit(void);
 #define SAFETY_SWITCH_INPUT_4       GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_10)
 
 
-//EWDT
-#define SF_EWDT_TOOGLE() 	GPIOB->ODR ^= 0X0200
+/* EWDT */
+#define SF_EWDT_TOOGLE() 	GPIOB->ODR ^= 0X0200u
 
 
 #define SW_SPDT_KEY       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_3)
@@ -118,7 +118,7 @@ void Input_Output_PinInit(void);
 #define SAFETY_SWITCH_INPUT_4       GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4)
 
 //EWDT
-#define SF_EWDT_TOOGLE() 	GPIOE->ODR ^= 0X0002
+#define SF_EWDT_TOOGLE() 	GPIOE->ODR ^= 0X0002u
 
 #endif  /* GEC_SF_MASTER */
 

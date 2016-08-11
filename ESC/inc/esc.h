@@ -125,21 +125,21 @@
 #define CMD_OMC_FLAG9 	pcOMC_EscRTBuff[28]
 #define CMD_OMC_FLAG10 	pcOMC_EscRTBuff[29]
 
-#define MTR_MAX_SPEED       EscRTBuff[37]
-#define MTR_MIN_SPEED       EscRTBuff[38]
+#define MTR_MAX_SPEED       *(u16*)&EscRTBuff[35]
+#define MTR_MIN_SPEED       *(u16*)&EscRTBuff[37]
 #define SHORTCIRCUIT_ERROR  EscRTBuff[39]
 #define MS_SYNC_RUN_ERROR   EscRTBuff[66]
 
-#define         EN_ERROR1   	pcErrorBuff[0]
-#define  	EN_ERROR2   	pcErrorBuff[1]
-#define 	EN_ERROR3   	pcErrorBuff[2]
-#define 	EN_ERROR4   	pcErrorBuff[3]
-#define 	EN_ERROR5   	pcErrorBuff[4]
-#define 	EN_ERROR6   	pcErrorBuff[5]
-#define 	EN_ERROR7   	pcErrorBuff[6]
-#define 	EN_ERROR8   	pcErrorBuff[7]
-#define 	EN_ERROR9   	pcErrorBuff[8]
-#define 	EN_ERROR10   	pcErrorBuff[9]
+#define         EN_ERROR1   	EscRTBuff[70]
+#define  	EN_ERROR2   	EscRTBuff[71]
+#define 	EN_ERROR3   	EscRTBuff[72]
+#define 	EN_ERROR4   	EscRTBuff[73]
+#define 	EN_ERROR5   	EscRTBuff[74]
+#define 	EN_ERROR6   	EscRTBuff[75]
+#define 	EN_ERROR7   	EscRTBuff[76]
+#define 	EN_ERROR8   	EscRTBuff[77]
+#define 	EN_ERROR9   	EscRTBuff[78]
+#define 	EN_ERROR10   	EscRTBuff[79]
 
 typedef struct mtrfreqitem 
 {    
@@ -229,20 +229,23 @@ extern u8 *const pcEscErrorBuff;
 extern u8 *const pcOmcErrorBuff;
 extern u8 SAFETY_SWITCH_STATUS[4];
 extern u8 *const pcEscSafetySwitchStatus;
+extern u8 *const pcSafetyInputToControl;
+extern u8 *const pcEscDataToControl;
+extern u8 *const pcEscDataFromControl;
 
-#define PARA_INIT                       pt_SysBuff[1]
+#define PARA_INIT                       *(u16*)&Modbuff[1102]
 /* parameters */
-#define MOTOR_RPM                        pt_SysBuff[10]
-#define MOTOR_PLUSE_PER_REV              pt_SysBuff[11]
-#define UNDERSPEED_TIME                 pt_SysBuff[12]
-#define DELAY_NO_PULSE_CHECKING          pt_SysBuff[13]
-#define NOMINAL_SPEED                   pt_SysBuff[14]
-#define SSM_SHORTCIRCUIT_TIME            pt_SysBuff[15]
-#define HR_FAULT_TIME                   pt_SysBuff[16]
-#define ROLLER_HR_RADIUS                pt_SysBuff[17]
-#define HR_PULSES_PER_REV                pt_SysBuff[18]
-#define STEP_WIDTH                      pt_SysBuff[19]
-#define TANDEM_TYPE                     pt_SysBuff[20]
+#define MOTOR_RPM                        *(u16*)&Modbuff[1120]
+#define MOTOR_PLUSE_PER_REV              *(u16*)&Modbuff[1122]
+#define UNDERSPEED_TIME                 *(u16*)&Modbuff[1124]
+#define DELAY_NO_PULSE_CHECKING          *(u16*)&Modbuff[1126]
+#define NOMINAL_SPEED                   *(u16*)&Modbuff[1128]
+#define SSM_SHORTCIRCUIT_TIME            *(u16*)&Modbuff[1130]
+#define HR_FAULT_TIME                   *(u16*)&Modbuff[1132]
+#define ROLLER_HR_RADIUS                *(u16*)&Modbuff[1134]
+#define HR_PULSES_PER_REV                *(u16*)&Modbuff[1136]
+#define STEP_WIDTH                      *(u16*)&Modbuff[1138]
+#define TANDEM_TYPE                     *(u16*)&Modbuff[1140]
 
 
 

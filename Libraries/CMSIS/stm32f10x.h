@@ -1271,7 +1271,7 @@ typedef struct
 
 #define FLASH_BASE            ((uint32_t)0x08000000) /*!< FLASH base address in the alias region */
 #define SRAM_BASE             ((uint32_t)0x20000000) /*!< SRAM base address in the alias region */
-#define PERIPH_BASE           ((uint32_t)0x40000000) /*!< Peripheral base address in the alias region */
+#define PERIPH_BASE           ((uint32_t)0x40000000u) /*!< Peripheral base address in the alias region */
 
 #define SRAM_BB_BASE          ((uint32_t)0x22000000) /*!< SRAM base address in the bit-band region */
 #define PERIPH_BB_BASE        ((uint32_t)0x42000000) /*!< Peripheral base address in the bit-band region */
@@ -1280,15 +1280,15 @@ typedef struct
 
 /*!< Peripheral memory map */
 #define APB1PERIPH_BASE       PERIPH_BASE
-#define APB2PERIPH_BASE       (PERIPH_BASE + 0x10000)
-#define AHBPERIPH_BASE        (PERIPH_BASE + 0x20000)
+#define APB2PERIPH_BASE       (PERIPH_BASE + 0x10000u)
+#define AHBPERIPH_BASE        (PERIPH_BASE + 0x20000u)
 
-#define TIM2_BASE             (APB1PERIPH_BASE + 0x0000)
-#define TIM3_BASE             (APB1PERIPH_BASE + 0x0400)
-#define TIM4_BASE             (APB1PERIPH_BASE + 0x0800)
-#define TIM5_BASE             (APB1PERIPH_BASE + 0x0C00)
-#define TIM6_BASE             (APB1PERIPH_BASE + 0x1000)
-#define TIM7_BASE             (APB1PERIPH_BASE + 0x1400)
+#define TIM2_BASE             (APB1PERIPH_BASE + 0x0000u)
+#define TIM3_BASE             (APB1PERIPH_BASE + 0x0400u)
+#define TIM4_BASE             (APB1PERIPH_BASE + 0x0800u)
+#define TIM5_BASE             (APB1PERIPH_BASE + 0x0C00u)
+#define TIM6_BASE             (APB1PERIPH_BASE + 0x1000u)
+#define TIM7_BASE             (APB1PERIPH_BASE + 0x1400u)
 #define TIM12_BASE            (APB1PERIPH_BASE + 0x1800)
 #define TIM13_BASE            (APB1PERIPH_BASE + 0x1C00)
 #define TIM14_BASE            (APB1PERIPH_BASE + 0x2000)
@@ -1312,12 +1312,12 @@ typedef struct
 
 #define AFIO_BASE             (APB2PERIPH_BASE + 0x0000)
 #define EXTI_BASE             (APB2PERIPH_BASE + 0x0400)
-#define GPIOA_BASE            (APB2PERIPH_BASE + 0x0800)
-#define GPIOB_BASE            (APB2PERIPH_BASE + 0x0C00)
-#define GPIOC_BASE            (APB2PERIPH_BASE + 0x1000)
-#define GPIOD_BASE            (APB2PERIPH_BASE + 0x1400)
-#define GPIOE_BASE            (APB2PERIPH_BASE + 0x1800)
-#define GPIOF_BASE            (APB2PERIPH_BASE + 0x1C00)
+#define GPIOA_BASE            (APB2PERIPH_BASE + 0x0800u)
+#define GPIOB_BASE            (APB2PERIPH_BASE + 0x0C00u)
+#define GPIOC_BASE            (APB2PERIPH_BASE + 0x1000u)
+#define GPIOD_BASE            (APB2PERIPH_BASE + 0x1400u)
+#define GPIOE_BASE            (APB2PERIPH_BASE + 0x1800u)
+#define GPIOF_BASE            (APB2PERIPH_BASE + 0x1C00u)
 #define GPIOG_BASE            (APB2PERIPH_BASE + 0x2000)
 #define ADC1_BASE             (APB2PERIPH_BASE + 0x2400)
 #define ADC2_BASE             (APB2PERIPH_BASE + 0x2800)

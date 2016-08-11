@@ -31,7 +31,7 @@ void ESC_SafeRelay_Error_Process(void);
 void fault_code_decode(u8* code_buff);
 void ESC_Init_Fault(void);
 
-extern int EscBuff[10];
+extern u8 EscBuff[10];
 
 
 #endif /* __ESC_ERROR_PROCESS_H */

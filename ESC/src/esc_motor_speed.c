@@ -22,10 +22,11 @@
 u16 Measure_motor_speed(MTRFREQITEM* ptMTR);
 
 
+
 /* variable */
-u32 time_running_tms = 0;
+u32 time_running_tms = 0u;
 u16 SfBase_EscState = ESC_STATE_READY;;
-u8 First_motorspeed_edge_detected = 0;
+u8 First_motorspeed_edge_detected = 0u;
 
 
 MTRFREQITEM MTRITEM[2]=
@@ -79,18 +80,18 @@ MTRFREQITEM MTRITEM[2]=
 void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
 {
 
-    u16 Escalator_speed = 0;
+    u16 Escalator_speed = 0u;
     
     if( SfBase_EscState & ESC_STATE_READY ) 
     {
                
         Escalator_speed = Measure_motor_speed(ptMTR);
         
-        if( Escalator_speed > 1 )
+        if( Escalator_speed > 1u )
         {
             /* fault */
-            *(ptMTR->pcErrorCodeBuff) |= 0x01;
-            EN_ERROR1 |= 0x01;
+            *(ptMTR->pcErrorCodeBuff) |= 0x01u;
+            EN_ERROR1 |= 0x01u;
         }            
     } 
     
@@ -108,21 +109,12 @@ void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
 void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
 {
     
-    u16 Escalator_speed = 0;
+    u16 Escalator_speed = 0u;
     	
 
-//    if( SfBase_EscState & ESC_STATE_RUNNING  || SfBase_EscState & ESC_STATE_STOP)
-    if( SfBase_EscState & ESC_STATE_RUNNING  || ( (SfBase_EscState & ESC_STATE_STOP) && (!(SfBase_EscState & ESC_STATE_READY))))
+    if( ( SfBase_EscState & ESC_STATE_RUNNING ) || ( (SfBase_EscState & ESC_STATE_STOP) && (!(SfBase_EscState & ESC_STATE_READY))))
     {      
-        
-//        if( ( time_running_tms * SYSTEMTICK ) > UNDERSPEED_TIME )
-//        {
-//            SfBase_EscState |= ESC_STATE_RUN5S;                
-//        }
-//        else
-//        {
-//            time_running_tms++;
-//        }        
+               
         
         Escalator_speed = Measure_motor_speed(ptMTR);
         MTR_MAX_SPEED = MAX_SPEED;
@@ -131,20 +123,23 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
         if( Escalator_speed >= MAX_SPEED )
         {
             
-            if(ptMTR->MtrSpeedHigh115Cnt < 100) ptMTR->MtrSpeedHigh115Cnt++;
+            if( ptMTR->MtrSpeedHigh115Cnt < 100u )
+            {
+                ptMTR->MtrSpeedHigh115Cnt++;
+            }
             
-            if(ptMTR->MtrSpeedHigh115Cnt >= 5)
+            if( ptMTR->MtrSpeedHigh115Cnt >= 5u )
             {
                 /* overspeed fault */
-                *(ptMTR->pcErrorCodeBuff) |= 0x02;
-                EN_ERROR1 |= 0x02;
+                *(ptMTR->pcErrorCodeBuff) |= 0x02u;
+                EN_ERROR1 |= 0x02u;
             } 
            
         }
         else
         {
             
-            ptMTR->MtrSpeedHigh115Cnt = 0;
+            ptMTR->MtrSpeedHigh115Cnt = 0u;
             
         }
         
@@ -153,8 +148,8 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
             if( Escalator_speed <= MIN_SPEED )
             {
                 /* underspeed fault */
-                *(ptMTR->pcErrorCodeBuff) |= 0x04;
-                EN_ERROR1 |= 0x04;
+                *(ptMTR->pcErrorCodeBuff) |= 0x04u;
+                EN_ERROR1 |= 0x04u;
             }
         }
      
@@ -175,27 +170,27 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
 *******************************************************************************/
 u16 Measure_motor_speed(MTRFREQITEM* ptMTR)
 {
-    u16 current_motor_speed_sensor,i = 0;
-    u8 timeDelayCnt = 100;    
+    u16 current_motor_speed_sensor,i = 0u;
+    u8 timeDelayCnt = 100u;    
      
     
     /* 20 * 5 = 100ms */
     ptMTR->Tms_counter++;
     if( ( ptMTR->Tms_counter * SYSTEMTICK ) >= timeDelayCnt) 
     { 
-        ptMTR->Tms_counter = 0; 
+        ptMTR->Tms_counter = 0u; 
         
-        for( i = 9; i > 0; i-- )                                                   
+        for( i = 9u; i > 0u; i-- )                                                   
         {   
-            ptMTR->pulseArray[i] = ptMTR->pulseArray[i-1];
+            ptMTR->pulseArray[i] = ptMTR->pulseArray[i - 1u];
         }
         ptMTR->pulseArray[0] = ptMTR->rt_pulse;
-        ptMTR->rt_pulse = 0;
+        ptMTR->rt_pulse = 0u;
         
     }
-    current_motor_speed_sensor = 0;
+    current_motor_speed_sensor = 0u;
     /* 100ms * 10 = 1s */
-    for( i = 0; i < 10; i++ ) 
+    for( i = 0u; i < 10u; i++ ) 
     {
         current_motor_speed_sensor += ptMTR->pulseArray[i];
     }      
@@ -212,17 +207,17 @@ u16 Measure_motor_speed(MTRFREQITEM* ptMTR)
 *******************************************************************************/
 void Motor_Speed_1_2_Shortcircuit_Run(void)
 {
-    static u16 Timer_motorspeed_shortcircuit = 0;
+    static u16 Timer_motorspeed_shortcircuit = 0u;
 
     
     if( SfBase_EscState & ESC_STATE_RUNNING )
     {  
-        if( First_motorspeed_edge_detected == 0 )
+        if( First_motorspeed_edge_detected == 0u )
         {
-            First_motorspeed_edge_detected = 1;
-            Timer_motorspeed_shortcircuit = 0;
+            First_motorspeed_edge_detected = 1u;
+            Timer_motorspeed_shortcircuit = 0u;
             TIM_Cmd(TIM5, DISABLE);
-            TIM5_Int_Init(65535,71);
+            TIM5_Int_Init(65535u,71u);
             
         }    
         else
@@ -230,19 +225,19 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
             Timer_motorspeed_shortcircuit = TIM_GetCounter(TIM5);
             if( Timer_motorspeed_shortcircuit < SSM_SHORTCIRCUIT_TIME )
             {
-                Timer_motorspeed_shortcircuit = 0;               
-                TIM_SetCounter(TIM5,0); 
+                Timer_motorspeed_shortcircuit = 0u;               
+                TIM_SetCounter(TIM5,0u); 
                 
                 /* Fault ¨C Motorspeed Sensor shortcircuited */
-                SHORTCIRCUIT_ERROR |= 0x01;
-                EN_ERROR4 |= 0x01;
+                SHORTCIRCUIT_ERROR |= 0x01u;
+                EN_ERROR4 |= 0x01u;
             }
             else
             {
-                Timer_motorspeed_shortcircuit = 0;             
-                TIM_SetCounter(TIM5,0);  
+                Timer_motorspeed_shortcircuit = 0u;             
+                TIM_SetCounter(TIM5,0u);  
                 
-                SHORTCIRCUIT_ERROR &= ~0x01;
+                SHORTCIRCUIT_ERROR &= ~0x01u;
             }
         }
     }
@@ -260,29 +255,28 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
 void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
 {   
     
-    if((SfBase_EscState & ESC_STATE_STOP ) && ( ptMTR->rt_brake_stop == 0 )) 
+    if((SfBase_EscState & ESC_STATE_STOP ) && ( ptMTR->rt_brake_stop == 0u )) 
     {
         if((ptMTR->rt_brake_pulse) > MAX_DISTANCE)
         {
             /* stopping distance fault */  
-            *(ptMTR->pcErrorCodeBuff) |= 0x08;
-            EN_ERROR1 |= 0x08;
+            *(ptMTR->pcErrorCodeBuff) |= 0x08u;
+            EN_ERROR1 |= 0x08u;
         }   
            
         
         if( !(ptMTR->rt_brake_stop))
         {
             ptMTR->BrakeCalTms++;
-            if( ( ptMTR->BrakeCalTms * SYSTEMTICK ) > 1000 ) 
+            if( ( ptMTR->BrakeCalTms * SYSTEMTICK ) > 1000u ) 
             {
-                
-//                if(( ptMTR->rt_brake_pulse ) && ( ptMTR->rt_brake_pulse == ptMTR->last_brake_pulse ))   
+                  
                 if( ptMTR->rt_brake_pulse == ptMTR->last_brake_pulse )     
                 {
                     /* record the escalator stopping distance */
                     *(ptMTR->ptBrakeDistanceBuff) = ptMTR->rt_brake_pulse;
-                    ptMTR->rt_brake_pulse = 0;
-                    ptMTR->rt_brake_stop = 1;
+                    ptMTR->rt_brake_pulse = 0u;
+                    ptMTR->rt_brake_stop = 1u;
                     
                 }
                 else
@@ -290,15 +284,15 @@ void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
                     ptMTR->last_brake_pulse = ptMTR->rt_brake_pulse;
                 }
                 
-                ptMTR->BrakeCalTms = 0;
+                ptMTR->BrakeCalTms = 0u;
                 
             }    
         }
     } 
     else
     {
-        ptMTR->BrakeCalTms = 0;
-        ptMTR->rt_brake_pulse = 0;
+        ptMTR->BrakeCalTms = 0u;
+        ptMTR->rt_brake_pulse = 0u;
     }   
 
 }
@@ -321,15 +315,19 @@ void ESC_Motor_Check(void)
     
     if((SfBase_EscState & ESC_STATE_RUNNING) && (!(escState_old & ESC_STATE_RUNNING))) 
     { 
-        First_motorspeed_edge_detected = 0;
+        First_motorspeed_edge_detected = 0u;
     } 
     else if(( SfBase_EscState & ESC_STATE_STOP ) && ( !(escState_old & ESC_STATE_STOP)))
     {
         MTRITEM[0].last_brake_pulse = MTRITEM[0].rt_brake_pulse;
         MTRITEM[1].last_brake_pulse = MTRITEM[1].rt_brake_pulse;
-        MTRITEM[0].rt_brake_stop = 0;
-        MTRITEM[1].rt_brake_stop = 0;
+        MTRITEM[0].rt_brake_stop = 0u;
+        MTRITEM[1].rt_brake_stop = 0u;
     } 
+    else
+    {
+      
+    }
     
     Motor_Speed_Run_EN115(&MTRITEM[0]);
     Motor_Speed_Run_EN115(&MTRITEM[1]);

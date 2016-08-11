@@ -26,7 +26,6 @@
 
 
 #ifdef GEC_SF_MASTER
-//#include "esc_comm_db.h"
 #include "esc_record_data.h"
 #include "mb85rcxx.h"
 #include "usb_func.h"
@@ -37,7 +36,7 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 #define SELF_TEST       ( 0 )
-#define SYSTEMTICK      ( 5 )
+#define SYSTEMTICK      ( 5u )
 
 /* Exported functions ------------------------------------------------------- */
 void Initial_Device(void);

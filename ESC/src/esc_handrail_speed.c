@@ -26,7 +26,7 @@ u16 Measure_handrail_speed(HDLITEM* psHDL);
 
 
 /* variable */
-u8 First_HS_edge_detected = 0;
+u8 First_HS_edge_detected = 0u;
 u16 *const HR_SPEED = (u16*)&EscRTBuff[56];
 u16 *const MOTOR_SPEED = (u16*)&EscRTBuff[58];
 
@@ -60,17 +60,17 @@ HDLITEM HDL_Right =
 *******************************************************************************/
 void HR_Speed_Ready(HDLITEM* psHDL)
 {
-    u16 Escalator_handrail_speed = 0;       
+    u16 Escalator_handrail_speed = 0u;       
     
     if( SfBase_EscState & ESC_STATE_READY ) 
     {                
         Escalator_handrail_speed = Measure_handrail_speed(psHDL);
         
-        if( Escalator_handrail_speed > 1 )
+        if( Escalator_handrail_speed > 1u )
         {
             /* fault */
-            *(psHDL->pcErrorCodeBuff) |= 0x01;
-            EN_ERROR2 |= 0x01;
+            *(psHDL->pcErrorCodeBuff) |= 0x01u;
+            EN_ERROR2 |= 0x01u;
         }            
          
     } 
@@ -87,15 +87,15 @@ void HR_Speed_Ready(HDLITEM* psHDL)
 *******************************************************************************/
 void HR_Speed_Run_EN115(HDLITEM* psHDL)
 {
-    u16 Escalator_speed,Handrail_speed,Handrail_speed_freq,Escalator_speed_freq = 0;
+    u16 Escalator_speed,Handrail_speed,Handrail_speed_freq,Escalator_speed_freq = 0u;
     
-    if( SfBase_EscState & ESC_STATE_RUNNING  || ( (SfBase_EscState & ESC_STATE_STOP) && (!(SfBase_EscState & ESC_STATE_READY))))
+    if( ( SfBase_EscState & ESC_STATE_RUNNING ) || ( (SfBase_EscState & ESC_STATE_STOP) && (!(SfBase_EscState & ESC_STATE_READY))))
     {
         
         Handrail_speed_freq = Measure_handrail_speed(psHDL);
-        Escalator_speed_freq = ( EscRTBuff[41] << 8 | EscRTBuff[40] );
-        Handrail_speed = (( Handrail_speed_freq * 2 * 314 * ROLLER_HR_RADIUS ) / ( HR_PULSES_PER_REV * 100 ));    
-        Escalator_speed = (( Escalator_speed_freq * NOMINAL_SPEED ) / ( ( MOTOR_RPM * MOTOR_PLUSE_PER_REV ) / 60 ) );
+        Escalator_speed_freq = *(u16*)&EscRTBuff[40]; /* ( ( EscRTBuff[41] << 8u ) | EscRTBuff[40] );*/
+        Handrail_speed = (( Handrail_speed_freq * 2u * 314u * ROLLER_HR_RADIUS ) / ( HR_PULSES_PER_REV * 100u ));    
+        Escalator_speed = (( Escalator_speed_freq * NOMINAL_SPEED ) / ( ( MOTOR_RPM * MOTOR_PLUSE_PER_REV ) / 60u ) );
         
         *HR_SPEED = Handrail_speed;
         *MOTOR_SPEED = Escalator_speed;
@@ -105,7 +105,7 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
         
             if( ( psHDL->delay_no_pulse_tms * SYSTEMTICK ) > DELAY_NO_PULSE_CHECKING )
             {
-                if( Handrail_speed_freq < 1 )
+                if( Handrail_speed_freq < 1u )
                 {
                     if( SfBase_EscState & ESC_STATE_INSP ) 
                     {         
@@ -114,8 +114,8 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
                     else
                     {
                         /* handrail speed fault */
-                        *(psHDL->pcErrorCodeBuff) |= 0x02;
-                        EN_ERROR2 |= 0x02;
+                        *(psHDL->pcErrorCodeBuff) |= 0x02u;
+                        EN_ERROR2 |= 0x02u;
                     }            
                 }          
             }
@@ -127,7 +127,7 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
             
             
             psHDL->HR_Fault_timer++;
-            if( (Handrail_speed <= (( Escalator_speed * 87 ) / 100 )) || (Handrail_speed >= (( Escalator_speed * 113 ) / 100 )) )
+            if( (Handrail_speed <= (( Escalator_speed * 87u ) / 100u )) || (Handrail_speed >= (( Escalator_speed * 113u ) / 100u )) )
             {
                 if( ( psHDL->HR_Fault_timer * SYSTEMTICK ) >= HR_FAULT_TIME )
                 {
@@ -138,14 +138,14 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
                     else
                     {
                         /* handrail speed fault */
-                        *(psHDL->pcErrorCodeBuff) |= 0x04;
-                        EN_ERROR2 |= 0x04;
+                        *(psHDL->pcErrorCodeBuff) |= 0x04u;
+                        EN_ERROR2 |= 0x04u;
                     }
                 }
             }
             else
             {
-                psHDL->HR_Fault_timer = 0;
+                psHDL->HR_Fault_timer = 0u;
             }
             
         }
@@ -164,26 +164,26 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
 *******************************************************************************/
 u16 Measure_handrail_speed(HDLITEM* psHDL)
 {
-    u16 current_hanrail_speed_sensor,i = 0;  
-    u8 timeDelayCnt = 100;    
+    u16 current_hanrail_speed_sensor,i = 0u;  
+    u8 timeDelayCnt = 100u;    
     
     /* 20 * 5 = 100ms */
     psHDL->Tms_counter++;
     if( ( psHDL->Tms_counter * SYSTEMTICK ) >= timeDelayCnt) 
     { 
-        psHDL->Tms_counter = 0; 
+        psHDL->Tms_counter = 0u; 
         
-        for(i=9; i>0; i--)                                                   
+        for(i = 9u; i > 0u; i--)                                                   
         {   
-            psHDL->pulseArray[i] = psHDL->pulseArray[i-1];
+            psHDL->pulseArray[i] = psHDL->pulseArray[i-1u];
         }
         psHDL->pulseArray[0] = psHDL->hr_pulse;
-        psHDL->hr_pulse=0;
+        psHDL->hr_pulse = 0u;
         
     }
-    current_hanrail_speed_sensor = 0;
+    current_hanrail_speed_sensor = 0u;
     /* 100ms * 10 = 1s */
-    for(i=0;i<10;i++) 
+    for(i = 0u; i < 10u; i++) 
     {
         current_hanrail_speed_sensor += psHDL->pulseArray[i];
     }  
@@ -201,16 +201,16 @@ u16 Measure_handrail_speed(HDLITEM* psHDL)
 *******************************************************************************/
 void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
 {
-    static u16 Timer_HS_shortcircuit = 0;
+    static u16 Timer_HS_shortcircuit = 0u;
     
     if( SfBase_EscState & ESC_STATE_RUNNING )
     {  
-        if( First_HS_edge_detected == 0 )
+        if( First_HS_edge_detected == 0u )
         {
-            First_HS_edge_detected = 1;
-            Timer_HS_shortcircuit = 0;
+            First_HS_edge_detected = 1u;
+            Timer_HS_shortcircuit = 0u;
             TIM_Cmd(TIM6, DISABLE);  
-            TIM6_Int_Init(65535,71);
+            TIM6_Int_Init(65535u,71u);
             
         }    
         else
@@ -218,19 +218,19 @@ void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
             Timer_HS_shortcircuit = TIM_GetCounter(TIM6);
             if( Timer_HS_shortcircuit < SSM_SHORTCIRCUIT_TIME )
             {
-                Timer_HS_shortcircuit = 0;               
-                TIM_SetCounter(TIM6,0); 
+                Timer_HS_shortcircuit = 0u;               
+                TIM_SetCounter(TIM6,0u); 
                 
                 /* Fault ¨C Motorspeed Sensor shortcircuited */
-                SHORTCIRCUIT_ERROR |= 0x02;
-                EN_ERROR4 |= 0x02;
+                SHORTCIRCUIT_ERROR |= 0x02u;
+                EN_ERROR4 |= 0x02u;
             }
             else
             {
-                Timer_HS_shortcircuit = 0;             
-                TIM_SetCounter(TIM6,0);     
+                Timer_HS_shortcircuit = 0u;             
+                TIM_SetCounter(TIM6,0u);     
                 
-                SHORTCIRCUIT_ERROR &= ~0x02;
+                SHORTCIRCUIT_ERROR &= ~0x02u;
             }
         }
     }    
@@ -247,7 +247,7 @@ void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
 *******************************************************************************/
 void ESC_Handrail_Check(void)
 {
-  static u16 escState_old = 0; 
+  static u16 escState_old = 0u; 
   
   
   HR_Speed_Ready(&HDL_Right);
@@ -255,9 +255,9 @@ void ESC_Handrail_Check(void)
  
   if((SfBase_EscState & ESC_STATE_RUNNING) && (!(escState_old & ESC_STATE_RUNNING))) 
   { 
-      First_HS_edge_detected = 0;
-      HDL_Left.delay_no_pulse_tms = 0;
-      HDL_Right.delay_no_pulse_tms = 0;
+      First_HS_edge_detected = 0u;
+      HDL_Left.delay_no_pulse_tms = 0u;
+      HDL_Right.delay_no_pulse_tms = 0u;
   } 
   
   HR_Speed_Run_EN115(&HDL_Right);

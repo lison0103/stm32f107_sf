@@ -18,9 +18,9 @@
 /* Private functions ---------------------------------------------------------*/
 
 /* variable */
-u8 TandemRunEnable = 0;
-u8 TandemMessageRunAllowed = 0;
-u8 Tandemoutput = 0;
+u8 TandemRunEnable = 0u;
+u8 TandemMessageRunAllowed = 0u;
+u8 Tandemoutput = 0u;
 
 /*******************************************************************************
 * Function Name  : CheckTandemReady
@@ -32,44 +32,52 @@ u8 Tandemoutput = 0;
 void CheckTandemReady(void)
 {
        
-    if( TANDEM_TYPE == 1 )
+    if( TANDEM_TYPE == 1u )
     {
         /* Need CheckUpDown_Key() */
-        if( CMD_FLAG1 & 0x04 )
+        if( CMD_FLAG1 & 0x04u )
         {
             /* need allow by other escalator */
-            if( TandemMessageRunAllowed == 1 )
+            if( TandemMessageRunAllowed == 1u )
             {
-                TandemRunEnable = 1;
+                TandemRunEnable = 1u;
             }
         }
-        else if( CMD_FLAG1 & 0x08 )
+        else if( CMD_FLAG1 & 0x08u )
         {
-            TandemRunEnable = 1;
+            TandemRunEnable = 1u;
             /* send TandemMessageRunAllowed = 1 */
             /* communication by cpu2 CAN1 */
+        }
+        else
+        {
+          
         }
             
     }
-    else if( TANDEM_TYPE == 2 )
+    else if( TANDEM_TYPE == 2u )
     {
-        if( CMD_FLAG1 & 0x08 )
+        if( CMD_FLAG1 & 0x08u )
         {
-            if( TandemMessageRunAllowed == 1 )
+            if( TandemMessageRunAllowed == 1u )
             {
-                TandemRunEnable = 1;
+                TandemRunEnable = 1u;
             }
         }
-        else if( CMD_FLAG1 & 0x04 )
+        else if( CMD_FLAG1 & 0x04u )
         {
-            TandemRunEnable = 1;
+            TandemRunEnable = 1u;
             /* send TandemMessageRunAllowed = 1 */
             /* communication by cpu2 CAN1 */
+        } 
+        else
+        {
+          
         }        
     }
     else
     {
-        TandemRunEnable = 0;
+        TandemRunEnable = 0u;
     }
     
 
@@ -84,30 +92,34 @@ void CheckTandemReady(void)
 *******************************************************************************/
 void CheckTandemRun(void)
 {
-    if( TANDEM_TYPE == 1 )
+    if( TANDEM_TYPE == 1u )
     {
         if( SfBase_EscState & ESC_STATE_UP )
         {
-            if( TandemMessageRunAllowed == 0 )
+            if( TandemMessageRunAllowed == 0u )
             {
                 /* Tandem fault */
                 /* stop escalator */
-                EN_ERROR6 |= 0x01;
+                EN_ERROR6 |= 0x01u;
             }
         }           
     }
-    else if( TANDEM_TYPE == 2 )
+    else if( TANDEM_TYPE == 2u )
     {
         if( SfBase_EscState & ESC_STATE_DOWN )
         {
-            if( TandemMessageRunAllowed == 0 )
+            if( TandemMessageRunAllowed == 0u )
             {
                 /* Tandem fault */
                 /* stop escalator */
-                EN_ERROR6 |= 0x01;
+                EN_ERROR6 |= 0x01u;
             }
         }      
     }
+    else
+    {
+      
+    }    
 }
 
 /*******************************************************************************
@@ -121,36 +133,40 @@ void TandemOutput(void)
 {
     if( SfBase_EscState & ESC_STATE_INSP )
     {
-        Tandemoutput = 0;
+        Tandemoutput = 0u;
     }
     else if( SfBase_EscState & ESC_STATE_NORMAL )
     {
-        if( TANDEM_TYPE == 1 )
+        if( TANDEM_TYPE == 1u )
         {
             if( SfBase_EscState & ESC_STATE_DOWN )
             {
-                Tandemoutput = 1;
+                Tandemoutput = 1u;
             }
             else
             {
-                Tandemoutput = 0;
+                Tandemoutput = 0u;
             }            
         }
-        else if( TANDEM_TYPE == 2 )
+        else if( TANDEM_TYPE == 2u )
         {
             if( SfBase_EscState & ESC_STATE_UP )
             {
-                Tandemoutput = 1;
+                Tandemoutput = 1u;
             }
             else
             {
-                Tandemoutput = 0;
+                Tandemoutput = 0u;
             }            
         }
+        else
+        {
+          
+        }        
     }
     else
     {
-        Tandemoutput = 0;
+        Tandemoutput = 0u;
     }
     
     /* send Tandemoutput to other escalator */
@@ -178,6 +194,10 @@ void ESC_Tandem_Check(void)
         CheckTandemRun();
         TandemOutput();
     }
+    else
+    {
+      
+    }    
 }
 
 

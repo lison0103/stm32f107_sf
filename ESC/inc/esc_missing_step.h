@@ -18,6 +18,7 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
+void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS);
 void Missing_Step_UpperLower_Shortcircuit_Run(void);
 u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS);
 void Missing_StepRun(STEPMISSINGITEM* psSTPMS);
