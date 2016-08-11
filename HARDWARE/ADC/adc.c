@@ -16,7 +16,7 @@
 /* Private macro -------------------------------------------------------------*/
 #define USE_DMA_Transfer 
 #define ADC1_DR_Address    ((uint32_t)0x4001244C)
-#define Sample_Num      1
+#define Sample_Num      5
 
 /* Private variables ---------------------------------------------------------*/
 __IO uint16_t ADC1ConvertedValue[Sample_Num] = { 0 };
@@ -59,9 +59,9 @@ void  Adc_Init(void)
         DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
         DMA_InitStructure.DMA_BufferSize = Sample_Num;
         DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-        DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Disable;
+        DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
         DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-        DMA_InitStructure.DMA_MemoryDataSize = DMA_PeripheralDataSize_HalfWord;
+        DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;;
         DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
         DMA_InitStructure.DMA_Priority = DMA_Priority_High;
         DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
@@ -95,7 +95,12 @@ void  Adc_Init(void)
         
         /* ADC1 regular channels configuration */ 
         ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_239Cycles5 ); 
-        
+
+#ifdef   USE_DMA_Transfer
+        /* Enable ADC1 DMA */
+        ADC_DMACmd(ADC1, ENABLE);
+#endif  
+  
         /* Enable ADC1 */
         ADC_Cmd(ADC1, ENABLE);
         
@@ -113,7 +118,7 @@ void  Adc_Init(void)
 
 #ifdef   USE_DMA_Transfer
         /* Enable DMA1 channel1 */
-//        DMA_Cmd(DMA1_Channel1, ENABLE);
+        DMA_Cmd(DMA1_Channel1, ENABLE);
         
         /* Start ADC1 Software Conversion */ 
         ADC_SoftwareStartConvCmd(ADC1, ENABLE);
