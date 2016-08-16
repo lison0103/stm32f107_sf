@@ -333,7 +333,7 @@ void ParametersLoading(void)
 #else
 
 #endif
-        get_para_from_usb();
+//        get_para_from_usb();
     }
 }
 

@@ -286,7 +286,7 @@ void sfEscStateCheck(void)
             SfBase_EscState |= ESC_STATE_SPEEDUP;
         }
         
-        if( (sf_running_tms * SYSTEMTICK) > 6000 )
+        if( (sf_running_tms * SYSTEMTICK) > UNDERSPEED_TIME )
         {
             SfBase_EscState |= ESC_STATE_RUN5S;
         }

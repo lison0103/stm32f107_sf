@@ -12,6 +12,7 @@
 #include "led.h"
 #include "delay.h"
 #include "crc16.h"
+#include "esc.h"
 
 #ifdef GEC_SF_S_NEW
 #include "usb_istr.h"
@@ -33,9 +34,6 @@
 #ifdef GEC_SF_MASTER
 #define CAN2_RX0_INT_ENABLE	1		
 #endif
-
-#define CAN_FRAME_LEN   8
-#define CAN_SEND_LEN    3*CAN_FRAME_LEN
 
 
 /* Private variables ---------------------------------------------------------*/
@@ -415,13 +413,24 @@ void CAN1_RX0_IRQHandler(void)
     {
         
         CAN_Receive(CAN1, CAN_FIFO0, &RxMessage);
-        /** CB normal data RECEIVE **/
-        if( ( RxMessage.ExtId == CAN1RX_NORMAL_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
+        
+        /** CB control data RECEIVE **/
+        if( ( RxMessage.ExtId == CAN1RX_CONTROL_DATA1_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
+        {
+            can1_receive = 1;        
+
+            for( u8 num = 0; num < RxMessage.DLC; num++ )
+            {
+                pcEscDataFromControl[num] = RxMessage.Data[num];
+            }
+        }  
+        /** CB normal data RECEIVE **/        
+        else if( ( RxMessage.ExtId == CAN1RX_NORMAL_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
             can1_receive = 1;        
 
             CAN_RX_Process( RxMessage, &CAN1_RX_Normal );
-        }
+        }        
         /* Test Mode */        
         else if( ( RxMessage.ExtId == CAN1_TEST_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {

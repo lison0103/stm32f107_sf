@@ -36,10 +36,18 @@ typedef struct  {
 /* Exported macro ------------------------------------------------------------*/
 #define canbuffsize 150
 
+#define CAN_FRAME_LEN   8
+#define CAN_SEND_LEN    3*CAN_FRAME_LEN
+
 /* SAFETY TO CONTROL  Speed: 500kbps  Message ID 100: transmitted every 20ms */
 /* CONTROL TO SAFETY  Speed: 500kbps  Message ID 200: transmitted every 20ms */
 #define CAN1TX_NORMAL_ID  0x0064
+#define CAN1TX_SAFETY_DATA_ID  0x0065
+#define CAN1TX_SAFETY_INPUT_ID  0x0066
 #define CAN1RX_NORMAL_ID  0x00C8
+#define CAN1RX_CONTROL_DATA1_ID  0x00C9
+#define CAN1RX_CONTROL_DATA2_ID  0x00CA
+
 #define CAN1TX_URGE_ID    0x0062  
 
 #define CAN2TX_UP_ID    0x1234

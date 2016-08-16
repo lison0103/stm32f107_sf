@@ -122,18 +122,17 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
         
         if( Escalator_speed >= MAX_SPEED )
         {
-            
-            if( ptMTR->MtrSpeedHigh115Cnt < 100u )
-            {
-                ptMTR->MtrSpeedHigh115Cnt++;
-            }
-            
+
             if( ptMTR->MtrSpeedHigh115Cnt >= 5u )
             {
                 /* overspeed fault */
                 *(ptMTR->pcErrorCodeBuff) |= 0x02u;
                 EN_ERROR1 |= 0x02u;
             } 
+            else
+            {
+                ptMTR->MtrSpeedHigh115Cnt++;
+            }  
            
         }
         else
@@ -141,17 +140,18 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
             
             ptMTR->MtrSpeedHigh115Cnt = 0u;
             
+            if( SfBase_EscState & ESC_STATE_RUN5S )
+            {
+                if( Escalator_speed <= MIN_SPEED )
+                {
+                    /* underspeed fault */
+                    *(ptMTR->pcErrorCodeBuff) |= 0x04u;
+                    EN_ERROR1 |= 0x04u;
+                }
+            }            
         }
         
-        if( SfBase_EscState & ESC_STATE_RUN5S )
-        {
-            if( Escalator_speed <= MIN_SPEED )
-            {
-                /* underspeed fault */
-                *(ptMTR->pcErrorCodeBuff) |= 0x04u;
-                EN_ERROR1 |= 0x04u;
-            }
-        }
+
      
         
         /* record the escalator speed */
