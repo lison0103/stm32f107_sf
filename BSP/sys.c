@@ -51,9 +51,10 @@ int fputc(int ch, FILE *f)
 #endif /* GEC_SF_S_NEW */
 
 #else
-
-
-
+int fputc(int ch, FILE *f)
+{
+      return ch;
+}
 #endif /* DEBUG_PRINTF */
 
 

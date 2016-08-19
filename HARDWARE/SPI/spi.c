@@ -73,16 +73,19 @@ void SPI1_Configuration(void)
 	SPI_InitStructure.SPI_CRCPolynomial = 7;	                        
 	SPI_Init(SPI1, &SPI_InitStructure);   
         
- 
-        //DMA 
+#ifdef GEC_SF_S_NEW
+        SPI_RxFIFOThresholdConfig(SPI1, SPI_RxFIFOThreshold_QF);
+#endif
+
+        /* DMA */ 
         SPI1_DMA_Configuration();       
         SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Tx, ENABLE);
         SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
            
-        //CRC
+        /* CRC */
         SPI_CalculateCRC(SPI1, ENABLE);
         
-        //SPI enable
+        /* SPI enable */
 	SPI_Cmd(SPI1, ENABLE); 
         
 } 
@@ -140,9 +143,7 @@ void SPI1_Init(void)
         GPIO_Init(GPIOA, &GPIO_InitStructure);                        
 #endif
 #endif
-           
-// 	GPIO_SetBits(GPIOA,GPIO_Pin_5|GPIO_Pin_6|GPIO_Pin_7);
-        
+    
         SPI1_Configuration();
 }    
 
@@ -157,8 +158,7 @@ void SPI1_Init(void)
 
 void SPI1_DMA_Configuration( void )
 {  
-      
-//      NVIC_InitTypeDef NVIC_InitStructure;   
+        
       
       DMA_DeInit(DMA1_Channel2);
       DMA_InitStructure.DMA_PeripheralBaseAddr = SPI1_DR_Addr;
@@ -177,7 +177,6 @@ void SPI1_DMA_Configuration( void )
       DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  
       DMA_Init(DMA1_Channel2, &DMA_InitStructure);  
       
-//      DMA_ITConfig(DMA1_Channel2, DMA_IT_TC, ENABLE);
       
       DMA_DeInit(DMA1_Channel3);
       DMA_InitStructure.DMA_PeripheralBaseAddr = SPI1_DR_Addr;
@@ -191,24 +190,8 @@ void SPI1_DMA_Configuration( void )
       DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte; 
       DMA_InitStructure.DMA_Mode = DMA_Mode_Normal; 
       DMA_InitStructure.DMA_Priority = DMA_Priority_Low;
-      DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  //
-      DMA_Init(DMA1_Channel3, &DMA_InitStructure);  //  
-      
-//      DMA_ITConfig(DMA1_Channel3, DMA_IT_TC, ENABLE);
-      
-      
-      
-//      NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel2_IRQn;
-//      NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1 ;
-//      NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;		
-//      NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			
-//      NVIC_Init(&NVIC_InitStructure);      
-//      
-//      NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel3_IRQn;
-//      NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1 ;
-//      NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;		
-//      NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			
-//      NVIC_Init(&NVIC_InitStructure);   
+      DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  
+      DMA_Init(DMA1_Channel3, &DMA_InitStructure);         
   
 }
 
@@ -238,7 +221,7 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
     
     if( waitus >= 2000 )
     {
-        printf("1 TXE timeout! \r\n");
+        /* TXE timeout!  */
     }
       
     DMA_Cmd(DMA1_Channel2, DISABLE);
@@ -266,7 +249,7 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
     
     if( waitus >= 2000 )
     {
-        printf("2 TXE timeout! \r\n");
+        /* TXE timeout!  */
     }
     
     DMA_Cmd(DMA1_Channel2, ENABLE);    
@@ -299,9 +282,7 @@ void DMA_Check_Flag(u32 times)
           
           if( waitus >= times )
           {
-//              EWDT_TOOGLE(); 
-//              IWDG_ReloadCounter();
-              printf("DMA1_IT_TC2 wait timeout!!! \r\n");
+              /* DMA1_IT_TC2 wait timeout!!! */
           }
           waitus = 0;
           while( ( !DMA_GetFlagStatus(DMA1_IT_TC3) ) && ( waitus < times ) )
@@ -312,9 +293,7 @@ void DMA_Check_Flag(u32 times)
           
           if( waitus >= times )
           {
-//              EWDT_TOOGLE(); 
-//              IWDG_ReloadCounter();
-              printf("DMA1_IT_TC3 wait timeout!!! \r\n");
+              /* DMA1_IT_TC3 wait timeout!!! */
           }
           waitus = 0;
           while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < times ) )
@@ -324,10 +303,8 @@ void DMA_Check_Flag(u32 times)
           }
           
           if( waitus >= times )
-          {
-//              EWDT_TOOGLE(); 
-//              IWDG_ReloadCounter();              
-              printf("SPI_I2S_FLAG_TXE wait timeout!!! \r\n");
+          {              
+              /* SPI_I2S_FLAG_TXE wait timeout!!! */
           }
           waitus = 0;
           while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) != RESET ) && ( waitus < times ) )
@@ -337,10 +314,8 @@ void DMA_Check_Flag(u32 times)
           }
           
           if( waitus >= times )
-          {
-//              EWDT_TOOGLE(); 
-//              IWDG_ReloadCounter();              
-              printf("SPI_I2S_FLAG_BSY wait timeout!!! \r\n");
+          {             
+              /* SPI_I2S_FLAG_BSY wait timeout!!! */
           } 
  
         DMA_ClearFlag(DMA1_FLAG_GL3|DMA1_FLAG_TC3|DMA1_FLAG_HT3|DMA1_FLAG_TE3);
@@ -352,11 +327,13 @@ void DMA_Check_Flag(u32 times)
           {
               SPI_I2S_ClearFlag(SPI1, SPI_FLAG_CRCERR);
               
-              //SPI CRC ERROR
+              /* SPI CRC ERROR */
               EN_ERROR_SYS4++;
 #ifdef GEC_SF_MASTER          
-//              SPI1_Configuration();
-//              delay_ms(200);
+/*
+              SPI1_Configuration();
+              delay_ms(200);
+*/              
 #else
               SPI1_Configuration();
 #endif              
@@ -377,106 +354,6 @@ void DMA_Check_Flag(u32 times)
         }         
 }
 
-/*******************************************************************************
-* Function Name  : DMA1_Channel2_IRQHandler
-* Description    : This function handles DMA1 Stream 2 interrupt request.
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void DMA1_Channel2_IRQHandler(void)
-{
-
-      if ( ( DMA_GetITStatus( DMA1_IT_TC2 ) ) != RESET )
-      {
-          DMA_ClearFlag(DMA1_FLAG_GL2|DMA1_FLAG_TC2|DMA1_FLAG_HT2|DMA1_FLAG_TE2);
-          
-          DMA_Cmd(DMA1_Channel2, DISABLE);
-          
-//      #ifdef GEC_SF_MASTER
-//          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-//          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) != RESET);
-//          DMA_Cmd(DMA1_Channel2, DISABLE);
-//          DMA_Cmd(DMA1_Channel3, DISABLE);
-//          
-//      #else
-//          
-//          if( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_OVR) != RESET)
-//          {        
-//              printf("SPI_I2S_FLAG_OVR \r\n");
-//          }
-//      #endif          
-          
-          
-//          if( SPI_I2S_GetFlagStatus(SPI1, SPI_FLAG_CRCERR) != RESET)
-//          {
-//              SPI_I2S_ClearFlag(SPI1, SPI_FLAG_CRCERR);
-//              
-//              //SPI CRC ERROR
-//              printf("Channel2 CRCERR \r\n");
-//              EN_ERROR_SYS4++;
-////              SPI1_Init();
-//              
-//              if(EN_ERROR_SYS4 > 2)
-//              {
-//                ESC_SPI_Error_Process();
-//              }
-//          }
-//          else
-//          {
-//              EN_ERROR_SYS4 = 0;
-//          }
-          
-          
-          SPI_DMA_RECEIVE_FLAG = 1;
-      }
-
-}
-/*******************************************************************************
-* Function Name  : DMA1_Channel3_IRQHandler
-* Description    : This function handles DMA1 Stream 3 interrupt request.
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void DMA1_Channel3_IRQHandler(void)
-{
-      if ( ( DMA_GetITStatus( DMA1_IT_TC3 ) ) != RESET )
-      {
-          
-          
-          
-//          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-//          while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) != RESET);
-          waitus = 0;
-          while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < 2000 ) )
-          {
-              waitus++;
-              delay_us(1);
-          }
-          
-          if( waitus >= 2000 )
-          {
-              printf("Channel3 TXE timeout! \r\n");
-          }
-          waitus = 0;
-          while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) != RESET ) && ( waitus < 2000 ) )
-          {
-              waitus++;
-              delay_us(1);
-          }
-          
-          if( waitus >= 2000 )
-          {
-              printf("Channel3 BSY timeout! \r\n");
-          }          
-          
-          DMA_ClearFlag(DMA1_FLAG_GL3|DMA1_FLAG_TC3|DMA1_FLAG_HT3|DMA1_FLAG_TE3);
-          
-          DMA_Cmd(DMA1_Channel3, DISABLE);                               
-      }
-
-}
 
 
 

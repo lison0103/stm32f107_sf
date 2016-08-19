@@ -384,7 +384,7 @@ void HardwareTEST(void)
         EWDT_TOOGLE();
         IWDG_ReloadCounter(); 
         waittms++;
-        if( waittms > 10000 )
+        if( waittms > 100 )
         {
             waittms = 0;
             break;
@@ -672,7 +672,7 @@ void HardwareTEST(void)
 //        CPU_Data_Check(recvdata, &len);  
     } 
     
-    CPU_Exchange_Data(senddata, 2);
+//    CPU_Exchange_Data(senddata, 2);
 }
 
 
