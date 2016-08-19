@@ -199,7 +199,7 @@ void ESC_SPI_Error_Process(void)
     /** Disconnect the safety relay **/
 //    SF_RL_CTR_CLR();
 //    SF_RL_WDT_CLR();
-    printf("ESC_SPI_Error_Process \r\n");
+    /* ESC_SPI_Error_Process */
 }
 
 
@@ -218,5 +218,5 @@ void ESC_SafeRelay_Error_Process(void)
     /** Disconnect the safety relay **/
     SF_RL_CTR_CLR();
     SF_RL_WDT_CLR();
-    printf("ESC_SafeRelay_Error_Process \r\n");
+    /* ESC_SafeRelay_Error_Process */
 }

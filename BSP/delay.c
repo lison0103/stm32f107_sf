@@ -129,7 +129,7 @@ void delay_ms(u16 nms)
 *******************************************************************************/
 void Delay_Init(void)	 
 {
-    TIM1_Int_Init(65535, 71);
+    TIM1_Int_Init(65535u, 71u);
 }	
 
 /*******************************************************************************
@@ -141,11 +141,14 @@ void Delay_Init(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/		    								   
-void delay_us(u32 nus)
+void delay_us(u16 nus)
 {		
     TIM_Cmd(TIM1, ENABLE);
     TIM1->CNT = nus;
-    while((TIM1->CNT > 0) && (TIM1->CNT <= nus)); 
+    while((TIM1->CNT > 0u) && (TIM1->CNT <= nus))
+    {
+        ;
+    } 
     TIM_Cmd(TIM1, DISABLE);
 }
 
@@ -160,11 +163,11 @@ void delay_us(u32 nus)
 *******************************************************************************/
 void delay_ms(u16 nms)
 {	 		  	  
-    u16 i=0;
+    u16 i = 0u;
     
-    for( i = 0; i < nms; i++ )
+    for( i = 0u; i < nms; i++ )
     {
-        delay_us(1000);
+        delay_us(1000u);
     }  
 } 
 

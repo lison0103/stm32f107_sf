@@ -20,7 +20,7 @@
 /* Exported functions ------------------------------------------------------- */
 void Delay_Init(void);
 void delay_ms(u16 nms);
-void delay_us(u32 nus);
+void delay_us(u16 nus);
 
 
 #endif  /* __DELAY_H */

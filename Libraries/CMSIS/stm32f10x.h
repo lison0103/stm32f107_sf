@@ -1321,7 +1321,7 @@ typedef struct
 #define GPIOG_BASE            (APB2PERIPH_BASE + 0x2000)
 #define ADC1_BASE             (APB2PERIPH_BASE + 0x2400)
 #define ADC2_BASE             (APB2PERIPH_BASE + 0x2800)
-#define TIM1_BASE             (APB2PERIPH_BASE + 0x2C00)
+#define TIM1_BASE             (APB2PERIPH_BASE + 0x2C00u)
 #define SPI1_BASE             (APB2PERIPH_BASE + 0x3000)
 #define TIM8_BASE             (APB2PERIPH_BASE + 0x3400)
 #define USART1_BASE           (APB2PERIPH_BASE + 0x3800)

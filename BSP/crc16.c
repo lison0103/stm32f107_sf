@@ -81,8 +81,8 @@ const unsigned char aucCRCLo[] = {
 *******************************************************************************/
 uint16_t MB_CRC16( uint8_t *pucFrame, uint16_t usLen )
 {
-    uint8_t ucCRCHi = 0xFF;
-    uint8_t ucCRCLo = 0xFF;
+    uint8_t ucCRCHi = 0xFFu;
+    uint8_t ucCRCLo = 0xFFu;
     uint16_t iIndex;
 
     while( usLen-- )
@@ -91,7 +91,7 @@ uint16_t MB_CRC16( uint8_t *pucFrame, uint16_t usLen )
         ucCRCLo = ( uint8_t )( ucCRCHi ^ aucCRCHi[iIndex] );
         ucCRCHi = aucCRCLo[iIndex];
     }
-    return ( uint16_t )( ucCRCHi << 8 | ucCRCLo );
+    return ( uint16_t )( ucCRCHi << 8u | ucCRCLo );
 }
 
 /******************************  END OF FILE  *********************************/
