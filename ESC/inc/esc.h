@@ -228,7 +228,6 @@ extern u8 *const pcEscErrorCodeBuff;
 extern u8 *const pcEscErrorBuff;
 extern u8 *const pcOmcErrorBuff;
 extern u8 SAFETY_SWITCH_STATUS[4];
-extern u8 *const pcEscSafetySwitchStatus;
 extern u8 *const pcSafetyInputToControl;
 extern u8 *const pcEscDataToControl;
 extern u8 *const pcEscDataFromControl;

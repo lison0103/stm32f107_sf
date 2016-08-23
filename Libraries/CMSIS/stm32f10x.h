@@ -134,11 +134,13 @@
    */
 #define __STM32F10X_STDPERIPH_VERSION_MAIN   (0x03) /*!< [31:24] main version */                                  
 #define __STM32F10X_STDPERIPH_VERSION_SUB1   (0x05) /*!< [23:16] sub1 version */
-#define __STM32F10X_STDPERIPH_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
+/* #define __STM32F10X_STDPERIPH_VERSION_SUB2   (0x00) *//*!< [15:8]  sub2 version */
+/* MISRA C 2004 rule 5.1 can not compile */     
+#define __STM32F10X_VERSION_SUB2   (0x00) 
 #define __STM32F10X_STDPERIPH_VERSION_RC     (0x00) /*!< [7:0]  release candidate */ 
 #define __STM32F10X_STDPERIPH_VERSION       ( (__STM32F10X_STDPERIPH_VERSION_MAIN << 24)\
                                              |(__STM32F10X_STDPERIPH_VERSION_SUB1 << 16)\
-                                             |(__STM32F10X_STDPERIPH_VERSION_SUB2 << 8)\
+                                             |(__STM32F10X_VERSION_SUB2 << 8)\
                                              |(__STM32F10X_STDPERIPH_VERSION_RC))
 
 /**
@@ -2622,7 +2624,9 @@ typedef struct
 /*!< TIM2_REMAP configuration */
 #define AFIO_MAPR_TIM2_REMAP_NOREMAP         ((uint32_t)0x00000000)        /*!< No remap (CH1/ETR/PA0, CH2/PA1, CH3/PA2, CH4/PA3) */
 #define AFIO_MAPR_TIM2_REMAP_PARTIALREMAP1   ((uint32_t)0x00000100)        /*!< Partial remap (CH1/ETR/PA15, CH2/PB3, CH3/PA2, CH4/PA3) */
-#define AFIO_MAPR_TIM2_REMAP_PARTIALREMAP2   ((uint32_t)0x00000200)        /*!< Partial remap (CH1/ETR/PA0, CH2/PA1, CH3/PB10, CH4/PB11) */
+/* #define AFIO_MAPR_TIM2_REMAP_PARTIALREMAP2   ((uint32_t)0x00000200) */       /*!< Partial remap (CH1/ETR/PA0, CH2/PA1, CH3/PB10, CH4/PB11) */
+/* MISRA C 2004 rule 5.1 can not compile */
+#define AFIO_MAPR_TIM2_PARTIALREMAP2   ((uint32_t)0x00000200)        /*!< Partial remap (CH1/ETR/PA0, CH2/PA1, CH3/PB10, CH4/PB11) */
 #define AFIO_MAPR_TIM2_REMAP_FULLREMAP       ((uint32_t)0x00000300)        /*!< Full remap (CH1/ETR/PA15, CH2/PB3, CH3/PB10, CH4/PB11) */
 
 #define AFIO_MAPR_TIM3_REMAP                 ((uint32_t)0x00000C00)        /*!< TIM3_REMAP[1:0] bits (TIM3 remapping) */

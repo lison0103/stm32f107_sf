@@ -24,6 +24,7 @@
 #include "esc_tandem.h"
 #include "esc_comm_diagnostic.h"
 #include "comm_display_board.h"
+#include "esc_state.h"
 #ifdef GEC_SF_S_NEW
 #include "usb_virtual_com_port.h"
 #endif
@@ -52,7 +53,9 @@ u8 *const pcOmcErrorBuff = &McRxBuff[70];
 u8 *const pcErrorBuff = &EscRTBuff[70];
 u8 *const pcEscErrorCodeBuff = &Modbuff[454];
 u8 *const pcEscErrorBuff = &Modbuff[468];
-u8 *const pcEscSafetySwitchStatus = &EscRTBuff[80];
+u8 *const pcSafetyInputToControl = &EscRTBuff[4];
+u8 *const pcEscDataToControl = &EscRTBuff[12];
+u8 *const pcEscDataFromControl = &EscRTBuff[81];
 u16 pcOMC_SfBase_EscState;
 
 /*******************************************************************************
@@ -105,7 +108,7 @@ void Task_Loop(void)
       /*  ESC  */
       if( testmode == 0 )
       {
-          sfEscStateCheck();  
+//          sfEscStateCheck();  
           ESC_Tandem_Check();
           ESC_Motor_Check();
           ESC_Handrail_Check();
@@ -114,6 +117,7 @@ void Task_Loop(void)
           SafetyOutputEnable();
 //          SafetySwitchStatus();
       }
+
 
       
 #ifdef GEC_SF_MASTER 

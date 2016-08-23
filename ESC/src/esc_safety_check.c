@@ -186,7 +186,6 @@ void SafetySwitchStatus(void)
         for( switch_num = 0u; switch_num < 4u; switch_num++ )
         {
             SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
-            pcEscSafetySwitchStatus[switch_num] = UNDEFINED;
         }
         
         test_pattern = TEST_PATTERN;
@@ -302,27 +301,22 @@ void SafetySwitchStatus(void)
                 if( FAULT == FEEDBACK_PULSE_OUTPUT )
                 {
                     SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
-                    pcEscSafetySwitchStatus[switch_num] = UNDEFINED;
                 }
                 else if ( (SAFETY_SWITCH[switch_num][0] == ERROR) || (SAFETY_SWITCH[switch_num][1] == ERROR) || (SAFETY_SWITCH[switch_num][2] == ERROR) || (SAFETY_SWITCH[switch_num][3] == ERROR) )
                 {
                     SAFETY_SWITCH_STATUS[switch_num] = ERROR;
-                    pcEscSafetySwitchStatus[switch_num] = ERROR;
                 }
                 else if ( (SAFETY_SWITCH[switch_num][0] == OPEN) || (SAFETY_SWITCH[switch_num][1] == OPEN) || (SAFETY_SWITCH[switch_num][2] == OPEN) || (SAFETY_SWITCH[switch_num][3] == OPEN) )
                 {
                     SAFETY_SWITCH_STATUS[switch_num]  = OPEN;
-                    pcEscSafetySwitchStatus[switch_num] = OPEN;
                 }
                 else if ( (SAFETY_SWITCH[switch_num][0] == CLOSED) || (SAFETY_SWITCH[switch_num][1] == CLOSED) || (SAFETY_SWITCH[switch_num][2] == CLOSED) || (SAFETY_SWITCH[switch_num][3] == CLOSED) )
                 {
                     SAFETY_SWITCH_STATUS[switch_num]  = CLOSED;
-                    pcEscSafetySwitchStatus[switch_num] = CLOSED;
                 }
                 else
                 {
                     SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
-                    pcEscSafetySwitchStatus[switch_num] = UNDEFINED;
                 }
             }           
             
@@ -337,7 +331,6 @@ void SafetySwitchStatus(void)
             for( switch_num = 0u; switch_num < 4u; switch_num++ )
             {
                 SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
-                pcEscSafetySwitchStatus[switch_num] = UNDEFINED;
             }
             
             Pulse_Generation = 0u;
@@ -443,20 +436,64 @@ void SafetyRelayAuxRelayTest(void)
     if( SfBase_EscState & ESC_STATE_RUNNING ) 
     { 
         /* safety circuit is  connected */
-        if( (GPIOE->IDR & GPIO_Pin_3) || (GPIOB->IDR & GPIO_Pin_8) )/*|| SF_RL_FB || !AUX_FB )*/
+        if( SF_RL_DRV_FB )
         {
-            /*FailSafeTest();*/
+            EN_ERROR8 |= 0x01u;
+        }
+        else if( SF_PWR_FB_CPU )
+        {
+            EN_ERROR8 |= 0x01u;
+        }
+        else if ( SF_RL_FB )
+        {
+            EN_ERROR8 |= 0x01u;
+        }
+        else if( !AUX_FB )
+        {
+            EN_ERROR8 |= 0x01u;
+        }
+        else
+        {
+            
+        }
+        
+        /* MISRA C 2004 rule 12.4/12.5 can not compile */
+/*
+        if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || !AUX_FB )
+        {
+//            FailSafeTest();
             EN_ERROR8 |= 0x01u;
         }   
+*/
     }
     else if( SfBase_EscState & ESC_STATE_STOP )  
     {
         /* safety circuit is disconnected */
+        if( !SF_RL_DRV_FB )
+        {
+            EN_ERROR8 |= 0x01u;
+        }
+        else if( SF_PWR_FB_CPU )
+        {
+            EN_ERROR8 |= 0x01u;
+        }
+        else if ( !SF_RL_FB )
+        {
+            EN_ERROR8 |= 0x01u;
+        }
+        else
+        {
+            
+        }        
+        
+        /* MISRA C 2004 rule 12.4/12.5 can not compile */
+/*                
         if( !SF_RL_DRV_FB || SF_PWR_FB_CPU || !SF_RL_FB )
         {
-            /*FailSafeTest();*/
+//            FailSafeTest();
             EN_ERROR8 |= 0x01u;
-        }  
+        } 
+*/    
     }
     else
     {
@@ -480,12 +517,37 @@ void SafetyExtWdt_StartUpCheck(void)
 //    delay_ms(700);
 #endif
 
+    /* MISRA C 2004 rule 12.4/12.5 can not compile */
+/*    
     if( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB && AUX_FB )
     {
         SF_EWDT_TOOGLE();
         SF_RELAY_ON();   
         SF_EWDT_TOOGLE();
     }   
+*/
+    if( !SF_RL_DRV_FB )
+    {
+
+    }
+    else if( SF_PWR_FB_CPU )
+    {
+
+    }
+    else if ( !SF_RL_FB )
+    {
+
+    }
+    else if( !AUX_FB )
+    {
+
+    }    
+    else
+    {
+        SF_EWDT_TOOGLE();
+        SF_RELAY_ON();   
+        SF_EWDT_TOOGLE();        
+    }  
     
     
     /*  wait 1800ms */
@@ -499,11 +561,35 @@ void SafetyExtWdt_StartUpCheck(void)
     IWDG_ReloadCounter();
     
     /** Safety Relay and AuxRelay Test **/
+    if( SF_RL_DRV_FB )
+    {
+        EN_ERROR8 |= 0x01u;
+    }
+    else if( SF_PWR_FB_CPU )
+    {
+        EN_ERROR8 |= 0x01u;
+    }
+    else if ( SF_RL_FB )
+    {
+        EN_ERROR8 |= 0x01u;
+    }
+    else if( !AUX_FB )
+    {
+        EN_ERROR8 |= 0x01u;
+    }
+    else
+    {
+        
+    }    
+    
+    /* MISRA C 2004 rule 12.4/12.5 can not compile */
+/*     
     if( (SF_RL_DRV_FB) || (SF_PWR_FB_CPU) || (SF_RL_FB) || (!AUX_FB) )
     {
-        /*FailSafeTest();*/
+//        FailSafeTest();
         EN_ERROR8 |= 0x01u;
     }   
+*/    
     
     delay_ms(600u);
     EWDT_TOOGLE();
@@ -545,12 +631,37 @@ void SafetyExtWdt_RunCheck(void)
     
     if( sf_wdt_check_en == 1u )
     {
+
+        /* MISRA C 2004 rule 12.4/12.5 can not compile */
+/*            
         if(( sf_wdt_check_tms == 0u ) && ( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB ))
         {
             SF_EWDT_TOOGLE();
             SF_RELAY_ON();  
             SF_EWDT_TOOGLE();
         }   
+*/     
+        if( sf_wdt_check_tms == 0u )
+        {
+            if( !SF_RL_DRV_FB )
+            {
+                
+            }
+            else if( SF_PWR_FB_CPU )
+            {
+                
+            }
+            else if ( !SF_RL_FB )
+            {
+                
+            }   
+            else
+            {
+                SF_EWDT_TOOGLE();
+                SF_RELAY_ON();   
+                SF_EWDT_TOOGLE();        
+            }                    
+        }
         
         sf_wdt_check_tms++;
         /*  (41 - 1)*45ms = 1800ms */

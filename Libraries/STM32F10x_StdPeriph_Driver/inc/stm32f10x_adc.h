@@ -246,7 +246,9 @@ typedef struct
 
 #define ADC_ExternalTrigInjecConv_T4_CC3            ((uint32_t)0x00002000) /*!< For ADC3 only */
 #define ADC_ExternalTrigInjecConv_T8_CC2            ((uint32_t)0x00003000) /*!< For ADC3 only */
-#define ADC_ExternalTrigInjecConv_T8_CC4            ((uint32_t)0x00004000) /*!< For ADC3 only */
+/* #define ADC_ExternalTrigInjecConv_T8_CC4            ((uint32_t)0x00004000) */ /*!< For ADC3 only */
+/* MISRA C 2004 rule 5.1 can not compile */
+#define ADC_External_TrigInjecConv_T8_CC4            ((uint32_t)0x00004000) /*!< For ADC3 only */
 #define ADC_ExternalTrigInjecConv_T5_TRGO           ((uint32_t)0x00005000) /*!< For ADC3 only */
 #define ADC_ExternalTrigInjecConv_T5_CC4            ((uint32_t)0x00006000) /*!< For ADC3 only */
 
@@ -260,7 +262,7 @@ typedef struct
                                         ((INJTRIG) == ADC_ExternalTrigInjecConv_None) || \
                                         ((INJTRIG) == ADC_ExternalTrigInjecConv_T4_CC3) || \
                                         ((INJTRIG) == ADC_ExternalTrigInjecConv_T8_CC2) || \
-                                        ((INJTRIG) == ADC_ExternalTrigInjecConv_T8_CC4) || \
+                                        ((INJTRIG) == ADC_External_TrigInjecConv_T8_CC4) || \
                                         ((INJTRIG) == ADC_ExternalTrigInjecConv_T5_TRGO) || \
                                         ((INJTRIG) == ADC_ExternalTrigInjecConv_T5_CC4))
 /**

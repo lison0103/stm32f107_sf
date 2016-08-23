@@ -2098,6 +2098,9 @@
     <name>BSP</name>
     <file>
       <name>$PROJ_DIR$\..\BSP\bsp_input.c</name>
+      <configuration>
+        <name>GEC-SF-M</name>
+      </configuration>
     </file>
     <file>
       <name>$PROJ_DIR$\..\BSP\bsp_iocfg.c</name>
@@ -2167,6 +2170,9 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_safety_check.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_state.c</name>
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_tandem.c</name>

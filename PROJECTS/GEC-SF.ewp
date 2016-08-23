@@ -132,7 +132,7 @@
         </option>
         <option>
           <name>OGUseCmsis</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>OGUseCmsisDspLib</name>
@@ -317,6 +317,7 @@
           <state>$PROJ_DIR$</state>
           <state>$PROJ_DIR$\..\Libraries\STM32F10x_StdPeriph_Driver\inc</state>
           <state>$PROJ_DIR$\..\Libraries\CMSIS</state>
+          <state>$PROJ_DIR$\..\Libraries\CMSIS\Include</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_ETH_Driver\inc</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Core\inc</state>
@@ -2047,6 +2048,13 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_safety_check.c</name>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\ESC\src\esc_state.c</name>
+      <excluded>
+        <configuration>GEC-SF-M</configuration>
+        <configuration>GEC-SF-S-NEW</configuration>
+      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_tandem.c</name>
