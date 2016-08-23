@@ -75,8 +75,10 @@ void Communication_CPU(void)
 *******************************************************************************/
 void Send_state_to_CPU(void)
 {
+    u8 i;
+    
     /* 1. esc Rtdata --------------------------*/
-    for( u8 i = 0; i < 100; i++)
+    for( i = 0; i < 100; i++)
     {
         cpu_senddata_buffer[i] = EscRTBuff[i];
     }    
@@ -87,7 +89,7 @@ void Send_state_to_CPU(void)
 
 #ifdef GEC_SF_MASTER    
     /* 3. esc para, just for test */
-//    for( u8 i = 102; i < 162; i++)
+//    for( i = 102; i < 162; i++)
 //    {
 //        cpu_senddata_buffer[i] = Modbuff[1120 + i - 102];
 //    }    
@@ -103,11 +105,13 @@ void Send_state_to_CPU(void)
 *******************************************************************************/
 void Receive_state_from_CPU(void)
 {
+    u8 i;
+    
 #ifdef GEC_SF_MASTER 
     if( recvlen == 102 )       
     {
         /* 1. esc Rtdata receive--------------------------*/
-        for( u8 i = 0; i < 100; i++)
+        for( i = 0; i < 100; i++)
         {
             McRxBuff[i] = cpu_recvdata_buffer[i];
         }
@@ -119,7 +123,7 @@ void Receive_state_from_CPU(void)
     if( recvlen == 102 )       
     {
         /* 1. esc Rtdata receive--------------------------*/
-        for( u8 i = 0; i < 100; i++)
+        for( i = 0; i < 100; i++)
         {
             McRxBuff[i] = cpu_recvdata_buffer[i];
         }
@@ -128,7 +132,7 @@ void Receive_state_from_CPU(void)
         pcOMC_SfBase_EscState = ( cpu_recvdata_buffer[101] << 8 | cpu_recvdata_buffer[100] );    
         
         /* 3. esc para receive, just for test --------------*/
-//        for( u8 i = 102; i < 162; i++)
+//        for( i = 102; i < 162; i++)
 //        {
 //            Modbuff[1120 + i - 102] = cpu_recvdata_buffer[i];
 //        }        
@@ -146,8 +150,9 @@ void Receive_state_from_CPU(void)
 void Receive_IO_status_from_CPU(void)
 {
       static u8 receive_io_error = 0;
-    
-      for( u8 i = 4; i < 12; i++ )
+      u8 i;
+      
+      for( i = 4; i < 12; i++ )
       {
           if( pcOMC_EscRTBuff[i] != EscRTBuff[i] )
           {
@@ -231,7 +236,8 @@ void CPU_Comm(void)
 *******************************************************************************/
 void CPU_Data_Check( u8 *buffer, u8 *len )
 { 
-       
+     u8 i;
+     
     /* communication buffer */
     comm_num = buffersize;  
        
@@ -244,7 +250,7 @@ void CPU_Data_Check( u8 *buffer, u8 *len )
         EN_ERROR7 &= ~0x02;
         
         *len = SPI1_RX_Data[0];       
-        for( u8 i = 0; i < *len; i++ )
+        for( i = 0; i < *len; i++ )
         {
             buffer[i] = SPI1_RX_Data[ i + 1 ];
         }

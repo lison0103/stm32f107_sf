@@ -91,7 +91,8 @@ void esc_para_init(void)
 u8 Send_State_Message(u8 board, u8 state, u8 *buff, u8 len)
 {
     u8 senddata[120],recvdata[120];
-
+    u8 i;
+    
     senddata[0] = board;
     senddata[1] = state;    
     
@@ -100,7 +101,7 @@ u8 Send_State_Message(u8 board, u8 state, u8 *buff, u8 len)
     {
         if( state == SEND_PARAMETER )
         {
-            for( u8 i = 0; i < len; i++)
+            for( i = 0; i < len; i++)
             {
                 senddata[i + 2] = buff[i];
             } 
@@ -112,7 +113,7 @@ u8 Send_State_Message(u8 board, u8 state, u8 *buff, u8 len)
             CPU_Exchange_Data(senddata, 2);
             CPU_Data_Check(recvdata, &len); 
             
-            for( u8 i = 0; i < len; i++)
+            for( i = 0; i < len; i++)
             {
                 buff[i] = recvdata[i];
             }    
@@ -130,7 +131,7 @@ u8 Send_State_Message(u8 board, u8 state, u8 *buff, u8 len)
     {
         if( state == SEND_PARAMETER )
         {
-            for( u8 i = 0; i < len; i++)
+            for( i = 0; i < len; i++)
             {
                 senddata[i + 2] = buff[i];
             } 
@@ -155,12 +156,13 @@ u8 Send_State_Message(u8 board, u8 state, u8 *buff, u8 len)
 void get_para_from_usb(void)
 {
     
-    u8 len = 0;
+    u8 len = 0;   
     
 #ifdef GEC_SF_MASTER 
     
     u8 recvdata[10];
     u8 paradata[120];
+    u8 i;
     
     USBH_Mass_Storage_Init();
     
@@ -205,7 +207,7 @@ void get_para_from_usb(void)
         if( recvdata[1] == PARAMETER_CORRECT )
         {
             /* 7. Save parameters into variables */
-            for( u8 i = 0; i < len - 2; i++)
+            for( i = 0; i < len - 2; i++)
             {
                 Sys_Data[i] = paradata[i];
             } 

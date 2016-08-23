@@ -56,7 +56,7 @@ void Input_Check(void)
     ulPt_Input = (u32*)&EscRTBuff[4];
     pc_can_tx = (u32*)&CAN1_TX_Data[0];
     
-    for( u8 i = 0; i < 4; i++ )
+    for( i = 0; i < 4; i++ )
     {
         CAN1_TX_Data[i]= 0x0;                 
     }
@@ -346,12 +346,13 @@ void HardwareTEST(void)
     u8 len = 0, len1 = 0, len2 = 0;
     u16 waittms = 0;
     u8 senddata[50],recvdata[50];
+    u8 i;
     
     CAN1_TX_Data[0] = 0xf1;
     CAN2_TX_Data[0] = 0xf1;
     testdata1[0] = 0xf1;
     testdata2[0] = 0xf1;
-    for( u8 i = 1; i < 10 ; i++ )
+    for( i = 1; i < 10 ; i++ )
     {
         CAN1_TX_Data[i] = i + 0xd0;
         testdata1[i] = i + 0xd0;
@@ -395,7 +396,7 @@ void HardwareTEST(void)
     if( len1 == 10 && CAN1_RX_Data[0] == 0xf1 )
     {
         waittms = 0;
-        for( u8 i = 2; i < 10 ; i++ )
+        for( i = 2; i < 10 ; i++ )
         {
             CAN1_TX_Data[i] = CAN1_RX_Data[i];
         }
@@ -404,7 +405,7 @@ void HardwareTEST(void)
         if( len2 == 10 && CAN2_RX_Data[0] == 0xf1 )
         {
             waittms = 0;
-            for( u8 i = 2; i < 10 ; i++ )
+            for( i = 2; i < 10 ; i++ )
             {
                 CAN2_TX_Data[i] = CAN2_RX_Data[i];
             }
@@ -446,7 +447,7 @@ void HardwareTEST(void)
         
         if( len1 == 10 && CAN1_RX_Data[0] == 0xf1 && len2 == 10 && CAN2_RX_Data[0] == 0xf1 )
         {
-            for( u8 i = 2; i < 10 ; i++ )
+            for( i = 2; i < 10 ; i++ )
             {
                 if( CAN1_RX_Data[i] != testdata1[i] )
                 {
@@ -457,7 +458,7 @@ void HardwareTEST(void)
 
 //            if( len2 == 10 && CAN2_RX_Data[0] == 0xf1 )
 //            {
-                for( u8 i = 2; i < 10 ; i++ )
+                for( i = 2; i < 10 ; i++ )
                 {
                     if( CAN2_RX_Data[i] != testdata2[i] )
                     {

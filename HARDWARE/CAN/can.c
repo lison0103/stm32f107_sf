@@ -400,6 +400,7 @@ void CAN_RX_Process( CanRxMsg RxMessage, CAN_RX_DATA_PROCESS_TypeDef* CanRx )
 void CAN1_RX0_IRQHandler(void)
 {
     CanRxMsg RxMessage;
+    u8 num;
     
     if( CAN_GetITStatus(CAN1,CAN_IT_FF0) != RESET)
     {
@@ -419,7 +420,7 @@ void CAN1_RX0_IRQHandler(void)
         {
             can1_receive = 1;        
 
-            for( u8 num = 0; num < RxMessage.DLC; num++ )
+            for( num = 0; num < RxMessage.DLC; num++ )
             {
                 pcEscDataFromControl[num] = RxMessage.Data[num];
             }
@@ -518,7 +519,7 @@ void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_
 
         u32 i;
         u8  result = 0;	
-        
+        u8 j;
         
         if( len > canbuffsize ) return;		
 				
@@ -529,7 +530,7 @@ void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_
             
             CanTx->tx_buff[0] = 0xfa;
             CanTx->tx_buff[1] = CanTx->mlen - 4;
-            for( u8 j = 0; j < CanTx->mlen - 4; j++ )
+            for( j = 0; j < CanTx->mlen - 4; j++ )
             {
                 CanTx->tx_buff[j+2] = buff[j];
             }
@@ -673,7 +674,7 @@ uint32_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, u
             else
             {
                 /* fail */
-                for( u8 i = 0; i < CanRx->recv_len; i++ )
+                for( i = 0; i < CanRx->recv_len; i++ )
                 {
                     CanRx->rx_buff[i] = 0;
                 }
@@ -697,7 +698,7 @@ uint32_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, u
             else
             {
                 /* fail */
-                for( u8 i = 0; i < CanRx->recv_len; i++ )
+                for( i = 0; i < CanRx->recv_len; i++ )
                 {
                     CanRx->rx_buff[i] = 0;
                 }

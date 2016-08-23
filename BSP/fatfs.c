@@ -86,6 +86,7 @@ u16 ReadFile(char *readfilename, u8 *buffer)
     u8 *tempbuf;
     u16 bread = 0;
     u16 offx = 0;
+    u16 i;
     
     fp1 = (FIL*)mymalloc(sizeof(FIL));		
     tempbuf = mymalloc(512);
@@ -101,7 +102,7 @@ u16 ReadFile(char *readfilename, u8 *buffer)
             res = f_read( fp1, tempbuf, 512, (UINT *)&bread );		
             if( res != FR_OK )break;
             
-            for( u16 i = 0; i < bread; i++ )
+            for( i = 0; i < bread; i++ )
             {
                 buffer[ offx + i ] = tempbuf[i];
             }

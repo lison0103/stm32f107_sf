@@ -261,7 +261,7 @@ void sfEscStateCheck(void)
     static u16 sf_running_tms,sf_stopping_tms = 0;
     static u16 sf_reset_tms = 0;
     static u8 key_on = 0;
-    
+    u8 i;
     
     
     if( (SfBase_EscState & ESC_STATE_READY) )
@@ -323,7 +323,7 @@ void sfEscStateCheck(void)
         /* for test reset the value-------------------------------------*/
         if( (sf_reset_tms * SYSTEMTICK) > 20000 )
         {
-            for(u8 i = 30; i < 200; i++ )
+            for( i = 30; i < 200; i++ )
             {
                 EscRTBuff[i] = 0;
             }

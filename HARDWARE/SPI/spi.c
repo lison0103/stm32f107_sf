@@ -204,10 +204,10 @@ void SPI1_DMA_Configuration( void )
 *******************************************************************************/
 void SPI1_DMA_ReceiveSendByte( u16 num )
 {
-  
+    u16 i;
     
     /* copy data to buff */
-    for(u16 i = 0; i < num; i++)
+    for( i = 0; i < num; i++)
     {
         SPI1_TX_Buff[i] = SPI1_TX_Data[i];
     }    
@@ -270,6 +270,8 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
 void DMA_Check_Flag(u32 times)
 {         
 
+          u16 i;
+          
           waitus = 0;
           /* 10us */
           while( ( !DMA_GetFlagStatus(DMA1_IT_TC2) ) && ( waitus < times ) )
@@ -348,7 +350,7 @@ void DMA_Check_Flag(u32 times)
           }        
         
         /* copy buff to data */
-        for(u16 i = 0; i < buffersize; i++)
+        for( i = 0; i < buffersize; i++)
         {
             SPI1_RX_Data[i] = SPI1_RX_Buff[i];
         }         

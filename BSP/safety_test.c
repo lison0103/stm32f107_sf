@@ -58,8 +58,9 @@ void FailSafeTest(void)
 *******************************************************************************/  
 void ConfigurationRegister_StartupCheck(void)
 {
-    SafetyTestFlowCnt += CONFIGURATION_REG_TEST_CALLER;
     RCC_ClocksTypeDef RCC_Clocks;
+    SafetyTestFlowCnt += CONFIGURATION_REG_TEST_CALLER;
+    
     RCC_Configuration_8M();//HSE - 8MHz
     RCC_GetClocksFreq(&RCC_Clocks); 
     if (RCC_Clocks.SYSCLK_Frequency !=8000000)
@@ -87,9 +88,9 @@ void ConfigurationRegister_StartupCheck(void)
 *******************************************************************************/
 void ConfigurationRegister_RunCheck(void)
 {
-    SafetyTestFlowCnt += CONFIGURATION_REG_TEST_CALLER;
-    
     RCC_ClocksTypeDef RCC_Clocks;
+    SafetyTestFlowCnt += CONFIGURATION_REG_TEST_CALLER;
+        
     RCC_GetClocksFreq(&RCC_Clocks); 
     if (RCC_Clocks.SYSCLK_Frequency !=72000000)
     {
