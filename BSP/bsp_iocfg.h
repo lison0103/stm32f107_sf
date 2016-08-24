@@ -75,7 +75,7 @@ void Input_Output_PinInit(void);
 #else
 
 
-//OUTPUT
+/* OUTPUT */
 #define AUX_CTR_SET()    		GPIO_WriteBit(GPIOE, GPIO_Pin_5, Bit_SET)
 #define AUX_CTR_CLR()    	GPIO_WriteBit(GPIOE, GPIO_Pin_5, Bit_RESET)
 #define SF_RL_CTR_SET()    		GPIO_WriteBit(GPIOE, GPIO_Pin_3, Bit_SET)
@@ -97,7 +97,7 @@ void Input_Output_PinInit(void);
 #define SYNC_SYS_OUT_SET()       GPIO_WriteBit(GPIOD, GPIO_Pin_5, Bit_SET)
 #define SYNC_SYS_OUT_CLR()       GPIO_WriteBit(GPIOD, GPIO_Pin_5, Bit_RESET)
 
-//FEEDBACK
+/* FEEDBACK */
 #define SF_RL_DRV_FB 		GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_2)
 #define SF_PWR_FB_CPU   GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_0)
 #define SF_RL_FB       GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6)
@@ -117,7 +117,7 @@ void Input_Output_PinInit(void);
 #define SAFETY_SWITCH_INPUT_3       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_4)
 #define SAFETY_SWITCH_INPUT_4       GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_4)
 
-//EWDT
+/* EWDT */
 #define SF_EWDT_TOOGLE() 	GPIOE->ODR ^= 0X0002u
 
 #endif  /* GEC_SF_MASTER */

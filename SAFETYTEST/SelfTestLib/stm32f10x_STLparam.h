@@ -40,8 +40,8 @@
 #define S32_MIN    ((s32)2147483648uL)
 
 /* This is for having self-diagnostic messages reported on a PC via UART */
-//#define STL_VERBOSE_POR     /* During Power-on phase only*/
-//#define STL_VERBOSE         /* During main program execution */
+/* #define STL_VERBOSE_POR */    /* During Power-on phase only*/
+/* #define STL_VERBOSE */        /* During main program execution */
 
 /* These are the direct and inverted data (pattern) used during the RAM
 test, performed using March C- Algorithm */
@@ -63,7 +63,7 @@ prescaler and PLL setting (if enabled)*/
 
 /* This is to provide a time base longer than the SysTick for the main */
 /* For instance this is needed to refresh the LSI watchdog and window watchdog */
-#define SYSTICK_20ms_TB  ((u32)10uL) // 10*2ms
+#define SYSTICK_20ms_TB  ((u32)10uL) /* 10*2ms */
 
 /* Timeout required to avoid being stuck in while loops during clock circuitry
 initialization, in case of problem. Watchdog is also active, but these timeouts
@@ -151,20 +151,21 @@ allow to react more quickly */
 #define FULL_FLASH_CHECKED ((u32)DELTA_MAIN * STEPS_NUMBER)
 
 /* This is for run-time tests with 32-bit CRC */
-//#define DELTA_MAIN  ((u32)CPU_TEST_CALLER + \
-//                          CPU_TEST_CALLEE + \
-//                          STACK_OVERFLOW_TEST + \
-//                          STACK_OVERFLOW_CALLEE + \
-//                          CLOCK_TEST_CALLER + \
-//                          CLOCK_TEST_CALLEE + \
-//                          CLOCKPERIOD_TEST_CALLEE + \
-//                          FLASH_TEST_CALLER + \
-//                          CRC32_RUN_TEST_CALLEE + \
-//                          CRC32_TEST_CALLEE)
-//#define LAST_DELTA_MAIN ((u32) DELTA_MAIN  - CRC32_TEST_CALLEE + CRC32_INIT_CALLEE)
-//
-//#define FULL_FLASH_CHECKED ((u32)(DELTA_MAIN * STEPS_NUMBER) + LAST_DELTA_MAIN)
+/*
+#define DELTA_MAIN  ((u32)CPU_TEST_CALLER + \
+                          CPU_TEST_CALLEE + \
+                          STACK_OVERFLOW_TEST + \
+                          STACK_OVERFLOW_CALLEE + \
+                          CLOCK_TEST_CALLER + \
+                          CLOCK_TEST_CALLEE + \
+                          CLOCKPERIOD_TEST_CALLEE + \
+                          FLASH_TEST_CALLER + \
+                          CRC32_RUN_TEST_CALLEE + \
+                          CRC32_TEST_CALLEE)
+#define LAST_DELTA_MAIN ((u32) DELTA_MAIN  - CRC32_TEST_CALLEE + CRC32_INIT_CALLEE)
 
+#define FULL_FLASH_CHECKED ((u32)(DELTA_MAIN * STEPS_NUMBER) + LAST_DELTA_MAIN)
+*/
 
 #define MEASPERIOD_ISR_CALLER   ((u32)2)
 #define MEASPERIOD_ISR_CALLEE   ((u32)3)
@@ -181,11 +182,12 @@ allow to react more quickly */
                            RAM_MARCHC_ISR_CALLEE)
 
 /* This is for March X tests */
-//#define DELTA_ISR  ((u32)  MEASPERIOD_ISR_CALLER + \
-//                           MEASPERIOD_ISR_CALLEE + \
-//                           RAM_MARCHX_ISR_CALLER + \
-//                           RAM_MARCHX_ISR_CALLEE)
-
+/*
+#define DELTA_ISR  ((u32)  MEASPERIOD_ISR_CALLER + \
+                           MEASPERIOD_ISR_CALLEE + \
+                           RAM_MARCHX_ISR_CALLER + \
+                           RAM_MARCHX_ISR_CALLEE)
+*/
 #define CLASS_B_ROWS ((u32)(CLASS_B_END - CLASS_B_START)/4)
 /* +1 below is for buffer self-test*/
 #define RAM_TEST_COMPLETED ((u32)(DELTA_ISR * (CLASS_B_ROWS+1)))
@@ -230,7 +232,7 @@ allow to react more quickly */
   #define CLASS_B_START ((u32 *)(&__ICFEDIT_region_CLASSB_start__))
   #define CLASS_B_END ((u32 *)(&__ICFEDIT_region_CLASSB_end__))
   
-  #define GotoCompilerStartUp() Reset_Handler();//__iar_program_start();
+  #define GotoCompilerStartUp() Reset_Handler(); /* __iar_program_start(); */
 
   #define REF_CRC16 __checksum
 #else

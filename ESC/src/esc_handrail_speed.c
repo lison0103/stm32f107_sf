@@ -201,7 +201,7 @@ u16 Measure_handrail_speed(HDLITEM* psHDL)
 *******************************************************************************/
 void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
 {
-    static u16 Timer_HS_shortcircuit = 0u;
+    static u32 Timer_HS_shortcircuit = 0u;
     
     if( SfBase_EscState & ESC_STATE_RUNNING )
     {  

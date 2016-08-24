@@ -1004,9 +1004,15 @@ typedef struct
 #define TIM_TRGO2Source_OC4Ref_RisingFalling              ((uint32_t)0x00A00000)
 #define TIM_TRGO2Source_OC6Ref_RisingFalling              ((uint32_t)0x00B00000)
 #define TIM_TRGO2Source_OC4RefRising_OC6RefRising         ((uint32_t)0x00C00000)
+/*
 #define TIM_TRGO2Source_OC4RefRising_OC6RefFalling        ((uint32_t)0x00D00000)
 #define TIM_TRGO2Source_OC5RefRising_OC6RefRising         ((uint32_t)0x00E00000)
 #define TIM_TRGO2Source_OC5RefRising_OC6RefFalling        ((uint32_t)0x00F00000)
+*/
+/* MISRA C 2004 rule 5.1 can not compile */
+#define TIM_TRGO2Source_OC4RefRising1_OC6RefFalling        ((uint32_t)0x00D00000)
+#define TIM_TRGO2Source_OC5RefRising2_OC6RefRising         ((uint32_t)0x00E00000)
+#define TIM_TRGO2Source_OC5RefRising3_OC6RefFalling        ((uint32_t)0x00F00000)
 #define IS_TIM_TRGO2_SOURCE(SOURCE) (((SOURCE) == TIM_TRGO2Source_Reset) || \
                                      ((SOURCE) == TIM_TRGO2Source_Enable) || \
                                      ((SOURCE) == TIM_TRGO2Source_Update) || \
@@ -1020,9 +1026,9 @@ typedef struct
                                      ((SOURCE) == TIM_TRGO2Source_OC4Ref_RisingFalling) || \
                                      ((SOURCE) == TIM_TRGO2Source_OC6Ref_RisingFalling) || \
                                      ((SOURCE) == TIM_TRGO2Source_OC4RefRising_OC6RefRising) || \
-                                     ((SOURCE) == TIM_TRGO2Source_OC4RefRising_OC6RefFalling) || \
-                                     ((SOURCE) == TIM_TRGO2Source_OC5RefRising_OC6RefRising) || \
-                                     ((SOURCE) == TIM_TRGO2Source_OC5RefRising_OC6RefFalling))
+                                     ((SOURCE) == TIM_TRGO2Source_OC4RefRising1_OC6RefFalling) || \
+                                     ((SOURCE) == TIM_TRGO2Source_OC5RefRising2_OC6RefRising) || \
+                                     ((SOURCE) == TIM_TRGO2Source_OC5RefRising3_OC6RefFalling))
 /**
   * @}
   */ 

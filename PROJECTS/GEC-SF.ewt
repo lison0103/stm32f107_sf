@@ -2098,9 +2098,6 @@
     <name>BSP</name>
     <file>
       <name>$PROJ_DIR$\..\BSP\bsp_input.c</name>
-      <configuration>
-        <name>GEC-SF-M</name>
-      </configuration>
     </file>
     <file>
       <name>$PROJ_DIR$\..\BSP\bsp_iocfg.c</name>

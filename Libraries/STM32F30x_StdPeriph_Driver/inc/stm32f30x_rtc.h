@@ -538,22 +538,24 @@ typedef struct
 /** @defgroup RTC_Tamper_Sampling_Frequencies_Definitions 
   * @{
   */ 
-#define RTC_TamperSamplingFreq_RTCCLK_Div32768  ((uint32_t)0x00000000) /*!< Each of the tamper inputs are sampled
+
+/*#define RTC_TamperSamplingFreq_RTCCLK_Div32768  ((uint32_t)0x00000000)*/ /*!< Each of the tamper inputs are sampled
                                                                            with a frequency =  RTCCLK / 32768 */
-#define RTC_TamperSamplingFreq_RTCCLK_Div16384  ((uint32_t)0x000000100) /*!< Each of the tamper inputs are sampled
+/*#define RTC_TamperSamplingFreq_RTCCLK_Div16384  ((uint32_t)0x000000100)*/ /*!< Each of the tamper inputs are sampled
                                                                             with a frequency =  RTCCLK / 16384 */
-#define RTC_TamperSamplingFreq_RTCCLK_Div8192   ((uint32_t)0x00000200) /*!< Each of the tamper inputs are sampled
+/*#define RTC_TamperSamplingFreq_RTCCLK_Div8192   ((uint32_t)0x00000200)*/ /*!< Each of the tamper inputs are sampled
                                                                            with a frequency =  RTCCLK / 8192  */
-#define RTC_TamperSamplingFreq_RTCCLK_Div4096   ((uint32_t)0x00000300) /*!< Each of the tamper inputs are sampled
+/*#define RTC_TamperSamplingFreq_RTCCLK_Div4096   ((uint32_t)0x00000300)*/ /*!< Each of the tamper inputs are sampled
                                                                            with a frequency =  RTCCLK / 4096  */
-#define RTC_TamperSamplingFreq_RTCCLK_Div2048   ((uint32_t)0x00000400) /*!< Each of the tamper inputs are sampled
+/*#define RTC_TamperSamplingFreq_RTCCLK_Div2048   ((uint32_t)0x00000400)*/ /*!< Each of the tamper inputs are sampled
                                                                            with a frequency =  RTCCLK / 2048  */
-#define RTC_TamperSamplingFreq_RTCCLK_Div1024   ((uint32_t)0x00000500) /*!< Each of the tamper inputs are sampled
+/*#define RTC_TamperSamplingFreq_RTCCLK_Div1024   ((uint32_t)0x00000500)*/ /*!< Each of the tamper inputs are sampled
                                                                            with a frequency =  RTCCLK / 1024  */
-#define RTC_TamperSamplingFreq_RTCCLK_Div512    ((uint32_t)0x00000600) /*!< Each of the tamper inputs are sampled
+/*#define RTC_TamperSamplingFreq_RTCCLK_Div512    ((uint32_t)0x00000600)*/ /*!< Each of the tamper inputs are sampled
                                                                            with a frequency =  RTCCLK / 512   */
-#define RTC_TamperSamplingFreq_RTCCLK_Div256    ((uint32_t)0x00000700) /*!< Each of the tamper inputs are sampled
+/*#define RTC_TamperSamplingFreq_RTCCLK_Div256    ((uint32_t)0x00000700)*/ /*!< Each of the tamper inputs are sampled
                                                                            with a frequency =  RTCCLK / 256   */
+/*
 #define IS_RTC_TAMPER_SAMPLING_FREQ(FREQ) (((FREQ) ==RTC_TamperSamplingFreq_RTCCLK_Div32768) || \
                                            ((FREQ) ==RTC_TamperSamplingFreq_RTCCLK_Div16384) || \
                                            ((FREQ) ==RTC_TamperSamplingFreq_RTCCLK_Div8192) || \
@@ -562,6 +564,32 @@ typedef struct
                                            ((FREQ) ==RTC_TamperSamplingFreq_RTCCLK_Div1024) || \
                                            ((FREQ) ==RTC_TamperSamplingFreq_RTCCLK_Div512) || \
                                            ((FREQ) ==RTC_TamperSamplingFreq_RTCCLK_Div256))
+*/
+/* MISRA C 2004 rule 5.1 can not compile */
+#define RTC_TamperSamplingFreq1_RTCCLK_Div32768  ((uint32_t)0x00000000) /*!< Each of the tamper inputs are sampled
+                                                                           with a frequency =  RTCCLK / 32768 */
+#define RTC_TamperSamplingFreq2_RTCCLK_Div16384  ((uint32_t)0x000000100) /*!< Each of the tamper inputs are sampled
+                                                                            with a frequency =  RTCCLK / 16384 */
+#define RTC_TamperSamplingFreq3_RTCCLK_Div8192   ((uint32_t)0x00000200) /*!< Each of the tamper inputs are sampled
+                                                                           with a frequency =  RTCCLK / 8192  */
+#define RTC_TamperSamplingFreq4_RTCCLK_Div4096   ((uint32_t)0x00000300) /*!< Each of the tamper inputs are sampled
+                                                                           with a frequency =  RTCCLK / 4096  */
+#define RTC_TamperSamplingFreq5_RTCCLK_Div2048   ((uint32_t)0x00000400) /*!< Each of the tamper inputs are sampled
+                                                                           with a frequency =  RTCCLK / 2048  */
+#define RTC_TamperSamplingFreq6_RTCCLK_Div1024   ((uint32_t)0x00000500) /*!< Each of the tamper inputs are sampled
+                                                                           with a frequency =  RTCCLK / 1024  */
+#define RTC_TamperSamplingFreq7_RTCCLK_Div512    ((uint32_t)0x00000600) /*!< Each of the tamper inputs are sampled
+                                                                           with a frequency =  RTCCLK / 512   */
+#define RTC_TamperSamplingFreq8_RTCCLK_Div256    ((uint32_t)0x00000700) /*!< Each of the tamper inputs are sampled
+                                                                           with a frequency =  RTCCLK / 256   */
+#define IS_RTC_TAMPER_SAMPLING_FREQ(FREQ) (((FREQ) ==RTC_TamperSamplingFreq1_RTCCLK_Div32768) || \
+                                           ((FREQ) ==RTC_TamperSamplingFreq2_RTCCLK_Div16384) || \
+                                           ((FREQ) ==RTC_TamperSamplingFreq3_RTCCLK_Div8192) || \
+                                           ((FREQ) ==RTC_TamperSamplingFreq4_RTCCLK_Div4096) || \
+                                           ((FREQ) ==RTC_TamperSamplingFreq5_RTCCLK_Div2048) || \
+                                           ((FREQ) ==RTC_TamperSamplingFreq6_RTCCLK_Div1024) || \
+                                           ((FREQ) ==RTC_TamperSamplingFreq7_RTCCLK_Div512) || \
+                                           ((FREQ) ==RTC_TamperSamplingFreq8_RTCCLK_Div256))
 
 /**
   * @}

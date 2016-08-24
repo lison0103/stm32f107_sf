@@ -21,8 +21,8 @@
 /* Includes ------------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-// This is to be sure that tested value is in-line with code returned by the
-// with assembly routine.
+/* This is to be sure that tested value is in-line with code returned by the
+ with assembly routine. */
 #define CPUTEST_SUCCESS ((u32)0x00000001uL)
 
 /* Exported macro ------------------------------------------------------------*/

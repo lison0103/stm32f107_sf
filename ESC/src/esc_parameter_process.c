@@ -237,6 +237,7 @@ void get_para_from_usb(void)
     
     u8 senddata[5];
     u8 recvdata[120];
+    u8 i;
     
     /* 1. Waiting for message from CPU1 to start parameter loading process */
     len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0 ); 
@@ -272,7 +273,7 @@ void get_para_from_usb(void)
                 else
                 {
                     /* 4. Save parameters into variables */
-                    for( u8 i = 0; i < len - 4; i++)
+                    for( i = 0; i < len - 4; i++)
                     {
                         Sys_Data[i] = recvdata[i + 2];
                     }  

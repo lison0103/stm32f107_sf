@@ -2,13 +2,17 @@
 #define __CHECK_INS_H
 #include "iec61508.h"
 
-//__no_init int  b@0x1510;
-//extern char a; 
+/*
+__no_init int  b@0x1510;
+extern char a; 
+*/
 __no_init int a @0x1500;
-//int a @0x1500;
-//int a=1;
-//register __no_init char g @ 15;
-//__regvar __no_init static UINT8 glDeviceType @5; 
+/*
+int a @0x1500;
+int a=1;
+register __no_init char g @ 15;
+__regvar __no_init static UINT8 glDeviceType @5; 
+*/
 
 typedef struct {
   /* base 0 */
@@ -28,6 +32,6 @@ extern void _DMB_Arithmetic (void);
 
 
 type_testResult_t  iec61508_InstCheck_POST (void);
-void Check_Instruction_Set();
+void Check_Instruction_Set(void);
 
 #endif /* __CHECK_INS_H */

@@ -264,7 +264,7 @@ void Missing_Step_UpperLower_SyncRun(void)
 *******************************************************************************/
 void Missing_Step_UpperLower_Shortcircuit_Run(void)
 {
-    static u16 Timer_MS_shortcircuit = 0u;
+    static u32 Timer_MS_shortcircuit = 0u;
     
     if( SfBase_EscState & ESC_STATE_RUNNING )
     {  

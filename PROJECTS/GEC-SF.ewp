@@ -1115,7 +1115,7 @@
         </option>
         <option>
           <name>OGUseCmsis</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>OGUseCmsisDspLib</name>
@@ -1300,6 +1300,7 @@
           <state>$PROJ_DIR$</state>
           <state>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\inc</state>
           <state>$PROJ_DIR$\..\Libraries\CMSIS</state>
+          <state>$PROJ_DIR$\..\Libraries\CMSIS\Include</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_ETH_Driver\inc</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_USB-FS-Device_Driver\inc</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\inc</state>
@@ -1378,7 +1379,7 @@
         </option>
         <option>
           <name>IccCDialect</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>IccAllowVLA</name>
@@ -2223,21 +2224,33 @@
       </excluded>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_adc.c</name>
+        <excluded>
+          <configuration>GEC-SF-S-NEW</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_can.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_comp.c</name>
+        <excluded>
+          <configuration>GEC-SF-S-NEW</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_crc.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_dac.c</name>
+        <excluded>
+          <configuration>GEC-SF-S-NEW</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_dbgmcu.c</name>
+        <excluded>
+          <configuration>GEC-SF-S-NEW</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_dma.c</name>
@@ -2250,15 +2263,24 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_fmc.c</name>
+        <excluded>
+          <configuration>GEC-SF-S-NEW</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_gpio.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_hrtim.c</name>
+        <excluded>
+          <configuration>GEC-SF-S-NEW</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_i2c.c</name>
+        <excluded>
+          <configuration>GEC-SF-S-NEW</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_iwdg.c</name>
@@ -2268,6 +2290,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_opamp.c</name>
+        <excluded>
+          <configuration>GEC-SF-S-NEW</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_pwr.c</name>
@@ -2289,6 +2314,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_usart.c</name>
+        <excluded>
+          <configuration>GEC-SF-S-NEW</configuration>
+        </excluded>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_wwdg.c</name>

@@ -29,7 +29,7 @@ type_testResult_t iec61508_InstCheck_POST (void)
   return IEC61508_testPassed;
 }
 
-void Check_Instruction_Set()
+void Check_Instruction_Set(void)
 {
   //uint32_t instruction_err=0x0;
   //uint32_t u16gvIndex=0x0;

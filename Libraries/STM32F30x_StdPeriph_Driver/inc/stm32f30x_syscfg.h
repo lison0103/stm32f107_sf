@@ -199,11 +199,13 @@
 #define SYSCFG_TriggerRemap_DACTIM3              SYSCFG_CFGR1_DAC1_TRIG1_RMP     /*!< Remap DAC trigger to TIM3 */
 #define SYSCFG_TriggerRemap_TIM1TIM17            SYSCFG_CFGR1_TIM1_ITR3_RMP      /*!< Remap TIM1 ITR3 to TIM17 OC */
 #define SYSCFG_TriggerRemap_DACHRTIM1_TRIG1      ((uint32_t)0x80010000)          /*!< Remap DAC trigger to HRTIM1 TRIG1 */
-#define SYSCFG_TriggerRemap_DACHRTIM1_TRIG2      ((uint32_t)0x80020000)          /*!< Remap DAC trigger to HRTIM1 TRIG2 */
+/* #define SYSCFG_TriggerRemap_DACHRTIM1_TRIG2      ((uint32_t)0x80020000) */         /*!< Remap DAC trigger to HRTIM1 TRIG2 */
+/* MISRA C 2004 rule 5.1 can not compile */ 
+#define SYSCFG_TriggerRema_DACHRTIM1_TRIG2      ((uint32_t)0x80020000)          /*!< Remap DAC trigger to HRTIM1 TRIG2 */
 
 #define IS_SYSCFG_TRIGGER_REMAP(REMAP) (((REMAP) == SYSCFG_TriggerRemap_DACTIM3)         || \
                                         ((REMAP) == SYSCFG_TriggerRemap_DACHRTIM1_TRIG1) || \
-                                        ((REMAP) == SYSCFG_TriggerRemap_DACHRTIM1_TRIG2) || \
+                                        ((REMAP) == SYSCFG_TriggerRema_DACHRTIM1_TRIG2) || \
                                         ((REMAP) == SYSCFG_TriggerRemap_TIM1TIM17))
 
 /**

@@ -21,11 +21,11 @@
 #ifdef GEC_SF_MASTER
 #define LED_ON()   GPIO_ResetBits(GPIOA,GPIO_Pin_4)	
 #define LED_OFF()   GPIO_SetBits(GPIOA,GPIO_Pin_4)
-#define LED_FLASH()   GPIOA->ODR ^= 0X0010
+#define LED_FLASH()   GPIOA->ODR ^= 0X0010u
 #else
 #define LED_ON()   GPIO_ResetBits(GPIOA,GPIO_Pin_1)	
 #define LED_OFF()   GPIO_SetBits(GPIOA,GPIO_Pin_1)
-#define LED_FLASH()   GPIOA->ODR ^= 0X0002
+#define LED_FLASH()   GPIOA->ODR ^= 0X0002u
 #endif
 /* Exported functions ------------------------------------------------------- */
 void LED_Init(void); 

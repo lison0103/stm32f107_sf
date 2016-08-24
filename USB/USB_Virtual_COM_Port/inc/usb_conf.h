@@ -74,8 +74,11 @@
                  | CNTR_ESOFM | CNTR_RESETM )
 #else
 #define IMR_MSK (CNTR_CTRM  | CNTR_WKUPM | CNTR_ERRM  | CNTR_SOFM | CNTR_RESETM )
-//CNTR_SUSPM | CNTR_ESOFM 
-//和UCOS冲突，原因暂未知  //可能是和休眠唤醒有关
+/*  CNTR_SUSPM | CNTR_ESOFM */
+/*  Maybe relate the system suspend. */
+/*  If use it, system will suspend when usb not connect to PC. */
+/*  It will cause system not run and can not download. */
+
 #endif
 
 /*#define CTR_CALLBACK*/

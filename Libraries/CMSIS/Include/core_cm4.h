@@ -89,8 +89,11 @@
 
 #elif defined ( __ICCARM__ )
   #define __ASM            __asm                                      /*!< asm keyword for IAR Compiler */
-  #define __INLINE         inline                                     /*!< inline keyword for IAR Compiler. Only available in High optimization mode! */
-  #define __STATIC_INLINE  static inline
+/*  #define __INLINE         inline    */                                 /*!< inline keyword for IAR Compiler. Only available in High optimization mode! */
+/*  #define __STATIC_INLINE  static inline */     
+/* MISRA C 2004 rule 1.1 can not compile, c89 not contain inline key */
+  #define __INLINE 
+  #define __STATIC_INLINE  static 
 
 #elif defined ( __TMS470__ )
   #define __ASM            __asm                                      /*!< asm keyword for TI CCS Compiler */

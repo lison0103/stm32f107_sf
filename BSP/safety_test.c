@@ -26,10 +26,15 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+void ConfigurationRegister_StartupCheck(void);
+void ConfigurationRegister_RunCheck(void);
+void FlagRegisterCheck(void);
+void ProgramCounterCheck(void);
+void ProgramExecutionInstructionCheck(void);
 
 /* variable is located in the stack */
 volatile type_testResult_t result = IEC61508_testFailed;   
-u32 SafetyTestFlowCnt = 0;
+u32 SafetyTestFlowCnt = 0u;
 u32 SafetyTestFlowCntInv = 0xFFFFFFFFuL;
 
 
@@ -61,16 +66,16 @@ void ConfigurationRegister_StartupCheck(void)
     RCC_ClocksTypeDef RCC_Clocks;
     SafetyTestFlowCnt += CONFIGURATION_REG_TEST_CALLER;
     
-    RCC_Configuration_8M();//HSE - 8MHz
+    RCC_Configuration_8M();
     RCC_GetClocksFreq(&RCC_Clocks); 
-    if (RCC_Clocks.SYSCLK_Frequency !=8000000)
+    if (RCC_Clocks.SYSCLK_Frequency != 8000000u)
     {
         FailSafeTest();
     }
     
-    RCC_Configuration_72M(); //PLL - 72MHz
+    RCC_Configuration_72M(); 
     RCC_GetClocksFreq(&RCC_Clocks); 
-    if (RCC_Clocks.SYSCLK_Frequency !=72000000)
+    if (RCC_Clocks.SYSCLK_Frequency != 72000000u)
     {
         FailSafeTest();
     }       
@@ -92,24 +97,28 @@ void ConfigurationRegister_RunCheck(void)
     SafetyTestFlowCnt += CONFIGURATION_REG_TEST_CALLER;
         
     RCC_GetClocksFreq(&RCC_Clocks); 
-    if (RCC_Clocks.SYSCLK_Frequency !=72000000)
+    if (RCC_Clocks.SYSCLK_Frequency != 72000000u)
     {
         FailSafeTest();
     }
     /* Wait till PLL is used as system clock source */ 
-    if (RCC_GetSYSCLKSource() != 0x08) 
+    if (RCC_GetSYSCLKSource() != 0x08u ) 
     {
         FailSafeTest();
     } 
     result = ConfigurationRegister_Check();
-//    if (result != IEC61508_testPassed)
-//    {
-//        FailSafeTest();                           
-//    }
-//    else
-//    {
+#if 0    
+    if (result != IEC61508_testPassed)
+    {
+        FailSafeTest();                           
+    }
+    else
+    {
         SafetyTestFlowCntInv -= CONFIGURATION_REG_TEST_CALLER;
-//    }  
+    }  
+#else    
+    SafetyTestFlowCntInv -= CONFIGURATION_REG_TEST_CALLER;
+#endif
 }
 
 /*******************************************************************************
@@ -213,7 +222,7 @@ void Safety_StartupCheck2(void)
        }
        else
        {
-           SafetyTestFlowCnt = 0;
+           SafetyTestFlowCnt = 0u;
            SafetyTestFlowCntInv = 0xFFFFFFFFuL;          
        }
         
@@ -261,7 +270,7 @@ void Safety_RunCheck2(void)
        }
        else
        {
-           SafetyTestFlowCnt = 0;
+           SafetyTestFlowCnt = 0u;
            SafetyTestFlowCntInv = 0xFFFFFFFFuL;          
        }
         

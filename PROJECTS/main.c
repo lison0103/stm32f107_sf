@@ -33,14 +33,16 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-static u16 Tms10Counter = 0,Tms20Counter = 0,Tms50Counter = 0,Tms100Counter = 0,Tms500Counter = 0,Tms1000Counter = 0;
+static u16 Tms10Counter = 0u,Tms20Counter = 0u,Tms50Counter = 0u,Tms100Counter = 0u,Tms500Counter = 0u,Tms1000Counter = 0u;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+void LED_indicator(void);
+void Task_Loop(void);
 
-u32 TimingDelay = 0;
-u32 SysRunTime = 0; 
-u8 testmode = 0;
+u32 TimingDelay = 0u;
+u32 SysRunTime = 0u; 
+u8 testmode = 0u;
 
 /* ESC */
 u8 Modbuff[3000];
@@ -67,13 +69,13 @@ u16 pcOMC_SfBase_EscState;
 *******************************************************************************/
 void LED_indicator(void)
 {
-	static u32 led_idr_cnt = 0;	 
+	static u32 led_idr_cnt = 0u;	 
 	
 	led_idr_cnt++;
 	 
-	if(led_idr_cnt >= 100)   
+	if(led_idr_cnt >= 100u)   
 	{
-            led_idr_cnt = 0;
+            led_idr_cnt = 0u;
             LED_FLASH();       
 	}   
 }
@@ -89,12 +91,12 @@ void LED_indicator(void)
 void Task_Loop(void)
 {          
 
-      if( ++Tms10Counter >= 2 ) Tms10Counter = 0;
-      if( ++Tms20Counter >= 4 ) Tms20Counter = 0;
-      if( ++Tms50Counter >= 9 ) Tms50Counter = 0;
-      if( ++Tms100Counter >= 19 ) Tms100Counter = 0;
-      if( ++Tms500Counter >= 99 ) Tms500Counter = 0;
-      if( ++Tms1000Counter >= 200 ) Tms1000Counter = 0;      
+    if( ++Tms10Counter >= 2u ){ Tms10Counter = 0u;}
+    if( ++Tms20Counter >= 4u ){ Tms20Counter = 0u;}
+    if( ++Tms50Counter >= 9u ){ Tms50Counter = 0u;}
+    if( ++Tms100Counter >= 19u ){ Tms100Counter = 0u;}
+    if( ++Tms500Counter >= 99u ){ Tms500Counter = 0u;}
+    if( ++Tms1000Counter >= 200u ){ Tms1000Counter = 0u;}      
 
 #if SELF_TEST      
       /* self check */
@@ -106,7 +108,7 @@ void Task_Loop(void)
       Get_GpioInput(&EscRTBuff[4]);
       
       /*  ESC  */
-      if( testmode == 0 )
+      if( testmode == 0u )
       {
 //          sfEscStateCheck();  
           ESC_Tandem_Check();
@@ -121,27 +123,27 @@ void Task_Loop(void)
 
       
 #ifdef GEC_SF_MASTER 
-      if( Tms10Counter == 0 )
+      if( Tms10Counter == 0u )
       {
           fault_code_decode(pcEscErrorCodeBuff);
       }      
-      if( Tms20Counter == 0 )
+      if( Tms20Counter == 0u )
       {                
           Communication_CPU();
           Communication_To_Control();  
       }  
 #else
-      if( Tms10Counter == 0 )
+      if( Tms10Counter == 0u )
       {
           Communication_CPU();         
       }
-      if( Tms20Counter == 0 )
+      if( Tms20Counter == 0u )
       {
          
       }       
 #endif     
       
-      if( Tms50Counter == 0 )
+      if( Tms50Counter == 0u )
       {                                 
           /* Reload EWDT counter */          
           EWDT_TOOGLE();
@@ -150,7 +152,7 @@ void Task_Loop(void)
           SafetyExtWdt_RunCheck();
       } 
       
-      if( Tms100Counter == 0 )
+      if( Tms100Counter == 0u )
       {   
 #ifdef GEC_SF_MASTER 
           Comm_DisplayBoard();
@@ -161,12 +163,12 @@ void Task_Loop(void)
 #endif
       }
            
-      if( Tms500Counter == 0 )
+      if( Tms500Counter == 0u )
       {             
           Input_Check2();
       }
       
-      if( Tms1000Counter == 0 )
+      if( Tms1000Counter == 0u )
       {  
 
       }
@@ -188,7 +190,9 @@ int main(void)
     u16 i; 
     
     /* Power up delay */
-    for( i = 0; i < 10000; i++ );
+    for( i = 0u; i < 10000u; i++ )
+    {
+    }
     
     /** hardware init **/
     Initial_Device();    
@@ -197,8 +201,10 @@ int main(void)
     {
       
         /* 5ms */
-        while ( !TimingDelay );
-        TimingDelay = 0;
+        while ( !TimingDelay )
+        {
+        }
+        TimingDelay = 0u;
 
         Task_Loop();
         LED_indicator();

@@ -32,7 +32,7 @@
       
 /* Includes ------------------------------------------------------------------*/
 /* Comment the line below to disable peripheral header file inclusion */
-#include "stm32f30x_adc.h"
+/* #include "stm32f30x_adc.h" */
 #include "stm32f30x_can.h"
 #include "stm32f30x_crc.h"
 #include "stm32f30x_comp.h"
@@ -43,7 +43,7 @@
 #include "stm32f30x_flash.h"
 #include "stm32f30x_fmc.h"
 #include "stm32f30x_gpio.h"
-#include "stm32f30x_hrtim.h"
+/* #include "stm32f30x_hrtim.h" */
 #include "stm32f30x_syscfg.h"
 #include "stm32f30x_i2c.h"
 #include "stm32f30x_iwdg.h"

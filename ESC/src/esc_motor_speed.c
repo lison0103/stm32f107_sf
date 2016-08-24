@@ -207,7 +207,7 @@ u16 Measure_motor_speed(MTRFREQITEM* ptMTR)
 *******************************************************************************/
 void Motor_Speed_1_2_Shortcircuit_Run(void)
 {
-    static u16 Timer_motorspeed_shortcircuit = 0u;
+    static u32 Timer_motorspeed_shortcircuit = 0u;
 
     
     if( SfBase_EscState & ESC_STATE_RUNNING )

@@ -97,7 +97,8 @@ void USB_Send_Data(uint8_t *ptrBuffer, uint8_t Send_length)
 uint32_t USB_Receive_Data(uint8_t *ptrBuffer)
 {
     uint32_t  receive_length = 0;
-  
+    uint32_t i;
+    
     if (bDeviceState == CONFIGURED)
     {
 //      CDC_Receive_DATA();
@@ -105,7 +106,7 @@ uint32_t USB_Receive_Data(uint8_t *ptrBuffer)
 //      while (Receive_length  != 0)
       while ( 1 == packet_receive )
       {
-          for(uint32_t i = 0; i < Receive_length; i++)
+          for( i = 0; i < Receive_length; i++ )
           {
               ptrBuffer[i] = Receive_Buffer[i];
 

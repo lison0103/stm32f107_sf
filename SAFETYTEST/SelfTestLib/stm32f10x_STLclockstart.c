@@ -283,10 +283,10 @@ ErrorStatus STL_HSE_CSSinit(void)
 void STL_RTCinit(void)
 {
 
-  CtrlFlowCnt += RTC_INIT_CALLEE;
-
 #ifdef GEC_SF_S_NEW
   RTC_InitTypeDef  RTC_InitStructure;  
+  
+  CtrlFlowCnt += RTC_INIT_CALLEE;
   
   RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); /* Select LSI as RTC Clock Source */
   
@@ -303,6 +303,8 @@ void STL_RTCinit(void)
   RTC_WaitForSynchro();
   
 #else  
+  CtrlFlowCnt += RTC_INIT_CALLEE;
+  
   RCC_RTCCLKConfig(RCC_RTCCLKSource_LSI); /* Select LSI as RTC Clock Source */
 
   RCC_RTCCLKCmd(ENABLE);                  /* Start RTC counter */
