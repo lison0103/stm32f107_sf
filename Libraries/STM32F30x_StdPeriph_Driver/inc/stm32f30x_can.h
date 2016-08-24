@@ -385,8 +385,8 @@ typedef struct
 /** @defgroup CAN_identifier_type 
   * @{
   */
-#define CAN_Id_Standard             ((uint32_t)0x00000000)  /*!< Standard Id */
-#define CAN_Id_Extended             ((uint32_t)0x00000004)  /*!< Extended Id */
+#define CAN_Id_Standard             ((uint8_t)0x00000000)  /*!< Standard Id */
+#define CAN_Id_Extended             ((uint8_t)0x00000004)  /*!< Extended Id */
 #define IS_CAN_IDTYPE(IDTYPE) (((IDTYPE) == CAN_Id_Standard) || \
                                ((IDTYPE) == CAN_Id_Extended))
 
@@ -400,8 +400,8 @@ typedef struct
 /** @defgroup CAN_remote_transmission_request 
   * @{
   */
-#define CAN_RTR_Data                ((uint32_t)0x00000000)  /*!< Data frame */
-#define CAN_RTR_Remote              ((uint32_t)0x00000002)  /*!< Remote frame */
+#define CAN_RTR_Data                ((uint8_t)0x00000000)  /*!< Data frame */
+#define CAN_RTR_Remote              ((uint8_t)0x00000002)  /*!< Remote frame */
 #define IS_CAN_RTR(RTR) (((RTR) == CAN_RTR_Data) || ((RTR) == CAN_RTR_Remote))
 
 /* Legacy defines */

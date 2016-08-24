@@ -16,7 +16,7 @@
 /* Private macro -------------------------------------------------------------*/
 #define USE_DMA_Transfer 
 #define ADC1_DR_Address    ((uint32_t)0x4001244C)
-#define Sample_Num      5
+#define Sample_Num      5u
 
 /* Private variables ---------------------------------------------------------*/
 __IO uint16_t ADC1ConvertedValue[Sample_Num] = { 0 };
@@ -61,7 +61,7 @@ void  Adc_Init(void)
         DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
         DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
         DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
-        DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;;
+        DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
         DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
         DMA_InitStructure.DMA_Priority = DMA_Priority_High;
         DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
@@ -80,7 +80,7 @@ void  Adc_Init(void)
 	ADC_InitStructure.ADC_ScanConvMode = DISABLE;
 #ifdef   USE_DMA_Transfer
         /* Analog to digital conversion in continuous conversion mode */         
-	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;;
+	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
 #else
         ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
 #endif	
@@ -89,12 +89,12 @@ void  Adc_Init(void)
         /* ADC data is right-aligned */
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;	
         /* The number of order rules convert ADC channels */
-	ADC_InitStructure.ADC_NbrOfChannel = 1;	
+	ADC_InitStructure.ADC_NbrOfChannel = 1u;	
 	ADC_Init(ADC1, &ADC_InitStructure);	
                
         
         /* ADC1 regular channels configuration */ 
-        ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_239Cycles5 ); 
+        ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1u, ADC_SampleTime_239Cycles5 ); 
 
 #ifdef   USE_DMA_Transfer
         /* Enable ADC1 DMA */
@@ -108,13 +108,15 @@ void  Adc_Init(void)
         ADC_ResetCalibration(ADC1);
         
         /* Check the end of ADC1 reset calibration register */
-        while(ADC_GetResetCalibrationStatus(ADC1));
+        while(ADC_GetResetCalibrationStatus(ADC1))
+        {}
         
         /* Start ADC1 calibaration */
         ADC_StartCalibration(ADC1);
         
         /* Check the end of ADC1 calibration */
-        while(ADC_GetCalibrationStatus(ADC1));
+        while(ADC_GetCalibrationStatus(ADC1))
+        {}
 
 #ifdef   USE_DMA_Transfer
         /* Enable DMA1 channel1 */
@@ -138,11 +140,12 @@ void  Adc_Init(void)
 u16 Get_Adc(void)   
 {
   	
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_239Cycles5 );	  			    
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1u, ADC_SampleTime_239Cycles5 );	  			    
   
 	ADC_SoftwareStartConvCmd(ADC1, ENABLE);			
 	 
-	while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC ));
+	while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC ))
+        {}
 
 	return ADC_GetConversionValue(ADC1);	
 }
@@ -162,14 +165,14 @@ u8 Get_Adc_Average(void)
 #ifdef   USE_DMA_Transfer
   
         uint8_t i;
-        uint32_t sum = 0;
+        uint32_t sum = 0u;
         
-        for( i = 0; i < Sample_Num; i++ )
+        for( i = 0u; i < Sample_Num; i++ )
         {
           sum += ADC1ConvertedValue[i];
         }
         
-        return (sum*60/4096/Sample_Num);  
+        return (u8)(sum*60u/4096u/Sample_Num);  
 
 #else
 	static u32 temp_val[5] = { 0 };

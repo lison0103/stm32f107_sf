@@ -19,8 +19,8 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void eep_init(void);
-uint8_t eeprom_write(uint16_t addr,u16 len,uint8_t *dat);
-uint8_t eeprom_read(uint16_t addr,u16 len,uint8_t *dat);
+u8 eeprom_write(u16 addr,u16 len,u8 *dat);
+u8 eeprom_read(u16 addr,u16 len,u8 *dat);
 u8 MB85RCXX_Check(void);  
 
 

@@ -160,7 +160,7 @@ typedef struct
   */
 
 #define DMA_MemoryDataSize_Byte            ((uint32_t)0x00000000)
-#define DMA_MemoryDataSize_HalfWord        ((uint32_t)0x00000400)
+#define DMA_MemoryDataSize_HalfWord        ((uint32_t)0x00000400u)
 #define DMA_MemoryDataSize_Word            ((uint32_t)0x00000800)
 #define IS_DMA_MEMORY_DATA_SIZE(SIZE) (((SIZE) == DMA_MemoryDataSize_Byte) || \
                                        ((SIZE) == DMA_MemoryDataSize_HalfWord) || \

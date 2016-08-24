@@ -28,9 +28,9 @@
 #define EEP_SCL_SET()  		GPIO_WriteBit(EEP_SCL_PORT, EEP_SCL_PIN, Bit_SET)
 #define EEP_SCL_CLR()  		GPIO_WriteBit(EEP_SCL_PORT, EEP_SCL_PIN, Bit_RESET)
 
-#define EEP_ACK       0
-#define EEP_NACK      1
-#define EEP_ERROR     1
+#define EEP_ACK       0u
+#define EEP_NACK      1u
+#define EEP_ERROR     1u
 
 #define MB85RC16        2047
 #define MB85RC64        8191
@@ -39,8 +39,17 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+void EEP_SDA_OUT(void);
+void EEP_SCL_OUT(void);
+void eep_start(void);
+void eep_stop(void);
+u8 eep_write(u8 d);
+u8 eep_read(u8 ack);
+uint8_t eeprom_data_write1(u16 addr,u16 len,u8 *dat);
+uint8_t eeprom_data_read1(u16 addr, u16 len, u8 *dat);
 
-u16 EEPROM_WR_TIME=0;
+
+u16 EEPROM_WR_TIME = 0u;
 
 
 
@@ -97,17 +106,17 @@ void EEP_SCL_OUT(void)
 void eep_start(void)	 
 { 
   /** scl and sda high level at the same **/
-  delay_us(6);
+  delay_us(6u);
   EEP_SDA_SET();
   EEP_SCL_SET();
   
   /** delay > 5us **/
-  delay_us(6); 
+  delay_us(6u); 
   /** SDA set 0 **/
   EEP_SDA_CLR(); 
 
   /** delay > 5us **/
-  delay_us(6); 
+  delay_us(6u); 
   /** SCL set 0 **/
   EEP_SCL_CLR(); 
 }
@@ -127,13 +136,13 @@ void eep_stop(void)
   EEP_SCL_CLR();  
   EEP_SDA_CLR(); 
 
-  delay_us(5); 
+  delay_us(5u); 
 
   /** SCL set 1 **/
   EEP_SCL_SET(); 
   
   /** delay > 5us **/
-  delay_us(10); 
+  delay_us(10u); 
 
   /** SDA set 1 **/
   EEP_SDA_SET(); 
@@ -153,11 +162,11 @@ u8 eep_write(u8 d)
   u8 i;
                    
   EEP_SCL_CLR();       
-  delay_us(2); 
+  delay_us(2u); 
 
-  for (i = 0; i < 8; i++)
+  for (i = 0u; i < 8u; i++)
   {
-    if(d&0x80)    
+    if(d&0x80u)    
     {
       EEP_SDA_SET();  
     }
@@ -166,23 +175,23 @@ u8 eep_write(u8 d)
       EEP_SDA_CLR();
     } 
     
-    delay_us(2); 
+    delay_us(2u); 
     
     EEP_SCL_SET();
-    d = d << 1;	                 
-    delay_us(5); 
+    d = d << 1u;	                 
+    delay_us(5u); 
     EEP_SCL_CLR(); 
     
-    delay_us(1); 
+    delay_us(1u); 
   }   
   
   /** turn input **/
   EEP_SDA_SET();
 
   /** ACK **/
-  delay_us(3); 
+  delay_us(3u); 
   EEP_SCL_SET(); 
-  delay_us(5); 
+  delay_us(5u); 
   if(EEP_SDA_READ()) 
   {
     i = EEP_NACK;
@@ -207,18 +216,18 @@ u8 eep_write(u8 d)
 *******************************************************************************/
 u8 eep_read(u8 ack)	 
 {
-  u8 d=0, i;
+  u8 d=0u, i;
   
   EEP_SCL_CLR();
   EEP_SDA_SET();                
          
-  for (i = 0; i < 8; i++)	
+  for (i = 0u; i < 8u; i++)	
   {
-    delay_us(5);
+    delay_us(5u);
     EEP_SCL_SET();    
 
-    delay_us(5);
-    d = d << 1;
+    delay_us(5u);
+    d = d << 1u;
     if(EEP_SDA_READ()) d++;		                  
  
     EEP_SCL_CLR();   
@@ -233,9 +242,9 @@ u8 eep_read(u8 ack)
     EEP_SDA_SET();     
   } 
       
-  delay_us(5);   
+  delay_us(5u);   
   EEP_SCL_SET();
-  delay_us(5);    
+  delay_us(5u);    
   EEP_SCL_CLR();   
   
   return d;
@@ -272,25 +281,37 @@ void eep_init(void)
 uint8_t eeprom_data_write1(u16 addr,u16 len,u8 *dat)
 {
   u16 uint1; 
-  u8 err=0;
+  u8 err=0u;
 		
   eep_start();  
-  if(eep_write(0xA0)) err=1;
+  if(eep_write(0xA0u)) 
+  {
+      err=1u;
+  }
   if(MB85RCXX_TYPE > MB85RC16)
   {
-      if(eep_write(addr>>8)) err=1;
-      if(eep_write(addr&0x00ff)) err=1;
+      if(eep_write(addr>>8u))
+      {
+          err = 1u;
+      }
+      if(eep_write(addr&0x00ffu))
+      {
+          err = 1u;
+      }
   }
   else 
   {
-      if(eep_write(addr)) err=1;
+      if(eep_write(addr))
+      {
+          err=1u;
+      }
   }
              
-  for(uint1=0;uint1<len;uint1++)  
+  for(uint1 = 0u; uint1 < len; uint1++)  
   {
     if(eep_write(*dat)) 
     {
-      err=1;
+      err=1u;
       break;
     }
     dat++;
@@ -298,7 +319,7 @@ uint8_t eeprom_data_write1(u16 addr,u16 len,u8 *dat)
   
   eep_stop();	
   
-  EEPROM_WR_TIME = 1;
+  EEPROM_WR_TIME = 1u;
   
   return(err);
 }
@@ -315,15 +336,17 @@ uint8_t eeprom_data_write1(u16 addr,u16 len,u8 *dat)
 *******************************************************************************/
 u8 eeprom_write(u16 addr,u16 len,u8 *dat)
 {
-	u8 ucCounter=0,err=0;
+	u8 ucCounter=0u,err=0u;
     
-	while(ucCounter<3)
+	while(ucCounter < 3u)
 	{
 		err = eeprom_data_write1(addr,len,dat);
-		if(!err) break;
-		
+		if(!err) 
+                {
+                    break;
+		}
 		ucCounter++;
-		delay_ms( 50 );
+		delay_ms( 50u );
 	}
    	
 	return(err); 
@@ -342,23 +365,38 @@ u8 eeprom_write(u16 addr,u16 len,u8 *dat)
 uint8_t eeprom_data_read1(u16 addr, u16 len, u8 *dat)
 {
 	u16 uint1;
-	u8 err=0;
+	u8 err=0u;
 	
 	eep_start();     
-	if(eep_write(0xA0))  err=1;
+	if(eep_write(0xA0u)) 
+        {
+            err=1u;
+        }
         if(MB85RCXX_TYPE > MB85RC16)
         {
-            if(eep_write(addr>>8)) err=1;
-            if(eep_write(addr&0x00ff)) err=1;
+            if(eep_write(addr>>8u))
+            {
+                err=1u;
+            }
+            if(eep_write(addr&0x00ffu))
+            {
+                err=1u;
+            }
         }
         else 
         {
-            if(eep_write(addr)) err=1;
+            if(eep_write(addr))
+            {
+                err=1u;
+            }
         }
 	eep_start();
-	if(eep_write(0xA1))  err=1;
-  
-	for(uint1=0;uint1<(len-1);uint1++)
+	if(eep_write(0xA1u)) 
+        {
+            err = 1u;
+        }
+        
+	for(uint1=0u;uint1<(len-1u);uint1++)
 	{
 		*dat = eep_read(EEP_ACK);        
 		dat++;   	
@@ -368,7 +406,7 @@ uint8_t eeprom_data_read1(u16 addr, u16 len, u8 *dat)
   
 	eep_stop();     	
 
-	EEPROM_WR_TIME = 1;		 
+	EEPROM_WR_TIME = 1u;		 
   
 	return(err);                                                                                              
 }
@@ -385,15 +423,17 @@ uint8_t eeprom_data_read1(u16 addr, u16 len, u8 *dat)
 *******************************************************************************/
 u8 eeprom_read(u16 addr,u16 len,u8 *dat)
 {
-	u8 ucCounter=0,err=0;
+	u8 ucCounter=0u,err=0u;
 
-	while(ucCounter<3)
+	while(ucCounter < 3u)
 	{
 		err =  eeprom_data_read1(addr,len,dat);
-		if(!err) break;
-		
+		if(!err) 
+                {
+                    break;
+		}
 		ucCounter++;
-		delay_ms( 50 );
+		delay_ms( 50u );
 	}
 	    
 	return(err);   
@@ -412,17 +452,25 @@ u8 eeprom_read(u16 addr,u16 len,u8 *dat)
 u8 MB85RCXX_Check(void)
 {
 	u8 temp;
-	eeprom_read(2047,1,&temp);	//2048		   
-	if(temp==0X55)return 0;		   
+        u8 result = 1u;
+        
+	eeprom_read(2047u,1u,&temp);			   
+	if(temp == 0X55u)
+        {		   
+            result = 0u;
+        }
         /** Rule out the first initialization **/
 	else
 	{       
-                temp = 0x55;
-		eeprom_write(2047,1,&temp);
-                eeprom_read(2047,1,&temp);	  
-		if(temp==0X55)return 0;
+                temp = 0x55u;
+		eeprom_write(2047u,1u,&temp);
+                eeprom_read(2047u,1u,&temp);	  
+		if(temp == 0X55u)
+                {
+                    result = 0u;
+                }
 	}
-	return 1;
+	return result;
 
 }
 

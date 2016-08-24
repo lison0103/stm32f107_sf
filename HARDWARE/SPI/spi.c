@@ -22,14 +22,14 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 void SPI1_DMA_Configuration( void );
+void SPI1_Configuration(void);
 
 u8 SPI1_TX_Buff[buffersize] = { 0 };
 u8 SPI1_RX_Buff[buffersize] = { 0 };
 u8 SPI1_TX_Data[buffersize] = { 0 };
 u8 SPI1_RX_Data[buffersize] = { 0 };
-u8 SPI_DMA_RECEIVE_FLAG = 0;
 DMA_InitTypeDef     DMA_InitStructure;
-static u16 waitus = 0;
+static u16 waitus = 0u;
 
 
 
@@ -70,7 +70,7 @@ void SPI1_Configuration(void)
         /* Specifies the data transmission from the MSB or LSB bit first: data transmission start from the MSB */
 	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
         /* CRC polynomial value calculation */
-	SPI_InitStructure.SPI_CRCPolynomial = 7;	                        
+	SPI_InitStructure.SPI_CRCPolynomial = 7u;	                        
 	SPI_Init(SPI1, &SPI_InitStructure);   
         
 #ifdef GEC_SF_S_NEW
@@ -207,19 +207,19 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
     u16 i;
     
     /* copy data to buff */
-    for( i = 0; i < num; i++)
+    for( i = 0u; i < num; i++)
     {
         SPI1_TX_Buff[i] = SPI1_TX_Data[i];
     }    
     
-    waitus = 0;
-    while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < 2000 ) )
+    waitus = 0u;
+    while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < 2000u ) )
     {
         waitus++;
-        delay_us(1);
+        delay_us(1u);
     }
     
-    if( waitus >= 2000 )
+    if( waitus >= 2000u )
     {
         /* TXE timeout!  */
     }
@@ -227,9 +227,9 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
     DMA_Cmd(DMA1_Channel2, DISABLE);
     DMA_Cmd(DMA1_Channel3, DISABLE);      
     
-    DMA1_Channel2->CNDTR = 0x0000;	
+    DMA1_Channel2->CNDTR = 0x0000u;	
     DMA1_Channel2->CNDTR = num;
-    DMA1_Channel3->CNDTR = 0x0000;	
+    DMA1_Channel3->CNDTR = 0x0000u;	
     DMA1_Channel3->CNDTR = num;      
     
     
@@ -240,14 +240,14 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
     SPI1->DR ;						
       
 
-    waitus = 0;
-    while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < 2000 ) )
+    waitus = 0u;
+    while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < 2000u ) )
     {
         waitus++;
-        delay_us(1);
+        delay_us(1u);
     }
     
-    if( waitus >= 2000 )
+    if( waitus >= 2000u )
     {
         /* TXE timeout!  */
     }
@@ -272,12 +272,12 @@ void DMA_Check_Flag(u32 times)
 
           u16 i;
           
-          waitus = 0;
+          waitus = 0u;
           /* 10us */
           while( ( !DMA_GetFlagStatus(DMA1_IT_TC2) ) && ( waitus < times ) )
           {
               waitus++;
-              delay_us(1);
+              delay_us(1u);
               EWDT_TOOGLE();
               IWDG_ReloadCounter();  
           }
@@ -286,33 +286,33 @@ void DMA_Check_Flag(u32 times)
           {
               /* DMA1_IT_TC2 wait timeout!!! */
           }
-          waitus = 0;
+          waitus = 0u;
           while( ( !DMA_GetFlagStatus(DMA1_IT_TC3) ) && ( waitus < times ) )
           {
               waitus++;
-              delay_us(1);
+              delay_us(1u);
           }
           
           if( waitus >= times )
           {
               /* DMA1_IT_TC3 wait timeout!!! */
           }
-          waitus = 0;
+          waitus = 0u;
           while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < times ) )
           {
               waitus++;
-              delay_us(1);
+              delay_us(1u);
           }
           
           if( waitus >= times )
           {              
               /* SPI_I2S_FLAG_TXE wait timeout!!! */
           }
-          waitus = 0;
+          waitus = 0u;
           while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) != RESET ) && ( waitus < times ) )
           {
               waitus++;
-              delay_us(1);
+              delay_us(1u);
           }
           
           if( waitus >= times )
@@ -339,18 +339,18 @@ void DMA_Check_Flag(u32 times)
 #else
               SPI1_Configuration();
 #endif              
-              if(EN_ERROR_SYS4 > 2)
+              if(EN_ERROR_SYS4 > 2u)
               {
                 ESC_SPI_Error_Process();
               }
           }
           else
           {
-              EN_ERROR_SYS4 = 0;
+              EN_ERROR_SYS4 = 0u;
           }        
         
         /* copy buff to data */
-        for( i = 0; i < buffersize; i++)
+        for( i = 0u; i < buffersize; i++)
         {
             SPI1_RX_Data[i] = SPI1_RX_Buff[i];
         }         

@@ -26,9 +26,12 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+void TIM2_IRQHandler(void);
+void TIM3_IRQHandler(void);
+void TIM4_IRQHandler(void);
 
-u8 count = 0;
-u32 t_count = 0;
+u8 count = 0u;
+u32 t_count = 0u;
 
 /*******************************************************************************
 * Function Name  : TIM7_Int_Init
@@ -137,8 +140,8 @@ void TIM4_Int_Init(u16 arr,u16 psc)
 		ENABLE  
 		);
 	NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn; 
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3; 
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;  
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3u; 
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0u;  
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
 	NVIC_Init(&NVIC_InitStructure);  
 
@@ -167,7 +170,7 @@ void TIM3_Int_Init(u16 arr,u16 psc)
 
 	TIM_TimeBaseStructure.TIM_Period = arr; 
 	TIM_TimeBaseStructure.TIM_Prescaler =psc; 
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0; 
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; 
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
 	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure); 
  
@@ -177,8 +180,8 @@ void TIM3_Int_Init(u16 arr,u16 psc)
 		ENABLE  
 		);
 	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;  
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;  
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;  
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3u;  
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1u;  
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
 	NVIC_Init(&NVIC_InitStructure);  
 
@@ -204,7 +207,7 @@ void TIM2_Int_Init(u16 arr,u16 psc)
 
 	TIM_TimeBaseStructure.TIM_Period = arr; 
 	TIM_TimeBaseStructure.TIM_Prescaler =psc;   
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
 	TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure); 
  
@@ -214,8 +217,8 @@ void TIM2_Int_Init(u16 arr,u16 psc)
 		ENABLE  
 		);
 	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;  
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;  
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;  
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3u;  
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2u;  
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
 	NVIC_Init(&NVIC_InitStructure);  
 
@@ -263,7 +266,6 @@ void TIM4_IRQHandler(void)
         
           TIM_ClearITPendingBit(TIM4, TIM_IT_Update  );  
           
-//          PLUSE_OUT = !PLUSE_OUT;
 #if 1         
           /* Verify TickCounter integrity */
           if ((TickCounter ^ TickCounterInv) == 0xFFFFFFFFuL)
@@ -276,12 +278,12 @@ void TIM4_IRQHandler(void)
                 u32 RamTestResult;
 
               /* Reset timebase counter */
-              TickCounter = 0;
-              TickCounterInv = 0xFFFFFFFF;
+              TickCounter = 0u;
+              TickCounterInv = 0xFFFFFFFFu;
 
               /* Set Flag read in main loop */
-              TimeBaseFlag = 0xAAAAAAAA;
-              TimeBaseFlagInv = 0x55555555;
+              TimeBaseFlag = 0xAAAAAAAAu;
+              TimeBaseFlagInv = 0x55555555u;
 
               if ((CurrentHSEPeriod ^ CurrentHSEPeriodInv) == 0xFFFFFFFFuL)
               {
@@ -300,26 +302,28 @@ void TIM4_IRQHandler(void)
               ISRCtrlFlowCnt += RAM_MARCHC_ISR_CALLER;
               RamTestResult = RAM_RunCheck();
               ISRCtrlFlowCntInv -= RAM_MARCHC_ISR_CALLER;
-
-        //      ISRCtrlFlowCnt += RAM_MARCHX_ISR_CALLER;
-        //      RamTestResult = STL_TranspMarchX();
-        //      ISRCtrlFlowCntInv -= RAM_MARCHX_ISR_CALLER;
-
+/*
+              ISRCtrlFlowCnt += RAM_MARCHX_ISR_CALLER;
+              RamTestResult = STL_TranspMarchX();
+              ISRCtrlFlowCntInv -= RAM_MARCHX_ISR_CALLER;
+*/
               switch ( RamTestResult )
               {
                 case TEST_RUNNING:
                   break;
                 case TEST_OK:
                   #ifdef STL_VERBOSE
-//                    printf("\n\r Full RAM verified (Run-time)\n\r");
-//                    GPIO_WriteBit(GPIOC, GPIO_Pin_7, (BitAction)(1-GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_7)));
+/*                 
+                    printf("\n\r Full RAM verified (Run-time)\n\r");
+                    GPIO_WriteBit(GPIOC, GPIO_Pin_7, (BitAction)(1-GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_7)));
+*/                 
                   #endif  /* STL_VERBOSE */
                   break;
                 case TEST_FAILURE:
                 case CLASS_B_DATA_FAIL:
                 default:
                   #ifdef STL_VERBOSE
-                    printf("\n\r >>>>>>>>>>>>>>>>>>>  RAM Error (March C- Run-time check)\n\r");
+                    /* >>>>>>>>>>>>>>>>>>>  RAM Error (March C- Run-time check) */
                   #endif  /* STL_VERBOSE */
                   FailSafePOR();
                   break;
@@ -334,21 +338,21 @@ void TIM4_IRQHandler(void)
                   if (ISRCtrlFlowCnt != RAM_TEST_COMPLETED)
                   {
                   #ifdef STL_VERBOSE
-                    printf("\n\r Control Flow error (RAM test) \n\r");
+                    /* Control Flow error (RAM test) */
                   #endif  /* STL_VERBOSE */
                   FailSafePOR();
                   }
                   else  /* Full RAM was scanned */
                   {
-                    ISRCtrlFlowCnt = 0;
-                    ISRCtrlFlowCntInv = 0xFFFFFFFF;
+                    ISRCtrlFlowCnt = 0u;
+                    ISRCtrlFlowCntInv = 0xFFFFFFFFu;
                   }
                 } /* End of RAM completed if*/
               } /* End of control flow monitoring */
               else
               {
               #ifdef STL_VERBOSE
-                printf("\n\r Control Flow error in ISR \n\r");
+                /* Control Flow error in ISR */
               #endif  /* STL_VERBOSE */
               FailSafePOR();
               }

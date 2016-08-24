@@ -20,25 +20,33 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-//#define CAN_BAUDRATE  1000      /* 1MBps   */
+/* #define CAN_BAUDRATE  1000 */     /* 1MBps   */
 #define CAN_BAUDRATE  500  /* 500kBps */
-//#define CAN_BAUDRATE  250  /* 250kBps */
-//#define CAN_BAUDRATE  125  /* 125kBps */
-//#define CAN_BAUDRATE  100  /* 100kBps */ 
-//#define CAN_BAUDRATE  50   /* 50kBps  */ 
-//#define CAN_BAUDRATE  20   /* 20kBps  */ 
-//#define CAN_BAUDRATE  10   /* 10kBps  */
+/* #define CAN_BAUDRATE  250 */ /* 250kBps */
+/* #define CAN_BAUDRATE  125 */ /* 125kBps */
+/* #define CAN_BAUDRATE  100 */ /* 100kBps */ 
+/* #define CAN_BAUDRATE  50 */  /* 50kBps  */ 
+/* #define CAN_BAUDRATE  20 */ /* 20kBps  */ 
+/* #define CAN_BAUDRATE  10 */  /* 10kBps  */
 
 /* Private macro -------------------------------------------------------------*/
 #define CAN1_RX0_INT_ENABLE	1		
 #ifdef GEC_SF_MASTER
-#define CAN2_RX0_INT_ENABLE	1		
+#define CAN2_RX0_INT_ENABLE	1
+#else
+#define CAN2_RX0_INT_ENABLE	0
 #endif
 
 
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+void CAN_RX_Process( CanRxMsg RxMessage, CAN_RX_DATA_PROCESS_TypeDef* CanRx );
+void CAN1_RX0_IRQHandler(void);
+void CAN2_RX0_IRQHandler(void);
+void CAN1_TX_IRQHandler(void);
+void CAN2_TX_IRQHandler(void);
+
 
 /* CAN1 */
 u8 CAN1_TX_Data[canbuffsize] = { 0 };
@@ -54,9 +62,9 @@ u8 CAN2_TX2_Data[canbuffsize] = { 0 };
 u8 CAN2_RX2_Data[canbuffsize] = { 0 };
 #endif
 
-u8 can1_receive = 0;
+u8 can1_receive = 0u;
 #ifdef GEC_SF_MASTER
-u8 can2_receive = 0;
+u8 can2_receive = 0u;
 #endif
 
 #ifdef GEC_SF_MASTER
@@ -151,7 +159,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             CAN_InitStructure.CAN_AWUM=DISABLE;			
             /* message is automatically transferred, in accordance with the CAN standard, */
             /* CAN hardware failure when sending packets would have been automatic retransmission until sent successfully */
-            CAN_InitStructure.CAN_NART=DISABLE;//ENABLE;	
+            CAN_InitStructure.CAN_NART=DISABLE;	
             /* message is not locked, the new over the old one */
             CAN_InitStructure.CAN_RFLM=DISABLE;		 	
             /* priority is determined by the packet identifier */
@@ -164,21 +172,21 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             CAN_InitStructure.CAN_BS2 = CAN_BS2_2tq;   
             
 #if CAN_BAUDRATE == 1000 /* 1MBps */
-            CAN_InitStructure.CAN_Prescaler =6;
+            CAN_InitStructure.CAN_Prescaler = 6u;
 #elif CAN_BAUDRATE == 500 /* 500KBps */
-            CAN_InitStructure.CAN_Prescaler =12;
+            CAN_InitStructure.CAN_Prescaler = 12u;
 #elif CAN_BAUDRATE == 250 /* 250KBps */
-            CAN_InitStructure.CAN_Prescaler =24;
+            CAN_InitStructure.CAN_Prescaler = 24u;
 #elif CAN_BAUDRATE == 125 /* 125KBps */
-            CAN_InitStructure.CAN_Prescaler =48;
+            CAN_InitStructure.CAN_Prescaler = 48u;
 #elif  CAN_BAUDRATE == 100 /* 100KBps */
-            CAN_InitStructure.CAN_Prescaler =60;
+            CAN_InitStructure.CAN_Prescaler = 60u;
 #elif  CAN_BAUDRATE == 50 /* 50KBps */
-            CAN_InitStructure.CAN_Prescaler =120;
+            CAN_InitStructure.CAN_Prescaler = 120u;
 #elif  CAN_BAUDRATE == 20 /* 20KBps */
-            CAN_InitStructure.CAN_Prescaler =300;
+            CAN_InitStructure.CAN_Prescaler = 300u;
 #elif  CAN_BAUDRATE == 10 /* 10KBps */
-            CAN_InitStructure.CAN_Prescaler =600;
+            CAN_InitStructure.CAN_Prescaler = 600u;
 #else
 #error "Please select first the CAN Baudrate in Private defines "
 #endif  /* CAN_BAUDRATE == 1000 */            
@@ -189,25 +197,26 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             /* CAN1 filter init */
             /* 16 bit mask: STDID[10:0], IDE, RTR, EXTDID[17:15] */
             /* 32 bit mask: STDID[10:0], EXTDID[17:0], IDE, RTR,0 */
-            CAN_FilterInitStructure.CAN_FilterNumber=0;	
-            CAN_FilterInitStructure.CAN_FilterMode=CAN_FilterMode_IdMask; 	
-            CAN_FilterInitStructure.CAN_FilterScale=CAN_FilterScale_32bit; 	
+            CAN_FilterInitStructure.CAN_FilterNumber = 0u;	
+            CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask; 	
+            CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_32bit; 	
 
-//#ifdef GEC_SF_S_NEW            
-            //any id
-            CAN_FilterInitStructure.CAN_FilterIdHigh=0x0000;	//32-bit ID
-            CAN_FilterInitStructure.CAN_FilterIdLow=0x0000;
-            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0x0000;//32-bit MASK
-            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0x0000;
+/* #ifdef GEC_SF_S_NEW  */          
+            /* any id */
+            CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000u;	
+            CAN_FilterInitStructure.CAN_FilterIdLow = 0x0000u;
+            CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000u;
+            CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0x0000u;
             
-
-//#else            
-//            //ext id
-//            CAN_FilterInitStructure.CAN_FilterIdHigh=(((u32)0x00C8<<3)&0xFFFF0000)>>16;	
-//            CAN_FilterInitStructure.CAN_FilterIdLow=(((u32)0x00C8<<3)|CAN_ID_EXT|CAN_RTR_DATA)&0xFFFF;
-//            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0xffff;//32 bit MASK
-//            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xffff;         
-//#endif            
+/*
+#else            
+            //ext id
+            CAN_FilterInitStructure.CAN_FilterIdHigh=(((u32)0x00C8<<3)&0xFFFF0000)>>16;	
+            CAN_FilterInitStructure.CAN_FilterIdLow=(((u32)0x00C8<<3)|CAN_ID_EXT|CAN_RTR_DATA)&0xFFFF;
+            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0xffff;//32 bit MASK
+            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xffff;         
+#endif            
+*/            
             CAN_FilterInitStructure.CAN_FilterFIFOAssignment=CAN_Filter_FIFO0;
             CAN_FilterInitStructure.CAN_FilterActivation=ENABLE;
             CAN_FilterInit(&CAN_FilterInitStructure);			           
@@ -221,8 +230,8 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
 #else
             NVIC_InitStructure.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
 #endif
-            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;     
-            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;            
+            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1u;     
+            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0u;            
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
             NVIC_Init(&NVIC_InitStructure);
 #endif
@@ -231,9 +240,8 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             CAN_ITConfig(CAN1, CAN_IT_TME, DISABLE);                
             /* Enable CAN1 TX0 interrupt IRQ channel */
             NVIC_InitStructure.NVIC_IRQChannel = CAN1_TX_IRQn;
-//            NVIC_InitStructure.NVIC_IRQChannel = USB_HP_CAN1_TX_IRQn;
-            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1u;
+            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2u;
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
             NVIC_Init(&NVIC_InitStructure);            
 #endif            
@@ -268,49 +276,50 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             CAN_InitStructure.CAN_BS2 = CAN_BS2_2tq;  
             
 #if CAN_BAUDRATE == 1000 /* 1MBps */
-            CAN_InitStructure.CAN_Prescaler =6;
+            CAN_InitStructure.CAN_Prescaler = 6u;
 #elif CAN_BAUDRATE == 500 /* 500KBps */
-            CAN_InitStructure.CAN_Prescaler =12;
+            CAN_InitStructure.CAN_Prescaler = 12u;
 #elif CAN_BAUDRATE == 250 /* 250KBps */
-            CAN_InitStructure.CAN_Prescaler =24;
+            CAN_InitStructure.CAN_Prescaler = 24u;
 #elif CAN_BAUDRATE == 125 /* 125KBps */
-            CAN_InitStructure.CAN_Prescaler =48;
+            CAN_InitStructure.CAN_Prescaler = 48u;
 #elif  CAN_BAUDRATE == 100 /* 100KBps */
-            CAN_InitStructure.CAN_Prescaler =60;
+            CAN_InitStructure.CAN_Prescaler = 60u;
 #elif  CAN_BAUDRATE == 50 /* 50KBps */
-            CAN_InitStructure.CAN_Prescaler =120;
+            CAN_InitStructure.CAN_Prescaler = 120u;
 #elif  CAN_BAUDRATE == 20 /* 20KBps */
-            CAN_InitStructure.CAN_Prescaler =300;
+            CAN_InitStructure.CAN_Prescaler = 300u;
 #elif  CAN_BAUDRATE == 10 /* 10KBps */
-            CAN_InitStructure.CAN_Prescaler =600;
+            CAN_InitStructure.CAN_Prescaler = 600u;
 #else
-#error "Please select first the CAN Baudrate in Private defines  "
-#endif  /* CAN_BAUDRATE == 1000 */             
+#error "Please select first the CAN Baudrate in Private defines "
+#endif  /* CAN_BAUDRATE == 1000 */           
             
             /* Initializes the CAN2 */
             CAN_Init(CANx, &CAN_InitStructure);        	 
 
             /* CAN2 filter init */
-            CAN_FilterInitStructure.CAN_FilterNumber=14;	
+            CAN_FilterInitStructure.CAN_FilterNumber = 14u;	
             CAN_FilterInitStructure.CAN_FilterMode=CAN_FilterMode_IdMask; 	
             CAN_FilterInitStructure.CAN_FilterScale=CAN_FilterScale_32bit; 
 
-            //any id
-            CAN_FilterInitStructure.CAN_FilterIdHigh=0x0000;	//32-bit ID
-            CAN_FilterInitStructure.CAN_FilterIdLow=0x0000;
-            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0x0000;//32-bit MASK
-            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0x0000;   
+            /* any id */
+            CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000u;	
+            CAN_FilterInitStructure.CAN_FilterIdLow = 0x0000u;
+            CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000u;
+            CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0x0000u;   
             
-            //ext id
-//            CAN_FilterInitStructure.CAN_FilterIdHigh=(((u32)0x3456<<3)&0xFFFF0000)>>16;	
-//            CAN_FilterInitStructure.CAN_FilterIdLow=(((u32)0x3456<<3)|CAN_ID_EXT|CAN_RTR_DATA)&0xFFFF;
-//            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0xffff;//32 bit MASK
-//            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xf807;  
-//            CAN_FilterInitStructure.CAN_FilterIdHigh = (((u32)CAN2RX_UP_ID << 3) & 0xFFFF0000 ) >> 16;	
-//            CAN_FilterInitStructure.CAN_FilterIdLow = (((u32)CAN2RX_UP_ID << 3) | CAN_ID_EXT | CAN_RTR_DATA ) & 0xFFFF;
-//            CAN_FilterInitStructure.CAN_FilterMaskIdHigh = ((((u32)(~( CAN2RX_UP_ID ^ CAN2RX_DOWN_ID ))) << 3) & 0xFFFF0000) >> 16;
-//            CAN_FilterInitStructure.CAN_FilterMaskIdLow = ((((u32)(~( CAN2RX_UP_ID ^ CAN2RX_DOWN_ID ))) << 3) | CAN_ID_EXT | CAN_RTR_DATA ) & 0xFFFF;             
-            
+            /* ext id */
+/*            
+            CAN_FilterInitStructure.CAN_FilterIdHigh=(((u32)0x3456<<3)&0xFFFF0000)>>16;	
+            CAN_FilterInitStructure.CAN_FilterIdLow=(((u32)0x3456<<3)|CAN_ID_EXT|CAN_RTR_DATA)&0xFFFF;
+            CAN_FilterInitStructure.CAN_FilterMaskIdHigh=0xffff;//32 bit MASK
+            CAN_FilterInitStructure.CAN_FilterMaskIdLow=0xf807;  
+            CAN_FilterInitStructure.CAN_FilterIdHigh = (((u32)CAN2RX_UP_ID << 3) & 0xFFFF0000 ) >> 16;	
+            CAN_FilterInitStructure.CAN_FilterIdLow = (((u32)CAN2RX_UP_ID << 3) | CAN_ID_EXT | CAN_RTR_DATA ) & 0xFFFF;
+            CAN_FilterInitStructure.CAN_FilterMaskIdHigh = ((((u32)(~( CAN2RX_UP_ID ^ CAN2RX_DOWN_ID ))) << 3) & 0xFFFF0000) >> 16;
+            CAN_FilterInitStructure.CAN_FilterMaskIdLow = ((((u32)(~( CAN2RX_UP_ID ^ CAN2RX_DOWN_ID ))) << 3) | CAN_ID_EXT | CAN_RTR_DATA ) & 0xFFFF;             
+*/            
             CAN_FilterInitStructure.CAN_FilterFIFOAssignment = CAN_Filter_FIFO0;
             CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
             CAN_FilterInit(&CAN_FilterInitStructure);			
@@ -320,22 +329,25 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             CAN_ITConfig(CAN2,CAN_IT_FMP0 | CAN_IT_FF0 | CAN_IT_FOV0, ENABLE); 						    
 
             NVIC_InitStructure.NVIC_IRQChannel = CAN2_RX0_IRQn;
-            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;     
-            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;           
+            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1u;     
+            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1u;           
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
             NVIC_Init(&NVIC_InitStructure);
 #endif             
-//            CAN_ITConfig(CAN2, CAN_IT_TME, DISABLE);                
-//            /* Enable CAN2 TX0 interrupt IRQ channel */
-//            NVIC_InitStructure.NVIC_IRQChannel = CAN2_TX_IRQn;
-//            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-//            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
-//            NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//            NVIC_Init(&NVIC_InitStructure);             
-            
+            /* Enable CAN2 TX0 interrupt IRQ channel */
+/*            
+            CAN_ITConfig(CAN2, CAN_IT_TME, DISABLE);                            
+            NVIC_InitStructure.NVIC_IRQChannel = CAN2_TX_IRQn;
+            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+            NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+            NVIC_Init(&NVIC_InitStructure);             
+*/            
         }
+        else
+        {}
 #endif           
-	return 0;
+	return 0u;
 }   
 
 
@@ -353,36 +365,40 @@ void CAN_RX_Process( CanRxMsg RxMessage, CAN_RX_DATA_PROCESS_TypeDef* CanRx )
     
     u8 i;        
     
-    if( ( CanRx->recving == 0 ) && ( RxMessage.Data[0] == 0xfa ) )
+    if( ( CanRx->recving == 0u ) && ( RxMessage.Data[0] == 0xfau ) )
     {              
-        CanRx->recv_len = RxMessage.Data[1] + 4;  
+        CanRx->recv_len = RxMessage.Data[1] + 4u;  
         CanRx->mlen = CanRx->recv_len;
-        CanRx->rxcnt = 0;
+        CanRx->rxcnt = 0u;
         
-        CanRx->recving = 1;
+        CanRx->recving = 1u;
     }
     
-    if( CanRx->recving == 1 )
+    if( CanRx->recving == 1u )
     {
         
-        for( i = 0; i < RxMessage.DLC; i++ )
+        for( i = 0u; i < RxMessage.DLC; i++ )
         {
             /* receive data */
             CanRx->rx_buff[ CanRx->rxcnt++ ] = RxMessage.Data[i];
             
         }   
-        CanRx->mlen -= RxMessage.DLC;    
         
-        if( CanRx->mlen == 0 )            
+        if( CanRx->mlen > RxMessage.DLC )
         {
-            CanRx->recving = 0;
-            CanRx->data_packet = 1;  
+            CanRx->mlen -= RxMessage.DLC;    
         }
-        else if( CanRx->mlen < 0 )
+        else if( CanRx->mlen == RxMessage.DLC )
         {
-            CanRx->recving = 0;
-            CanRx->data_packet = 0;            
-        }    
+            CanRx->recving = 0u;
+            CanRx->data_packet = 1u;
+        }
+        else
+        {
+            CanRx->recving = 0u;
+            CanRx->data_packet = 0u; 
+        }
+            
     }
     
 }
@@ -418,9 +434,9 @@ void CAN1_RX0_IRQHandler(void)
         /** CB control data RECEIVE **/
         if( ( RxMessage.ExtId == CAN1RX_CONTROL_DATA1_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
-            can1_receive = 1;        
+            can1_receive = 1u;        
 
-            for( num = 0; num < RxMessage.DLC; num++ )
+            for( num = 0u; num < RxMessage.DLC; num++ )
             {
                 pcEscDataFromControl[num] = RxMessage.Data[num];
             }
@@ -428,24 +444,27 @@ void CAN1_RX0_IRQHandler(void)
         /** CB normal data RECEIVE **/        
         else if( ( RxMessage.ExtId == CAN1RX_NORMAL_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
-            can1_receive = 1;        
+            can1_receive = 1u;        
 
             CAN_RX_Process( RxMessage, &CAN1_RX_Normal );
         }        
         /* Test Mode */        
         else if( ( RxMessage.ExtId == CAN1_TEST_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
-            can1_receive = 1;        
+            can1_receive = 1u;        
             
             CAN_RX_Process( RxMessage, &CAN1_RX_Normal );
-        }           
+        }  
+        else
+        {}
     }
-#ifdef GEC_SF_S_NEW 
+
     else
     {
+#ifdef GEC_SF_S_NEW         
         USB_Istr();
-    }
 #endif
+    }
 }
 #endif
 
@@ -478,7 +497,7 @@ void CAN2_RX0_IRQHandler(void)
         /** DBL1 UP data RECEIVE **/
         if( ( RxMessage.ExtId == CAN2RX_UP_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
-            can2_receive = 1;        
+            can2_receive = 1u;        
   
             CAN_RX_Process( RxMessage, &CAN2_RX_Up );
             
@@ -486,17 +505,20 @@ void CAN2_RX0_IRQHandler(void)
         /** DBL1 DOWN data RECEIVE **/
         else if( ( RxMessage.ExtId == CAN2RX_DOWN_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
-            can2_receive = 1;        
+            can2_receive = 1u;        
 
             CAN_RX_Process( RxMessage, &CAN2_RX_Down );
         }
         /* Test Mode */        
         else if( ( RxMessage.ExtId == CAN1_TEST_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
-            can2_receive = 1;        
+            can2_receive = 1u;        
             
             CAN_RX_Process( RxMessage, &CAN2_RX_Up );
-        }         
+        }  
+        else
+        {
+        }
     }        
 }
 #endif
@@ -514,86 +536,92 @@ void CAN2_RX0_IRQHandler(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/  
-void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_t send_id, uint8_t *buff, uint32_t len)
+void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_t send_id, uint8_t buff[], uint8_t len)
 {
 
-        u32 i;
-        u8  result = 0;	
+        u16 i;
+        u8  result = 0u;	
         u8 j;
         
-        if( len > canbuffsize ) return;		
-				
-        /** packet the data pack ------------------------**/
-        if( CanTx->sending == 0 && len > 0 )
+        if( len > canbuffsize ) 
         {
-            CanTx->mlen = len + 4;
-            
-            CanTx->tx_buff[0] = 0xfa;
-            CanTx->tx_buff[1] = CanTx->mlen - 4;
-            for( j = 0; j < CanTx->mlen - 4; j++ )
-            {
-                CanTx->tx_buff[j+2] = buff[j];
-            }
-            i = MB_CRC16( CanTx->tx_buff, CanTx->mlen - 2 );
-            CanTx->tx_buff[CanTx->mlen - 2] = i;
-            CanTx->tx_buff[CanTx->mlen - 1] = i>>8;    
-            
-            CanTx->p_CanBuff = &CanTx->tx_buff[0];
-            CanTx->sending = 1;
-        } 
+            /* error */		
+        }
+        else
+        {
+            /** packet the data pack ------------------------**/
+            if( ( CanTx->sending == 0u ) && ( len > 0u ) )
+            {               
+                CanTx->mlen = len + 4u;
+                
+                CanTx->tx_buff[0] = 0xfau;
+                CanTx->tx_buff[1] = CanTx->mlen - 4u;
+                for( j = 0u; j < CanTx->mlen - 4u; j++ )
+                {
+                    CanTx->tx_buff[j+2u] = buff[j];
+                }
+                i = MB_CRC16( CanTx->tx_buff, (u16)CanTx->mlen - 2u );
+                CanTx->tx_buff[CanTx->mlen - 2u] = (u8)i;
+                CanTx->tx_buff[CanTx->mlen - 1u] = (u8)(i>>8u);    
+                
+                CanTx->p_CanBuff = &CanTx->tx_buff[0];
+                CanTx->sending = 1u;
+                
+            } 
+        }
         
         
         /** CAN send data ---------------------------------**/
-        if( CanTx->sending == 1 )
+        if( CanTx->sending == 1u )
         {
             
             if( CanTx->mlen > CAN_SEND_LEN )
             {
-                for( i = 0; i < 3; i++ )
+                for( i = 0u; i < 3u; i++ )
                 {
                     result = Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CAN_FRAME_LEN ); 
-                    if( result != 1 )
+                    if( result != 1u )
                     {
                         CanTx->p_CanBuff += CAN_FRAME_LEN;
                         CanTx->mlen -= CAN_FRAME_LEN;
                     }
                     
                 }
-//                CanTx->mlen -= CAN_SEND_LEN;
             }
             else
             {
-                if( CanTx->mlen > 2*CAN_FRAME_LEN )
+                if( CanTx->mlen > 2u*CAN_FRAME_LEN )
                 {
-                    for( i = 0; i < 2; i++ )
+                    for( i = 0u; i < 2u; i++ )
                     {
                         result = Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CAN_FRAME_LEN ); 
-                        if( result != 1 )
+                        if( result != 1u )
                         {
                             CanTx->p_CanBuff += CAN_FRAME_LEN;
                             CanTx->mlen -= CAN_FRAME_LEN;
                         }
                     }   
-//                    CanTx->mlen -= 2*CAN_FRAME_LEN;
                 }
                 else if( CanTx->mlen > CAN_FRAME_LEN )
                 {
                     
                     result = Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CAN_FRAME_LEN ); 
-                    if( result != 1 )
+                    if( result != 1u )
                     {
                         CanTx->p_CanBuff += CAN_FRAME_LEN;
                         CanTx->mlen -= CAN_FRAME_LEN;
                     }                                      
                 }
+                else
+                {}
                 
                 if( CanTx->mlen <= CAN_FRAME_LEN )
                 {
                     result = Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CanTx->mlen );
-                    if( result != 1 )
+                    if( result != 1u )
                     {
-                        CanTx->mlen = 0;
-                        CanTx->sending = 0;
+                        CanTx->mlen = 0u;
+                        CanTx->sending = 0u;
                     }
                 }
                 
@@ -617,8 +645,8 @@ void CAN1_TX_IRQHandler(void)
 
     CAN_ITConfig(CAN1, CAN_IT_TME, DISABLE);
 #ifdef GEC_SF_MASTER    
-//    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 0);
-    BSP_CAN_Send(CAN1, &CAN1_TX_Urge, CAN1TX_URGE_ID, CAN1_TX2_Data, 0);
+/*    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 0u);*/
+    BSP_CAN_Send(CAN1, &CAN1_TX_Urge, CAN1TX_URGE_ID, CAN1_TX2_Data, 0u);
 #endif   
     
 }
@@ -652,71 +680,77 @@ void CAN2_TX_IRQHandler(void)
 * Output         : None
 * Return         : Length of the received data
 *******************************************************************************/   
-uint32_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, uint8_t *buff,uint32_t mlen)
+uint32_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, uint8_t buff[], uint8_t mlen)
 {
     uint8_t *pstr;
-    uint32_t i=0,len=0;
+    uint32_t i = 0u,len = 0u;
 	
     switch (*(uint32_t*)&CANx)
     {
        case CAN1_BASE:
                        
         /** receive a data packet **/
-        if( CanRx->data_packet == 1 )
+        if( CanRx->data_packet == 1u )
         {
-            if(!MB_CRC16(CanRx->rx_buff, CanRx->recv_len))
+            if(!MB_CRC16(CanRx->rx_buff, (u16)CanRx->recv_len))
             {          
                 /* ok */
                 pstr = &CanRx->rx_buff[2];					
-                len = CanRx->recv_len - 4;
-                CanRx->recv_len = 0;
+                len = CanRx->recv_len - 4u;
+                CanRx->recv_len = 0u;
             }
             else
             {
                 /* fail */
-                for( i = 0; i < CanRx->recv_len; i++ )
+                for( i = 0u; i < CanRx->recv_len; i++ )
                 {
-                    CanRx->rx_buff[i] = 0;
+                    CanRx->rx_buff[i] = 0u;
                 }
             }
-            CanRx->data_packet = 0;
+            CanRx->data_packet = 0u;
         }                         
         break;	
 #ifdef GEC_SF_MASTER
        case CAN2_BASE: 
         
         /** receive a data packet **/
-        if( CanRx->data_packet == 1 )
+        if( CanRx->data_packet == 1u )
         {
-            if(!MB_CRC16(CanRx->rx_buff, CanRx->recv_len))
+            if(!MB_CRC16(CanRx->rx_buff, (u16)CanRx->recv_len))
             {          
                 /* ok */
                 pstr = &CanRx->rx_buff[2];					
-                len = CanRx->recv_len - 4;
-                CanRx->recv_len = 0;
+                len = CanRx->recv_len - 4u;
+                CanRx->recv_len = 0u;
             }
             else
             {
                 /* fail */
-                for( i = 0; i < CanRx->recv_len; i++ )
+                for( i = 0u; i < CanRx->recv_len; i++ )
                 {
-                    CanRx->rx_buff[i] = 0;
+                    CanRx->rx_buff[i] = 0u;
                 }
             }
-            CanRx->data_packet = 0;
+            CanRx->data_packet = 0u;
         } 
         break;	
 #endif
-    }	   
+       default:
+        break;
+    }	
+
     
     if(mlen && (mlen<len))
     {
         len = mlen;
     }
     
-    if(len>canbuffsize) len=0;
+    if(len > canbuffsize) 
+    {
+        len = 0u;
+    }
     
-    for(i=0;i<len;i++)
+    for(i = 0u; i < len; i++)
     {
         buff[i] = pstr[i];
     }		
@@ -736,24 +770,32 @@ uint32_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, u
 * Return         : 0: success
 *                  1: fail, no send mailbox 
 *******************************************************************************/		 
-u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8* msg,u8 len)
+u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8 msg[],u8 len)
 {	
-	u16 i=0;
+	u16 i = 0u;
+        u8 result = 0u;        
 	CanTxMsg TxMessage;
-	TxMessage.StdId=0x12;			// STD ID
-	TxMessage.ExtId=exid;			// EXT ID 
-//	TxMessage.IDE=CAN_Id_Standard; 	        
-        TxMessage.IDE=CAN_Id_Extended; 	        
-	TxMessage.RTR=CAN_RTR_Data;		
-	TxMessage.DLC=len;			
-	for(i=0;i<len;i++)
-	TxMessage.Data[i]=msg[i];			          
+        
+	TxMessage.StdId = 0x12u;			
+	TxMessage.ExtId = exid;			
+/*	TxMessage.IDE = CAN_Id_Standard; */
+        TxMessage.IDE = CAN_Id_Extended; 	        
+	TxMessage.RTR = CAN_RTR_Data;		
+	TxMessage.DLC = len;			
+	for(i = 0u; i < len; i++)
+        {
+          TxMessage.Data[i] = msg[i];
+        }
 	if( CAN_TxStatus_NoMailBox == CAN_Transmit(CANx, &TxMessage) )
         {
-            return 1;
+            result =  1u;
+        }
+        else
+        {
+            result =  0u;
         }
         
-        return 0;
+        return result;
 }
 
 
@@ -765,18 +807,28 @@ u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8* msg,u8 len)
 * Return         : 0: no data receive; 
 *                  other: Length of the received data;
 *******************************************************************************/
-u8 Can_Receive_Msg(CAN_TypeDef* CANx,u8 *buf)
+u8 Can_Receive_Msg(CAN_TypeDef* CANx,u8 buf[])
 {		   		   
       u32 i;
+      u8 result = 0u; 
       CanRxMsg RxMessage;
-      if( CAN_MessagePending(CANx,CAN_FIFO0)==0)return 0;		 
       
-      CAN_Receive(CANx, CAN_FIFO0, &RxMessage);	
-      for(i=0;i<8;i++)
+      if( CAN_MessagePending(CANx,CAN_FIFO0)== 0u )
       {
-          buf[i]=RxMessage.Data[i];  
+          result =  0u;		 
+      }  
+      else
+      {          
+          CAN_Receive(CANx, CAN_FIFO0, &RxMessage);
+          
+          for(i = 0u; i < RxMessage.DLC; i++)
+          {
+              buf[i] = RxMessage.Data[i];  
+          }
+          
+          result = RxMessage.DLC;
       }
-      return RxMessage.DLC;	
+      return result;	
 }
 
 

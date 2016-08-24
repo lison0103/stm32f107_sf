@@ -17,6 +17,12 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *buff,uint32_t dir,uint32_t len);
+void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff);
+void USART1_IRQHandler(void);
+void USART2_IRQHandler(void);
+void USART3_IRQHandler(void);
+void NVIC_Configuration_Usart(USART_TypeDef* USARTx);
 
 #ifdef USING_USART3_OVERTIME
 static int32_t USART3_ReceiveTimeCounter = 0;
@@ -326,16 +332,18 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 #else
 
 
-//#define USART1_EN     	1
-#define USART2_EN    			1
-//#define USART3_EN         1
-//#define USART3_REMAP_EN		1		
-
+/* #define USART1_EN     	1 */
+#define USART2_EN    		1
+/*
+#define USART3_EN               1
+#define USART3_REMAP_EN		1		
+#define USART1_REMAP_EN		1
+#define USART1_TRX_EN         	1
+*/
 
 /***************************************************************************************************
 ***************************************************************************************************/
-//#define USART1_REMAP_EN					1
-//#define USART1_TRX_EN         	1
+
 
 #ifdef USART1_EN
 #ifdef USART1_TRX_EN
@@ -348,15 +356,15 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 /***************************************************************************************************
 ***************************************************************************************************/
 
-#define USART1_DR_Base    0x40013804
-#define USART2_DR_Base    0x40004404
-#define USART3_DR_Base    0x40004804
+#define USART1_DR_Base    0x40013804u
+#define USART2_DR_Base    0x40004404u
+#define USART3_DR_Base    0x40004804u
 
 #define UART_TX_TRING_EN            0X0100
 #define UART_TX_RUN                 0X0200
 #define UART_TX_COMP                0X0400
 
-//
+
 #define USART1_TX_DMA_CHANNEL       DMA1_Channel4
 #define USART1_RX_DMA_CHANNEL       DMA1_Channel5
 
@@ -366,20 +374,20 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 #define USART3_TX_DMA_CHANNEL       DMA1_Channel2
 #define USART3_RX_DMA_CHANNEL       DMA1_Channel3
 
-//Ìõ¼þÑ¡Ôñ  
+  
 #ifdef USART1_EN 
 u8 uart1_rx_buff[512],uart1_rx_data[512],uart1_tx_buff[512];
-u16 uart1_rx_number=0,uart1_tx_number=0; 	//,uart1_rx_counter
+u16 uart1_rx_number=0,uart1_tx_number=0; 	
 #endif
 
 #ifdef USART2_EN
 u8 uart2_rx_buff[512],uart2_rx_data[512],uart2_tx_buff[512];
-u16 uart2_rx_number=0,uart2_tx_number=0;	//,uart2_rx_counter
+u32 uart2_rx_number = 0u,uart2_tx_number = 0u;	
 #endif
 
 #ifdef USART3_EN
 u8 uart3_rx_buff[512],uart3_rx_data[512],uart3_tx_buff[512];
-u16 uart3_rx_number=0,uart3_tx_number=0;	//,uart3_rx_counter
+u16 uart3_rx_number=0,uart3_tx_number=0;	
 #endif
 
 
@@ -431,16 +439,18 @@ void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff)
   switch (*(uint32_t*)&USARTx)
   {
     case USART1_BASE:
-      DMA_Configuration_USART(USART1_TX_DMA_CHANNEL,USART1_DR_Base,txBuff,DMA_DIR_PeripheralDST,512);
-      DMA_Configuration_USART(USART1_RX_DMA_CHANNEL,USART1_DR_Base,rxBuff,DMA_DIR_PeripheralSRC,512);
+      DMA_Configuration_USART(USART1_TX_DMA_CHANNEL,USART1_DR_Base,txBuff,DMA_DIR_PeripheralDST,512u);
+      DMA_Configuration_USART(USART1_RX_DMA_CHANNEL,USART1_DR_Base,rxBuff,DMA_DIR_PeripheralSRC,512u);
       break;
     case USART2_BASE:
-      DMA_Configuration_USART(USART2_TX_DMA_CHANNEL,USART2_DR_Base,txBuff,DMA_DIR_PeripheralDST,512);
-      DMA_Configuration_USART(USART2_RX_DMA_CHANNEL,USART2_DR_Base,rxBuff,DMA_DIR_PeripheralSRC,512);
+      DMA_Configuration_USART(USART2_TX_DMA_CHANNEL,USART2_DR_Base,txBuff,DMA_DIR_PeripheralDST,512u);
+      DMA_Configuration_USART(USART2_RX_DMA_CHANNEL,USART2_DR_Base,rxBuff,DMA_DIR_PeripheralSRC,512u);
       break;
     case USART3_BASE:
-      DMA_Configuration_USART(USART3_TX_DMA_CHANNEL,USART3_DR_Base,txBuff,DMA_DIR_PeripheralDST,512);
-      DMA_Configuration_USART(USART3_RX_DMA_CHANNEL,USART3_DR_Base,rxBuff,DMA_DIR_PeripheralSRC,512);
+      DMA_Configuration_USART(USART3_TX_DMA_CHANNEL,USART3_DR_Base,txBuff,DMA_DIR_PeripheralDST,512u);
+      DMA_Configuration_USART(USART3_RX_DMA_CHANNEL,USART3_DR_Base,rxBuff,DMA_DIR_PeripheralSRC,512u);
+      break;
+     default:
       break;
   }
   
@@ -461,6 +471,8 @@ void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff)
       DMA_Cmd(USART3_TX_DMA_CHANNEL, ENABLE);
       DMA_Cmd(USART3_RX_DMA_CHANNEL, ENABLE);
       break;
+     default:
+      break;      
   }      
 }
 
@@ -481,15 +493,17 @@ void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity)
 
   switch (*(uint32_t*)&USARTx)
   {
-    case USART1_BASE:
+     case USART1_BASE:
       RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 , ENABLE); 
-  		break;
-    case USART2_BASE:
+      break;
+     case USART2_BASE:
       RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2 , ENABLE); 
-  		break;
-    case USART3_BASE:
+      break;
+     case USART3_BASE:
       RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3 , ENABLE); 
-  		break;
+      break;
+     default:
+      break;                
   }
 
   USART_StructInit(&USART_InitStruct); 
@@ -501,8 +515,6 @@ void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity)
   USART_InitStruct.USART_HardwareFlowControl =USART_HardwareFlowControl_None; 
   USART_Init(USARTx , &USART_InitStruct); 
   
-  
-  //USART_Cmd(USARTx , ENABLE); 
 } 
 
 /*******************************************************************************
@@ -529,7 +541,6 @@ void USART1_IRQHandler(void)
 			uart1_rx_data[i] = uart1_rx_buff[i];
 		}																										 
 
-		//DMA_ClearFlag(DMA1_FLAG_GL4|DMA1_FLAG_TC4|DMA1_FLAG_HT4|DMA1_FLAG_TE4);
 		USART1_RX_DMA_CHANNEL->CNDTR = 512;		
 		DMA_Cmd(USART1_RX_DMA_CHANNEL, ENABLE);
 		
@@ -556,7 +567,7 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
 #ifdef USART2_EN 
-	uint32_t i=0;
+	uint32_t i = 0u;
 	
 	if(USART_GetITStatus(USART2, USART_IT_IDLE) == SET)
 	{
@@ -564,13 +575,13 @@ void USART2_IRQHandler(void)
                 /* Barred from receiving again */
 		DMA_Cmd(USART2_RX_DMA_CHANNEL, DISABLE);
 		
-		uart2_rx_number = 512-USART2_RX_DMA_CHANNEL->CNDTR;
-		for(i=0;i<uart2_rx_number;i++)
+		uart2_rx_number = 512u - USART2_RX_DMA_CHANNEL->CNDTR;
+		for(i = 0u; i < uart2_rx_number; i++)
 		{			 
 			uart2_rx_data[i] = uart2_rx_buff[i];
 		}																										 
 
-		USART2_RX_DMA_CHANNEL->CNDTR = 512;		
+		USART2_RX_DMA_CHANNEL->CNDTR = 512u;		
 		DMA_Cmd(USART2_RX_DMA_CHANNEL, ENABLE);
 		
 		/* clear flag */
@@ -580,7 +591,7 @@ void USART2_IRQHandler(void)
 
 	if(USART_GetITStatus(USART2, USART_IT_TC) == SET)
 	{
-		USART2->SR &= ~0x00000040;
+		USART2->SR &= ~0x00000040u;
 	}		
 #endif			
 }
@@ -605,7 +616,7 @@ void USART3_IRQHandler(void)
 		
 		
 		uart3_rx_number = 512-USART3_RX_DMA_CHANNEL->CNDTR;
-//    if(uart3_rx_number>500) uart3_rx_number = 0;
+
 		for(i=0;i<uart3_rx_number;i++)
 		{			 
 			uart3_rx_data[i] = uart3_rx_buff[i];
@@ -649,14 +660,16 @@ void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
       NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
       
       break;
-    default:
+    case USART3_BASE:
       NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+      break;
       
+     default: 
       break;
   }
   
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3u;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3u;
   /* Enable the USARTy Interrupt */  
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
@@ -699,7 +712,7 @@ void USART1_Init(void)
   GPIO_Init(GPIOA , &GPIO_InitStruct);
 	#endif
 	
-	///////////////////////////////////////////////////////////////////
+
   #ifdef USART1_TRX_EN
 	RCC_APB2PeriphClockCmd(USART1_TRX_RCC, ENABLE); 
 
@@ -709,14 +722,13 @@ void USART1_Init(void)
   GPIO_Init(USART1_TRX_GPIO , &GPIO_InitStruct);
 	#endif
 	
-	///////////////////////////////////////////////////////////////////
+
 	BSP_USART_Init(USART1, 19200, USART_Parity_No);
-	
-  //if(DMAState==ENABLE)       
+	       
 	BSP_USART_DMA_Init(USART1,uart1_tx_buff,uart1_rx_buff);
 
 
-	///////////////////////////////////////////////////////////////////  
+ 
 	USART_ITConfig(USART1, USART_IT_TC, ENABLE);
 	USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
 	NVIC_Configuration_Usart(USART1);       	
@@ -736,30 +748,27 @@ void USART1_Init(void)
 void USART2_Init(void)
 {
 #ifdef USART2_EN
-	GPIO_InitTypeDef GPIO_InitStruct;
-
-  GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
-  GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOA , &GPIO_InitStruct);
-	
-  GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;
-  GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; 
-  GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(GPIOA , &GPIO_InitStruct);
-
-	BSP_USART_Init(USART2, 19200, USART_Parity_No);
-	
-  //if(DMAState==ENABLE)       
-	BSP_USART_DMA_Init(USART2,uart2_tx_buff,uart2_rx_buff);
-   
-
-  ///////////////////////////////////////////////////////////////////  
-	USART_ITConfig(USART2, USART_IT_TC, ENABLE);
-	USART_ITConfig(USART2, USART_IT_IDLE, ENABLE);
-	NVIC_Configuration_Usart(USART2);       	
-  	
-	USART_Cmd(USART2 , ENABLE);  
+    GPIO_InitTypeDef GPIO_InitStruct;
+    
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_2;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOA , &GPIO_InitStruct);
+    
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_3;
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; 
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOA , &GPIO_InitStruct);
+    
+    BSP_USART_Init(USART2, 19200u, USART_Parity_No);
+    
+    BSP_USART_DMA_Init(USART2,uart2_tx_buff,uart2_rx_buff);
+    
+    USART_ITConfig(USART2, USART_IT_TC, ENABLE);
+    USART_ITConfig(USART2, USART_IT_IDLE, ENABLE);
+    NVIC_Configuration_Usart(USART2);       	
+    
+    USART_Cmd(USART2 , ENABLE);  
 				
 #endif
 }
@@ -803,13 +812,12 @@ void USART3_Init(void)
   GPIO_Init(GPIOB , &GPIO_InitStruct);
 	#endif
 	
-	BSP_USART_Init(USART3, 19200, USART_Parity_No);
-	
-  //if(DMAState==ENABLE)       
+	BSP_USART_Init(USART3, 19200u, USART_Parity_No);
+	     
 	BSP_USART_DMA_Init(USART3,uart3_tx_buff,uart3_rx_buff);
 
 
-	///////////////////////////////////////////////////////////////////  
+  
 	USART_ITConfig(USART3, USART_IT_TC, ENABLE);
 	USART_ITConfig(USART3, USART_IT_IDLE, ENABLE);
 	NVIC_Configuration_Usart(USART3);       	
@@ -829,12 +837,17 @@ void USART3_Init(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
+void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t buff[],uint32_t len)
 {
 	u32 i;
 	
-  if(len>500) return;
-  
+  if( len > 500u ) 
+  {
+      /* len too big */
+  }
+  else
+  {
+      
   switch (*(uint32_t*)&USARTx)
   {
     case USART1_BASE:
@@ -856,14 +869,13 @@ void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
 			break;	
     case USART2_BASE:
 			#ifdef USART2_EN 
-				for(i=0;i<len;i++)
+				for(i = 0u; i < len; i++)
 				{
 					uart2_tx_buff[i] = buff[i]; 	
 				}		
 				
-				//USART2_TRX_GPIO->BSRR |= (u32)USART2_TRX_PIN;	
 					
-				USART2->SR &= ~0x00000040;
+				USART2->SR &= ~0x00000040u;
 				 
 				DMA_Cmd(USART2_TX_DMA_CHANNEL, DISABLE);
 				DMA_ClearFlag(DMA1_FLAG_GL7|DMA1_FLAG_TC7|DMA1_FLAG_HT7|DMA1_FLAG_TE7);
@@ -878,7 +890,6 @@ void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
 					uart3_tx_buff[i] = buff[i]; 	
 				}		
 				
-				//USART3_TRX_GPIO->BSRR |= (u32)USART3_TRX_PIN;	
 					
 				USART3->SR &= ~0x00000040;
 				 
@@ -888,7 +899,10 @@ void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
 				DMA_Cmd(USART3_TX_DMA_CHANNEL, ENABLE);
 			#endif
 			break;	
-	}			
+     default:
+      break;
+	}		
+  }
 }
 
 /*******************************************************************************
@@ -900,10 +914,10 @@ void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
 * Output         : None
 * Return         : the length of receive data
 *******************************************************************************/ 
-uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
+uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t buff[],uint32_t mlen)
 {
 	uint8_t *pstr;
-	uint32_t i=0,len=0;
+	uint32_t i = 0u,len = 0u;
 	
   switch (*(uint32_t*)&USARTx)
   {
@@ -911,37 +925,42 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 			#ifdef USART1_EN 
 			pstr = uart1_rx_data;					
 			len = uart1_rx_number;
-			uart1_rx_number = 0;  
+			uart1_rx_number = 0u;  
 			#endif
 			break;			
     case USART2_BASE: 
 			#ifdef USART2_EN 
 			pstr = uart2_rx_data;			
 			len = uart2_rx_number;
-			uart2_rx_number = 0;  
+			uart2_rx_number = 0u;  
 			#endif
 			break;			
     case USART3_BASE:
 			#ifdef USART3_EN 
 			pstr = uart3_rx_data;					
 			len = uart3_rx_number; 
-			uart3_rx_number = 0;  
+			uart3_rx_number = 0u;  
 			#endif
-			break;			
+			break;
+     default:
+      break;
 	}	   
 	
-	if(mlen && (mlen<len))
-	{
-		len = mlen;
-	}
-	
-  if(len>500) len=0;
-	for(i=0;i<len;i++)
-	{
-		buff[i] = pstr[i];
-	}		
-			
-	return(len);
+  if(mlen && (mlen<len))
+  {
+      len = mlen;
+  }
+  
+  if( len > 500u )
+  {
+      len = 0u;
+  }
+  for(i = 0u; i < len; i++)
+  {
+      buff[i] = pstr[i];
+  }		
+  
+  return(len);
 }
 
 

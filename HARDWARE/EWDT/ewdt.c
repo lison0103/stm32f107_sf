@@ -19,8 +19,9 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+void write_bkp(u32 adr,u32 dat);
 
-u8 iwdg_check_flag = 0;
+u8 iwdg_check_flag = 0u;
 
 /*******************************************************************************
 * Function Name  : EWDT_Drv_pin_config
@@ -70,13 +71,13 @@ void EWDT_Drv_pin_config(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void write_bkp(u16 adr,u16 dat)
+void write_bkp(u32 adr,u32 dat)
 {
   PWR_BackupAccessCmd(ENABLE);
 #ifdef GEC_SF_S_NEW
   RTC_WriteBackupRegister(adr, dat);    
 #else
-  BKP_WriteBackupRegister(adr, dat);
+  BKP_WriteBackupRegister((u16)adr, (u16)dat);
 #endif   
   PWR_BackupAccessCmd(DISABLE);
 }
@@ -92,15 +93,19 @@ void write_bkp(u16 adr,u16 dat)
 *******************************************************************************/
 void ExtWdtCheck(void)
 {
-  u16 bkr_rst_flag=0;
-
-  if( iwdg_check_flag == 0 )
+#ifdef GEC_SF_S_NEW    
+  u32 bkr_rst_flag = 0u;
+#else
+  u16 bkr_rst_flag = 0u;  
+#endif
+  
+  if( iwdg_check_flag == 0u )
   {
-      delay_ms(10); 
+      delay_ms(10u); 
       EWDT_TOOGLE();
-      delay_ms(10);    
+      delay_ms(10u);    
       EWDT_TOOGLE();
-      delay_ms(10);    
+      delay_ms(10u);    
       EWDT_TOOGLE();
         
 #ifdef GEC_SF_S_NEW
@@ -108,48 +113,49 @@ void ExtWdtCheck(void)
 #else
       bkr_rst_flag = BKP_ReadBackupRegister(BKP_DR1);
 #endif
-      if(bkr_rst_flag == 0xfa01)
+      if(bkr_rst_flag == 0xfa01u)
       {
     /** soft reset **/
-//    if(RCC_GetFlagStatus(RCC_FLAG_SFTRST) == SET)
-//    {
-//        
-//    }
-
+/*          
+    if(RCC_GetFlagStatus(RCC_FLAG_SFTRST) == SET)
+    {
+        
+    }
+*/
         /** pin reset **/
         if(RCC_GetFlagStatus(RCC_FLAG_PINRST) != SET)
         {
 #ifdef GEC_SF_S_NEW
-            write_bkp(RTC_BKP_DR1, 0);  
+            write_bkp(RTC_BKP_DR1, 0u);  
 #else
-            write_bkp(BKP_DR1, 0);
+            write_bkp(BKP_DR1, 0u);
 #endif  
             RCC_ClearFlag();   
-            EN_ERROR_SYS1 |= 0x01;
+            EN_ERROR_SYS1 |= 0x01u;
         }   
       }  
       else
       {
 
 #ifdef GEC_SF_S_NEW
-          write_bkp(RTC_BKP_DR1, 0xfa01); 
+          write_bkp(RTC_BKP_DR1, 0xfa01u); 
 #else  
-          write_bkp(BKP_DR1, 0xfa01);  
+          write_bkp(BKP_DR1, 0xfa01u);  
 #endif  
           RCC_ClearFlag();
           
-          delay_ms(2000);    
+          delay_ms(2000u);    
           
-          EN_ERROR_SYS1 |= 0x01;
+          EN_ERROR_SYS1 |= 0x01u;
       }  
       
 #ifdef GEC_SF_S_NEW
-      write_bkp(RTC_BKP_DR1, 0); 
+      write_bkp(RTC_BKP_DR1, 0u); 
 #else  
-      write_bkp(BKP_DR1, 0);  
+      write_bkp(BKP_DR1, 0u);  
 #endif  
       
-      if( EN_ERROR_SYS1&0x01 ) 
+      if( EN_ERROR_SYS1 & 0x01u ) 
       {
           ESC_EWDT_Error_Process();
       }
