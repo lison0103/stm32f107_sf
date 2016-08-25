@@ -2186,6 +2186,9 @@
     <file>
       <name>$PROJ_DIR$\..\FATFS\src\ff.c</name>
     </file>
+    <configuration>
+      <name>GEC-SF-M</name>
+    </configuration>
   </group>
   <group>
     <name>FWLib</name>
@@ -2357,6 +2360,12 @@
         <name>$PROJ_DIR$\..\Libraries\STM32F30x_StdPeriph_Driver\src\stm32f30x_wwdg.c</name>
       </file>
     </group>
+    <configuration>
+      <name>GEC-SF-M</name>
+    </configuration>
+    <configuration>
+      <name>GEC-SF-S-NEW</name>
+    </configuration>
   </group>
   <group>
     <name>HARDWARE</name>
@@ -2440,6 +2449,12 @@
       <file>
         <name>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib\stm32f10x_STLtranspRamMx.c</name>
       </file>
+      <configuration>
+        <name>GEC-SF-M</name>
+      </configuration>
+      <configuration>
+        <name>GEC-SF-S-NEW</name>
+      </configuration>
     </group>
     <file>
       <name>$PROJ_DIR$\..\SAFETYTEST\check_instruction.c</name>
@@ -2484,6 +2499,9 @@
         <file>
           <name>$PROJ_DIR$\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_sil.c</name>
         </file>
+        <configuration>
+          <name>GEC-SF-S-NEW</name>
+        </configuration>
       </group>
       <file>
         <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\hw_config.c</name>
@@ -2523,6 +2541,9 @@
             <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_scsi.c</name>
           </file>
         </group>
+        <configuration>
+          <name>GEC-SF-M</name>
+        </configuration>
       </group>
       <group>
         <name>Core</name>
@@ -2538,6 +2559,9 @@
         <file>
           <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Core\src\usbh_stdreq.c</name>
         </file>
+        <configuration>
+          <name>GEC-SF-M</name>
+        </configuration>
       </group>
       <group>
         <name>Driver</name>
@@ -2550,6 +2574,9 @@
         <file>
           <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_hcd_int.c</name>
         </file>
+        <configuration>
+          <name>GEC-SF-M</name>
+        </configuration>
       </group>
       <file>
         <name>$PROJ_DIR$\..\USB\USB_MASS_STORAGE\src\usb_bsp.c</name>
