@@ -197,7 +197,7 @@ void PluseOutputInit(void)
 {
   
     /** TIM init 10khz, counting to 10 is 1ms **/
-    TIM3_Int_Init(9,7199); 
+    TIM3_Int_Init(9u,7199u); 
 
 }
 
@@ -214,10 +214,11 @@ void SysTickTimerInit(void)
 {
   
     /** interrupt time 5ms **/
-    if(SysTick_Config(SystemCoreClock / ( 1000 / SYSTEMTICK )))
+    if(SysTick_Config(SystemCoreClock / ( 1000u / SYSTEMTICK )))
     {
         /* Capture error */
-        while (1);
+        while (1)
+        {}
     }
 
 }
@@ -272,7 +273,7 @@ void RCC_Configuration(void)
     RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);
 
     /* Wait till PLL is used as system clock source */
-    while(RCC_GetSYSCLKSource() != 0x08)
+    while(RCC_GetSYSCLKSource() != 0x08u)
     {
     }
 
@@ -352,11 +353,10 @@ void RCC_Configuration(void)
 void NVIC_Configuration(void)
 {
   
-    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0);
+    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0u);
     
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);	
     
-//    INTX_ENABLE();
 
 }
 
@@ -378,14 +378,14 @@ void PVD_Configuration(void)
 
     EXTI_InitStructure.EXTI_Line = EXTI_Line16;
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;//EXTI_Trigger_Falling;//EXTI_Trigger_Rising_Falling;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
 
     /* Enable the PVD Interrupt */
     NVIC_InitStructure.NVIC_IRQChannel = PVD_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0u;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0u;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
     
@@ -410,22 +410,22 @@ void PVD_Configuration(void)
 *******************************************************************************/
 void Data_init(void)
 {
-    u16 i;
+    int i;
     
     for( i = 0; i < 200; i++ )
     {
-        EscRTBuff[i] = 0;
+        EscRTBuff[i] = 0u;
     }  
     
     for( i = 0; i < 1000; i++ )
     {
-        McRxBuff[i] = 0;
+        McRxBuff[i] = 0u;
     }  
   
     for( i = 0; i < 3000; i++ )
         
     {
-        Modbuff[i] = 0;
+        Modbuff[i] = 0u;
     } 
 }
 

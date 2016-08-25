@@ -32,42 +32,44 @@ static u8 buff[300];
 void Comm_DisplayBoard(void)
 {
     
-    u16 i=0,len=0,tlen=0;
+    u32 i = 0u,len = 0u,tlen = 0u;
     
     
-    len = BSP_USART_Receive(USART2,buff,0);
+    len = BSP_USART_Receive(USART2,buff,0u);
     
-    if(len<5)
+    if(len < 5u)
     {
         
     }  
-    else if( ((buff[0]==1)||(buff[0]==2)) && (!MB_CRC16(buff, len)) )   	
+    else if( ((buff[0]==1u)||(buff[0]==2u)) && (!MB_CRC16(buff, len)) )   	
     {
-//        DB_Comm_Addr = buff[0];
-//        switch(buff[1])                
-//        {
-//           case 3:                     
-//            tlen = modbus_slave_03();                       
-//            break; 
-//           case 16:	
-//            tlen = modbus_slave_16();
-//            break;                    
-//        }	
-        
+/*        
+        DB_Comm_Addr = buff[0];
+        switch(buff[1])                
+        {
+           case 3:                     
+            tlen = modbus_slave_03();                       
+            break; 
+           case 16:	
+            tlen = modbus_slave_16();
+            break;                    
+        }	
+*/        
         if(tlen)	
         {			
-            i = MB_CRC16(buff, tlen-2);
-            buff[tlen-1] = i>>8;
-            buff[tlen-2] = i;
+            i = MB_CRC16(buff, (u16)(tlen-2u));
+            buff[tlen-1u] = (u8)(i>>8u);
+            buff[tlen-2u] = (u8)i;
             BSP_USART_Send(USART3,buff,tlen);
         }			
         
-    }		
-    
-    else if( (buff[0]==0x11) && (!MB_CRC16(buff, len)) )
+    }		   
+    else if( (buff[0]==0x11u) && (!MB_CRC16(buff, len)) )
     {
         
-    }          
+    }  
+    else
+    {}
         
  
 }

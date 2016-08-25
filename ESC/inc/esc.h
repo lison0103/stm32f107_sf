@@ -43,65 +43,65 @@
 #define INPUT_PORT_EX17     EscRTBuff[10]
 #define INPUT_FEEDBACK      EscRTBuff[11]
 
-#define INPUT_PORT1_MASK        ( 1 << 0 )
-#define INPUT_PORT2_MASK        ( 1 << 1 )
-#define INPUT_PORT3_MASK        ( 1 << 2 )
-#define INPUT_PORT4_MASK        ( 1 << 3 )
-#define INPUT_PORT5_MASK        ( 1 << 4 )
-#define INPUT_PORT6_MASK        ( 1 << 5 )
-#define INPUT_PORT7_MASK        ( 1 << 6 )
-#define INPUT_PORT8_MASK        ( 1 << 7 )
+#define INPUT_PORT1_MASK        (u8)( 1 << 0 )
+#define INPUT_PORT2_MASK        (u8)( 1 << 1 )
+#define INPUT_PORT3_MASK        (u8)( 1 << 2 )
+#define INPUT_PORT4_MASK        (u8)( 1 << 3 )
+#define INPUT_PORT5_MASK        (u8)( 1 << 4 )
+#define INPUT_PORT6_MASK        (u8)( 1 << 5 )
+#define INPUT_PORT7_MASK        (u8)( 1 << 6 )
+#define INPUT_PORT8_MASK        (u8)( 1 << 7 )
 
-#define INPUT_PORT9_MASK        ( 1 << 0 )
-#define INPUT_PORT10_MASK        ( 1 << 1 )
-#define INPUT_PORT11_MASK        ( 1 << 2 )
-#define INPUT_PORT12_MASK        ( 1 << 3 )
-#define INPUT_PORT13_MASK        ( 1 << 4 )
-#define INPUT_PORT14_MASK        ( 1 << 5 )
-#define INPUT_PORT15_MASK        ( 1 << 6 )
-#define INPUT_PORT16_MASK        ( 1 << 7 )
+#define INPUT_PORT9_MASK        (u8)( 1 << 0 )
+#define INPUT_PORT10_MASK        (u8)( 1 << 1 )
+#define INPUT_PORT11_MASK        (u8)( 1 << 2 )
+#define INPUT_PORT12_MASK        (u8)( 1 << 3 )
+#define INPUT_PORT13_MASK        (u8)( 1 << 4 )
+#define INPUT_PORT14_MASK        (u8)( 1 << 5 )
+#define INPUT_PORT15_MASK        (u8)( 1 << 6 )
+#define INPUT_PORT16_MASK        (u8)( 1 << 7 )
 
-#define INPUT_PORT17_MASK        ( 1 << 0 )
-#define INPUT_PORT18_MASK        ( 1 << 1 )
-#define INPUT_PORT19_MASK        ( 1 << 2 )
-#define INPUT_PORT20_MASK        ( 1 << 3 )
-#define INPUT_PORT21_MASK        ( 1 << 4 )
-#define INPUT_PORT22_MASK        ( 1 << 5 )
-#define INPUT_PORT23_MASK        ( 1 << 6 )
-#define INPUT_PORT24_MASK        ( 1 << 7 )
+#define INPUT_PORT17_MASK        (u8)( 1 << 0 )
+#define INPUT_PORT18_MASK        (u8)( 1 << 1 )
+#define INPUT_PORT19_MASK        (u8)( 1 << 2 )
+#define INPUT_PORT20_MASK        (u8)( 1 << 3 )
+#define INPUT_PORT21_MASK        (u8)( 1 << 4 )
+#define INPUT_PORT22_MASK        (u8)( 1 << 5 )
+#define INPUT_PORT23_MASK        (u8)( 1 << 6 )
+#define INPUT_PORT24_MASK        (u8)( 1 << 7 )
 
-#define INPUT_PORT25_MASK        ( 1 << 0 )
-#define INPUT_PORT26_MASK        ( 1 << 1 )
-#define INPUT_PORT27_MASK        ( 1 << 2 )
-#define INPUT_PORT28_MASK        ( 1 << 3 )
-#define INPUT_PORT29_MASK        ( 1 << 4 )
+#define INPUT_PORT25_MASK        (u8)( 1 << 0 )
+#define INPUT_PORT26_MASK        (u8)( 1 << 1 )
+#define INPUT_PORT27_MASK        (u8)( 1 << 2 )
+#define INPUT_PORT28_MASK        (u8)( 1 << 3 )
+#define INPUT_PORT29_MASK        (u8)( 1 << 4 )
 
-#define INPUT_PORT_EX1_MASK        ( 1 << 0 )
-#define INPUT_PORT_EX2_MASK        ( 1 << 1 )
-#define INPUT_PORT_EX3_MASK        ( 1 << 2 )
-#define INPUT_PORT_EX4_MASK        ( 1 << 3 )
-#define INPUT_PORT_EX5_MASK        ( 1 << 4 )
-#define INPUT_PORT_EX6_MASK        ( 1 << 5 )
-#define INPUT_PORT_EX7_MASK        ( 1 << 6 )
-#define INPUT_PORT_EX8_MASK        ( 1 << 7 )
+#define INPUT_PORT_EX1_MASK        (u8)( 1 << 0 )
+#define INPUT_PORT_EX2_MASK        (u8)( 1 << 1 )
+#define INPUT_PORT_EX3_MASK        (u8)( 1 << 2 )
+#define INPUT_PORT_EX4_MASK        (u8)( 1 << 3 )
+#define INPUT_PORT_EX5_MASK        (u8)( 1 << 4 )
+#define INPUT_PORT_EX6_MASK        (u8)( 1 << 5 )
+#define INPUT_PORT_EX7_MASK        (u8)( 1 << 6 )
+#define INPUT_PORT_EX8_MASK        (u8)( 1 << 7 )
 
-#define INPUT_PORT_EX9_MASK        ( 1 << 0 )
-#define INPUT_PORT_EX10_MASK        ( 1 << 1 )
-#define INPUT_PORT_EX11_MASK        ( 1 << 2 )
-#define INPUT_PORT_EX12_MASK        ( 1 << 3 )
-#define INPUT_PORT_EX13_MASK        ( 1 << 4 )
-#define INPUT_PORT_EX14_MASK        ( 1 << 5 )
-#define INPUT_PORT_EX15_MASK        ( 1 << 6 )
-#define INPUT_PORT_EX16_MASK        ( 1 << 7 )
+#define INPUT_PORT_EX9_MASK        (u8)( 1 << 0 )
+#define INPUT_PORT_EX10_MASK        (u8)( 1 << 1 )
+#define INPUT_PORT_EX11_MASK        (u8)( 1 << 2 )
+#define INPUT_PORT_EX12_MASK        (u8)( 1 << 3 )
+#define INPUT_PORT_EX13_MASK        (u8)( 1 << 4 )
+#define INPUT_PORT_EX14_MASK        (u8)( 1 << 5 )
+#define INPUT_PORT_EX15_MASK        (u8)( 1 << 6 )
+#define INPUT_PORT_EX16_MASK        (u8)( 1 << 7 )
 
-#define INPUT_PORT_EX17_MASK        ( 1 << 0 )
+#define INPUT_PORT_EX17_MASK        (u8)( 1 << 0 )
 
-#define INPUT_PORT_SF_RL_DRV_FB_MASK        ( 1 << 0 )
-#define INPUT_PORT_SF_PWR_FB_CPU_MASK        ( 1 << 1 )
-#define INPUT_PORT_SF_RL_FB_MASK        ( 1 << 2 )
-#define INPUT_PORT_SF_RL_FB_CPU_MASK        ( 1 << 3 )
-#define INPUT_PORT_AUX_FB_MASK        ( 1 << 4 )
-#define INPUT_PORT_PLUSE_OUTPUT_FB_MASK        ( 1 << 5 )
+#define INPUT_PORT_SF_RL_DRV_FB_MASK        (u8)( 1 << 0 )
+#define INPUT_PORT_SF_PWR_FB_CPU_MASK        (u8)( 1 << 1 )
+#define INPUT_PORT_SF_RL_FB_MASK        (u8)( 1 << 2 )
+#define INPUT_PORT_SF_RL_FB_CPU_MASK        (u8)( 1 << 3 )
+#define INPUT_PORT_AUX_FB_MASK        (u8)( 1 << 4 )
+#define INPUT_PORT_PLUSE_OUTPUT_FB_MASK        (u8)( 1 << 5 )
 
 #define CMD_FLAG1 	EscRTBuff[20]
 #define CMD_FLAG2 	EscRTBuff[21]
@@ -114,16 +114,16 @@
 #define CMD_FLAG9 	EscRTBuff[28]
 #define CMD_FLAG10 	EscRTBuff[29]
 
-#define CMD_OMC_FLAG1 	pcOMC_EscRTBuff[20]
-#define CMD_OMC_FLAG2 	pcOMC_EscRTBuff[21]
-#define CMD_OMC_FLAG3 	pcOMC_EscRTBuff[22]
-#define CMD_OMC_FLAG4 	pcOMC_EscRTBuff[23]
-#define CMD_OMC_FLAG5 	pcOMC_EscRTBuff[24]
-#define CMD_OMC_FLAG6 	pcOMC_EscRTBuff[25]
-#define CMD_OMC_FLAG7 	pcOMC_EscRTBuff[26]
-#define CMD_OMC_FLAG8 	pcOMC_EscRTBuff[27]
-#define CMD_OMC_FLAG9 	pcOMC_EscRTBuff[28]
-#define CMD_OMC_FLAG10 	pcOMC_EscRTBuff[29]
+#define CMD_OMC_FLAG1 	McRxBuff[20]
+#define CMD_OMC_FLAG2 	McRxBuff[21]
+#define CMD_OMC_FLAG3 	McRxBuff[22]
+#define CMD_OMC_FLAG4 	McRxBuff[23]
+#define CMD_OMC_FLAG5 	McRxBuff[24]
+#define CMD_OMC_FLAG6 	McRxBuff[25]
+#define CMD_OMC_FLAG7 	McRxBuff[26]
+#define CMD_OMC_FLAG8 	McRxBuff[27]
+#define CMD_OMC_FLAG9 	McRxBuff[28]
+#define CMD_OMC_FLAG10 	McRxBuff[29]
 
 #define MTR_MAX_SPEED       *(u16*)&EscRTBuff[35]
 #define MTR_MIN_SPEED       *(u16*)&EscRTBuff[37]

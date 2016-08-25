@@ -20,7 +20,7 @@
 /* Private functions ---------------------------------------------------------*/
 
 
-FATFS *fs[1];           //Logical Disk Workspace.	 		
+FATFS *fs[1];           /* Logical Disk Workspace. */
 
 
 /*******************************************************************************
@@ -32,10 +32,20 @@ FATFS *fs[1];           //Logical Disk Workspace.
 *******************************************************************************/
 u8 fatfs_init(void)
 {
+        u8 initresult = 0u;
+        
 	fs[0]=(FATFS*)mymalloc(sizeof(FATFS));			
         
-	if(fs[0])return 0; 
-	else return 1;	
+	if(fs[0])
+        {
+            initresult = 0u; 
+        }
+	else
+        {
+            initresult = 1u;	
+        }
+        
+        return initresult;
 }
 
 /*******************************************************************************
@@ -79,36 +89,39 @@ u8 isFileExist(char *filename)
 * Output         : None
 * Return         : read buffer len 
 *******************************************************************************/
-u16 ReadFile(char *readfilename, u8 *buffer)
+u16 ReadFile(char *readfilename, u8 buffer[])
 {
     FIL* fp1;
     FRESULT res = FR_NO_FILE;
     u8 *tempbuf;
-    u16 bread = 0;
-    u16 offx = 0;
+    u16 bread = 0u;
+    u16 offx = 0u;
     u16 i;
     
     fp1 = (FIL*)mymalloc(sizeof(FIL));		
-    tempbuf = mymalloc(512);
+    tempbuf = mymalloc(512u);
     
     
-    if( fp1 != NULL && tempbuf != NULL )
+    if( (fp1 != NULL) && (tempbuf != NULL) )
     {
         
         res = f_open( fp1, readfilename, FA_READ );       
         
         while( res == FR_OK )
         {
-            res = f_read( fp1, tempbuf, 512, (UINT *)&bread );		
-            if( res != FR_OK )break;
+            res = f_read( fp1, tempbuf, 512u, (UINT *)&bread );		
+            if( res != FR_OK )
+            {
+                break;
+            }
             
-            for( i = 0; i < bread; i++ )
+            for( i = 0u; i < bread; i++ )
             {
                 buffer[ offx + i ] = tempbuf[i];
             }
 	  
             offx += bread;
-            if( bread != 512 )
+            if( bread != 512u )
             {              
                 break;					
             }
@@ -140,13 +153,13 @@ u8 CopyFile(char *readfilename, char *newfilename)
     FRESULT res = FR_NO_FILE;
     u8 *tempbuf;
     u16 bread;
-    u32 offx=0;
+    u32 offx = 0u;
     
     fp1 = (FIL*)mymalloc(sizeof(FIL));	
     fp2 = (FIL*)mymalloc(sizeof(FIL));	
-    tempbuf = mymalloc(1024);
+    tempbuf = mymalloc(1024u);
         
-    if(fp1 != NULL && fp2 != NULL && tempbuf != NULL)
+    if( (fp1 != NULL) && (fp2 != NULL) && (tempbuf != NULL))
     {
         
         res = f_open(fp1,readfilename,FA_READ);       
@@ -154,11 +167,14 @@ u8 CopyFile(char *readfilename, char *newfilename)
         
         while(res==FR_OK)
         {
-            res = f_read(fp1,tempbuf,1024,(UINT *)&bread);		
-            if(res != FR_OK)break;					
+            res = f_read(fp1,tempbuf,1024u,(UINT *)&bread);		
+            if(res != FR_OK)
+            {
+                break;					
+            }
             res = f_write(fp2,tempbuf,bread,&offx);	  
             offx += bread;
-            if( bread != 1024 )
+            if( bread != 1024u )
             {                
                 break;					
             }

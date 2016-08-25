@@ -32,20 +32,22 @@
 #if 1
 void Communication_To_Control(void)
 {
-    static u8 can1_comm_timeout = 0;
+    static u8 can1_comm_timeout = 0u;
     u8 result;
     
-    if( can1_receive == 1 )
+    if( can1_receive == 1u )
     {
-        can1_receive = 0;
-        can1_comm_timeout = 0;
-        EN_ERROR7 &= ~0x04;
+        can1_receive = 0u;
+        can1_comm_timeout = 0u;
+        EN_ERROR7 &= ~0x04u;
     }
-    else if( ++can1_comm_timeout >= 3 )
+    else if( ++can1_comm_timeout >= 3u )
     {
         /*  can communication timeout process */
-        EN_ERROR7 |= 0x04;
-    }   
+        EN_ERROR7 |= 0x04u;
+    }  
+    else
+    {}
     
     result = Can_Send_Msg(CAN1, CAN1TX_SAFETY_DATA_ID, pcEscDataToControl, CAN_FRAME_LEN ); 
     if( result )

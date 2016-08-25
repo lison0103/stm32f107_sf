@@ -18,9 +18,9 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
-#define ESC_RECORD_ADR 0
-#define ESC_BACKUP_ADR 1024
-#define ESC_RECORD_NUM 1020
+#define ESC_RECORD_ADR 0u
+#define ESC_BACKUP_ADR 1024u
+#define ESC_RECORD_NUM 1020u
 
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -34,57 +34,57 @@
 * Output         : None
 * Return         : 0: success   1: fail
 *******************************************************************************/
-u8 fram_data_read(u8 Adr, u8 len, u8 *ReadData)
+u8 fram_data_read(u16 Adr, u16 len, u8 ReadData[])
 {
     u16 i;
     u8 Fram_Data[ESC_RECORD_NUM] = {0};
     u8 Fram_Data_Backup[ESC_RECORD_NUM] = {0};
-    u8 errorflag = 0,result = 0;
+    u8 errorflag = 0u,result = 0u;
         
     if(!eeprom_read(Adr, len, Fram_Data))
     {
         if(!MB_CRC16(Fram_Data, len))
         {
-            delay_ms(10);
+            delay_ms(10u);
             
             if(!eeprom_read(ESC_BACKUP_ADR + Adr, len, Fram_Data_Backup))
             {
                 if(!MB_CRC16(Fram_Data_Backup, len))
                 {
                     
-                    for( i = 0; i < len; i++ )
+                    for( i = 0u; i < len; i++ )
                     {
                         result = Fram_Data[i]^Fram_Data_Backup[i];
                         if( result )
                         {
-                            errorflag = 1;
+                            errorflag = 1u;
                             break;
                         }                
                     }
                 } 
                 else
                 {
-                    errorflag = 1;
+                    errorflag = 1u;
                 }
             }
             else
             {
-                errorflag = 1;
+                errorflag = 1u;
             }
         } 
         else
         {
-            errorflag = 1;
+            errorflag = 1u;
         }
     }   
     else
     {
-        errorflag = 1;
+        errorflag = 1u;
     }  
     
-    if( errorflag == 0 )
+    if( errorflag == 0u )
     {
-        for( i = 0; i < len; i++ )
+        for( i = 0u; i < len; i++ )
         {
             ReadData[i] = Fram_Data[i];
         }
@@ -100,13 +100,13 @@ u8 fram_data_read(u8 Adr, u8 len, u8 *ReadData)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void fram_data_write(u8 Adr, u8 len, u8 *WriteData)
+void fram_data_write(u16 Adr, u16 len, u8 WriteData[])
 {
     u16 i;
         
-    i = MB_CRC16( WriteData, len - 2 );
-    WriteData[len - 2] = i;
-    WriteData[len - 1] = i >> 8;
+    i = MB_CRC16( WriteData, len - 2u );
+    WriteData[len - 2u] = (u8)i;
+    WriteData[len - 1u] = (u8)(i >> 8u);
     
     eeprom_write(Adr, len, WriteData);
     
@@ -126,9 +126,9 @@ void fram_data_write(u8 Adr, u8 len, u8 *WriteData)
 *******************************************************************************/
 void esc_data_check(void)
 {
-    u16 i,j = 0;
-    u8 result = 0;
-    u8 errorflag = 0;
+    u16 i,j = 0u;
+    u8 result = 0u;
+    u8 errorflag = 0u;
     u8 Fram_Data[ESC_RECORD_NUM] = {0};
     u8 Fram_Data_Backup[ESC_RECORD_NUM] = {0};
     
@@ -138,19 +138,19 @@ void esc_data_check(void)
         
         if(!MB_CRC16(Fram_Data, ESC_RECORD_NUM))
         {
-            delay_ms(10);
+            delay_ms(10u);
             
             if(!eeprom_read(ESC_BACKUP_ADR, ESC_RECORD_NUM, Fram_Data_Backup))
             {
                 if(!MB_CRC16(Fram_Data_Backup, ESC_RECORD_NUM))
                 {
                     
-                    for(i = 0; i < ESC_RECORD_NUM; i++)
+                    for(i = 0u; i < ESC_RECORD_NUM; i++)
                     {
                         result = Fram_Data[i]^Fram_Data_Backup[i];
                         if( result )
                         {
-                            errorflag = 1;
+                            errorflag = 1u;
                             break;
                         }
                         
@@ -158,44 +158,44 @@ void esc_data_check(void)
                 } 
                 else
                 {
-                    errorflag = 1;
+                    errorflag = 1u;
                 }
             }
             else
             {
-                errorflag = 1;
+                errorflag = 1u;
             }
         }  
         else
         {
-            errorflag = 1;
+            errorflag = 1u;
         }  
     }
     else
     {
-        errorflag = 1;
+        errorflag = 1u;
     }
     
     if(errorflag)
     {
         /* eeprom init first time */
-        Fram_Data[0] = 0xf1;
-        Fram_Data[1] = 0xf1;
+        Fram_Data[0] = 0xf1u;
+        Fram_Data[1] = 0xf1u;
         
-        for(i = 2; i < ESC_RECORD_NUM; i++)
+        for(i = 2u; i < ESC_RECORD_NUM; i++)
         {
-            Fram_Data[i] = 0;
+            Fram_Data[i] = 0u;
         }  
 
-        i = MB_CRC16( Fram_Data, ESC_RECORD_NUM - 2 );
-        Fram_Data[ESC_RECORD_NUM - 2] = i;
-        Fram_Data[ESC_RECORD_NUM - 1] = i >> 8;
+        i = MB_CRC16( Fram_Data, ESC_RECORD_NUM - 2u );
+        Fram_Data[ESC_RECORD_NUM - 2u] = (u8)i;
+        Fram_Data[ESC_RECORD_NUM - 1u] = (u8)(i >> 8u);
         
         eeprom_write(ESC_RECORD_ADR, ESC_RECORD_NUM, Fram_Data);
         
         eeprom_write(ESC_BACKUP_ADR, ESC_RECORD_NUM, Fram_Data); 
         
-        if( j == 0xf1f1 )
+        if( j == 0xf1f1u )
         {
             ESC_Fram_Error_Process();
         }

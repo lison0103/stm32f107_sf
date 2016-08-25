@@ -15,15 +15,15 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /** Memory parameter settings **/
-#define MEM_BLOCK_SIZE			( 32 ) 	  						//Memory block size
-#define MEM_MAX_SIZE			( 13 * 1024 )          				        //Maximum Memory Management
-#define MEM_ALLOC_TABLE_SIZE	( MEM_MAX_SIZE / MEM_BLOCK_SIZE )	                        //Memory size table
+#define MEM_BLOCK_SIZE			( 32u ) 	  						/* Memory block size */
+#define MEM_MAX_SIZE			( 13u * 1024u )          				        /* Maximum Memory Management */
+#define MEM_ALLOC_TABLE_SIZE	( MEM_MAX_SIZE / MEM_BLOCK_SIZE )	                        /* Memory size table */
 
 /* Private variables ---------------------------------------------------------*/
-#pragma pack(push) //memory size table 
-#pragma pack(4)//Is set to 4-byte alignment  
-__no_init u8 membase[MEM_MAX_SIZE]; //Internal RAM memory pool  
-#pragma pack(pop)//Restore the alignment
+#pragma pack(push) /* memory size table */
+#pragma pack(4)/* Is set to 4-byte alignment */ 
+__no_init u8 membase[MEM_MAX_SIZE]; /* Internal RAM memory pool  */
+#pragma pack(pop)/* Restore the alignment */
 /* Memory management table */
 u16 memmapbase[MEM_ALLOC_TABLE_SIZE];			
 /* Memory management parameters */	   
@@ -61,8 +61,12 @@ struct _m_mallco_dev mallco_dev=
 void mymemcpy(void *des,void *src,u32 n)  
 {  
     u8 *xdes=des;
-	u8 *xsrc=src; 
-    while(n--)*xdes++=*xsrc++;  
+    u8 *xsrc=src; 
+    
+    while(n--)
+    {
+        *xdes++=*xsrc++;  
+    }
 }  
 
 
@@ -78,8 +82,12 @@ void mymemcpy(void *des,void *src,u32 n)
 *******************************************************************************/ 
 void mymemset(void *s,u8 c,u32 count)  
 {  
-    u8 *xs = s;  
-    while(count--)*xs++=c;  
+    u8 *xs = s;
+    
+    while(count--)
+    {
+        *xs++=c;  
+    }
 }	
 
 
@@ -94,9 +102,9 @@ void mymemset(void *s,u8 c,u32 count)
 *******************************************************************************/ 
 void mmem_init(void)  
 {  
-    mymemset(mallco_dev.memmap, 0,memtblsize*2); 
-    mymemset(mallco_dev.membase, 0,memsize);	 
-    mallco_dev.memrdy=1;						 
+    mymemset(mallco_dev.memmap, 0u,memtblsize*2u); 
+    mymemset(mallco_dev.membase, 0u,memsize);	 
+    mallco_dev.memrdy = 1u;						 
 }  
 
 /*******************************************************************************
@@ -111,11 +119,14 @@ void mmem_init(void)
 
 u8 mem_perused(void)  
 {  
-    u32 used=0;  
+    u32 used=0u;  
     u32 i;  
-    for(i=0;i<memtblsize;i++)  
+    for(i=0u;i<memtblsize;i++)  
     {  
-        if(mallco_dev.memmap[i])used++; 
+        if(mallco_dev.memmap[i])
+        {
+            used++; 
+        }
     } 
     return (used*100)/(memtblsize);  
 }  
@@ -133,28 +144,47 @@ u8 mem_perused(void)
 u32 mmem_malloc(u32 size)  
 {  
     signed long offset=0;  
-    u16 nmemb;	
-    u16 cmemb=0;
-    u32 i;  
+    u32 nmemb;	
+    u16 cmemb=0u;
+    u32 i;
+    u32 result = 0XFFFFFFFFu;
     
-    if(!mallco_dev.memrdy)mallco_dev.init();	
-    if(size==0)return 0XFFFFFFFF;				
-    nmemb=size/memblksize;  					
-    if(size%memblksize)nmemb++;  
-    for(offset=memtblsize-1;offset>=0;offset--)	  
-    {     
-        if(!mallco_dev.memmap[offset])cmemb++;	
-        else cmemb=0;							
-        if(cmemb==nmemb)						
+    if(!mallco_dev.memrdy)
+    {
+        mallco_dev.init();	
+    }
+    if(size == 0u)
+    {	
+        result = 0XFFFFFFFFu;
+    }
+    else
+    {
+        nmemb=size/memblksize;  					
+        if(size%memblksize)
         {
-            for(i=0;i<nmemb;i++)  				
-            {  
-                mallco_dev.memmap[offset+i]=nmemb;  
-            }  
-            return (offset*memblksize);			
+            nmemb++;  
         }
-    }  
-    return 0XFFFFFFFF; 
+        for(offset=memtblsize-1;offset>=0;offset--)	  
+        {     
+            if(!mallco_dev.memmap[offset])
+            {
+                cmemb++;	
+            }
+            else 
+            {
+                cmemb = 0u;							
+            }
+            if(cmemb == nmemb)						
+            {
+                for(i=0u;i<nmemb;i++)  				
+                {  
+                    mallco_dev.memmap[offset+i]=nmemb;  
+                }  
+                result = (offset*memblksize);
+            }
+        } 
+    }
+    return result; 
 }  
 
 
@@ -170,21 +200,32 @@ u32 mmem_malloc(u32 size)
 u8 mmem_free(u32 offset)  
 {  
     int i;  
+    u8 result = 0u;
+    
     if(!mallco_dev.memrdy)
     {
         mallco_dev.init();    
-        return 1;
+        result = 1u;
     }  
-    if(offset<memsize) 
-    {  
-        int index=offset/memblksize;		
-        int nmemb=mallco_dev.memmap[index];	
-        for(i=0;i<nmemb;i++)  				
+    else
+    {
+        if(offset<memsize) 
         {  
-            mallco_dev.memmap[index+i]=0;  
+            int index=offset/memblksize;		
+            int nmemb=mallco_dev.memmap[index];	
+            for(i=0;i<nmemb;i++)  				
+            {  
+                mallco_dev.memmap[index+i] = 0u;  
+            }
+            result = 0u;
         }
-        return 0;  
-    }else return 2;
+        else 
+        {
+            result = 2u;
+        }
+    }
+    
+    return result;
 }  
 
 
@@ -201,9 +242,11 @@ void myfree(void *ptr)
 {  
     u32 offset;  
     
-    if(ptr==NULL)return;  
-    offset=(u32)ptr-(u32)mallco_dev.membase;  
-    mmem_free(offset);	     
+    if( ptr != 0 )
+    {       
+        offset=(u32)ptr-(u32)mallco_dev.membase;  
+        mmem_free(offset);	  
+    }
 }  
 
 
@@ -221,8 +264,14 @@ void *mymalloc(u32 size)
     u32 offset;  	
     
     offset=mmem_malloc(size);  	   				   
-    if(offset==0XFFFFFFFF)return NULL;  
-    else return (void*)((u32)mallco_dev.membase+offset);  
+    if( offset == 0XFFFFFFFFu )
+    {
+        return 0;  
+    }
+    else 
+    {
+        return (void*)((u32)mallco_dev.membase+offset);  
+    }
 }  
 
 
@@ -240,7 +289,10 @@ void *myrealloc(void *ptr,u32 size)
     u32 offset;  
     
     offset=mmem_malloc(size);  
-    if(offset==0XFFFFFFFF)return NULL;     
+    if( offset == 0XFFFFFFFFu )
+    {
+        return 0;     
+    }
     else  
     {  									   
         mymemcpy((void*)((u32)mallco_dev.membase+offset),ptr,size);	

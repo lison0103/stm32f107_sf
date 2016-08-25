@@ -680,7 +680,7 @@ void CAN2_TX_IRQHandler(void)
 * Output         : None
 * Return         : Length of the received data
 *******************************************************************************/   
-uint32_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, uint8_t buff[], uint8_t mlen)
+uint8_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, uint8_t buff[], uint8_t mlen)
 {
     uint8_t *pstr;
     uint32_t i = 0u,len = 0u;

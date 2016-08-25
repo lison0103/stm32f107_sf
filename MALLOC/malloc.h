@@ -17,19 +17,21 @@
 /* Exported types ------------------------------------------------------------*/
 struct _m_mallco_dev
 {
-	void (*init)(void);				//Memory Initialization
-	u8 (*perused)(void);		  	        //Memory Usage
-	u8  *membase;				        //Memory pool 
-	u16 *memmap; 					//Memory management, state table
-	u8  memrdy; 					//Memory management is ready
+	void (*init)(void);				/* Memory Initialization*/
+	u8 (*perused)(void);		  	        /*Memory Usage*/
+	u8  *membase;				        /*Memory pool */
+	u16 *memmap; 					/*Memory management, state table*/
+	u8  memrdy; 					/*Memory management is ready*/
 };
 extern struct _m_mallco_dev mallco_dev;	
 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
+/*
 #ifndef NULL
 #define NULL 0
 #endif
+*/
 
 /* Exported functions ------------------------------------------------------- */
 void mymemset(void *s,u8 c,u32 count);	

@@ -15,24 +15,27 @@
 IEC61508_InstCheck_struct InstCheckPOST_struct;
 IEC61508_InstCheck_struct InstCheckBIST_struct;
 
-//type_testResult iec61508_InstCheck_POST (void)
 type_testResult_t iec61508_InstCheck_POST (void)
 {
-  _TBB_Arithmetic();   //no ok  ->remove ADRL R0, ThumbFun + 1 Generate the branch address and the least significant bit is set to 1 ->ok
-  _ITT_Arithmetic();   //ok 
-  _DMB_Arithmetic();   //no ok  ->remove lock_mutex -> ok
-  _CMP_Arithmetic();  //ok
-  _BIT_Arithmetic();  //ok
-  _STMDB_LDMIA();
-  _InstCheckPOST();
-  if (InstCheckPOST_struct.Instr_Err_Cnt >= IEC61508_testPassed) return (IEC61508_testFailed);
-  return IEC61508_testPassed;
+    type_testResult_t testResult = IEC61508_testPassed;
+    
+    _TBB_Arithmetic();   
+    _ITT_Arithmetic();    
+    _DMB_Arithmetic();   
+    _CMP_Arithmetic();  
+    _BIT_Arithmetic();  
+    _STMDB_LDMIA();
+    _InstCheckPOST();
+    if (InstCheckPOST_struct.Instr_Err_Cnt >= IEC61508_testPassed)
+    {   
+        testResult = IEC61508_testFailed;
+    }
+    
+    return testResult;
 }
 
 void Check_Instruction_Set(void)
 {
-  //uint32_t instruction_err=0x0;
-  //uint32_t u16gvIndex=0x0;
   
   struct inst__type
   { 
@@ -64,9 +67,7 @@ i++;
   "ADD R0, R0, #0x0 \n"
   "CBZ R0, JNB_TEST \n"
     "NOP \n"
-//  "ADD inst__type.instruction_err, inst__type.instruction_err, #0x1" "\n\t" 
-  "JNB_TEST: \n"
-//  "ADD [bx]inst__type.u16gvIndex, #0x1"     
+  "JNB_TEST: \n"    
     "NOP \n"
   "MOV R0,#55H" "\n\t"                        /*MOVB*/
   "ADD R0, R0, #55H" "\n\t"                        /*ADDB*/

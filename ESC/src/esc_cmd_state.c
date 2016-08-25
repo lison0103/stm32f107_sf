@@ -21,6 +21,7 @@
 void key_run_detect(void);
 void en_key_check(void);
 void run_key_check(void);
+void CheckUpDown_Key(void);
 
 
 /*******************************************************************************
@@ -48,60 +49,80 @@ void CheckUpDown_Key(void)
 *******************************************************************************/
 void key_run_detect(void)
 {
-    static u16 key_on_tms = 0,key_up_tms = 0,key_down_tms = 0; 
-    static u16 auto_cmd_differ_tms=0;
+    static u16 key_on_tms = 0u,key_up_tms = 0u,key_down_tms = 0u; 
+    static u16 auto_cmd_differ_tms = 0u;
     
-    if(!(CMD_FLAG1 & 0x02) && ( sf_wdt_check_en == 0 ))
+    if( (!(CMD_FLAG1 & 0x02u)) && ( sf_wdt_check_en == 0u ))
     {   
-        if( ( CMD_FLAG6 & 0x03 ))
+        if( ( CMD_FLAG6 & 0x03u ))
         {
-            if( key_on_tms < 5000 ) key_on_tms++;
-            
-            if(CMD_FLAG6 & 0x01) 
+            if( key_on_tms < 5000u ) 
             {
-                if( key_up_tms < 5000 ) key_up_tms++;
+                key_on_tms++;
+            }
+            
+            if(CMD_FLAG6 & 0x01u) 
+            {
+                if( key_up_tms < 5000u ) 
+                {
+                    key_up_tms++;
+                }
             }		
             
-            if(CMD_FLAG6 & 0x02) 
+            if(CMD_FLAG6 & 0x02u) 
             {
-                if( key_down_tms < 5000 ) key_down_tms++;
+                if( key_down_tms < 5000u ) 
+                {
+                    key_down_tms++;
+                }
             }
         }
 
-        if((!(CMD_FLAG6 & 0x03)) && (key_on_tms * SYSTEMTICK >= 1500) && (key_on_tms * SYSTEMTICK < 6000)) 
+        if((!(CMD_FLAG6 & 0x03u)) && (key_on_tms * SYSTEMTICK >= 1500u) && (key_on_tms * SYSTEMTICK < 6000u)) 
         {
             if(key_on_tms == key_up_tms)  
             {
-                CMD_FLAG1 |= (1<<2)|(1<<1);
+                CMD_FLAG1 |= (1u<<2u)|(1u<<1u);
             }
             else if(key_on_tms == key_down_tms)  
             {
-                CMD_FLAG1 |= (1<<3)|(1<<1); 
+                CMD_FLAG1 |= (1u<<3u)|(1u<<1u); 
             }
+            else
+            {}
             
         }	
     }
 	
     
-    if( sf_wdt_check_en == 1 )
+    if( sf_wdt_check_en == 1u )
     {
-        key_on_tms = 0;	
-        key_up_tms=0;
-        key_down_tms=0;
+        key_on_tms = 0u;	
+        key_up_tms = 0u;
+        key_down_tms = 0u;
     }
     
-    if(!(CMD_FLAG6 & 0x03)) key_on_tms = 0;	
-    if(!(CMD_FLAG6 & 0x01)) key_up_tms=0;
-    if(!(CMD_FLAG6 & 0x02)) key_down_tms=0;
-
-    /* dual cpu check */
-    if( CMD_FLAG1 & 0x0E )
+    if(!(CMD_FLAG6 & 0x03u)) 
     {
-        if((CMD_FLAG1&0x0f) != (CMD_OMC_FLAG1&0x0f))
+        key_on_tms = 0u;	
+    }
+    if(!(CMD_FLAG6 & 0x01u))
+    {
+        key_up_tms = 0u;
+    }
+    if(!(CMD_FLAG6 & 0x02u)) 
+    {
+        key_down_tms = 0u;
+    }
+    
+    /* dual cpu check */
+    if( CMD_FLAG1 & 0x0Eu )
+    {
+        if((CMD_FLAG1&0x0fu) != (CMD_OMC_FLAG1&0x0fu))
         {
-            if(auto_cmd_differ_tms > 20)
+            if(auto_cmd_differ_tms > 20u)
             {
-                CMD_FLAG1 = 0;      
+                CMD_FLAG1 = 0u;      
             } 
             else
             {
@@ -110,12 +131,12 @@ void key_run_detect(void)
         }
         else
         {
-            auto_cmd_differ_tms = 0;
+            auto_cmd_differ_tms = 0u;
         }  
     }  
     else
     {
-        auto_cmd_differ_tms = 0;
+        auto_cmd_differ_tms = 0u;
     }  
       
 }
@@ -129,69 +150,69 @@ void key_run_detect(void)
 *******************************************************************************/
 void en_key_check(void)
 {
-    static u32 auto_running_tms=0,key_on_tms=0,key_off_tms=0,key_stop_tms=0;
+    static u32 auto_running_tms = 0u,key_on_tms = 0u,key_off_tms = 0u,key_stop_tms = 0u;
 
     
     /* has key signal */
-    if(CMD_FLAG6 & 0x03) 
+    if(CMD_FLAG6 & 0x03u) 
     {
-        if( key_on_tms * SYSTEMTICK < 10000 ) 
+        if( key_on_tms * SYSTEMTICK < 10000u ) 
         {
             key_on_tms++;
         }
         else
         {
             /* key stick */
-            EN_ERROR6 |= 0x40; 
+            EN_ERROR6 |= 0x40u; 
         }  
         
-        key_off_tms = 0;
+        key_off_tms = 0u;
     }
     else 
     {  
-        if( key_off_tms * SYSTEMTICK < 2000 ) 
+        if( key_off_tms * SYSTEMTICK < 2000u ) 
         {
             key_off_tms++;
         }
         else
         {
-            EN_ERROR6 &= ~0x40;  
+            EN_ERROR6 &= ~0x40u;  
         }
         
-        key_on_tms = 0;
+        key_on_tms = 0u;
     }
     
     /* escalator running, key stop escalator */
-    if(CMD_FLAG1 & 0x0c) 
+    if(CMD_FLAG1 & 0x0cu) 
     {
         /* 1 minute */
-        if(auto_running_tms * SYSTEMTICK < 60000) 
+        if(auto_running_tms * SYSTEMTICK < 60000u) 
         {
             auto_running_tms++;
         }
     }
     else
     {
-        auto_running_tms = 0;
+        auto_running_tms = 0u;
     }        
     
     /* after running 10s, 3s key signal */
-    if((key_on_tms * SYSTEMTICK == 3000) && (auto_running_tms * SYSTEMTICK > 10000)) 
+    if((key_on_tms * SYSTEMTICK == 3000u) && (auto_running_tms * SYSTEMTICK > 10000u)) 
     {
-        EN_ERROR6 |= 0x20; 
-        CMD_FLAG1 &= ~0x0e;
+        EN_ERROR6 |= 0x20u; 
+        CMD_FLAG1 &= ~0x0eu;
     }  
     
-    if(EN_ERROR6 & 0x20)
+    if(EN_ERROR6 & 0x20u)
     {
-        if( (key_stop_tms++)  * SYSTEMTICK > 2000 ) 
+        if( (key_stop_tms++)  * SYSTEMTICK > 2000u ) 
         {
-            EN_ERROR6 &= ~0x20;
+            EN_ERROR6 &= ~0x20u;
         }
     }  
     else
     {
-        key_stop_tms = 0; 
+        key_stop_tms = 0u; 
     }  
     
 }
@@ -210,41 +231,41 @@ void run_key_check(void)
     /* run up */  
     if((INPUT_PORT17_24 & INPUT_PORT21_MASK)) 
     {
-        CMD_FLAG6 |= 0x01;
+        CMD_FLAG6 |= 0x01u;
     }
     else
     {
-        CMD_FLAG6 &= ~0x01;
+        CMD_FLAG6 &= ~0x01u;
     }
     
     /* run down */
     if((INPUT_PORT17_24 & INPUT_PORT22_MASK)) 
     {
-        CMD_FLAG6 |= 0x02;
+        CMD_FLAG6 |= 0x02u;
     }
     else
     {
-        CMD_FLAG6 &= ~0x02;
+        CMD_FLAG6 &= ~0x02u;
     }
     
     /* inspect run up */
     if((INPUT_PORT17_24 & INPUT_PORT19_MASK)) 
     {
-        CMD_FLAG6 |= 0x04; 
+        CMD_FLAG6 |= 0x04u; 
     }
     else
     {
-        CMD_FLAG6 &= ~0x04; 
+        CMD_FLAG6 &= ~0x04u; 
     }
     
     /* inspect run down */
     if((INPUT_PORT17_24 & INPUT_PORT20_MASK)) 
     {
-        CMD_FLAG6 |= 0x08;
+        CMD_FLAG6 |= 0x08u;
     }
     else
     {
-        CMD_FLAG6 &= ~0x08;
+        CMD_FLAG6 &= ~0x08u;
     }
 }
 
@@ -258,30 +279,30 @@ void run_key_check(void)
 *******************************************************************************/
 void sfEscStateCheck(void)
 {
-    static u16 sf_running_tms,sf_stopping_tms = 0;
-    static u16 sf_reset_tms = 0;
-    static u8 key_on = 0;
+    static u16 sf_running_tms,sf_stopping_tms = 0u;
+    static u16 sf_reset_tms = 0u;
+    static u8 key_on = 0u;
     u8 i;
     
     
     if( (SfBase_EscState & ESC_STATE_READY) )
     {
-        key_on = 1;
+        key_on = 1u;
     }
     
     CheckUpDown_Key();
     
     /* esc running */
-    if( (CMD_FLAG1 & 0x0c) && (CMD_OMC_FLAG1 & 0x0c) && ( key_on == 1 ) )
+    if( (CMD_FLAG1 & 0x0cu) && (CMD_OMC_FLAG1 & 0x0cu) && ( key_on == 1u ) )
     {
-        SfBase_EscState &= ~ESC_STATE_STOP;
-        SfBase_EscState &= ~ESC_STATE_READY;
+        SfBase_EscState &= (u16)(~ESC_STATE_STOP);
+        SfBase_EscState &= (u16)(~ESC_STATE_READY);
         
         SfBase_EscState |= ESC_STATE_RUNNING;
         
         SfBase_EscState |= ESC_STATE_NORMAL;
         
-        if(( (sf_running_tms * SYSTEMTICK) > 2500 ) && (*(MTRITEM[0].ptFreqBuff) > MIN_SPEED ) && (*(MTRITEM[1].ptFreqBuff) > MIN_SPEED ))
+        if(( (sf_running_tms * SYSTEMTICK) > 2500u ) && (*(MTRITEM[0].ptFreqBuff) > MIN_SPEED ) && (*(MTRITEM[1].ptFreqBuff) > MIN_SPEED ))
         {
             SfBase_EscState |= ESC_STATE_SPEEDUP;
         }
@@ -295,23 +316,23 @@ void sfEscStateCheck(void)
             sf_running_tms++;
         }
         
-        sf_stopping_tms = 0;
+        sf_stopping_tms = 0u;
         
-        sf_reset_tms = 0;
+        sf_reset_tms = 0u;
     }
     else
     {
-        SfBase_EscState &= ~ESC_STATE_RUNNING;
-        SfBase_EscState &= ~ESC_STATE_SPEEDUP;
-        SfBase_EscState &= ~ESC_STATE_RUN5S;
+        SfBase_EscState &= (u16)(~ESC_STATE_RUNNING);
+        SfBase_EscState &= (u16)(~ESC_STATE_SPEEDUP);
+        SfBase_EscState &= (u16)(~ESC_STATE_RUN5S);
         
-        SfBase_EscState &= ~ESC_STATE_NORMAL;
+        SfBase_EscState &= (u16)(~ESC_STATE_NORMAL);
         
         SfBase_EscState |= ESC_STATE_STOP;
         
-        key_on = 0;
+        key_on = 0u;
         
-        if(( (sf_stopping_tms * SYSTEMTICK) > 3000 ) && (MTRITEM[0].rt_brake_stop == 1) && (MTRITEM[1].rt_brake_stop == 1) )
+        if(( (sf_stopping_tms * SYSTEMTICK) > 3000u ) && (MTRITEM[0].rt_brake_stop == 1u) && (MTRITEM[1].rt_brake_stop == 1u) )
         {
             SfBase_EscState |= ESC_STATE_READY;
         }
@@ -321,20 +342,20 @@ void sfEscStateCheck(void)
         }
         
         /* for test reset the value-------------------------------------*/
-        if( (sf_reset_tms * SYSTEMTICK) > 20000 )
+        if( (sf_reset_tms * SYSTEMTICK) > 20000u )
         {
-            for( i = 30; i < 200; i++ )
+            for( i = 30u; i < 200u; i++ )
             {
-                EscRTBuff[i] = 0;
+                EscRTBuff[i] = 0u;
             }
-            sf_reset_tms = 0;
+            sf_reset_tms = 0u;
         }
         else
         {
             sf_reset_tms++;
         }
         
-        sf_running_tms = 0;
+        sf_running_tms = 0u;
         
         
     }

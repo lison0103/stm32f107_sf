@@ -61,7 +61,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx);
 u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8 msg[],u8 len);			
 u8 Can_Receive_Msg(CAN_TypeDef* CANx,u8 buf[]);					
 void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_t send_id, uint8_t buff[], uint8_t len);
-uint32_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, uint8_t buff[],uint8_t mlen);
+uint8_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, uint8_t buff[],uint8_t mlen);
 
 /* CAN1 */
 extern u8 CAN1_TX_Data[canbuffsize];

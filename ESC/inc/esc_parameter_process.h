@@ -17,28 +17,28 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-#define MESSAGE_TO_CPU      0x11
-#define MESSAGE_TO_CONTROL      0x22
-#define USB_DETECTED        0x01
-#define USB_NOT_DETECTED        0x02
-#define SAFETY_PARAMETER_LOADED        0x10
-#define CONTROL_PARAMETER_LOADED        0x20
-#define PARAMETER_ERROR        0x03
-#define PARAMETER_CORRECT        0x04
-#define SAFETY_PARAMETER_NOT_EXIST        0x05
-#define CONTROL_PARAMETER_NOT_EXIST        0x06
-#define SAFETY_PARAMETER_EXIST        0x07
-#define CONTROL_PARAMETER_EXIST        0x08
-#define SEND_PARAMETER        0x09
-#define RECEIVE_PARAMETER        0x0A
-#define PARAMETER_LOADED_FINSH        0x0B
+#define MESSAGE_TO_CPU      0x11u
+#define MESSAGE_TO_CONTROL      0x22u
+#define USB_DETECTED        0x01u
+#define USB_NOT_DETECTED        0x02u
+#define SAFETY_PARAMETER_LOADED        0x10u
+#define CONTROL_PARAMETER_LOADED        0x20u
+#define PARAMETER_ERROR        0x03u
+#define PARAMETER_CORRECT        0x04u
+#define SAFETY_PARAMETER_NOT_EXIST        0x05u
+#define CONTROL_PARAMETER_NOT_EXIST        0x06u
+#define SAFETY_PARAMETER_EXIST        0x07u
+#define CONTROL_PARAMETER_EXIST        0x08u
+#define SEND_PARAMETER        0x09u
+#define RECEIVE_PARAMETER        0x0Au
+#define PARAMETER_LOADED_FINSH        0x0Bu
 
-#define ESC_PARA_ADR 20
-#define ESC_PARA_NUM 100
+#define ESC_PARA_ADR 20u
+#define ESC_PARA_NUM 100u
 
 /* Exported functions ------------------------------------------------------- */
 void ParametersLoading(void);
-u8 Send_State_Message(u8 board, u8 state, u8 *buff, u8 len);
+u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len);
 
 #endif  /* __ESC_PARAMETER_PROCESS_H */
 

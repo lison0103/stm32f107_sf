@@ -58,7 +58,7 @@
 /---------------------------------------------------------------------------*/
 
 #define _CODE_PAGE	437
-//936		//采用中文GBK编码
+/* 936		Chinese GBK encoding using */
 /* The _CODE_PAGE specifies the OEM code page to be used on the target system.
 /  Incorrect setting of the code page can cause a file open failure.
 /
@@ -134,7 +134,7 @@
 / Drive/Volume Configurations
 /---------------------------------------------------------------------------*/
 
-#define _VOLUMES	1 	//支持1个磁盘
+#define _VOLUMES	1 	/* support 1 disk */
 /* Number of volumes (logical drives) to be used. */
 
 

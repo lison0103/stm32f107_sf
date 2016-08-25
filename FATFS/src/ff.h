@@ -241,8 +241,8 @@ TCHAR* f_gets (TCHAR* buff, int len, FIL* fp);						/* Get a string from the fil
 #define f_tell(fp) ((fp)->fptr)
 #define f_size(fp) ((fp)->fsize)
 
-FRESULT dir_sdi (DIR *dp,UINT idx);					//此处为自行添加的,用于方便查找上一个文件.
-void ff_enter(FATFS *fs);							//在diskio.c实现
+FRESULT dir_sdi (DIR *dp,UINT idx);					
+void ff_enter(FATFS *fs);							
 void ff_leave(FATFS* fs);
 #ifndef EOF
 #define EOF (-1)
@@ -286,12 +286,12 @@ int ff_del_syncobj (_SYNC_t sobj);				/* Delete a sync object */
 
 /* File access control and file status flags (FIL.flag) */
 
-#define	FA_READ				0x01
+#define	FA_READ				0x01u
 #define	FA_OPEN_EXISTING	0x00
 
 #if !_FS_READONLY
-#define	FA_WRITE			0x02
-#define	FA_CREATE_NEW		0x04
+#define	FA_WRITE			0x02u
+#define	FA_CREATE_NEW		0x04u
 #define	FA_CREATE_ALWAYS	0x08
 #define	FA_OPEN_ALWAYS		0x10
 #define FA__WRITTEN			0x20

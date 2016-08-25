@@ -23,6 +23,15 @@ typedef struct {
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+type_testResult_t PWRReg_Check(void);
+type_testResult_t RCCReg_Check(void);
+type_testResult_t EXTIReg_Check(void);
+type_testResult_t DMAReg_Check(void);
+type_testResult_t TIMReg_Check(void);
+type_testResult_t CANReg_Check(void);
+type_testResult_t SPIReg_Check(void);
+type_testResult_t USARTReg_Check(void);
+
 
 GPIO_InitTypeDef   GPIO_InitStructure;
 ErrorStatus HSEStartUpStatus;
@@ -36,17 +45,18 @@ IEC61508_ConfCheck_struct  ConfigReg_Check;
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-int PWRReg_Check(void)
+type_testResult_t PWRReg_Check(void)
 {
-      uint32_t ReadRegVal = 0x00000000;
+      type_testResult_t testResult = IEC61508_testPassed;
+      uint32_t ReadRegVal = 0x00000000u;
       
       ReadRegVal |= ( PWR_CR_DBP | PWR_CR_PVDE );
       if ( ( ReadRegVal & PWR->CR ) != ReadRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }    
 
-      return IEC61508_testPassed;
+      return testResult;
 }
 
 
@@ -57,21 +67,22 @@ int PWRReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-int RCCReg_Check(void)
+type_testResult_t RCCReg_Check(void)
 {
-      uint32_t ReadRegVal = 0x00000000;
-      uint32_t SetRegVal = 0x00000000; 
+      type_testResult_t testResult = IEC61508_testPassed;
+      uint32_t ReadRegVal = 0x00000000u;
+      uint32_t SetRegVal = 0x00000000u; 
       
       /* RCC_CR register */
       ReadRegVal |= ( RCC_CR_PLLON | RCC_CR_CSSON | RCC_CR_HSEON );
       if ( ( ReadRegVal & RCC->CR ) != ReadRegVal )  
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }    
 
       /* RCC_CFGR register */
-      ReadRegVal = 0x00000000;
-      SetRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
+      SetRegVal = 0x00000000u;
       ReadRegVal |= ( RCC_CFGR_HPRE | RCC_CFGR_PPRE1 | RCC_CFGR_PPRE2 
 #ifdef GEC_SF_MASTER
                   | RCC_CFGR_PLLSRC_PREDIV1 
@@ -96,59 +107,59 @@ int RCCReg_Check(void)
                   | RCC_CFGR_PLLMULL9 );
       if ( ( ReadRegVal &= RCC->CFGR ) != SetRegVal ) 
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
 
 #ifdef GEC_SF_S_NEW
 
       /* RCC_AHBENR register */
-      ReadRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
       ReadRegVal |= ( RCC_AHBENR_DMA1EN | RCC_AHBENR_CRCEN | RCC_AHBENR_GPIOAEN
                    | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN
                      | RCC_AHBENR_GPIOEEN );
       if( ( ReadRegVal & RCC->AHBENR ) != ReadRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
      
       /* RCC_APB2ENR register */
-      ReadRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
       ReadRegVal |= ( RCC_APB2ENR_SYSCFGEN | RCC_APB2ENR_SPI1EN ); 
       if( ( ReadRegVal & RCC->APB2ENR ) != ReadRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
 
       /* RCC_APB1ENR register */
-      ReadRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
       ReadRegVal |= ( RCC_APB1ENR_PWREN | RCC_APB1ENR_CAN1EN
                      | RCC_APB1ENR_TIM2EN | RCC_APB1ENR_TIM4EN );                      
       if( ( ReadRegVal & RCC->APB1ENR ) != ReadRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }       
 
 #else      
       /* RCC_AHBENR register */
-      ReadRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
       ReadRegVal |= ( RCC_AHBENR_DMA1EN | RCC_AHBENR_CRCEN );
       if( ( ReadRegVal & RCC->AHBENR ) != ReadRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
      
       /* RCC_APB2ENR register */
-      ReadRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
       ReadRegVal |= ( RCC_APB2ENR_AFIOEN | RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN
                      | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN | RCC_APB2ENR_IOPEEN
                      | RCC_APB2ENR_SPI1EN );
       if( ( ReadRegVal & RCC->APB2ENR ) != ReadRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
 
       /* RCC_APB1ENR register */
-      ReadRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
       ReadRegVal |= ( RCC_APB1ENR_BKPEN | RCC_APB1ENR_PWREN | RCC_APB1ENR_CAN1EN
 #ifdef GEC_SF_MASTER                      
                      | RCC_APB1ENR_TIM3EN | RCC_APB1ENR_CAN2EN
@@ -156,11 +167,11 @@ int RCCReg_Check(void)
                      | RCC_APB1ENR_TIM2EN | RCC_APB1ENR_TIM4EN );                      
       if( ( ReadRegVal & RCC->APB1ENR ) != ReadRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }      
 #endif
       
-      return IEC61508_testPassed;
+      return testResult;
 }
 
 /*******************************************************************************
@@ -170,12 +181,13 @@ int RCCReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-int EXTIReg_Check(void)
+type_testResult_t EXTIReg_Check(void)
 {
-      uint32_t ReadRegVal = 0x00000000;      
+      type_testResult_t testResult = IEC61508_testPassed;
+      uint32_t ReadRegVal = 0x00000000u;      
       
       /* EXTI_IMR register */
-      ReadRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
       ReadRegVal |= 
 #ifdef GEC_SF_MASTER
                   ( EXTI_IMR_MR0 | EXTI_IMR_MR1 );
@@ -184,11 +196,11 @@ int EXTIReg_Check(void)
 #endif
       if( ( ReadRegVal & EXTI->IMR ) != ReadRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
           
       
-      return IEC61508_testPassed;
+      return testResult;
 }
 
 /*******************************************************************************
@@ -198,63 +210,64 @@ int EXTIReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-int DMAReg_Check(void)
+type_testResult_t DMAReg_Check(void)
 {
-      uint32_t ReadRegVal = 0x00000000;
-      uint32_t SetRegVal = 0x00000000;      
+      type_testResult_t testResult = IEC61508_testPassed;
+      uint32_t ReadRegVal = 0x00000000u;
+      uint32_t SetRegVal = 0x00000000u;      
 
 #ifdef GEC_SF_S_NEW      
       /* DMA_CCR2 register */
-      ReadRegVal = 0x00000000;
-      SetRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
+      SetRegVal = 0x00000000u;
       ReadRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR_DIR | DMA_CCR_CIRC | DMA_CCR_PINC
                      | DMA_CCR_MINC | DMA_CCR_PSIZE | DMA_CCR_MSIZE 
                      | DMA_CCR_PL | DMA_CCR_MEM2MEM );
       SetRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR_MINC | DMA_CCR_PL_1 );
       if( ( ReadRegVal &= DMA1_Channel2->CCR ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
           
       /* DMA_CCR3 register */
-      ReadRegVal = 0x00000000;
-      SetRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
+      SetRegVal = 0x00000000u;
       ReadRegVal |= ( /*DMA_CCR3_TCIE |*/ DMA_CCR_DIR | DMA_CCR_CIRC | DMA_CCR_PINC
                      | DMA_CCR_MINC | DMA_CCR_PSIZE | DMA_CCR_MSIZE 
                      | DMA_CCR_PL | DMA_CCR_MEM2MEM );
       SetRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR_DIR | DMA_CCR_MINC );
       if( ( ReadRegVal &= DMA1_Channel3->CCR ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
 #else
       /* DMA_CCR2 register */
-      ReadRegVal = 0x00000000;
-      SetRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
+      SetRegVal = 0x00000000u;
       ReadRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR2_DIR | DMA_CCR2_CIRC | DMA_CCR2_PINC
                      | DMA_CCR2_MINC | DMA_CCR2_PSIZE | DMA_CCR2_MSIZE 
                      | DMA_CCR2_PL | DMA_CCR2_MEM2MEM );
       SetRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR2_MINC | DMA_CCR2_PL_1 );
       if( ( ReadRegVal &= DMA1_Channel2->CCR ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
           
       /* DMA_CCR3 register */
-      ReadRegVal = 0x00000000;
-      SetRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
+      SetRegVal = 0x00000000u;
       ReadRegVal |= ( /*DMA_CCR3_TCIE |*/ DMA_CCR3_DIR | DMA_CCR3_CIRC | DMA_CCR3_PINC
                      | DMA_CCR3_MINC | DMA_CCR3_PSIZE | DMA_CCR3_MSIZE 
                      | DMA_CCR3_PL | DMA_CCR3_MEM2MEM );
       SetRegVal |= ( /*DMA_CCR2_TCIE |*/ DMA_CCR3_DIR | DMA_CCR3_MINC );
       if( ( ReadRegVal &= DMA1_Channel3->CCR ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }      
       
 #endif
       
-      return IEC61508_testPassed;
+      return testResult;
 }
 
 
@@ -265,50 +278,51 @@ int DMAReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-int TIMReg_Check(void)
+type_testResult_t TIMReg_Check(void)
 {
-      uint32_t ReadRegVal = 0x00000000;
-      uint32_t SetRegVal = 0x00000000;      
+      type_testResult_t testResult = IEC61508_testPassed;
+      uint32_t ReadRegVal = 0x00000000u;
+      uint32_t SetRegVal = 0x00000000u;      
       
       /* TIM_CR1 register */
-      ReadRegVal = 0x00000000;
-      SetRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
+      SetRegVal = 0x00000000u;
       ReadRegVal |= ( TIM_CR1_CEN | TIM_CR1_DIR | TIM_CR1_CKD );
       SetRegVal |= ( TIM_CR1_CEN );
       if( ( ReadRegVal &= TIM2->CR1 ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
 #ifdef GEC_SF_MASTER      
       if( ( ReadRegVal &= TIM3->CR1 ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }  
 #endif
       if( ( ReadRegVal &= TIM4->CR1 ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
           
       /* TIM_DIER register */
-      ReadRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
       ReadRegVal |= ( TIM_DIER_UIE );
       if( ( ReadRegVal & TIM2->DIER ) != ReadRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
 #ifdef GEC_SF_MASTER      
       if( ( ReadRegVal & TIM3->DIER ) != ReadRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
 #endif
       if( ( ReadRegVal & TIM4->DIER )  != ReadRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
       
-      return IEC61508_testPassed;
+      return testResult;
 }
 
 /*******************************************************************************
@@ -318,29 +332,30 @@ int TIMReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-int CANReg_Check(void)
+type_testResult_t CANReg_Check(void)
 {
-      uint32_t ReadRegVal = 0x00000000;
-      uint32_t SetRegVal = 0x00000000;      
+      type_testResult_t testResult = IEC61508_testPassed;
+      uint32_t ReadRegVal = 0x00000000u;
+      uint32_t SetRegVal = 0x00000000u;      
       
       /* CAN_MCR register */
-      ReadRegVal = 0x00000000;
-      SetRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
+      SetRegVal = 0x00000000u;
       ReadRegVal |= ( CAN_MCR_TXFP | CAN_MCR_RFLM | CAN_MCR_NART | CAN_MCR_AWUM
                     | CAN_MCR_ABOM | CAN_MCR_TTCM );
-//      SetRegVal |= ( CAN_MCR_NART );
+/*      SetRegVal |= ( CAN_MCR_NART );*/
       if( ( ReadRegVal &= CAN1->MCR ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
 #ifdef GEC_SF_MASTER      
       if( ( ReadRegVal &= CAN2->MCR ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }  
 #endif
       
-      return IEC61508_testPassed;
+      return testResult;
 }
 
 /*******************************************************************************
@@ -350,15 +365,16 @@ int CANReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-int SPIReg_Check(void)
+type_testResult_t SPIReg_Check(void)
 {
-      uint32_t ReadRegVal = 0x00000000;
-      uint32_t SetRegVal = 0x00000000;      
+      type_testResult_t testResult = IEC61508_testPassed;
+      uint32_t ReadRegVal = 0x00000000u;
+      uint32_t SetRegVal = 0x00000000u;      
 
 #ifdef GEC_SF_S_NEW       
       /* SPI_CR1 register */
-      ReadRegVal = 0x00000000;
-      SetRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
+      SetRegVal = 0x00000000u;
       ReadRegVal |= ( SPI_CR1_CPHA | SPI_CR1_CPOL | SPI_CR1_MSTR | SPI_CR1_SPE
                     | SPI_CR1_LSBFIRST | SPI_CR1_SSM | SPI_CR1_RXONLY 
                     | SPI_CR1_CRCEN | SPI_CR1_BIDIMODE);
@@ -370,19 +386,19 @@ int SPIReg_Check(void)
       }
 
       /* SPI_CR2 register */
-      ReadRegVal = 0x00000000;
-      SetRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
+      SetRegVal = 0x00000000u;
       ReadRegVal |= ( SPI_CR2_DS );
       SetRegVal |= ( SPI_CR2_DS_0 | SPI_CR2_DS_1 | SPI_CR2_DS_2 );
 
       if( ( ReadRegVal &= SPI1->CR2 ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }      
 #else
       /* SPI_CR1 register */
-      ReadRegVal = 0x00000000;
-      SetRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
+      SetRegVal = 0x00000000u;
       ReadRegVal |= ( SPI_CR1_CPHA | SPI_CR1_CPOL | SPI_CR1_MSTR | SPI_CR1_SPE
                     | SPI_CR1_LSBFIRST | SPI_CR1_SSM | SPI_CR1_RXONLY 
                     | SPI_CR1_DFF | SPI_CR1_CRCEN | SPI_CR1_BIDIMODE);
@@ -393,12 +409,12 @@ int SPIReg_Check(void)
                     | SPI_CR1_SSM | SPI_CR1_CRCEN );
       if( ( ReadRegVal &= SPI1->CR1 ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }      
       
 #endif
       
-      return IEC61508_testPassed;
+      return testResult;
 }
 
 /*******************************************************************************
@@ -408,24 +424,25 @@ int SPIReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-int USARTReg_Check(void)
+type_testResult_t USARTReg_Check(void)
 {
-      uint32_t ReadRegVal = 0x00000000;
-      uint32_t SetRegVal = 0x00000000;      
+      type_testResult_t testResult = IEC61508_testPassed;
+      uint32_t ReadRegVal = 0x00000000u;
+      uint32_t SetRegVal = 0x00000000u;      
       
       /* USART_CR1 register */
-      ReadRegVal = 0x00000000;
-      SetRegVal = 0x00000000;
+      ReadRegVal = 0x00000000u;
+      SetRegVal = 0x00000000u;
       ReadRegVal |= ( USART_CR1_RE | USART_CR1_TE | USART_CR1_PCE
                     | USART_CR1_M | USART_CR1_UE );
       SetRegVal |= ( USART_CR1_RE | USART_CR1_TE | USART_CR1_UE );
       if( ( ReadRegVal &= USART3->CR1 ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
 
       
-      return IEC61508_testPassed;
+      return testResult;
 }
 
 /*******************************************************************************
@@ -437,10 +454,11 @@ int USARTReg_Check(void)
 *******************************************************************************/
 type_testResult_t ConfigurationRegister_Check(void)
 {       
-  
-       ConfigReg_Check.Conf_Pass_Cnt = 0;
-       ConfigReg_Check.Conf_Err_Cnt = 0;
+       type_testResult_t testResult = IEC61508_testPassed;
        
+       ConfigReg_Check.Conf_Pass_Cnt = 0u;
+       ConfigReg_Check.Conf_Err_Cnt = 0u;
+        
       
       /*  CRC  Register Check */  
       /*  PWR  Register Check */
@@ -542,14 +560,12 @@ type_testResult_t ConfigurationRegister_Check(void)
       
       
       
-      if( ConfigReg_Check.Conf_Err_Cnt >= 1 ) 
+      if( ConfigReg_Check.Conf_Err_Cnt >= 1u ) 
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
-      else
-      {
-          return IEC61508_testPassed;
-      }
+      
+      return testResult;
 }
 
 
@@ -609,7 +625,7 @@ void RCC_Configuration_72M(void)
 
      RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK); 
 
-     while (RCC_GetSYSCLKSource() != 0x08) 
+     while (RCC_GetSYSCLKSource() != 0x08u) 
      {} 
   } 
   /* Enable or disable clock security system */
@@ -626,7 +642,6 @@ void RCC_Configuration_72M(void)
 *******************************************************************************/
 void RCC_Configuration_8M(void)
 {
-//  SystemInit();
  
   /* RCC system reset(for debug purpose) */
   RCC_DeInit();
@@ -639,11 +654,6 @@ void RCC_Configuration_8M(void)
 
   if (HSEStartUpStatus == SUCCESS)
   {
-    /* Enable Prefetch Buffer */
-    //FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);
-
-    /* Flash 0 wait state */
-    //FLASH_SetLatency(FLASH_Latency_0);
 
     /* HCLK = SYSCLK */
     RCC_HCLKConfig(RCC_SYSCLK_Div1);
@@ -658,7 +668,7 @@ void RCC_Configuration_8M(void)
     RCC_SYSCLKConfig(RCC_SYSCLKSource_HSE);
 
     /* Wait till HSE is used as system clock source */
-    while (RCC_GetSYSCLKSource() != 0x04)
+    while (RCC_GetSYSCLKSource() != 0x04u)
     {}
   }
   /* Enable or disable clock security system */

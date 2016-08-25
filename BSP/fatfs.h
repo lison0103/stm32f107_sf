@@ -24,7 +24,7 @@ u8 isFileExist(char *filename);
 u8 DeleteFile(char *filename);
 u8 CopyFile(char *readfilename, char *newfilename);
 u8 fatfs_init(void);	
-u16 ReadFile(char *readfilename, u8 *buffer);
+u16 ReadFile(char *readfilename, u8 buffer[]);
 
 extern FATFS *fs[1]; 
 

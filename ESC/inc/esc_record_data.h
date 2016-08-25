@@ -19,8 +19,8 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void esc_data_check(void);
-u8 fram_data_read(u8 Adr, u8 len, u8 *ReadData);
-void fram_data_write(u8 Adr, u8 len, u8 *WriteData);
+u8 fram_data_read(u16 Adr, u16 len, u8 ReadData[]);
+void fram_data_write(u16 Adr, u16 len, u8 WriteData[]);
 
 #endif  /* __ESC_RECORD_DATA_H */
 

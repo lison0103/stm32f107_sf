@@ -31,41 +31,47 @@ u8 EscBuff[10] = {0};
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void fault_code_decode(u8* code_buff)
+void fault_code_decode(u8 code_buff[])
 {  
     
-    u8 i=0,j=0,error_counter=0,error_code_temp=0;
+    u8 i = 0u,j = 0u,error_counter = 0u,error_code_temp = 0u;
     u8 error_temp[5]={0,0,0,0,0};
     
        
-    for( i = 0; i < 10; i++ ) 
+    for( i = 0u; i < 10u; i++ ) 
     {
         pcEscErrorBuff[i] = pcErrorBuff[i] | pcOmcErrorBuff[i];				
     }  
     
-    error_counter = 0;
-    error_code_temp = 0;
+    error_counter = 0u;
+    error_code_temp = 0u;
     
-    for( i = 0; i < 10; i++ )
+    for( i = 0u; i < 10u; i++ )
     {
-        error_code_temp = i*8;
+        error_code_temp = i*8u;
         
         if(pcEscErrorBuff[i])
         {
-            for( j = 0; j < 8; j++ )
+            for( j = 0u; j < 8u; j++ )
             {
                 error_code_temp++;
-                if(pcEscErrorBuff[i] & (1 << j)) 
+                if(pcEscErrorBuff[i] & (1u << j)) 
                 {
                     error_temp[error_counter] = error_code_temp; 
                     error_counter++;
                     
-                    if(error_counter >= 5) break;
+                    if(error_counter >= 5u) 
+                    {
+                        break;
+                    }
                 }  
             }    
         } 
         
-        if(error_counter >= 5) break;
+        if(error_counter >= 5u) 
+        {
+            break;
+        }
     }    
     
     
@@ -79,11 +85,11 @@ void fault_code_decode(u8* code_buff)
     }
     else
     {
-        code_buff[0] = 0;	
-        code_buff[1] = 0;	
-        code_buff[2] = 0;	
-        code_buff[3] = 0;	
-        code_buff[4] = 0;	
+        code_buff[0] = 0u;	
+        code_buff[1] = 0u;	
+        code_buff[2] = 0u;	
+        code_buff[3] = 0u;	
+        code_buff[4] = 0u;	
     }  
 }
 
@@ -130,13 +136,14 @@ void ESC_EWDT_Error_Process(void)
     {
         /** In the error handling routine in an infinite loop **/
           /**  Wait manual reset fault **/
-//          if( IN10 )
-//          {
-//                __set_FAULTMASK(1);   
-//                /** soft reset **/
-//                NVIC_SystemReset();
-//          
-//          }
+/*        
+          if( IN10 )
+          {
+                __set_FAULTMASK(1);   
+                NVIC_SystemReset();
+          
+          }
+*/        
     }
 
 }
@@ -197,8 +204,10 @@ void ESC_SPI_Error_Process(void)
 {
   
     /** Disconnect the safety relay **/
-//    SF_RL_CTR_CLR();
-//    SF_RL_WDT_CLR();
+/*    
+    SF_RL_CTR_CLR();
+    SF_RL_WDT_CLR();
+*/    
     /* ESC_SPI_Error_Process */
 }
 

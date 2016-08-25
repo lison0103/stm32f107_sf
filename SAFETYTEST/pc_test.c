@@ -10,16 +10,21 @@
 */
 #include <stdint.h>
 #include "iec61508.h"
-
-
 #include "pc_test.h"
 
-#define RET_FCT_A	1
-#define RET_FCT_B	2
-#define RET_FCT_C	3
-#define RET_FCT_D	5
-#define RET_FCT_E	7
-#define RET_FCT_F	11
+uint32_t IEC61508_PCTest_FctA(void);
+uint32_t IEC61508_PCTest_FctB(void);
+uint32_t IEC61508_PCTest_FctC(void);
+uint32_t IEC61508_PCTest_FctD(void);
+uint32_t IEC61508_PCTest_FctE(void);
+uint32_t IEC61508_PCTest_FctF(void);
+
+#define RET_FCT_A	1u
+#define RET_FCT_B	2u
+#define RET_FCT_C	3u
+#define RET_FCT_D	5u
+#define RET_FCT_E	7u
+#define RET_FCT_F	11u
 
 uint32_t IEC61508_PCTest_lastFctTested = RET_FCT_F;
 
@@ -85,23 +90,30 @@ type_testResult_t IEC61508_PCTest_POST(void)
   type_testResult_t Result = IEC61508_testFailed;
 
   if(IEC61508_PCTest_FctA() == RET_FCT_A)
+  {
     Result = IEC61508_testPassed;
-		
+  }	
   if((Result == IEC61508_testPassed) && (IEC61508_PCTest_FctB() != RET_FCT_B))
+  {
     Result = IEC61508_testFailed;
-
+  }
   if((Result == IEC61508_testPassed) && (IEC61508_PCTest_FctC() != RET_FCT_C))
+  {
     Result = IEC61508_testFailed;
-
+  }
   if((Result == IEC61508_testPassed) && (IEC61508_PCTest_FctD() != RET_FCT_D))
+  {
     Result = IEC61508_testFailed;
-
+  }
   if((Result == IEC61508_testPassed) && (IEC61508_PCTest_FctE() != RET_FCT_E))
+  {
     Result = IEC61508_testFailed;
-
+  }
   if((Result == IEC61508_testPassed) && (IEC61508_PCTest_FctF() != RET_FCT_F))
+  {
     Result = IEC61508_testFailed;
-
+  }
+  
   return Result;
 }
 
@@ -116,44 +128,50 @@ type_testResult_t IEC61508_PCTest_BIST(void)
 	{
 		case RET_FCT_A:
 			if(IEC61508_PCTest_FctB() == RET_FCT_B)
+                        {
 				Result = IEC61508_testPassed;
-			
+			}
 			IEC61508_PCTest_lastFctTested = RET_FCT_B;
 			break;
 
 		case RET_FCT_B:
 			if(IEC61508_PCTest_FctC() == RET_FCT_C)
+                        {
 				Result = IEC61508_testPassed;
-			
+			}
 			IEC61508_PCTest_lastFctTested = RET_FCT_C;
 			break;
 
 		case RET_FCT_C:
 			if(IEC61508_PCTest_FctD() == RET_FCT_D)
+                        {
 				Result = IEC61508_testPassed;
-			
+			}
 			IEC61508_PCTest_lastFctTested = RET_FCT_D;
 			break;
 
 		case RET_FCT_D:
 			if(IEC61508_PCTest_FctE() == RET_FCT_E)
+                        {
 				Result = IEC61508_testPassed;
-			
+			}
 			IEC61508_PCTest_lastFctTested = RET_FCT_E;
 			break;
 
 		case RET_FCT_E:
 			if(IEC61508_PCTest_FctF() == RET_FCT_F)
+                        {
 				Result = IEC61508_testPassed;
-			
+			}
 			IEC61508_PCTest_lastFctTested = RET_FCT_F;
 			break;
 
 		case RET_FCT_F:
 		default:
 			if(IEC61508_PCTest_FctA() == RET_FCT_A)
+                        {
 				Result = IEC61508_testPassed;
-			
+			}
 			IEC61508_PCTest_lastFctTested = RET_FCT_A;
 			break;
 

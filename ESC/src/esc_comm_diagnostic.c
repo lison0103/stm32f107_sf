@@ -34,91 +34,97 @@
 void Safety_Comm_Diag(void)
 {
 #ifdef GEC_SF_MASTER    
-    static u8 can2_comm_timeout = 0;
-    u8 len = 0;
+    static u8 can2_comm_timeout = 0u;
+    u8 len = 0u;
     
-    if( can2_receive == 1 )
+    if( can2_receive == 1u )
     {
-        can2_receive = 0;
-        can2_comm_timeout = 0;
-        EN_ERROR7 &= ~0x08;
+        can2_receive = 0u;
+        can2_comm_timeout = 0u;
+        EN_ERROR7 &= ~0x08u;
     }
-    else if( ++can2_comm_timeout >= 3 )
+    else if( ++can2_comm_timeout >= 3u )
     {
         /*  can communication timeout process */
-        EN_ERROR7 |= 0x08;
-    }  
+        EN_ERROR7 |= 0x08u;
+    }
+    else
+    {}
 
-    len = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN2_RX_Data, 0);
+    len = BSP_CAN_Receive(CAN2, &CAN2_RX_Up, CAN2_RX_Data, 0u);
     
     CAN2_TX_Data[2] = pcEscErrorCodeBuff[0];
     
     /* DBL1 UP, just for test */
-    if( len > 0 )
+    if( len > 0u )
     {
-        CAN2_TX_Data[0] = 0x11;
-        CAN2_TX_Data[1] = 0x33;
+        CAN2_TX_Data[0] = 0x11u;
+        CAN2_TX_Data[1] = 0x33u;
     }
     else
     {
-        CAN2_RX_Data[0] = 0x00;
-        CAN2_RX_Data[1] = 0x00;      
+        CAN2_RX_Data[0] = 0x00u;
+        CAN2_RX_Data[1] = 0x00u;      
     }
   
-    len = BSP_CAN_Receive(CAN2, &CAN2_RX_Down, CAN2_RX2_Data, 0);
+    len = BSP_CAN_Receive(CAN2, &CAN2_RX_Down, CAN2_RX2_Data, 0u);
     
     CAN2_TX2_Data[2] = pcEscErrorCodeBuff[0];
     
     /* DBL1 DOWN, just for test */
-    if( len > 0 )
+    if( len > 0u )
     {
-        CAN2_TX2_Data[0] = 0x22;
-        CAN2_TX2_Data[1] = 0x55;
+        CAN2_TX2_Data[0] = 0x22u;
+        CAN2_TX2_Data[1] = 0x55u;
     }
     else
     {
-        CAN2_RX2_Data[0] = 0x00;
-        CAN2_RX2_Data[1] = 0x00;      
+        CAN2_RX2_Data[0] = 0x00u;
+        CAN2_RX2_Data[1] = 0x00u;      
     }    
     
-    if( testmode == 0 )
+    if( testmode == 0u )
     {
         /** CAN2 send data ------------------------------------------------------**/
         /** DBL1 UP SEND ID:0x1234, DBL1 DOWN SEND ID:0x2345 **/
-        BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN2TX_UP_ID, CAN2_TX_Data, 8);   
-        BSP_CAN_Send(CAN2, &CAN2_TX_Down, CAN2TX_DOWN_ID, CAN2_TX2_Data, 8);  
+        BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN2TX_UP_ID, CAN2_TX_Data, 8u);   
+        BSP_CAN_Send(CAN2, &CAN2_TX_Down, CAN2TX_DOWN_ID, CAN2_TX2_Data, 8u);  
     }
-    else if( testmode == 1 )
+    else if( testmode == 1u )
     {
-        BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN1_TEST_ID, CAN2_TX_Data, 8);   
+        BSP_CAN_Send(CAN2, &CAN2_TX_Up, CAN1_TEST_ID, CAN2_TX_Data, 8u);   
     }
+    else
+    {}
     
 #else
-    static u8 can1_comm_timeout = 0;
-    u8 len = 0;
+    static u8 can1_comm_timeout = 0u;
+    u8 len = 0u;
     
     /* if config tandem, use cpu2 CAN1 to communication */
-    if( TANDEM_TYPE != 0 )
+    if( TANDEM_TYPE != 0u )
     {
-        if( can1_receive == 1 )
+        if( can1_receive == 1u )
         {
-            can1_receive = 0;
-            can1_comm_timeout = 0;
-            EN_ERROR7 &= ~0x10;
+            can1_receive = 0u;
+            can1_comm_timeout = 0u;
+            EN_ERROR7 &= ~0x10u;
         }
-        else if( ++can1_comm_timeout >= 3 )
+        else if( ++can1_comm_timeout >= 3u )
         {
             /*  can communication timeout process */
-            EN_ERROR7 |= 0x10;
+            EN_ERROR7 |= 0x10u;
         }  
+        else
+        {}
         
         /** receive a data packet -----------------------------------------------**/ 
         len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
         
         /* for tandem communication */
-        if( len > 0 )
+        if( len > 0u )
         {
-            TandemMessageRunAllowed = 0;
+            TandemMessageRunAllowed = 0u;
             
             if( SfBase_EscState & ESC_STATE_READY )
             {
@@ -136,12 +142,12 @@ void Safety_Comm_Diag(void)
         
         /** CAN1 send data ------------------------------------------------------**/
         /** tandem normal SEND ID:0x1314 **/
-        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 20);   
+        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 20u);   
     }
     
-    if( testmode == 1 )
+    if( testmode == 1u )
     {
-        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10);
+        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10u);
     }
     
 #endif
