@@ -163,29 +163,16 @@ void TIM3_Int_Init(u16 arr,u16 psc)
 {
 
         TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
-
-
+                
         /** TIM3 **/
 
 	TIM_TimeBaseStructure.TIM_Period = arr; 
-	TIM_TimeBaseStructure.TIM_Prescaler =psc; 
+	TIM_TimeBaseStructure.TIM_Prescaler = psc; 
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; 
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
-	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure); 
- 
-	TIM_ITConfig(  
-		TIM3, 
-		TIM_IT_Update ,
-		ENABLE  
-		);
-	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;  
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3u;  
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1u;  
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
-	NVIC_Init(&NVIC_InitStructure);  
-
-	TIM_Cmd(TIM3, ENABLE);  							 
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Down;            
+	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);      
+        
+	TIM_Cmd(TIM3, DISABLE);							 
 }
 
 /*******************************************************************************
@@ -227,7 +214,7 @@ void TIM2_Int_Init(u16 arr,u16 psc)
 }
 
 /*******************************************************************************
-* Function Name  : TIM1_Int_Init
+* Function Name  : TIM1_PWM_Init
 * Description    : Intialization stm32 Timer1.
 *                  
 * Input          : arr: Automatic reload value
@@ -235,21 +222,47 @@ void TIM2_Int_Init(u16 arr,u16 psc)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void TIM1_Int_Init(u16 arr,u16 psc)
+#ifdef GEC_SF_MASTER
+void TIM1_PWM_Init(u16 arr,u16 psc)
 {
-        TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-                
-        /** TIM1 **/
-
-	TIM_TimeBaseStructure.TIM_Period = arr; 
-	TIM_TimeBaseStructure.TIM_Prescaler = psc; 
-	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; 
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Down;            
-	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);      
+    GPIO_InitTypeDef GPIO_InitStructure;
+    TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+    TIM_OCInitTypeDef  TIM_OCInitStructure;
+    
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE); 
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA , ENABLE);  
+    
         
-	TIM_Cmd(TIM1, DISABLE);
-}
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10; 
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;  
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+    
+    
+    TIM_TimeBaseStructure.TIM_Period = arr; 
+    TIM_TimeBaseStructure.TIM_Prescaler = psc; 
+    TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; 
+    TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure); 
+    
+    
+    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; 
+    TIM_OCInitStructure.TIM_Pulse = 0; 
+    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; 
+    TIM_OC3Init(TIM1, &TIM_OCInitStructure);  
+    
+    TIM_CtrlPWMOutputs(TIM1,ENABLE);		
+    
+    TIM_OC3PreloadConfig(TIM1, TIM_OCPreload_Enable);   
+    
+    TIM_ARRPreloadConfig(TIM1, ENABLE); 
+    
+    TIM_Cmd(TIM1, ENABLE); 
+    
 
+}
+#endif
 
 
 /*******************************************************************************
@@ -388,7 +401,6 @@ void TIM3_IRQHandler(void)
         
           TIM_ClearITPendingBit(TIM3, TIM_IT_Update  );  
 
-          SafetySwitchStatus();
       }
 }
 

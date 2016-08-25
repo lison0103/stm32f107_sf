@@ -129,7 +129,7 @@ void delay_ms(u16 nms)
 *******************************************************************************/
 void Delay_Init(void)	 
 {
-    TIM1_Int_Init(65535u, 71u);
+    TIM3_Int_Init(65535u, 71u);
 }	
 
 /*******************************************************************************
@@ -143,13 +143,13 @@ void Delay_Init(void)
 *******************************************************************************/		    								   
 void delay_us(u16 nus)
 {		
-    TIM_Cmd(TIM1, ENABLE);
-    TIM1->CNT = nus;
-    while((TIM1->CNT > 0u) && (TIM1->CNT <= nus))
+    TIM_Cmd(TIM3, ENABLE);
+    TIM3->CNT = nus;
+    while((TIM3->CNT > 0u) && (TIM3->CNT <= nus))
     {
         ;
     } 
-    TIM_Cmd(TIM1, DISABLE);
+    TIM_Cmd(TIM3, DISABLE);
 }
 
 /*******************************************************************************

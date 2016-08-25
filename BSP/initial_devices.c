@@ -108,6 +108,9 @@ void Initial_Device(void)
         /* ADC init, measure the sf_in voltage */
         Adc_Init();
         
+        /** PWM output test **/
+        PluseOutputInit();
+        
 #else
         
         /* micro usb vcp init */
@@ -138,8 +141,6 @@ void Initial_Device(void)
         /* Parameters Loading */
         ParametersLoading();
         
-        /** safety switch 1ms timer **/
-        PluseOutputInit();
         
         /* safety output disable */
         SafetyOutputDisable();
@@ -196,9 +197,11 @@ void ExtCommDeviceInit(void)
 void PluseOutputInit(void)
 {
   
-    /** TIM init 10khz, counting to 10 is 1ms **/
-    TIM3_Int_Init(9u,7199u); 
-
+    /** TIM init 1MHZ, counting to 1000 is 1KZ **/
+    TIM1_PWM_Init(999u,71u); 
+    
+    /* Set the Duty Cycle, accoring to the arr value, 1/2 arr is 50% duty cycle */
+    TIM_SetCompare3(TIM1,780);
 }
 
 /*******************************************************************************
