@@ -96,7 +96,7 @@ HC_STATUS HCD_GetHCState           (USB_OTG_CORE_HANDLE *pdev,  uint8_t ch_num) 
   * @}
   */ 
 
-#endif //__USB_HCD_H__
+#endif /* __USB_HCD_H__ */
 
 
 /**

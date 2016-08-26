@@ -54,9 +54,9 @@
 #endif
 
 
-#define ValBit(VAR,POS)                               (VAR & (1 << POS))
-#define SetBit(VAR,POS)                               (VAR |= (1 << POS))
-#define ClrBit(VAR,POS)                               (VAR &= ((1 << POS)^255))
+#define ValBit(VAR,POS)                               ((VAR) & (1 << (POS)))
+#define SetBit(VAR,POS)                               ((VAR) |= (1 << (POS)))
+#define ClrBit(VAR,POS)                               ((VAR) &= ((1 << (POS))^255))
 
 #define  LE16(addr)             (((u16)(*((u8 *)(addr))))\
                                 + (((u16)(*(((u8 *)(addr)) + 1))) << 8))

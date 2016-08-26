@@ -98,7 +98,7 @@ void USBH_USR_Init(void)
 */
 void USBH_USR_DeviceAttached(void)
 {
-//	LED1=0;
+/*	LED1=0; */
 	printf("USB Device attached!\r\n");
 }
 
@@ -111,7 +111,7 @@ void USBH_USR_DeviceAttached(void)
 */
 void USBH_USR_DeviceDisconnected (void)
 {
-//	LED1=1;
+/*	LED1=1; */
 	printf("USB Device disconnect!\r\n");
 }  
 
@@ -191,10 +191,10 @@ void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
 {
 	USBH_InterfaceDesc_TypeDef *id; 
 	id = itfDesc;   
-	if((*id).bInterfaceClass==0x08)
+	if((*id).bInterfaceClass==0x08u)
 	{
 		printf("Mass storage device connected!\r\n"); 
-	}else if((*id).bInterfaceClass==0x03)
+	}else if((*id).bInterfaceClass==0x03u)
 	{
 		printf("HID device connected!\r\n"); 
 	}    
@@ -284,7 +284,7 @@ void USBH_USR_OverCurrentDetected (void)
 	printf("Overcurrent detected!!!\r\n");
 } 
 
-extern u8 USB_LoadParameter(void);	
+extern int USB_LoadParameter(void);	
 
 
 /**
@@ -295,7 +295,7 @@ extern u8 USB_LoadParameter(void);
 */
 int USBH_USR_MSC_Application(void)
 {
-	u8 res=0;
+	int res=0;
   	switch(AppState)
   	{
     	case USH_USR_FS_INIT:
@@ -303,11 +303,11 @@ int USBH_USR_MSC_Application(void)
 			AppState=USH_USR_FS_TEST;
                         
                         /* mount usb stick */ 
-                        f_mount(fs[0],"0:",1); 
+                        f_mount(fs[0],"0:",1u); 
       		break;
     	case USH_USR_FS_TEST:	
 			res = USB_LoadParameter(); 
-     		res=0;
+                        res=0;
 			if(res)AppState=USH_USR_FS_INIT;
       		break;
     	default:break;
@@ -350,7 +350,7 @@ extern USBH_HOST              USB_Host;
 * @param  None
 * @retval Return value: 0, U disk not ready  1, ready
 */
-u8 USBH_UDISK_Status(void)
+u32 USBH_UDISK_Status(void)
 {
 	return HCD_IsDeviceConnected(&USB_OTG_Core);
 }
@@ -366,22 +366,30 @@ u8 USBH_UDISK_Status(void)
 */
 u8 USBH_UDISK_Read(u8* buf,u32 sector,u32 cnt)
 {
-	u8 res=1;
+	u8 res=1u;
 	if(HCD_IsDeviceConnected(&USB_OTG_Core)&&AppState==USH_USR_FS_TEST)
 	{  		    
 		do
 		{
-			res=USBH_MSC_Read10(&USB_OTG_Core,buf,sector,512*cnt);
+			res=USBH_MSC_Read10(&USB_OTG_Core,buf,sector,512u*cnt);
 			USBH_MSC_HandleBOTXfer(&USB_OTG_Core ,&USB_Host);		      
 			if(!HCD_IsDeviceConnected(&USB_OTG_Core))
 			{
                                 /* read write error */
-				res=1;
+				res=1u;
 				break;
 			};   
 		}while(res==USBH_MSC_BUSY);
-	}else res=1;		  
-	if(res==USBH_MSC_OK)res=0;	
+	}
+        else 
+        {
+            res=1u;		  
+        }
+        
+	if(res==USBH_MSC_OK)
+        {
+            res=0u;	
+        }
 	return res;
 }
 
@@ -396,22 +404,29 @@ u8 USBH_UDISK_Read(u8* buf,u32 sector,u32 cnt)
 */
 u8 USBH_UDISK_Write(u8* buf,u32 sector,u32 cnt)
 {
-	u8 res=1;
+	u8 res=1u;
 	if(HCD_IsDeviceConnected(&USB_OTG_Core)&&AppState==USH_USR_FS_TEST)
 	{  		    
 		do
 		{
-			res=USBH_MSC_Write10(&USB_OTG_Core,buf,sector,512*cnt); 
+			res=USBH_MSC_Write10(&USB_OTG_Core,buf,sector,512u*cnt); 
 			USBH_MSC_HandleBOTXfer(&USB_OTG_Core ,&USB_Host);		      
 			if(!HCD_IsDeviceConnected(&USB_OTG_Core))
 			{
                                 /* read write error */
-				res=1;
+				res=1u;
 				break;
 			};   
 		}while(res==USBH_MSC_BUSY);
-	}else res=1;		  
-	if(res==USBH_MSC_OK)res=0;	
+	}else 
+        {
+            res = 1u;	
+        }
+        
+	if(res==USBH_MSC_OK)
+        {
+            res = 0u;
+        }
 	return res;
 }
 

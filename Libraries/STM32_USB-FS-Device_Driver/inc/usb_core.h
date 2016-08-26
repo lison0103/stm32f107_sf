@@ -242,7 +242,7 @@ uint8_t *Standard_GetDescriptorData(uint16_t Length, PONE_DESCRIPTOR pDesc);
 
 uint8_t *Standard_GetStatus(uint16_t Length);
 RESULT Standard_ClearFeature(void);
-void SetDeviceAddress(uint8_t);
+void SetDeviceAddress(uint8_t Val);
 void NOP_Process(void);
 
 extern DEVICE_PROP Device_Property;

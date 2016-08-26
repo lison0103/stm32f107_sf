@@ -59,8 +59,14 @@ void Get_GpioInput(u8 inBuff[])
     
     for(i = 0u;i < 5u; i++)
     {   
-        ByteAnd[i] = PinValue[0u][i] & PinValue[1u][i] & PinValue[2u][i];
+/*        ByteAnd[i] = PinValue[0u][i] & PinValue[1u][i] & PinValue[2u][i];
         ByteOr[i] = PinValue[0u][i] | PinValue[1u][i] | PinValue[2u][i]; 
+*/
+         /* For MISRA C 2004 12.7 */
+          ByteAnd[i] = PinValue[0u][i] & PinValue[1u][i];
+          ByteAnd[i] &= PinValue[2u][i];
+          ByteOr[i] = PinValue[0u][i] | PinValue[1u][i];
+          ByteOr[i] |= PinValue[2u][i];
     }
 #else
     /* read the pin value only one times */

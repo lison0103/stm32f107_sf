@@ -134,7 +134,7 @@ void esc_data_check(void)
     
     if(!eeprom_read(ESC_RECORD_ADR, ESC_RECORD_NUM, Fram_Data))
     {
-        j = Fram_Data[1] << 8 | Fram_Data[0];
+        j = (u16)(Fram_Data[1] << 8 | Fram_Data[0]);
         
         if(!MB_CRC16(Fram_Data, ESC_RECORD_NUM))
         {

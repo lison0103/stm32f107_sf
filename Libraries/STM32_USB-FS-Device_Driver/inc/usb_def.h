@@ -77,12 +77,12 @@ typedef enum _FEATURE_SELECTOR
 
 /* Exported constants --------------------------------------------------------*/
 /* Definition of "USBbmRequestType" */
-#define REQUEST_TYPE      0x60  /* Mask to get request type */
-#define STANDARD_REQUEST  0x00  /* Standard request */
-#define CLASS_REQUEST     0x20  /* Class request */
-#define VENDOR_REQUEST    0x40  /* Vendor request */
+#define REQUEST_TYPE      0x60u  /* Mask to get request type */
+#define STANDARD_REQUEST  0x00u  /* Standard request */
+#define CLASS_REQUEST     0x20u  /* Class request */
+#define VENDOR_REQUEST    0x40u  /* Vendor request */
 
-#define RECIPIENT         0x1F  /* Mask to get recipient */
+#define RECIPIENT         0x1Fu  /* Mask to get recipient */
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */

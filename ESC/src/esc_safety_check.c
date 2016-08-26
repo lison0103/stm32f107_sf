@@ -514,7 +514,7 @@ void SafetyExtWdt_StartUpCheck(void)
 {
     
 #ifndef GEC_SF_MASTER    
-//    delay_ms(700);
+/*    delay_ms(700);*/
 #endif
 
     /* MISRA C 2004 rule 12.4/12.5 can not compile */

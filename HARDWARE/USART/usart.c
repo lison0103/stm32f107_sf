@@ -653,15 +653,15 @@ void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
   switch (*(uint32_t*)&USARTx)
   {
     case USART1_BASE:
-      NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+      NVIC_InitStructure.NVIC_IRQChannel = (u8)USART1_IRQn;
       
       break;
     case USART2_BASE:
-      NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+      NVIC_InitStructure.NVIC_IRQChannel = (u8)USART2_IRQn;
       
       break;
     case USART3_BASE:
-      NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
+      NVIC_InitStructure.NVIC_IRQChannel = (u8)USART3_IRQn;
       break;
       
      default: 

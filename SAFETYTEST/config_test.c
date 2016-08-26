@@ -75,7 +75,7 @@ type_testResult_t RCCReg_Check(void)
       
       /* RCC_CR register */
       ReadRegVal |= ( RCC_CR_PLLON | RCC_CR_CSSON | RCC_CR_HSEON );
-      if ( ( ReadRegVal & RCC->CR ) != ReadRegVal )  
+      if ( ( ReadRegVal & (RCC->CR) ) != ReadRegVal )  
       {
           testResult = IEC61508_testFailed;
       }    
@@ -382,7 +382,7 @@ type_testResult_t SPIReg_Check(void)
                     | SPI_CR1_SSM | SPI_CR1_CRCEN );
       if( ( ReadRegVal &= SPI1->CR1 ) != SetRegVal )
       {
-          return IEC61508_testFailed;
+          testResult = IEC61508_testFailed;
       }
 
       /* SPI_CR2 register */

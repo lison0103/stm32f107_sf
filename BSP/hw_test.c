@@ -29,8 +29,8 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-u8 sflag1 = 0u,inputnum1 = 0u;
-u8 sflag2 = 0u,inputnum2 = 0u;
+u32 sflag1 = 0u,inputnum1 = 0u;
+u32 sflag2 = 0u,inputnum2 = 0u;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -63,7 +63,7 @@ void Input_Check(void)
     
     for( i = 0u; i < 28u; i++ )
     {
-        if( ulPt_Input[0] & ( 1u << i ))
+        if( *ulPt_Input & ( 1u << i ))
         {
             *pc_can_tx |= 1u << i;
         }
@@ -86,7 +86,7 @@ void Input_Check2(void)
   
         u32 *ulPt_Input1,*ulPt_Input2;
         u32 *ulPt_Input3,*ulPt_Input4;
-        u8 i;
+        u32 i;
 
 
         if( testmode == 1u )
@@ -104,7 +104,7 @@ void Input_Check2(void)
             
             for( i = 0u; i < 29u; i++ )
             {
-                if( *ulPt_Input1 & ((u32)( 1u << i )))
+                if( *ulPt_Input1 & (( 1u << i )))
                 {
                     sflag1++;
                     inputnum1 = i + 1u;
@@ -113,7 +113,7 @@ void Input_Check2(void)
             
             for( i = 0u; i < 17u; i++ )
             {
-                if( *ulPt_Input2 & ((u32)( 1u << i )))
+                if( *ulPt_Input2 & (( 1u << i )))
                 {
                     sflag1++;
                     inputnum1 = i + 30u;
@@ -122,7 +122,7 @@ void Input_Check2(void)
             
             for( i = 0u; i < 29u; i++ )
             {
-                if( *ulPt_Input3 & ((u32)( 1u << i )))
+                if( *ulPt_Input3 & (( 1u << i )))
                 {
                     sflag2++;
                     inputnum2 = i + 1u;
@@ -131,7 +131,7 @@ void Input_Check2(void)
             
             for( i = 0u; i < 17u; i++ )
             {
-                if( *ulPt_Input4 & ((u32)( 1u << i )))
+                if( *ulPt_Input4 & (( 1u << i )))
                 {
                     sflag2++;
                     inputnum2 = i + 30u;
@@ -291,7 +291,7 @@ void CrossCommCPUCheck(void)
 #else
               if(!MB_CRC16(SPI1_RX_Data, comm_num))
               {                 
-                  for( i = 0 ; i < comm_num - 2u; i++ )
+                  for( i = 0u; i < comm_num - 2u; i++ )
                   {
                       SPI1_TX_Data[i] = SPI1_RX_Data[i];
                   }   
@@ -318,13 +318,13 @@ void CrossCommCPUCheck(void)
 
 #ifdef GEC_SF_MASTER 
 #else
-//        SPI1_DMA_ReceiveSendByte(comm_num);
+/*        SPI1_DMA_ReceiveSendByte(comm_num);*/
 #endif
     if( data_error > 2u )
     {
         /* SPI1_DMA_Check error */
         EN_ERROR7 |= 0x01u;
-//        FailSafeTest();
+/*        FailSafeTest();*/
     }
 
 
@@ -563,76 +563,76 @@ void HardwareTEST(void)
 void HardwareTEST(void)
 {
     u8 testdata[10];
-    u8 testerror = 0;
-    u8 len = 0;
-    u16 waittms = 0;
+    u8 testerror = 0u;
+    u8 len = 0u;
+    u16 waittms = 0u;
     u8 senddata[10],recvdata[10];
     u8 i;
 
-    CAN1_TX_Data[0] = 0xf1;
-    testdata[0] = 0xf1;
-    for( i = 1; i < 10 ; i++ )
+    CAN1_TX_Data[0] = 0xf1u;
+    testdata[0] = 0xf1u;
+    for( i = 1u; i < 10u ; i++ )
     {
-        CAN1_TX_Data[i] = i + 0xf0;
-        testdata[i] = i + 0xf0;
+        CAN1_TX_Data[i] = i + 0xf0u;
+        testdata[i] = i + 0xf0u;
     }
-    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10);
+    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10u);
     
     do
     {
-        len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
-        delay_ms(1);
+        len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0u);
+        delay_ms(1u);
         EWDT_TOOGLE();
         IWDG_ReloadCounter(); 
         waittms++;
-        if( waittms > 2000 )
+        if( waittms > 2000u )
         {
-            waittms = 0;
+            waittms = 0u;
             break;
         }
     }
-    while( len != 10 || CAN1_RX_Data[0] != 0xf1 );     
+    while( (len != 10u) || (CAN1_RX_Data[0] != 0xf1u) );     
     
-    if( len == 10 && CAN1_RX_Data[0] == 0xf1 )
+    if( (len == 10u) && (CAN1_RX_Data[0] == 0xf1u) )
     {
-        waittms = 0;
-        for( i = 2; i < 10 ; i++ )
+        waittms = 0u;
+        for( i = 2u; i < 10u; i++ )
         {
             CAN1_TX_Data[i] = CAN1_RX_Data[i];
         }
-        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10);
+        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10u);
         
         do
         {
-            len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
-            delay_ms(1);
+            len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0u);
+            delay_ms(1u);
             EWDT_TOOGLE();
             IWDG_ReloadCounter(); 
             waittms++;
-            if( waittms > 8000 )
+            if( waittms > 8000u )
             {
-                waittms = 0;
+                waittms = 0u;
                 break;
             }
         }
-        while( len != 10 || CAN1_RX_Data[0] != 0xf1 ); 
+        while( (len != 10u) || (CAN1_RX_Data[0] != 0xf1u) ); 
         
-        if( len == 10 && CAN1_RX_Data[0] == 0xf1 )
+        if( (len == 10u) && (CAN1_RX_Data[0] == 0xf1u) )
         {
-            for( i = 2; i < 10 ; i++ )
+            for( i = 2u; i < 10u ; i++ )
             {
                 if( CAN1_RX_Data[i] != testdata[i] )
                 {
-                    testerror = 1;
+                    testerror = 1u;
                     break;
                 }
             }
             
-            if( testerror == 0 )
+            if( testerror == 0u )
             {
-                if( CAN1_RX_Data[1] == 0xd1 )
+                if( CAN1_RX_Data[1] == 0xd1u )
                 {
-                    testmode = 1;
+                    testmode = 1u;
                 }   
             }
         } 
@@ -645,38 +645,39 @@ void HardwareTEST(void)
     }
     
     
-    senddata[0] = 0xbc;
-    if( testmode == 1 )
+    senddata[0] = 0xbcu;
+    if( testmode == 1u )
     {
-        senddata[1] = 0x01;
+        senddata[1] = 0x01u;
     }
     else
     {
-        senddata[1] = 0x02;
+        senddata[1] = 0x02u;
     }
-    CPU_Exchange_Data(senddata, 2);
-    CPU_Data_Check(recvdata, &len);//recv  
+    CPU_Exchange_Data(senddata, 2u);
+    CPU_Data_Check(recvdata, &len);
     
-    if( len == 0x02 && recvdata[0] == 0xbc )
+    if( len == 0x02u && recvdata[0] == 0xbcu )
     {
-        if( recvdata[1] == 1 )
+        if( recvdata[1] == 1u )
         {
-            testmode = 1;
+            testmode = 1u;
         }
-        else if( recvdata[1] == 2 )
+        else if( recvdata[1] == 2u )
         {
-            testmode = 0;
+            testmode = 0u;
         }
+/*        
+        CPU_Exchange_Data(senddata, 2);
+        CPU_Data_Check(recvdata, &len);//recv 
         
-//        CPU_Exchange_Data(senddata, 2);
-//        CPU_Data_Check(recvdata, &len);//recv 
-//        
-//        senddata[1] = 0xf1;
-//        CPU_Exchange_Data(senddata, 2);//send
-//        CPU_Data_Check(recvdata, &len);  
+        senddata[1] = 0xf1;
+        CPU_Exchange_Data(senddata, 2);//send
+        CPU_Data_Check(recvdata, &len);  
+*/        
     } 
     
-//    CPU_Exchange_Data(senddata, 2);
+/*    CPU_Exchange_Data(senddata, 2);*/
 }
 
 

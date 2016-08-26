@@ -179,7 +179,7 @@ typedef enum IRQn
   SysTick_IRQn                = -1,     /*!< 15 Cortex-M3 System Tick Interrupt                   */
 
 /******  STM32 specific Interrupt Numbers *********************************************************/
-  WWDG_IRQn                   = 0,      /*!< Window WatchDog Interrupt                            */
+  WWDG_IRQn                   = 0u,      /*!< Window WatchDog Interrupt                            */
   PVD_IRQn                    = 1,      /*!< PVD through EXTI Line detection Interrupt            */
   TAMPER_IRQn                 = 2,      /*!< Tamper Interrupt                                     */
   RTC_IRQn                    = 3,      /*!< RTC global Interrupt                                 */
@@ -429,7 +429,7 @@ typedef enum IRQn
 #ifdef STM32F10X_CL
   ADC1_2_IRQn                 = 18,     /*!< ADC1 and ADC2 global Interrupt                       */
   CAN1_TX_IRQn                = 19,     /*!< USB Device High Priority or CAN1 TX Interrupts       */
-  CAN1_RX0_IRQn               = 20u,     /*!< USB Device Low Priority or CAN1 RX0 Interrupts       */
+  CAN1_RX0_IRQn               = 20,     /*!< USB Device Low Priority or CAN1 RX0 Interrupts       */
   CAN1_RX1_IRQn               = 21,     /*!< CAN1 RX1 Interrupt                                   */
   CAN1_SCE_IRQn               = 22,     /*!< CAN1 SCE Interrupt                                   */
   EXTI9_5_IRQn                = 23,     /*!< External Line[9:5] Interrupts                        */
@@ -1312,8 +1312,8 @@ typedef struct
 #define DAC_BASE              (APB1PERIPH_BASE + 0x7400)
 #define CEC_BASE              (APB1PERIPH_BASE + 0x7800)
 
-#define AFIO_BASE             (APB2PERIPH_BASE + 0x0000)
-#define EXTI_BASE             (APB2PERIPH_BASE + 0x0400)
+#define AFIO_BASE             (APB2PERIPH_BASE + 0x0000u)
+#define EXTI_BASE             (APB2PERIPH_BASE + 0x0400u)
 #define GPIOA_BASE            (APB2PERIPH_BASE + 0x0800u)
 #define GPIOB_BASE            (APB2PERIPH_BASE + 0x0C00u)
 #define GPIOC_BASE            (APB2PERIPH_BASE + 0x1000u)
@@ -1351,7 +1351,7 @@ typedef struct
 #define DMA2_Channel3_BASE    (AHBPERIPH_BASE + 0x0430)
 #define DMA2_Channel4_BASE    (AHBPERIPH_BASE + 0x0444)
 #define DMA2_Channel5_BASE    (AHBPERIPH_BASE + 0x0458)
-#define RCC_BASE              (AHBPERIPH_BASE + 0x1000)
+#define RCC_BASE              (AHBPERIPH_BASE + 0x1000u)
 #define CRC_BASE              (AHBPERIPH_BASE + 0x3000)
 
 #define FLASH_R_BASE          (AHBPERIPH_BASE + 0x2000) /*!< Flash registers base address */

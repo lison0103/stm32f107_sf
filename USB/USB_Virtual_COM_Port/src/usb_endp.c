@@ -41,12 +41,12 @@
 #define VCOMPORT_IN_FRAME_INTERVAL             5
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-//extern __IO uint32_t packet_sent;
-//extern __IO uint32_t packet_receive;
+/* extern __IO uint32_t packet_sent; */
+/* extern __IO uint32_t packet_receive; */
 extern __IO uint8_t Receive_Buffer[64];
 uint32_t Receive_length;
-uint32_t packet_sent=1;
-uint32_t packet_receive=1;
+uint32_t packet_sent=1u;
+uint32_t packet_receive=1u;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -60,7 +60,7 @@ uint32_t packet_receive=1;
 
 void EP1_IN_Callback (void)
 {
-  packet_sent = 1;
+  packet_sent = 1u;
 }
 
 /*******************************************************************************
@@ -72,9 +72,9 @@ void EP1_IN_Callback (void)
 *******************************************************************************/
 void EP3_OUT_Callback(void)
 {
-  packet_receive = 1;
+  packet_receive = 1u;
   Receive_length = GetEPRxCount(ENDP3);
-  PMAToUserBufferCopy((unsigned char*)Receive_Buffer, ENDP3_RXADDR, Receive_length);
+  PMAToUserBufferCopy((unsigned char*)Receive_Buffer, ENDP3_RXADDR, (u16)Receive_length);
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

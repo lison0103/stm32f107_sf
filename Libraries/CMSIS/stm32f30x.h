@@ -1226,7 +1226,7 @@ typedef struct
 #define SPI3_BASE             (APB1PERIPH_BASE + 0x00003C00)
 #define I2S3ext_BASE          (APB1PERIPH_BASE + 0x00004000)
 #define USART2_BASE           (APB1PERIPH_BASE + 0x00004400)
-#define USART3_BASE           (APB1PERIPH_BASE + 0x00004800)
+#define USART3_BASE           (APB1PERIPH_BASE + 0x00004800u)
 #define UART4_BASE            (APB1PERIPH_BASE + 0x00004C00)
 #define UART5_BASE            (APB1PERIPH_BASE + 0x00005000)
 #define I2C1_BASE             (APB1PERIPH_BASE + 0x00005400)
@@ -1253,7 +1253,7 @@ typedef struct
 #define OPAMP2_BASE           (APB2PERIPH_BASE + 0x0000003C)
 #define OPAMP3_BASE           (APB2PERIPH_BASE + 0x00000040)
 #define OPAMP4_BASE           (APB2PERIPH_BASE + 0x00000044)
-#define EXTI_BASE             (APB2PERIPH_BASE + 0x00000400)
+#define EXTI_BASE             (APB2PERIPH_BASE + 0x00000400u)
 #define TIM1_BASE             (APB2PERIPH_BASE + 0x00002C00u)
 #define SPI1_BASE             (APB2PERIPH_BASE + 0x00003000u)
 #define TIM8_BASE             (APB2PERIPH_BASE + 0x00003400)
@@ -1286,7 +1286,7 @@ typedef struct
 #define DMA2_Channel3_BASE    (AHB1PERIPH_BASE + 0x00000430)
 #define DMA2_Channel4_BASE    (AHB1PERIPH_BASE + 0x00000444)
 #define DMA2_Channel5_BASE    (AHB1PERIPH_BASE + 0x00000458)
-#define RCC_BASE              (AHB1PERIPH_BASE + 0x00001000)
+#define RCC_BASE              (AHB1PERIPH_BASE + 0x00001000u)
 #define FLASH_R_BASE          (AHB1PERIPH_BASE + 0x00002000) /*!< Flash registers base address */
 #define OB_BASE               ((uint32_t)0x1FFFF800)     /*!< Flash Option Bytes base address */
 #define CRC_BASE              (AHB1PERIPH_BASE + 0x00003000)

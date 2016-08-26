@@ -83,15 +83,19 @@ uint16_t MB_CRC16( uint8_t *pucFrame, uint16_t usLen )
 {
     uint8_t ucCRCHi = 0xFFu;
     uint8_t ucCRCLo = 0xFFu;
-    uint16_t iIndex;
+    uint8_t iIndex;
+    uint16_t returnCRC;
 
     while( usLen-- )
     {
-        iIndex = ucCRCLo ^ *( pucFrame++ );
+        iIndex = (ucCRCLo ^ *( pucFrame++ ));
         ucCRCLo = ( uint8_t )( ucCRCHi ^ aucCRCHi[iIndex] );
         ucCRCHi = aucCRCLo[iIndex];
     }
-    return ( uint16_t )( ucCRCHi << 8u | ucCRCLo );
+    
+    returnCRC = (u16)ucCRCHi << 8u;
+    returnCRC |= (u16)ucCRCLo;
+    return returnCRC;
 }
 
 /******************************  END OF FILE  *********************************/

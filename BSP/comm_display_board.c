@@ -41,7 +41,7 @@ void Comm_DisplayBoard(void)
     {
         
     }  
-    else if( ((buff[0]==1u)||(buff[0]==2u)) && (!MB_CRC16(buff, len)) )   	
+    else if( ((buff[0]==1u)||(buff[0]==2u)) && (!MB_CRC16(buff, (u16)len)) )   	
     {
 /*        
         DB_Comm_Addr = buff[0];
@@ -64,7 +64,7 @@ void Comm_DisplayBoard(void)
         }			
         
     }		   
-    else if( (buff[0]==0x11u) && (!MB_CRC16(buff, len)) )
+    else if( (buff[0]==0x11u) && (!MB_CRC16(buff, (u16)len)) )
     {
         
     }  

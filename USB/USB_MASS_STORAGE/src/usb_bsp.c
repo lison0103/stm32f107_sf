@@ -57,9 +57,9 @@ void USB_OTG_BSP_Init(USB_OTG_CORE_HANDLE *pdev)
 void USB_OTG_BSP_EnableInterrupt(USB_OTG_CORE_HANDLE *pdev)
 {
     NVIC_InitTypeDef   NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel = OTG_FS_IRQn; 
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x03;
+    NVIC_InitStructure.NVIC_IRQChannel = (u8)OTG_FS_IRQn; 
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00u;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x03u;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 	
@@ -95,7 +95,7 @@ void  USB_OTG_BSP_ConfigVBUS(USB_OTG_CORE_HANDLE *pdev)
 * @param  usec : Value of delay required in micro sec
 * @retval None
 */
-void USB_OTG_BSP_uDelay (const uint32_t usec)
+void USB_OTG_BSP_uDelay (const uint16_t usec)
 { 
     delay_us(usec);
 }
@@ -107,7 +107,7 @@ void USB_OTG_BSP_uDelay (const uint32_t usec)
 * @param  msec : Value of delay required in milli sec
 * @retval None
 */
-void USB_OTG_BSP_mDelay (const uint32_t msec)
+void USB_OTG_BSP_mDelay (const uint16_t msec)
 {  
     delay_ms(msec);
 }

@@ -110,14 +110,14 @@ void Task_Loop(void)
       /*  ESC  */
       if( testmode == 0u )
       {
-//          sfEscStateCheck();  
+/*          sfEscStateCheck(); */ 
           ESC_Tandem_Check();
           ESC_Motor_Check();
           ESC_Handrail_Check();
           ESC_Missingstep_Check();
           SafetyOutputDisable();
           SafetyOutputEnable();
-//          SafetySwitchStatus();
+/*          SafetySwitchStatus();*/
       }
 
 

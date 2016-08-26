@@ -146,7 +146,7 @@ void USBH_MSC_StateMachine(USB_OTG_CORE_HANDLE *pdev);
   * @}
   */ 
 
-#endif  //__USBH_MSC_SCSI_H__
+#endif  /* __USBH_MSC_SCSI_H__ */
 
 
 /**

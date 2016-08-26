@@ -92,7 +92,7 @@ void USB_OTG_BSP_DriveVBUS(USB_OTG_CORE_HANDLE *pdev,uint8_t state);
   * @}
   */ 
 
-#endif //__USB_BSP__H__
+#endif /* __USB_BSP__H__ */
 
 /**
   * @}

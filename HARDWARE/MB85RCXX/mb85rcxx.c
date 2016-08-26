@@ -290,18 +290,18 @@ uint8_t eeprom_data_write1(u16 addr,u16 len,u8 *dat)
   }
   if(MB85RCXX_TYPE > MB85RC16)
   {
-      if(eep_write(addr>>8u))
+      if(eep_write((u8)(addr>>8u)))
       {
           err = 1u;
       }
-      if(eep_write(addr&0x00ffu))
+      if(eep_write((u8)(addr&0x00ffu)))
       {
           err = 1u;
       }
   }
   else 
   {
-      if(eep_write(addr))
+      if(eep_write((u8)addr))
       {
           err=1u;
       }
@@ -374,18 +374,18 @@ uint8_t eeprom_data_read1(u16 addr, u16 len, u8 *dat)
         }
         if(MB85RCXX_TYPE > MB85RC16)
         {
-            if(eep_write(addr>>8u))
+            if(eep_write((u8)(addr>>8u)))
             {
                 err=1u;
             }
-            if(eep_write(addr&0x00ffu))
+            if(eep_write((u8)(addr&0x00ffu)))
             {
                 err=1u;
             }
         }
         else 
         {
-            if(eep_write(addr))
+            if(eep_write((u8)addr))
             {
                 err=1u;
             }

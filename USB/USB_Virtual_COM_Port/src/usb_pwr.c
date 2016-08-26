@@ -47,7 +47,7 @@ struct
 }
 ResumeS;
 
-__IO uint32_t remotewakeupon=0;
+__IO uint32_t remotewakeupon = 0u;
 
 /* Extern variables ----------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -73,7 +73,7 @@ RESULT PowerOn(void)
   _SetCNTR(wRegVal);
 
   /*** CNTR_FRES = 0 ***/
-  wInterrupt_Mask = 0;
+  wInterrupt_Mask = 0u;
   _SetCNTR(wInterrupt_Mask);
   /*** Clear pending interrupts ***/
   _SetISTR(0);
@@ -91,7 +91,7 @@ RESULT PowerOn(void)
 * Output         : None.
 * Return         : USB_SUCCESS.
 *******************************************************************************/
-RESULT PowerOff()
+RESULT PowerOff(void)
 {
   /* disable all interrupts and force USB reset */
   _SetCNTR(CNTR_FRES);
@@ -116,10 +116,10 @@ RESULT PowerOff()
 *******************************************************************************/
 void Suspend(void)
 {
-	uint32_t i =0;
+	uint32_t i = 0u;
 	uint16_t wCNTR;
-	uint32_t tmpreg = 0;
-  __IO uint32_t savePWR_CR=0;
+	uint32_t tmpreg = 0u;
+  __IO uint32_t savePWR_CR = 0u;
 	/* suspend preparation */
 	/* ... */
 	
@@ -129,8 +129,10 @@ void Suspend(void)
     /* This a sequence to apply a force RESET to handle a robustness case */
     
 	/*Store endpoints registers status */
-    for (i=0;i<8;i++) EP[i] = _GetENDPOINT(i);
-	
+    for (i=0u ;i<8u;i++) 
+    {
+        EP[i] = _GetENDPOINT(i);
+    }
 	/* unmask RESET flag */
 	wCNTR|=CNTR_RESETM;
 	_SetCNTR(wCNTR);
@@ -144,15 +146,17 @@ void Suspend(void)
 	_SetCNTR(wCNTR);
 	
 	/*poll for RESET flag in ISTR*/
-	while((_GetISTR()&ISTR_RESET) == 0);
+	while((_GetISTR()&ISTR_RESET) == 0u)
+        {}
 	
 	/* clear RESET flag in ISTR */
 	_SetISTR((uint16_t)CLR_RESET);
 	
 	/*restore Enpoints*/
-	for (i=0;i<8;i++)
-	_SetENDPOINT(i, EP[i]);
-	
+	for (i=0u;i<8u;i++)
+        {
+            _SetENDPOINT(i, EP[i]);
+	}
 	/* Now it is safe to enter macrocell in suspend mode */
 	wCNTR |= CNTR_FSUSP;
 	_SetCNTR(wCNTR);
@@ -167,7 +171,7 @@ void Suspend(void)
 	savePWR_CR = PWR->CR;
 	tmpreg = PWR->CR;
 	/* Clear PDDS and LPDS bits */
-	tmpreg &= ((uint32_t)0xFFFFFFFC);
+	tmpreg &= ((uint32_t)0xFFFFFFFCu);
 	/* Set LPDS bit according to PWR_Regulator value */
 	tmpreg |= PWR_Regulator_LowPower;
 	/* Store the new value */
@@ -179,7 +183,7 @@ void Suspend(void)
         SCB->SCR |= SCB_SCR_SLEEPDEEP;       
 #endif
 	/* enter system in STOP mode, only when wakeup flag in not set */
-	if((_GetISTR()&ISTR_WKUP)==0)
+	if((_GetISTR()&ISTR_WKUP)==0u)
 	{
 		__WFI();
 		/* Reset SLEEPDEEP bit of Cortex System Control Register */
@@ -261,11 +265,13 @@ void Resume(RESUME_STATE eResumeSetVal)
   uint16_t wCNTR;
 
   if (eResumeSetVal != RESUME_ESOF)
+  {
     ResumeS.eState = eResumeSetVal;
+  }
   switch (ResumeS.eState)
   {
     case RESUME_EXTERNAL:
-      if (remotewakeupon ==0)
+      if (remotewakeupon ==0u)
       {
         Resume_Init();
         ResumeS.eState = RESUME_OFF;
@@ -278,33 +284,35 @@ void Resume(RESUME_STATE eResumeSetVal)
     case RESUME_INTERNAL:
       Resume_Init();
       ResumeS.eState = RESUME_START;
-      remotewakeupon = 1;
+      remotewakeupon = 1u;
       break;
     case RESUME_LATER:
-      ResumeS.bESOFcnt = 2;
+      ResumeS.bESOFcnt = 2u;
       ResumeS.eState = RESUME_WAIT;
       break;
     case RESUME_WAIT:
       ResumeS.bESOFcnt--;
-      if (ResumeS.bESOFcnt == 0)
+      if (ResumeS.bESOFcnt == 0u)
+      {
         ResumeS.eState = RESUME_START;
+      }
       break;
     case RESUME_START:
       wCNTR = _GetCNTR();
       wCNTR |= CNTR_RESUME;
       _SetCNTR(wCNTR);
       ResumeS.eState = RESUME_ON;
-      ResumeS.bESOFcnt = 10;
+      ResumeS.bESOFcnt = 10u;
       break;
     case RESUME_ON:    
       ResumeS.bESOFcnt--;
-      if (ResumeS.bESOFcnt == 0)
+      if (ResumeS.bESOFcnt == 0u)
       {
         wCNTR = _GetCNTR();
         wCNTR &= (~CNTR_RESUME);
         _SetCNTR(wCNTR);
         ResumeS.eState = RESUME_OFF;
-        remotewakeupon = 0;
+        remotewakeupon = 0u;
       }
       break;
     case RESUME_OFF:

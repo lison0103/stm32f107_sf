@@ -139,7 +139,7 @@ void TIM4_Int_Init(u16 arr,u16 psc)
 		TIM_IT_Update ,
 		ENABLE  
 		);
-	NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn; 
+	NVIC_InitStructure.NVIC_IRQChannel = (u8)TIM4_IRQn; 
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3u; 
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0u;  
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
@@ -203,7 +203,7 @@ void TIM2_Int_Init(u16 arr,u16 psc)
 		TIM_IT_Update ,
 		ENABLE  
 		);
-	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;  
+	NVIC_InitStructure.NVIC_IRQChannel = (u8)TIM2_IRQn;  
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3u;  
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2u;  
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
@@ -241,14 +241,14 @@ void TIM1_PWM_Init(u16 arr,u16 psc)
     
     TIM_TimeBaseStructure.TIM_Period = arr; 
     TIM_TimeBaseStructure.TIM_Prescaler = psc; 
-    TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+    TIM_TimeBaseStructure.TIM_ClockDivision = 0u;
     TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; 
     TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure); 
     
     
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;
     TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; 
-    TIM_OCInitStructure.TIM_Pulse = 0; 
+    TIM_OCInitStructure.TIM_Pulse = 0u; 
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; 
     TIM_OC3Init(TIM1, &TIM_OCInitStructure);  
     

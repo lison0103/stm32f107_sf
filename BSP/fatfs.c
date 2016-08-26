@@ -152,7 +152,7 @@ u8 CopyFile(char *readfilename, char *newfilename)
     FIL* fp2;
     FRESULT res = FR_NO_FILE;
     u8 *tempbuf;
-    u16 bread;
+    u32 bread;
     u32 offx = 0u;
     
     fp1 = (FIL*)mymalloc(sizeof(FIL));	

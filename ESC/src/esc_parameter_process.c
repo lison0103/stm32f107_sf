@@ -69,7 +69,7 @@ void esc_para_init(void)
         NOMINAL_SPEED = 500u;
         SSM_SHORTCIRCUIT_TIME = 750u;
         HR_FAULT_TIME = 10000u;
-        ROLLER_HR_RADIUS = ( 0.050 * 1000 ); /* mm */
+        ROLLER_HR_RADIUS = 50u; /*( 0.050 * 1000 );  mm */
         HR_PULSES_PER_REV = 2u;
         STEP_WIDTH = 400u;
         TANDEM_TYPE = 0u;
@@ -96,6 +96,7 @@ u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len)
 {
     u8 senddata[120],recvdata[120];
     u8 i;
+    u8 res = 0u;
     
     senddata[0] = board;
     senddata[1] = state;    
@@ -122,7 +123,7 @@ u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len)
                 buff[i] = recvdata[i];
             }    
             
-            return len;
+            res = len;
         }
         else
         {
@@ -149,7 +150,7 @@ u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len)
     else
     {}
     
-    return 0u;
+    return res;
 }
 
 /*******************************************************************************
@@ -248,7 +249,7 @@ void get_para_from_usb(void)
     u8 i;
     
     /* 1. Waiting for message from CPU1 to start parameter loading process */
-    len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0 ); 
+    len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u ); 
 
     if( len == 0x02u && recvdata[0] == MESSAGE_TO_CPU )
     {
@@ -266,12 +267,12 @@ void get_para_from_usb(void)
         else if( recvdata[1] == USB_NOT_DETECTED )
         {
             /* 2. Message received with parameters from CPU1 */
-            len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0 ); 
+            len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u ); 
             
             /* 3. Check paremeters received, CRC16 is ok */
             if( recvdata[0] == MESSAGE_TO_CPU && recvdata[1] == SEND_PARAMETER )
             {
-                if( MB_CRC16( &recvdata[2], (len - 2u) ))
+                if( MB_CRC16( &recvdata[2], ((u16)len - 2u) ))
                 {
                     /* Send error to CPU1. ¡°CPU2 parameters error¡± System remains in Init Fault. */
                     Send_State_Message( MESSAGE_TO_CPU, PARAMETER_ERROR, NULL, 0u );
@@ -344,7 +345,7 @@ void ParametersLoading(void)
 #else
 
 #endif
-//        get_para_from_usb();
+/*        get_para_from_usb();*/
     }
 }
 

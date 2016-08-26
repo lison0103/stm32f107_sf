@@ -84,24 +84,24 @@ extern USBH_HCD_INT_cb_TypeDef *USBH_HCD_INT_fops;
   }\
 
 #define MASK_HOST_INT_CHH(hc_num) { USB_OTG_HCINTMSK_TypeDef  INTMSK; \
-    INTMSK.d32 = USB_OTG_READ_REG32(&pdev->regs.HC_REGS[hc_num]->HCINTMSK); \
+    INTMSK.d32 = USB_OTG_READ_REG32(&pdev->regs.HC_REGS[(hc_num)]->HCINTMSK); \
     INTMSK.b.chhltd = 0; \
-    USB_OTG_WRITE_REG32(&pdev->regs.HC_REGS[hc_num]->HCINTMSK, INTMSK.d32);}
+    USB_OTG_WRITE_REG32(&pdev->regs.HC_REGS[(hc_num)]->HCINTMSK, INTMSK.d32);}
 
 #define UNMASK_HOST_INT_CHH(hc_num) { USB_OTG_HCINTMSK_TypeDef  INTMSK; \
-    INTMSK.d32 = USB_OTG_READ_REG32(&pdev->regs.HC_REGS[hc_num]->HCINTMSK); \
+    INTMSK.d32 = USB_OTG_READ_REG32(&pdev->regs.HC_REGS[(hc_num)]->HCINTMSK); \
     INTMSK.b.chhltd = 1; \
-    USB_OTG_WRITE_REG32(&pdev->regs.HC_REGS[hc_num]->HCINTMSK, INTMSK.d32);}
+    USB_OTG_WRITE_REG32(&pdev->regs.HC_REGS[(hc_num)]->HCINTMSK, INTMSK.d32);}
 
 #define MASK_HOST_INT_ACK(hc_num) { USB_OTG_HCINTMSK_TypeDef  INTMSK; \
-    INTMSK.d32 = USB_OTG_READ_REG32(&pdev->regs.HC_REGS[hc_num]->HCINTMSK); \
+    INTMSK.d32 = USB_OTG_READ_REG32(&pdev->regs.HC_REGS[(hc_num)]->HCINTMSK); \
     INTMSK.b.ack = 0; \
-    USB_OTG_WRITE_REG32(&pdev->regs.HC_REGS[hc_num]->HCINTMSK, GINTMSK.d32);}
+    USB_OTG_WRITE_REG32(&pdev->regs.HC_REGS[(hc_num)]->HCINTMSK, GINTMSK.d32);}
 
 #define UNMASK_HOST_INT_ACK(hc_num) { USB_OTG_HCGINTMSK_TypeDef  INTMSK; \
-    INTMSK.d32 = USB_OTG_READ_REG32(&pdev->regs.HC_REGS[hc_num]->HCINTMSK); \
+    INTMSK.d32 = USB_OTG_READ_REG32(&pdev->regs.HC_REGS[(hc_num)]->HCINTMSK); \
     INTMSK.b.ack = 1; \
-    USB_OTG_WRITE_REG32(&pdev->regs.HC_REGS[hc_num]->HCINTMSK, INTMSK.d32);}
+    USB_OTG_WRITE_REG32(&pdev->regs.HC_REGS[(hc_num)]->HCINTMSK, INTMSK.d32);}
 
 /**
   * @}
@@ -129,7 +129,7 @@ uint32_t USBH_OTG_ISR_Handler (USB_OTG_CORE_HANDLE *pdev);
 
 
 
-#endif //__HCD_INT_H__
+#endif /* __HCD_INT_H__ */
 
 
 /**

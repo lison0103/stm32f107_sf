@@ -49,18 +49,18 @@
 /*-------------------------------------------------------------*/
 /* buffer table base address */
 /* buffer table base address */
-#define BTABLE_ADDRESS      (0x00)
+#define BTABLE_ADDRESS      (0x00u)
 
 /* EP0  */
 /* rx/tx buffer base address */
-#define ENDP0_RXADDR        (0x40)
-#define ENDP0_TXADDR        (0x80)
+#define ENDP0_RXADDR        (0x40u)
+#define ENDP0_TXADDR        (0x80u)
 
 /* EP1  */
 /* tx buffer base address */
-#define ENDP1_TXADDR        (0xC0)
-#define ENDP2_TXADDR        (0x100)
-#define ENDP3_RXADDR        (0x110)
+#define ENDP1_TXADDR        (0xC0u)
+#define ENDP2_TXADDR        (0x100u)
+#define ENDP3_RXADDR        (0x110u)
 
 
 /*-------------------------------------------------------------*/

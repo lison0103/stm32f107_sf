@@ -89,7 +89,7 @@
   */ 
 
 
-#endif //__USBH_CONF__H__
+#endif /* __USBH_CONF__H__ */
 
 
 /**

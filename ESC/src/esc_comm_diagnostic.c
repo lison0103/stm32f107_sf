@@ -119,7 +119,7 @@ void Safety_Comm_Diag(void)
         {}
         
         /** receive a data packet -----------------------------------------------**/ 
-        len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
+        len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0u);
         
         /* for tandem communication */
         if( len > 0u )
@@ -136,7 +136,7 @@ void Safety_Comm_Diag(void)
             }
 
         }
-        CAN1_TX_Data[0] = TANDEM_TYPE;
+        CAN1_TX_Data[0] = (u8)TANDEM_TYPE;
         CAN1_TX_Data[1] = TandemRunEnable;
         CAN1_TX_Data[2] = Tandemoutput;    
         

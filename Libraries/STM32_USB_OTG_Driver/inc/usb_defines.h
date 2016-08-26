@@ -161,9 +161,9 @@
 #define HC_PID_DATA1                           2
 #define HC_PID_SETUP                           3
 
-#define HPRT0_PRTSPD_HIGH_SPEED                0
-#define HPRT0_PRTSPD_FULL_SPEED                1
-#define HPRT0_PRTSPD_LOW_SPEED                 2
+#define HPRT0_PRTSPD_HIGH_SPEED                0u
+#define HPRT0_PRTSPD_FULL_SPEED                1u
+#define HPRT0_PRTSPD_LOW_SPEED                 2u
 
 #define HCFG_30_60_MHZ                         0
 #define HCFG_48_MHZ                            1

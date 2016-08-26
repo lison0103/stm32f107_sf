@@ -136,7 +136,7 @@ void Initial_Device(void)
         SafetyExtWdt_StartUpCheck();    
 
         /* HardwareTest */
-//        HardwareTEST();        
+/*        HardwareTEST();        */
         
         /* Parameters Loading */
         ParametersLoading();
@@ -201,7 +201,7 @@ void PluseOutputInit(void)
     TIM1_PWM_Init(999u,71u); 
     
     /* Set the Duty Cycle, accoring to the arr value, 1/2 arr is 50% duty cycle */
-    TIM_SetCompare3(TIM1,780);
+    TIM_SetCompare3(TIM1,780u);
 }
 
 /*******************************************************************************
@@ -386,7 +386,7 @@ void PVD_Configuration(void)
     EXTI_Init(&EXTI_InitStructure);
 
     /* Enable the PVD Interrupt */
-    NVIC_InitStructure.NVIC_IRQChannel = PVD_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannel = (u8)PVD_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0u;
     NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0u;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;

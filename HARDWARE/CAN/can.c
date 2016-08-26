@@ -226,9 +226,9 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             /* FIFO 0 message pending Interrupt ,full Interrupt , overrun Interrupt */
             CAN_ITConfig(CAN1,CAN_IT_FMP0 | CAN_IT_FF0 | CAN_IT_FOV0, ENABLE); 		    
 #ifdef GEC_SF_MASTER
-            NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX0_IRQn;
+            NVIC_InitStructure.NVIC_IRQChannel = (u8)CAN1_RX0_IRQn;
 #else
-            NVIC_InitStructure.NVIC_IRQChannel = USB_LP_CAN1_RX0_IRQn;
+            NVIC_InitStructure.NVIC_IRQChannel = (u8)USB_LP_CAN1_RX0_IRQn;
 #endif
             NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1u;     
             NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0u;            
@@ -239,7 +239,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
 #ifdef GEC_SF_MASTER
             CAN_ITConfig(CAN1, CAN_IT_TME, DISABLE);                
             /* Enable CAN1 TX0 interrupt IRQ channel */
-            NVIC_InitStructure.NVIC_IRQChannel = CAN1_TX_IRQn;
+            NVIC_InitStructure.NVIC_IRQChannel = (u8)CAN1_TX_IRQn;
             NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1u;
             NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2u;
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -328,7 +328,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             /* IT Configuration for CAN2 */ 
             CAN_ITConfig(CAN2,CAN_IT_FMP0 | CAN_IT_FF0 | CAN_IT_FOV0, ENABLE); 						    
 
-            NVIC_InitStructure.NVIC_IRQChannel = CAN2_RX0_IRQn;
+            NVIC_InitStructure.NVIC_IRQChannel = (u8)CAN2_RX0_IRQn;
             NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1u;     
             NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1u;           
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -683,7 +683,7 @@ void CAN2_TX_IRQHandler(void)
 uint8_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, uint8_t buff[], uint8_t mlen)
 {
     uint8_t *pstr;
-    uint32_t i = 0u,len = 0u;
+    uint8_t i = 0u,len = 0u;
 	
     switch (*(uint32_t*)&CANx)
     {

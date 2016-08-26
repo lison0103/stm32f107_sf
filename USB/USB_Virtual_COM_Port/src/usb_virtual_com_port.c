@@ -56,33 +56,36 @@ void Connect_To_COM(void)
 * Output          : None.
 * Return          : None.
 *******************************************************************************/
-void USB_Send_Data(uint8_t *ptrBuffer, uint8_t Send_length)
+void USB_Send_Data(uint8_t ptrBuffer[], uint8_t Send_length)
 {
+    uint16_t p = 0u;
+        
     if (bDeviceState == CONFIGURED)
     {
-          if(Send_length > 63)
+          if(Send_length > 63u)
           {      
-              s8 SendCount = Send_length / 63;
-              Send_length = Send_length%63;
-//              Delay_us(10000);
+              u8 SendCount = Send_length / 63u;
+              Send_length = Send_length%63u;
+              
               while(SendCount--)
               {
-                  while( 0 == packet_sent );
+                  while( 0u == packet_sent )
+                  {}
                       
-                      CDC_Send_DATA (ptrBuffer,63);
-                      ptrBuffer += 63;
+                      CDC_Send_DATA (&ptrBuffer[p],63u);
+                      p += 63u;
                   
-//                  Delay_us(1);
               }
-              while( 0 == packet_sent );
-              CDC_Send_DATA (ptrBuffer,Send_length);
-              delay_us(1);
-//            CDC_Send_DATA (ptrBuffer,63);
+              while( 0u == packet_sent )
+              {}
+              CDC_Send_DATA (&ptrBuffer[p],Send_length);
+              delay_us(1u);
           }
           else
           {
-              while( 0 == packet_sent );
-              CDC_Send_DATA (ptrBuffer,Send_length);
+              while( 0u == packet_sent )
+              {}
+              CDC_Send_DATA (&ptrBuffer[p],Send_length);
           }
     }
 }
@@ -94,36 +97,35 @@ void USB_Send_Data(uint8_t *ptrBuffer, uint8_t Send_length)
 * Output          : None.
 * Return          : the length of receive data.
 *******************************************************************************/
-uint32_t USB_Receive_Data(uint8_t *ptrBuffer)
+uint32_t USB_Receive_Data(uint8_t ptrBuffer[])
 {
-    uint32_t  receive_length = 0;
+    uint32_t  receive_length = 0u;
     uint32_t i;
+    uint32_t res = 0u;
+    uint32_t p = 0u;
     
     if (bDeviceState == CONFIGURED)
     {
-//      CDC_Receive_DATA();
 
-//      while (Receive_length  != 0)
-      while ( 1 == packet_receive )
+      while ( 1u == packet_receive )
       {
-          for( i = 0; i < Receive_length; i++ )
+          for( i = 0u; i < Receive_length; i++ )
           {
-              ptrBuffer[i] = Receive_Buffer[i];
+              ptrBuffer[p + i] = Receive_Buffer[i];
 
           }
           receive_length += Receive_length;
           
-          ptrBuffer += Receive_length;          
-//          Receive_length = 0;
+          p += Receive_length;          
                        
           CDC_Receive_DATA();         
           
-          delay_us(100);
+          delay_us(100u);
       }
-      return receive_length;
+      res = receive_length;
     }
     
-    return 0;
+    return res;
 
 }
 
@@ -141,13 +143,12 @@ void USB_Receive_Data_Send(void)
   
     if (bDeviceState == CONFIGURED)
     {
-      CDC_Receive_DATA();//usb_endp.c   EP3_OUT_Callback
+      CDC_Receive_DATA();
       /*Check to see if we have data yet */
-//      while(!packet_receive);
-      while(Receive_length  != 0)
+      while(Receive_length  != 0u)
       {
-          CDC_Send_DATA ((unsigned char*)Receive_Buffer,Receive_length);
-          Receive_length = 0;
+          CDC_Send_DATA ((unsigned char*)Receive_Buffer,(u8)Receive_length);
+          Receive_length = 0u;
           CDC_Receive_DATA();
       }
       

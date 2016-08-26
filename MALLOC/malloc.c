@@ -121,14 +121,16 @@ u8 mem_perused(void)
 {  
     u32 used=0u;  
     u32 i;  
-    for(i=0u;i<memtblsize;i++)  
+    
+    for(i = 0u; i < memtblsize; i++)  
     {  
         if(mallco_dev.memmap[i])
         {
             used++; 
         }
-    } 
-    return (used*100)/(memtblsize);  
+    }
+    
+    return (u8)((used*100u)/(memtblsize));  
 }  
 
 
@@ -143,7 +145,7 @@ u8 mem_perused(void)
 *******************************************************************************/ 
 u32 mmem_malloc(u32 size)  
 {  
-    signed long offset=0;  
+    int offset = 0;  
     u32 nmemb;	
     u16 cmemb=0u;
     u32 i;
@@ -164,7 +166,7 @@ u32 mmem_malloc(u32 size)
         {
             nmemb++;  
         }
-        for(offset=memtblsize-1;offset>=0;offset--)	  
+        for(offset = (int)memtblsize - 1; offset >= 0; offset--)	  
         {     
             if(!mallco_dev.memmap[offset])
             {
@@ -178,9 +180,9 @@ u32 mmem_malloc(u32 size)
             {
                 for(i=0u;i<nmemb;i++)  				
                 {  
-                    mallco_dev.memmap[offset+i]=nmemb;  
+                    mallco_dev.memmap[(u32)offset + i] = (u16)nmemb;  
                 }  
-                result = (offset*memblksize);
+                result = ((u32)offset*memblksize);
             }
         } 
     }
@@ -199,7 +201,7 @@ u32 mmem_malloc(u32 size)
 *******************************************************************************/  
 u8 mmem_free(u32 offset)  
 {  
-    int i;  
+    u32 i;  
     u8 result = 0u;
     
     if(!mallco_dev.memrdy)
@@ -211,9 +213,9 @@ u8 mmem_free(u32 offset)
     {
         if(offset<memsize) 
         {  
-            int index=offset/memblksize;		
-            int nmemb=mallco_dev.memmap[index];	
-            for(i=0;i<nmemb;i++)  				
+            u32 index=offset/memblksize;		
+            u32 nmemb=mallco_dev.memmap[index];	
+            for( i = 0u; i < nmemb; i++ )  				
             {  
                 mallco_dev.memmap[index+i] = 0u;  
             }

@@ -37,7 +37,7 @@
 USBH_HOST  USB_Host;
 USB_OTG_CORE_HANDLE  USB_OTG_Core;
 
-u8 ParaLoad = 0;
+u8 ParaLoad = 0u;
 
 
 /*******************************************************************************
@@ -49,29 +49,29 @@ u8 ParaLoad = 0;
 * Output         : None
 * Return         : 0:ok  1:error
 *******************************************************************************/ 
-u8 USB_LoadParameter(void)
+int USB_LoadParameter(void)
 { 
 
-      u8 res = 0;
+      int res = 0;
       u8 parabuffer[100];
-      u16 filelen = 0;
+      u16 filelen = 0u;
 
       LED_ON();
       ParaLoad |= USB_DETECTED;
       
       /* USB-stick detected */     
       /* 1. Message to CPU2 */
-      Send_State_Message( MESSAGE_TO_CPU, USB_DETECTED, NULL, 0 );
+      Send_State_Message( MESSAGE_TO_CPU, USB_DETECTED, NULL, 0u );
       
       /* 2. Message to Control */
-      Send_State_Message( MESSAGE_TO_CONTROL, USB_DETECTED, NULL, 0 );
+      Send_State_Message( MESSAGE_TO_CONTROL, USB_DETECTED, NULL, 0u );
       
       /* usb load parameter start -------------------------------------------*/
       /* 1. S0001 file present */
       if(!isFileExist("0:S0001.bin"))
       {
           
-          Send_State_Message( MESSAGE_TO_CONTROL, SAFETY_PARAMETER_EXIST, NULL, 0 );
+          Send_State_Message( MESSAGE_TO_CONTROL, SAFETY_PARAMETER_EXIST, NULL, 0u );
           
           /* 2. Read parameters from usb stick to buffer */
           filelen = ReadFile( "0:S0001.bin", parabuffer );
@@ -82,9 +82,9 @@ u8 USB_LoadParameter(void)
           if( MB_CRC16( parabuffer, filelen ))
           {
               /* Error message. Abort parameter loading. System remains in Init Fault. */
-              EN_ERROR9 |= 0x01;
+              EN_ERROR9 |= 0x01u;
               
-              Send_State_Message( MESSAGE_TO_CONTROL, PARAMETER_ERROR, NULL, 0 );
+              Send_State_Message( MESSAGE_TO_CONTROL, PARAMETER_ERROR, NULL, 0u );
               
               ESC_Init_Fault();
           }
@@ -99,14 +99,14 @@ u8 USB_LoadParameter(void)
       }
       else
       {
-          Send_State_Message( MESSAGE_TO_CONTROL, SAFETY_PARAMETER_NOT_EXIST, NULL, 0 );
+          Send_State_Message( MESSAGE_TO_CONTROL, SAFETY_PARAMETER_NOT_EXIST, NULL, 0u );
       }
 
       /* 1. C0001 file present */
       if(!isFileExist("0:C0001.bin"))
       {
           
-          Send_State_Message( MESSAGE_TO_CONTROL, CONTROL_PARAMETER_EXIST, NULL, 0 );
+          Send_State_Message( MESSAGE_TO_CONTROL, CONTROL_PARAMETER_EXIST, NULL, 0u );
           
           /* 2. Read parameters from usb stick to buffer */
           filelen = ReadFile( "0:C0001.bin", parabuffer );
@@ -117,16 +117,16 @@ u8 USB_LoadParameter(void)
           if( MB_CRC16( parabuffer, filelen ))
           {
               /* Error message. Abort parameter loading. System remains in Init Fault. */
-              EN_ERROR9 |= 0x01;   
+              EN_ERROR9 |= 0x01u;   
               
-              Send_State_Message( MESSAGE_TO_CONTROL, PARAMETER_ERROR, NULL, 0 );
+              Send_State_Message( MESSAGE_TO_CONTROL, PARAMETER_ERROR, NULL, 0u );
               
               ESC_Init_Fault();
           }
           else
           {         
               /* 5. Send the parameters to the cb board */
-              Send_State_Message( MESSAGE_TO_CONTROL, SEND_PARAMETER, parabuffer, filelen );
+              Send_State_Message( MESSAGE_TO_CONTROL, SEND_PARAMETER, parabuffer, (u8)filelen );
               
               ParaLoad |= CONTROL_PARAMETER_LOADED;
           }
@@ -134,7 +134,7 @@ u8 USB_LoadParameter(void)
       }   
       else
       {
-          Send_State_Message( MESSAGE_TO_CONTROL, CONTROL_PARAMETER_NOT_EXIST, NULL, 0 );
+          Send_State_Message( MESSAGE_TO_CONTROL, CONTROL_PARAMETER_NOT_EXIST, NULL, 0u );
       }
       /* usb load parameter finish -------------------------------------------*/ 
       
@@ -151,7 +151,7 @@ u8 USB_LoadParameter(void)
                 LED_OFF();
             }
             
-            delay_ms(200);
+            delay_ms(200u);
             EWDT_TOOGLE();
             IWDG_ReloadCounter();
              
@@ -176,9 +176,9 @@ u8 USB_LoadParameter(void)
 *******************************************************************************/ 
 void USBH_Mass_Storage_Init(void)
 {
-      u8 wait_for_restart = 0;  
-      u16 t = 0;
-      u32 timecounter = 0;
+      u8 wait_for_restart = 0u;  
+      u16 t = 0u;
+      u32 timecounter = 0u;
       
       /** mem init **/	
       mmem_init(); 
@@ -197,14 +197,14 @@ void USBH_Mass_Storage_Init(void)
           
           if( ParaLoad & USB_DETECTED )
           {
-              if( wait_for_restart == 0 )
+              if( wait_for_restart == 0u )
               {
                   USBH_DeInit(&USB_OTG_Core, &USB_Host);
                   myfree(fs[0]);   
-                  wait_for_restart = 1;
+                  wait_for_restart = 1u;
               }
           }
-          else if( timecounter == 1000 )
+          else if( timecounter == 1000u )
           {                             
               USBH_DeInit(&USB_OTG_Core, &USB_Host);
               myfree(fs[0]);
@@ -216,12 +216,12 @@ void USBH_Mass_Storage_Init(void)
               timecounter++;
           }
           
-          delay_ms(1);
+          delay_ms(1u);
           t++;
           
-          if( t == 200 )
+          if( t == 200u )
           {                       
-              t = 0;
+              t = 0u;
               LED_FLASH();
               
               EWDT_TOOGLE();

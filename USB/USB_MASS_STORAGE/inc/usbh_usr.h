@@ -70,8 +70,8 @@ extern  USBH_Usr_cb_TypeDef USR_cb;
   * @{
   */ 
 /* State Machine for the USBH_USR_ApplicationState */
-#define USH_USR_FS_INIT       	0
-#define USH_USR_FS_TEST   		1  
+#define USH_USR_FS_INIT       	0u
+#define USH_USR_FS_TEST   		1u  
 
  
 /**
@@ -120,7 +120,7 @@ void USBH_USR_UnrecoveredError(void);
 int USBH_USR_MSC_Application(void);
 
 
-u8 USBH_UDISK_Status(void);
+u32 USBH_UDISK_Status(void);
 u8 USBH_UDISK_Read(u8* buf,u32 sector,u32 cnt);
 u8 USBH_UDISK_Write(u8* buf,u32 sector,u32 cnt);
 

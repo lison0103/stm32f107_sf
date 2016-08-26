@@ -18,7 +18,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define CPU_COMM_TIMEOUT  5
+#define CPU_COMM_TIMEOUT  5u
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -121,7 +121,7 @@ void Receive_state_from_CPU(void)
         }
         
         /* 2. esc state */
-        pcOMC_SfBase_EscState = ( cpu_recvdata_buffer[101] << 8u | cpu_recvdata_buffer[100] );    
+        pcOMC_SfBase_EscState = (u16)( cpu_recvdata_buffer[101] << 8u | cpu_recvdata_buffer[100] );    
     }
 #else
     if( recvlen == 102u )       
@@ -133,7 +133,8 @@ void Receive_state_from_CPU(void)
         }
         
         /* 2. esc state */
-        pcOMC_SfBase_EscState = ( cpu_recvdata_buffer[101] << 8 | cpu_recvdata_buffer[100] );    
+        pcOMC_SfBase_EscState = (u16)cpu_recvdata_buffer[101] << 8 ; 
+        pcOMC_SfBase_EscState |= (u16)cpu_recvdata_buffer[100]; 
         
         /* 3. esc para receive, just for test --------------*/
 /*        
@@ -160,7 +161,7 @@ void Receive_IO_status_from_CPU(void)
       
       for( i = 4u; i < 12u; i++ )
       {
-          if( pcOMC_EscRTBuff[i] != EscRTBuff[i] )
+          if( McRxBuff[i] != EscRTBuff[i] )
           {
               receive_io_error++;
               break;

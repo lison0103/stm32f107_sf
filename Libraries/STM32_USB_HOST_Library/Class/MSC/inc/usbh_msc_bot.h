@@ -153,7 +153,7 @@ typedef union _USBH_CSW_Block
 #define USBH_MSC_DIR_OUT                  1
 #define USBH_MSC_BOTH_DIR                 2
 
-//#define USBH_MSC_PAGE_LENGTH                 0x40
+/* #define USBH_MSC_PAGE_LENGTH                 0x40 */
 #define USBH_MSC_PAGE_LENGTH              512
 
 
@@ -205,7 +205,7 @@ USBH_Status USBH_MSC_BOT_Abort(USB_OTG_CORE_HANDLE *pdev,
   * @}
   */ 
 
-#endif  //__USBH_MSC_BOT_H__
+#endif  /* __USBH_MSC_BOT_H__ */
 
 
 /**

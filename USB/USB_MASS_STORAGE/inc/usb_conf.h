@@ -83,15 +83,15 @@
 *     STM32 device datasheet.
 *******************************************************************************/
 #ifndef USE_USB_OTG_HS
- //#define USE_USB_OTG_HS
+ /* #define USE_USB_OTG_HS */
 #endif /* USE_USB_OTG_HS */
 
 #ifndef USE_ULPI_PHY
- //#define USE_ULPI_PHY
+ /* #define USE_ULPI_PHY */
 #endif /* USE_ULPI_PHY */
 
 #ifndef USE_EMBEDDED_PHY
- //#define USE_EMBEDDED_PHY
+ /* #define USE_EMBEDDED_PHY */
 #endif /* USE_EMBEDDED_PHY */
 
 #ifdef USE_USB_OTG_HS 
@@ -143,14 +143,14 @@
  #define TXH_NP_FS_FIFOSIZ                         96
  #define TXH_P_FS_FIFOSIZ                          96
 
-// #define USB_OTG_FS_LOW_PWR_MGMT_SUPPORT
-// #define USB_OTG_FS_SOF_OUTPUT_ENABLED
+/* #define USB_OTG_FS_LOW_PWR_MGMT_SUPPORT */
+/* #define USB_OTG_FS_SOF_OUTPUT_ENABLED */
 #endif
 
 /****************** USB OTG MODE CONFIGURATION ********************************/
 #define USE_HOST_MODE
-//#define USE_DEVICE_MODE
-//#define USE_OTG_MODE
+/* #define USE_DEVICE_MODE */
+/* #define USE_OTG_MODE */
 
 #ifndef USB_OTG_FS_CORE
  #ifndef USB_OTG_HS_CORE
@@ -168,7 +168,7 @@
  #ifndef USE_USB_OTG_FS
     #error  "USE_USB_OTG_HS or USE_USB_OTG_FS should be defined"
  #endif
-#else //USE_USB_OTG_HS
+#else 
  #ifndef USE_ULPI_PHY
   #ifndef USE_EMBEDDED_PHY
      #error  "USE_ULPI_PHY or USE_EMBEDDED_PHY should be defined"
@@ -244,7 +244,7 @@
   */ 
 
 
-#endif //__USB_CONF__H__
+#endif /* __USB_CONF__H__ */
 
 
 /**
