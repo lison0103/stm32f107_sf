@@ -33,6 +33,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+int USB_LoadParameter(void);
 
 USBH_HOST  USB_Host;
 USB_OTG_CORE_HANDLE  USB_OTG_Core;
@@ -186,7 +187,7 @@ void USBH_Mass_Storage_Init(void)
       /** fatfs apply memory **/ 
       if(fatfs_init())			
       {
-            printf("fatfs memory apply fail \n");           
+            /* fatfs memory apply fail */
       }
       
       /** USB HOST init **/

@@ -97,6 +97,7 @@ u16 ReadFile(char *readfilename, u8 buffer[])
     u16 bread = 0u;
     u16 offx = 0u;
     u16 i;
+    u8 result = 0u;
     
     fp1 = (FIL*)mymalloc(sizeof(FIL));		
     tempbuf = mymalloc(512u);
@@ -112,18 +113,25 @@ u16 ReadFile(char *readfilename, u8 buffer[])
             res = f_read( fp1, tempbuf, 512u, (UINT *)&bread );		
             if( res != FR_OK )
             {
-                break;
+                result = 1u;
+            }
+            else
+            {
+                for( i = 0u; i < bread; i++ )
+                {
+                    buffer[ offx + i ] = tempbuf[i];
+                }
+                
+                offx += bread;
+                if( bread != 512u )
+                {              
+                    result = 1u;					
+                }
             }
             
-            for( i = 0u; i < bread; i++ )
+            if(result)
             {
-                buffer[ offx + i ] = tempbuf[i];
-            }
-	  
-            offx += bread;
-            if( bread != 512u )
-            {              
-                break;					
+                break;
             }
         }       
                 
@@ -154,6 +162,7 @@ u8 CopyFile(char *readfilename, char *newfilename)
     u8 *tempbuf;
     u32 bread;
     u32 offx = 0u;
+    u8 result = 0u;
     
     fp1 = (FIL*)mymalloc(sizeof(FIL));	
     fp2 = (FIL*)mymalloc(sizeof(FIL));	
@@ -170,13 +179,20 @@ u8 CopyFile(char *readfilename, char *newfilename)
             res = f_read(fp1,tempbuf,1024u,(UINT *)&bread);		
             if(res != FR_OK)
             {
-                break;					
+                result = 1u;					
             }
-            res = f_write(fp2,tempbuf,bread,&offx);	  
-            offx += bread;
-            if( bread != 1024u )
-            {                
-                break;					
+            else
+            {
+                res = f_write(fp2,tempbuf,bread,&offx);	  
+                offx += bread;
+                if( bread != 1024u )
+                {                
+                    result = 1u;					
+                }
+            }
+            if(result)
+            {
+                break;
             }
         }       
         

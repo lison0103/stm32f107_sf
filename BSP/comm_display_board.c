@@ -41,12 +41,14 @@ void Comm_DisplayBoard(void)
     {
         
     }  
-    else if( ((buff[0]==1u)||(buff[0]==2u)) && (!MB_CRC16(buff, (u16)len)) )   	
+    else if( ((buff[0]==1u)||(buff[0]==2u)) )   	
     {
-/*        
-        DB_Comm_Addr = buff[0];
-        switch(buff[1])                
+        if(!MB_CRC16(buff, (u16)len))
         {
+/*        
+            DB_Comm_Addr = buff[0];
+            switch(buff[1])                
+            {
            case 3:                     
             tlen = modbus_slave_03();                       
             break; 
@@ -55,17 +57,24 @@ void Comm_DisplayBoard(void)
             break;                    
         }	
 */        
-        if(tlen)	
-        {			
-            i = MB_CRC16(buff, (u16)(tlen-2u));
-            buff[tlen-1u] = (u8)(i>>8u);
-            buff[tlen-2u] = (u8)i;
-            BSP_USART_Send(USART3,buff,tlen);
-        }			
+            if(tlen)	
+            {			
+                i = MB_CRC16(buff, (u16)(tlen-2u));
+                buff[tlen-1u] = (u8)(i>>8u);
+                buff[tlen-2u] = (u8)i;
+                BSP_USART_Send(USART3,buff,tlen);
+            }	
+            
+        }
         
     }		   
-    else if( (buff[0]==0x11u) && (!MB_CRC16(buff, (u16)len)) )
+    else if( (buff[0]==0x11u)  )
     {
+        if(!MB_CRC16(buff, (u16)len))
+        {
+        
+        
+        }
         
     }  
     else

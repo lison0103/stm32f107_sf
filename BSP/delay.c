@@ -145,9 +145,12 @@ void delay_us(u16 nus)
 {		
     TIM_Cmd(TIM3, ENABLE);
     TIM3->CNT = nus;
-    while((TIM3->CNT > 0u) && (TIM3->CNT <= nus))
+    while((TIM3->CNT > 0u))
     {
-        ;
+        if(TIM3->CNT > nus) 
+        {
+            break;
+        }
     } 
     TIM_Cmd(TIM3, DISABLE);
 }

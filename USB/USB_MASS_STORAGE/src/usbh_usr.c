@@ -32,6 +32,7 @@
 #include "usart.h" 
 #include "fatfs.h" 	   
 
+void OTG_FS_IRQHandler(void);
 static u8 AppState;
 extern USB_OTG_CORE_HANDLE  USB_OTG_Core;
 
@@ -83,10 +84,11 @@ USBH_Usr_cb_TypeDef USR_cb=
 */
 void USBH_USR_Init(void)
 {
+    /*
 	printf("USB OTG HS MSC Host\r\n");
 	printf(" USB Host library started.\r\n");
 	printf("  USB Host Library v2.2.0\r\n\r\n");
-	
+	*/
 }
 
 
@@ -98,8 +100,8 @@ void USBH_USR_Init(void)
 */
 void USBH_USR_DeviceAttached(void)
 {
-/*	LED1=0; */
-	printf("USB Device attached!\r\n");
+/*	LED1=0; 
+	printf("USB Device attached!\r\n");*/
 }
 
 
@@ -111,8 +113,8 @@ void USBH_USR_DeviceAttached(void)
 */
 void USBH_USR_DeviceDisconnected (void)
 {
-/*	LED1=1; */
-	printf("USB Device disconnect!\r\n");
+/*	LED1=1;
+	printf("USB Device disconnect!\r\n"); */
 }  
 
 
@@ -123,7 +125,7 @@ void USBH_USR_DeviceDisconnected (void)
 */
 void USBH_USR_ResetDevice(void)
 {
-	printf("Reset device...\r\n");
+/*	printf("Reset device...\r\n"); */
 }
 
 
@@ -137,19 +139,19 @@ void USBH_USR_DeviceSpeedDetected(uint8_t DeviceSpeed)
 {
 	if(DeviceSpeed==HPRT0_PRTSPD_HIGH_SPEED)
 	{
-		printf("High speed device detected!\r\n");
+/*		printf("High speed device detected!\r\n"); */
  	}  
 	else if(DeviceSpeed==HPRT0_PRTSPD_FULL_SPEED)
 	{
-		printf("Full speed device detected!\r\n"); 
+/*		printf("Full speed device detected!\r\n");  */
 	}
 	else if(DeviceSpeed==HPRT0_PRTSPD_LOW_SPEED)
 	{
-		printf("Low speed device detected!\r\n");  
+/*		printf("Low speed device detected!\r\n");   */
 	}
 	else
 	{
-		printf("Device fault!\r\n");  
+/*		printf("Device fault!\r\n");   */
 	}
 }
 
@@ -161,10 +163,10 @@ void USBH_USR_DeviceSpeedDetected(uint8_t DeviceSpeed)
 */
 void USBH_USR_Device_DescAvailable(void *DeviceDesc)
 { 
-	USBH_DevDesc_TypeDef *hs;
-	hs=DeviceDesc;   
-	printf("VID: %04Xh\r\n" , (uint32_t)(*hs).idVendor); 
-	printf("PID: %04Xh\r\n" , (uint32_t)(*hs).idProduct); 
+/*	USBH_DevDesc_TypeDef *hs;
+	hs=DeviceDesc;   */
+/*	printf("VID: %04Xh\r\n" , (uint32_t)(*hs).idVendor);  */
+/*	printf("PID: %04Xh\r\n" , (uint32_t)(*hs).idProduct);  */
 }
 
 /**
@@ -175,7 +177,7 @@ void USBH_USR_Device_DescAvailable(void *DeviceDesc)
 */
 void USBH_USR_DeviceAddressAssigned(void)
 {
-	printf("USB device is successfully assigned the Address!\r\n");   
+/*	printf("USB device is successfully assigned the Address!\r\n");  */  
 }
 
 
@@ -193,11 +195,14 @@ void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
 	id = itfDesc;   
 	if((*id).bInterfaceClass==0x08u)
 	{
-		printf("Mass storage device connected!\r\n"); 
-	}else if((*id).bInterfaceClass==0x03u)
+/*		printf("Mass storage device connected!\r\n");  */
+	}
+        else if((*id).bInterfaceClass==0x03u)
 	{
-		printf("HID device connected!\r\n"); 
-	}    
+/*		printf("HID device connected!\r\n");  */
+	}
+        else
+        {}
 }
 
 
@@ -209,7 +214,7 @@ void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
 */
 void USBH_USR_Manufacturer_String(void *ManufacturerString)
 {
-	printf("Manufacturer: %s\r\n",(char *)ManufacturerString);
+/*	printf("Manufacturer: %s\r\n",(char *)ManufacturerString); */
 }
 
 
@@ -221,7 +226,7 @@ void USBH_USR_Manufacturer_String(void *ManufacturerString)
 */
 void USBH_USR_Product_String(void *ProductString)
 {
-	printf("Product: %s\r\n",(char *)ProductString);  
+/*	printf("Product: %s\r\n",(char *)ProductString);  */ 
 }
 
 
@@ -233,7 +238,7 @@ void USBH_USR_Product_String(void *ProductString)
 */
 void USBH_USR_SerialNum_String(void *SerialNumString)
 {
-	printf("Serial Number: %s\r\n",(char *)SerialNumString);    
+/*	printf("Serial Number: %s\r\n",(char *)SerialNumString);   */  
 } 
 
 
@@ -245,7 +250,7 @@ void USBH_USR_SerialNum_String(void *SerialNumString)
 */
 void USBH_USR_EnumerationDone(void)
 { 
-	printf("Enumeration completed!\r\n\r\n");    
+/*	printf("Enumeration completed!\r\n\r\n");   */  
 } 
 
 
@@ -257,7 +262,7 @@ void USBH_USR_EnumerationDone(void)
 */
 void USBH_USR_DeviceNotSupported(void)
 {
-	printf("No registered class for this device!\r\n\r\n");    
+/*	printf("No registered class for this device!\r\n\r\n");  */   
 }  
 
 /**
@@ -281,7 +286,7 @@ USBH_USR_Status USBH_USR_UserInput(void)
 */
 void USBH_USR_OverCurrentDetected (void)
 {
-	printf("Overcurrent detected!!!\r\n");
+/*	printf("Overcurrent detected!!!\r\n"); */
 } 
 
 extern int USB_LoadParameter(void);	
@@ -299,7 +304,7 @@ int USBH_USR_MSC_Application(void)
   	switch(AppState)
   	{
     	case USH_USR_FS_INIT:
-			printf("Start user program execution!!!\r\n");
+		/*	printf("Start user program execution!!!\r\n"); */
 			AppState=USH_USR_FS_TEST;
                         
                         /* mount usb stick */ 
@@ -308,7 +313,10 @@ int USBH_USR_MSC_Application(void)
     	case USH_USR_FS_TEST:	
 			res = USB_LoadParameter(); 
                         res=0;
-			if(res)AppState=USH_USR_FS_INIT;
+			if(res)
+                        {
+                            AppState=USH_USR_FS_INIT;
+                        }
       		break;
     	default:break;
   	} 
@@ -335,7 +343,7 @@ void USBH_USR_DeInit(void)
 */
 void USBH_USR_UnrecoveredError (void)
 {
-	printf("UNRECOVERED ERROR STATE!!!\r\n\r\n");	
+	/* printf("UNRECOVERED ERROR STATE!!!\r\n\r\n");	 */
 }
 
 
@@ -367,8 +375,10 @@ u32 USBH_UDISK_Status(void)
 u8 USBH_UDISK_Read(u8* buf,u32 sector,u32 cnt)
 {
 	u8 res=1u;
-	if(HCD_IsDeviceConnected(&USB_OTG_Core)&&AppState==USH_USR_FS_TEST)
-	{  		    
+	if(HCD_IsDeviceConnected(&USB_OTG_Core))
+	{  		
+            if(AppState==USH_USR_FS_TEST)
+            {
 		do
 		{
 			res=USBH_MSC_Read10(&USB_OTG_Core,buf,sector,512u*cnt);
@@ -378,8 +388,13 @@ u8 USBH_UDISK_Read(u8* buf,u32 sector,u32 cnt)
                                 /* read write error */
 				res=1u;
 				break;
-			};   
+			}   
 		}while(res==USBH_MSC_BUSY);
+            }
+            else 
+            {
+                res=1u;		  
+            }            
 	}
         else 
         {
@@ -405,8 +420,10 @@ u8 USBH_UDISK_Read(u8* buf,u32 sector,u32 cnt)
 u8 USBH_UDISK_Write(u8* buf,u32 sector,u32 cnt)
 {
 	u8 res=1u;
-	if(HCD_IsDeviceConnected(&USB_OTG_Core)&&AppState==USH_USR_FS_TEST)
-	{  		    
+	if(HCD_IsDeviceConnected(&USB_OTG_Core))
+	{  		
+            if(AppState==USH_USR_FS_TEST)
+            {
 		do
 		{
 			res=USBH_MSC_Write10(&USB_OTG_Core,buf,sector,512u*cnt); 
@@ -416,9 +433,15 @@ u8 USBH_UDISK_Write(u8* buf,u32 sector,u32 cnt)
                                 /* read write error */
 				res=1u;
 				break;
-			};   
+			}   
 		}while(res==USBH_MSC_BUSY);
-	}else 
+            }
+            else 
+            {
+                res = 1u;	
+            }
+	}
+        else 
         {
             res = 1u;	
         }

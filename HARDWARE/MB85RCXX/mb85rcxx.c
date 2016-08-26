@@ -228,8 +228,10 @@ u8 eep_read(u8 ack)
 
     delay_us(5u);
     d = d << 1u;
-    if(EEP_SDA_READ()) d++;		                  
- 
+    if(EEP_SDA_READ()) 
+    {
+        d++;		                  
+    }
     EEP_SCL_CLR();   
   }
   

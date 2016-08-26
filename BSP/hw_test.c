@@ -144,8 +144,8 @@ void Input_Check2(void)
             }
             
 #ifdef GEC_SF_MASTER             
-            CAN2_TX_Data[0] = inputnum1;
-            CAN2_TX_Data[1] = sflag1;            
+            CAN2_TX_Data[0] = (u8)inputnum1;
+            CAN2_TX_Data[1] = (u8)sflag1;            
 #endif         
             
             if (( inputnum1== 0u ) || ( sflag1 > 1u ))

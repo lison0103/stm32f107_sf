@@ -29,7 +29,7 @@
 * Output         : None
 * Return         : None
 *******************************************************************************/
-#if 1
+#if 0
 void Communication_To_Control(void)
 {
     static u8 can1_comm_timeout = 0u;
@@ -66,67 +66,72 @@ void Communication_To_Control(void)
 #else
 void Communication_To_Control(void)
 {
-    static u8 can1_comm_timeout = 0;
+    static u8 can1_comm_timeout = 0u;
     u16 *pc_sfescstate = (u16*)&CAN1_TX2_Data[0];
-    u8 len = 0;
+    u8 len = 0u;
+    u8 i;
     
-    if( can1_receive == 1 )
+    if( can1_receive == 1u )
     {
-        can1_receive = 0;
-        can1_comm_timeout = 0;
-        EN_ERROR7 &= ~0x04;
+        can1_receive = 0u;
+        can1_comm_timeout = 0u;
+        EN_ERROR7 &= ~0x04u;
     }
-    else if( ++can1_comm_timeout >= 3 )
+    else if( ++can1_comm_timeout >= 3u )
     {
         /*  can communication timeout process */
-        EN_ERROR7 |= 0x04;
+        EN_ERROR7 |= 0x04u;
     }  
+    else
+    {}
      
     
     /** receive a data packet -----------------------------------------------**/ 
-    len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0);
+    len = BSP_CAN_Receive(CAN1, &CAN1_RX_Normal, CAN1_RX_Data, 0u);
     
     /* just for test */
-    if( len > 0 )
+    if( len > 0u )
     {
         CAN1_TX_Data[0] = SAFETY_SWITCH_STATUS[0];
         CAN1_TX_Data[1] = McRxBuff[80];
-//        CAN1_TX_Data[2] = 0;
-//        CAN1_TX_Data[3] = 0;        
+/*        CAN1_TX_Data[2] = 0;*/
+/*        CAN1_TX_Data[3] = 0;  */      
         CAN1_TX_Data[4] = CAN1_RX_Data[0];
         CAN1_TX_Data[5] = CAN1_RX_Data[1];
     }
     
-    for( u8 i = 6; i < 50; i++ )
+    for(  i = 6u; i < 50u; i++ )
     {
-        CAN1_TX_Data[i] = EscRTBuff[30+i] ;//| McRxBuff[30+i];
+        CAN1_TX_Data[i] = EscRTBuff[30u+i] ;/* | McRxBuff[30+i];*/
     }
-    for( u8 i = 0; i < 10; i++ )
+    for( i = 0u; i < 10u; i++ )
     {
-        CAN1_TX_Data[50+i] = EscRTBuff[4+i] | McRxBuff[4+i];
-        CAN1_TX_Data[60+i] = CAN2_RX_Data[i];//DBL1 UP
-        CAN1_TX_Data[70+i] = CAN2_RX2_Data[i];//DBL1 DOWN
+        CAN1_TX_Data[50u+i] = EscRTBuff[4u+i] | McRxBuff[4u+i];
+        CAN1_TX_Data[60u+i] = CAN2_RX_Data[i];/* DBL1 UP */
+        CAN1_TX_Data[70u+i] = CAN2_RX2_Data[i];/* DBL1 DOWN */
     }   
-    for( u8 i = 80; i < 124; i++ )
+    for( i = 80u; i < 124u; i++ )
     {
-        CAN1_TX_Data[i] =  McRxBuff[ i - 44 ];
+        CAN1_TX_Data[i] =  McRxBuff[ i - 44u ];
     } 
     
     *pc_sfescstate = SfBase_EscState;
     CAN1_TX2_Data[2] = pcEscErrorCodeBuff[0];
     
     
-    if( testmode == 0 )
+    if( testmode == 0u )
     {
       /** CAN1 send data ------------------------------------------------------**/
       /** CB normal SEND ID:0x1314, CB URGE SEND ID:0x1234 **/
-      BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 125);
-      BSP_CAN_Send(CAN1, &CAN1_TX_Urge, CAN1TX_URGE_ID, CAN1_TX2_Data, 20);
+      BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 125u);
+      BSP_CAN_Send(CAN1, &CAN1_TX_Urge, CAN1TX_URGE_ID, CAN1_TX2_Data, 20u);
     }
-    else if( testmode == 1 )
+    else if( testmode == 1u )
     {
-        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10);
+        BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1_TEST_ID, CAN1_TX_Data, 10u);
     }
+    else
+    {}
 }
 #endif
 

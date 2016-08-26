@@ -79,16 +79,18 @@ const unsigned char aucCRCLo[] = {
 * Output         : None
 * Return         : Check result
 *******************************************************************************/
-uint16_t MB_CRC16( uint8_t *pucFrame, uint16_t usLen )
+uint16_t MB_CRC16( uint8_t pucFrame[], uint16_t usLen )
 {
     uint8_t ucCRCHi = 0xFFu;
     uint8_t ucCRCLo = 0xFFu;
     uint8_t iIndex;
     uint16_t returnCRC;
+    uint16_t p = 0u;
 
     while( usLen-- )
     {
-        iIndex = (ucCRCLo ^ *( pucFrame++ ));
+        iIndex = (ucCRCLo ^ pucFrame[p] );
+        p++;
         ucCRCLo = ( uint8_t )( ucCRCHi ^ aucCRCHi[iIndex] );
         ucCRCHi = aucCRCLo[iIndex];
     }

@@ -93,25 +93,40 @@ type_testResult_t IEC61508_PCTest_POST(void)
   {
     Result = IEC61508_testPassed;
   }	
-  if((Result == IEC61508_testPassed) && (IEC61508_PCTest_FctB() != RET_FCT_B))
+  if((Result == IEC61508_testPassed))
   {
-    Result = IEC61508_testFailed;
+      if(IEC61508_PCTest_FctB() != RET_FCT_B)
+      {
+          Result = IEC61508_testFailed;
+      }
   }
-  if((Result == IEC61508_testPassed) && (IEC61508_PCTest_FctC() != RET_FCT_C))
+  if((Result == IEC61508_testPassed) )
   {
-    Result = IEC61508_testFailed;
+      if(IEC61508_PCTest_FctC() != RET_FCT_C)
+      {
+          Result = IEC61508_testFailed;
+      }
   }
-  if((Result == IEC61508_testPassed) && (IEC61508_PCTest_FctD() != RET_FCT_D))
+  if((Result == IEC61508_testPassed) )
   {
-    Result = IEC61508_testFailed;
+      if(IEC61508_PCTest_FctD() != RET_FCT_D)
+      {
+          Result = IEC61508_testFailed;
+      }
   }
-  if((Result == IEC61508_testPassed) && (IEC61508_PCTest_FctE() != RET_FCT_E))
+  if((Result == IEC61508_testPassed) )
   {
-    Result = IEC61508_testFailed;
+      if(IEC61508_PCTest_FctE() != RET_FCT_E)
+      {
+          Result = IEC61508_testFailed;
+      }
   }
-  if((Result == IEC61508_testPassed) && (IEC61508_PCTest_FctF() != RET_FCT_F))
+  if((Result == IEC61508_testPassed) )
   {
-    Result = IEC61508_testFailed;
+      if(IEC61508_PCTest_FctF() != RET_FCT_F)
+      {
+          Result = IEC61508_testFailed;
+      }
   }
   
   return Result;

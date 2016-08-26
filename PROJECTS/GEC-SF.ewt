@@ -2580,12 +2580,21 @@
       </group>
       <file>
         <name>$PROJ_DIR$\..\USB\USB_MASS_STORAGE\src\usb_bsp.c</name>
+        <configuration>
+          <name>GEC-SF-M</name>
+        </configuration>
       </file>
       <file>
         <name>$PROJ_DIR$\..\USB\USB_MASS_STORAGE\src\usb_func.c</name>
+        <configuration>
+          <name>GEC-SF-M</name>
+        </configuration>
       </file>
       <file>
         <name>$PROJ_DIR$\..\USB\USB_MASS_STORAGE\src\usbh_usr.c</name>
+        <configuration>
+          <name>GEC-SF-M</name>
+        </configuration>
       </file>
     </group>
   </group>

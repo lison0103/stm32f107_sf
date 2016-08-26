@@ -18,7 +18,7 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-uint16_t MB_CRC16( uint8_t *pucFrame, uint16_t usLen );
+uint16_t MB_CRC16( uint8_t pucFrame[], uint16_t usLen );
 
 #endif /* __CRC16_H */
 

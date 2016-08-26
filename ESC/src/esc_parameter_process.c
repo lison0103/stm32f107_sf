@@ -209,7 +209,7 @@ void get_para_from_usb(void)
     delay_ms(50u);
     len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u );   
     
-    if( len == 0x02u && recvdata[0] == MESSAGE_TO_CPU )
+    if( (len == 0x02u) && (recvdata[0] == MESSAGE_TO_CPU) )
     {
         if( recvdata[1] == PARAMETER_CORRECT )
         {
