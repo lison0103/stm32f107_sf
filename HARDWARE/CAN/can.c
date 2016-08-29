@@ -41,7 +41,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void CAN_RX_Process( CanRxMsg RxMessage, CAN_RX_DATA_PROCESS_TypeDef* CanRx );
+static void CAN_RX_Process( CanRxMsg RxMessage, CAN_RX_DATA_PROCESS_TypeDef* CanRx );
 void CAN1_RX0_IRQHandler(void);
 void CAN2_RX0_IRQHandler(void);
 void CAN1_TX_IRQHandler(void);
@@ -360,7 +360,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
 * Output         : None
 * Return         : None
 *******************************************************************************/			    
-void CAN_RX_Process( CanRxMsg RxMessage, CAN_RX_DATA_PROCESS_TypeDef* CanRx )
+static void CAN_RX_Process( CanRxMsg RxMessage, CAN_RX_DATA_PROCESS_TypeDef* CanRx )
 {
     
     u8 i;        
@@ -770,7 +770,7 @@ uint8_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, ui
 * Return         : 0: success
 *                  1: fail, no send mailbox 
 *******************************************************************************/		 
-u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8 msg[],u8 len)
+static u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8 msg[],u8 len)
 {	
 	u16 i = 0u;
         u8 result = 0u;        

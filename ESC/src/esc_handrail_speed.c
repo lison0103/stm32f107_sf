@@ -22,13 +22,14 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-u16 Measure_handrail_speed(HDLITEM* psHDL);
-
+static u16 Measure_handrail_speed(HDLITEM* psHDL);
+static void HR_Speed_Ready(HDLITEM* psHDL);
+static void HR_Speed_Run_EN115(HDLITEM* psHDL);
 
 /* variable */
-u8 First_HS_edge_detected = 0u;
-u16 *const HR_SPEED = (u16*)&EscRTBuff[56];
-u16 *const MOTOR_SPEED = (u16*)&EscRTBuff[58];
+static u8 First_HS_edge_detected = 0u;
+static u16 *const HR_SPEED = (u16*)&EscRTBuff[56];
+static u16 *const MOTOR_SPEED = (u16*)&EscRTBuff[58];
 
 HDLITEM HDL_Left = 
 {
@@ -58,7 +59,7 @@ HDLITEM HDL_Right =
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void HR_Speed_Ready(HDLITEM* psHDL)
+static void HR_Speed_Ready(HDLITEM* psHDL)
 {
     u16 Escalator_handrail_speed = 0u;       
     
@@ -85,7 +86,7 @@ void HR_Speed_Ready(HDLITEM* psHDL)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void HR_Speed_Run_EN115(HDLITEM* psHDL)
+static void HR_Speed_Run_EN115(HDLITEM* psHDL)
 {
     u16 Escalator_speed,Handrail_speed,Handrail_speed_freq,Escalator_speed_freq = 0u;
     
@@ -162,7 +163,7 @@ void HR_Speed_Run_EN115(HDLITEM* psHDL)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-u16 Measure_handrail_speed(HDLITEM* psHDL)
+static u16 Measure_handrail_speed(HDLITEM* psHDL)
 {
     u16 current_hanrail_speed_sensor,i = 0u;  
     u8 timeDelayCnt = 100u;    

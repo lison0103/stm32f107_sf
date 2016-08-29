@@ -17,10 +17,6 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-/* variable */
-u8 TandemRunEnable = 0u;
-u8 TandemMessageRunAllowed = 0u;
-u8 Tandemoutput = 0u;
 
 /*******************************************************************************
 * Function Name  : CheckTandemReady
@@ -29,7 +25,7 @@ u8 Tandemoutput = 0u;
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void CheckTandemReady(void)
+static void CheckTandemReady(void)
 {
        
     if( TANDEM_TYPE == 1u )
@@ -90,7 +86,7 @@ void CheckTandemReady(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void CheckTandemRun(void)
+static void CheckTandemRun(void)
 {
     if( TANDEM_TYPE == 1u )
     {
@@ -129,7 +125,7 @@ void CheckTandemRun(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void TandemOutput(void)
+static void TandemOutput(void)
 {
     if( SfBase_EscState & ESC_STATE_INSP )
     {

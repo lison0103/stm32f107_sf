@@ -29,11 +29,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f30x_it.h"
-#include "led.h"
-#include "hw_config.h"
-#include "stm32_it.h"
-#include "usb_lib.h"
-#include "usb_istr.h"
+#include "stm32f30x.h"
+
 
 /** @addtogroup STM32F30x_StdPeriph_Templates
   * @{

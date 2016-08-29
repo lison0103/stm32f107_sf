@@ -24,19 +24,23 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void CPU_Comm(void);
-void Send_state_to_CPU(void);
-void Receive_state_from_CPU(void);
+static void CPU_Comm(void);
+static void Send_state_to_CPU(void);
+static void Receive_state_from_CPU(void);
+static void Receive_IO_status_from_CPU(void);
 
-u16 comm_num = 0u;
-u8 onetime = 0u;
-#ifndef GEC_SF_MASTER
+static u16 comm_num = 0u;
+
+
+#ifdef GEC_SF_MASTER
+static u8 onetime = 0u;
+#else
 static u16 comm_timeout = 100u;
 #endif
 
-u8 cpu_senddata_buffer[250];
-u8 cpu_recvdata_buffer[250];
-u8 recvlen = 0u;
+static u8 cpu_senddata_buffer[250];
+static u8 cpu_recvdata_buffer[250];
+static u8 recvlen = 0u;
 
 /*******************************************************************************
 * Function Name  : Communication_CPU
@@ -75,7 +79,7 @@ void Communication_CPU(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Send_state_to_CPU(void)
+static void Send_state_to_CPU(void)
 {
     u8 i;
     
@@ -107,7 +111,7 @@ void Send_state_to_CPU(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Receive_state_from_CPU(void)
+static void Receive_state_from_CPU(void)
 {
     u8 i;
     
@@ -155,7 +159,7 @@ void Receive_state_from_CPU(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Receive_IO_status_from_CPU(void)
+static void Receive_IO_status_from_CPU(void)
 {
       static u8 receive_io_error = 0u;
       u8 i;
@@ -188,7 +192,7 @@ void Receive_IO_status_from_CPU(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void CPU_Comm(void)
+static void CPU_Comm(void)
 {
 
 #ifdef GEC_SF_MASTER

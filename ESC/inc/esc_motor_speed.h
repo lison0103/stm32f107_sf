@@ -28,9 +28,6 @@
 #define MAX_DISTANCE    ( ( 12u * 2u * F1 ) / 10u )
 
 /* Exported functions ------------------------------------------------------- */
-void Motor_Speed_Ready(MTRFREQITEM* ptMTR);
-void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR);
-void Check_Stopping_Distance(MTRFREQITEM* ptMTR);
 void Motor_Speed_1_2_Shortcircuit_Run(void);
 void ESC_Motor_Check(void);
 

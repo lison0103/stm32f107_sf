@@ -22,11 +22,16 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS);
+static u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS);
+static u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS);
+static void Missing_StepRun(STEPMISSINGITEM* psSTPMS);
+static void Missing_Step_UpperLower_SyncRun(void);
+static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS);
+
 
 /* variable */
-u8 First_MS_sync_entry,First_MS_edge_detected = 0u;
-u16 *const MS_MTR_PULSE = (u16*)&EscRTBuff[67];
+static u8 First_MS_sync_entry,First_MS_edge_detected = 0u;
+static u16 *const MS_MTR_PULSE = (u16*)&EscRTBuff[67];
 
 STEPMISSINGITEM STPMS_UPPER=
 {
@@ -60,7 +65,7 @@ STEPMISSINGITEM STPMS_LOWER=
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
+static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
 {      
     
     if( SfBase_EscState & ESC_STATE_READY ) 
@@ -94,7 +99,7 @@ void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
 * Output         : None
 * Return         : None
 *****************************************************************************/
-void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
+static void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
 {
     
     if( SfBase_EscState & ESC_STATE_RUNNING )
@@ -181,7 +186,7 @@ void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS)
+static u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS)
 {
     u16 current_pulse_counter_sensor = 0u;    
     
@@ -198,7 +203,7 @@ u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Missing_Step_UpperLower_SyncRun(void)
+static void Missing_Step_UpperLower_SyncRun(void)
 {
     static u8 Upper_MS_counter,Lower_MS_counter = 0u;    
     

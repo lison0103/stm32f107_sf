@@ -347,7 +347,7 @@ uint32_t     USB_OTG_ReadCoreItr     (USB_OTG_CORE_HANDLE *pdev);
 uint32_t     USB_OTG_ReadOtgItr      (USB_OTG_CORE_HANDLE *pdev);
 uint8_t      USB_OTG_IsHostMode      (USB_OTG_CORE_HANDLE *pdev);
 uint8_t      USB_OTG_IsDeviceMode    (USB_OTG_CORE_HANDLE *pdev);
-uint32_t     USB_OTG_GetMode         (USB_OTG_CORE_HANDLE *pdev);
+static uint32_t     USB_OTG_GetMode         (USB_OTG_CORE_HANDLE *pdev);
 USB_OTG_STS  USB_OTG_PhyInit         (USB_OTG_CORE_HANDLE *pdev);
 USB_OTG_STS  USB_OTG_SetCurrentMode  (USB_OTG_CORE_HANDLE *pdev,
     uint8_t mode);

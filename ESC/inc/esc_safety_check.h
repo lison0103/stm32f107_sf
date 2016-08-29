@@ -20,8 +20,8 @@
 /* Exported functions ------------------------------------------------------- */
 void SafetyExtWdt_StartUpCheck(void);
 void SafetyExtWdt_RunCheck(void);
-void SafetyRelayAuxRelayTest(void);
-void SafetyCTR_Check(void);
+static void SafetyRelayAuxRelayTest(void);
+static void SafetyCTR_Check(void);
 void SafetyOutputDisable(void);
 void SafetyOutputEnable(void);
 void SafetySwitchStatus(void);

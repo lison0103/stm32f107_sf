@@ -17,12 +17,12 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *buff,uint32_t dir,uint32_t len);
-void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff);
+static void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *buff,uint32_t dir,uint32_t len);
+static void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff);
 void USART1_IRQHandler(void);
 void USART2_IRQHandler(void);
 void USART3_IRQHandler(void);
-void NVIC_Configuration_Usart(USART_TypeDef* USARTx);
+static void NVIC_Configuration_Usart(USART_TypeDef* USARTx);
 
 #ifdef USING_USART3_OVERTIME
 static int32_t USART3_ReceiveTimeCounter = 0;
@@ -381,8 +381,8 @@ u16 uart1_rx_number=0,uart1_tx_number=0;
 #endif
 
 #ifdef USART2_EN
-u8 uart2_rx_buff[512],uart2_rx_data[512],uart2_tx_buff[512];
-u32 uart2_rx_number = 0u,uart2_tx_number = 0u;	
+static u8 uart2_rx_buff[512],uart2_rx_data[512],uart2_tx_buff[512];
+static u32 uart2_rx_number = 0u;	
 #endif
 
 #ifdef USART3_EN
@@ -402,7 +402,7 @@ u16 uart3_rx_number=0,uart3_tx_number=0;
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *buff,uint32_t dir,uint32_t len)
+static void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *buff,uint32_t dir,uint32_t len)
 {
   DMA_InitTypeDef     DMA_InitStructure;
   
@@ -434,7 +434,7 @@ void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *b
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff) 
+static void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff) 
 {
   switch (*(uint32_t*)&USARTx)
   {
@@ -487,7 +487,7 @@ void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity) 
+static void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity) 
 {
   USART_InitTypeDef   USART_InitStruct;
 
@@ -646,7 +646,7 @@ void USART3_IRQHandler(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
+static void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
 {
   NVIC_InitTypeDef NVIC_InitStructure;
 

@@ -32,7 +32,9 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 void Check_Error_Present_Memory(void);
-void esc_para_init(void);
+#ifdef GEC_SF_MASTER
+static void esc_para_init(void);
+#endif
 void get_para_from_usb(void);
 
 
@@ -56,7 +58,7 @@ void Check_Error_Present_Memory(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void esc_para_init(void)
+static void esc_para_init(void)
 {
 
     if(PARA_INIT != 0xff01u)
@@ -284,7 +286,7 @@ void get_para_from_usb(void)
                     /* 4. Save parameters into variables */
                     for( i = 0u; i < len - 4u; i++)
                     {
-                        Sys_Data[i] = recvdata[i + 2u];
+                        Modbuff[1100u + i] = recvdata[i + 2u];
                     }  
                     
                     /* 5. Send confirmation to CPU1 or Send error to CPU1 */  

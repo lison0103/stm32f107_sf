@@ -19,7 +19,7 @@
 #define Sample_Num      5u
 
 /* Private variables ---------------------------------------------------------*/
-__IO uint16_t ADC1ConvertedValue[Sample_Num] = { 0 };
+static __IO uint16_t ADC1ConvertedValue[Sample_Num] = { 0 };
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/

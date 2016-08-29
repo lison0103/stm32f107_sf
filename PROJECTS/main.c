@@ -37,8 +37,8 @@ static u16 Tms10Counter = 0u,Tms20Counter = 0u,Tms50Counter = 0u,Tms100Counter =
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void LED_indicator(void);
-void Task_Loop(void);
+static void LED_indicator(void);
+static void Task_Loop(void);
 
 u32 TimingDelay = 0u;
 u32 SysRunTime = 0u; 
@@ -53,7 +53,9 @@ u16 *const pt_SysBuff = (u16*)&Modbuff[1100];
 u8 *const pcOMC_EscRTBuff = &McRxBuff[0]; 
 u8 *const pcOmcErrorBuff = &McRxBuff[70];
 u8 *const pcErrorBuff = &EscRTBuff[70];
-u8 *const pcEscErrorCodeBuff = &Modbuff[454];
+#ifdef GEC_SF_MASTER 
+static u8 *const pcEscErrorCodeBuff = &Modbuff[454];
+#endif
 u8 *const pcEscErrorBuff = &Modbuff[468];
 u8 *const pcSafetyInputToControl = &EscRTBuff[4];
 u8 *const pcEscDataToControl = &EscRTBuff[12];
@@ -67,7 +69,7 @@ u16 pcOMC_SfBase_EscState;
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void LED_indicator(void)
+static void LED_indicator(void)
 {
 	static u32 led_idr_cnt = 0u;	 
 	
@@ -88,7 +90,7 @@ void LED_indicator(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Task_Loop(void)
+static void Task_Loop(void)
 {          
 
     if( ++Tms10Counter >= 2u ){ Tms10Counter = 0u;}

@@ -18,9 +18,9 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void CheckTandemReady(void);
-void CheckTandemRun(void);
-void TandemOutput(void);
+static void CheckTandemReady(void);
+static void CheckTandemRun(void);
+static void TandemOutput(void);
 void ESC_Tandem_Check(void);
 
 

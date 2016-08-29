@@ -52,13 +52,13 @@
 /** @defgroup USBH_CORE_Private_TypesDefinitions
   * @{
   */ 
-uint8_t USBH_Disconnected (USB_OTG_CORE_HANDLE *pdev); 
-uint8_t USBH_Connected (USB_OTG_CORE_HANDLE *pdev); 
-uint8_t USBH_SOF (USB_OTG_CORE_HANDLE *pdev); 
-uint8_t USBH_PortEnabled (USB_OTG_CORE_HANDLE *pdev); 
-uint8_t USBH_PortDisabled (USB_OTG_CORE_HANDLE *pdev); 
+static uint8_t USBH_Disconnected (USB_OTG_CORE_HANDLE *pdev); 
+static uint8_t USBH_Connected (USB_OTG_CORE_HANDLE *pdev); 
+static uint8_t USBH_SOF (USB_OTG_CORE_HANDLE *pdev); 
+static uint8_t USBH_PortEnabled (USB_OTG_CORE_HANDLE *pdev); 
+static uint8_t USBH_PortDisabled (USB_OTG_CORE_HANDLE *pdev); 
 
-USBH_HCD_INT_cb_TypeDef USBH_HCD_INT_cb = 
+static USBH_HCD_INT_cb_TypeDef USBH_HCD_INT_cb = 
 {
   USBH_SOF,
   USBH_Connected, 
@@ -136,7 +136,7 @@ uint8_t USBH_Connected (USB_OTG_CORE_HANDLE *pdev)
   * @param  selected device
   * @retval Status
 */
-uint8_t USBH_PortEnabled (USB_OTG_CORE_HANDLE *pdev)
+static uint8_t USBH_PortEnabled (USB_OTG_CORE_HANDLE *pdev)
 {
   pdev->host.PortEnabled = 1;
   return 0;
@@ -148,7 +148,7 @@ uint8_t USBH_PortEnabled (USB_OTG_CORE_HANDLE *pdev)
   * @param  selected device
   * @retval Status
 */
-uint8_t USBH_PortDisabled (USB_OTG_CORE_HANDLE *pdev)
+static uint8_t USBH_PortDisabled (USB_OTG_CORE_HANDLE *pdev)
 {
   pdev->host.PortEnabled = 0;
   return 0;
@@ -161,7 +161,7 @@ uint8_t USBH_PortDisabled (USB_OTG_CORE_HANDLE *pdev)
 * @retval Status
 */
 
-uint8_t USBH_Disconnected (USB_OTG_CORE_HANDLE *pdev)
+static uint8_t USBH_Disconnected (USB_OTG_CORE_HANDLE *pdev)
 {
   USB_OTG_BSP_DriveVBUS(pdev,0);
   /* Disable all interrupts. */
@@ -181,7 +181,7 @@ uint8_t USBH_Disconnected (USB_OTG_CORE_HANDLE *pdev)
   * @retval Status
   */
 
-uint8_t USBH_SOF (USB_OTG_CORE_HANDLE *pdev)
+static uint8_t USBH_SOF (USB_OTG_CORE_HANDLE *pdev)
 {
   /* This callback could be used to implement a scheduler process */
   return 0;  

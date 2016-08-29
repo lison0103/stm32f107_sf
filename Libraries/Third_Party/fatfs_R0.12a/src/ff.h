@@ -67,8 +67,8 @@ typedef WCHAR TCHAR;
 #else						/* ANSI/OEM string */
 #ifndef _INC_TCHAR
 typedef char TCHAR;
-#define _T(x) x
-#define _TEXT(x) x
+#define _T(x) (x)
+#define _TEXT(x) (x)
 #endif
 #endif
 
@@ -269,14 +269,14 @@ FRESULT f_getcwd (TCHAR* buff, UINT len);							/* Get current directory */
 FRESULT f_getfree (const TCHAR* path, DWORD* nclst, FATFS** fatfs);	/* Get number of free clusters on the drive */
 FRESULT f_getlabel (const TCHAR* path, TCHAR* label, DWORD* vsn);	/* Get volume label */
 FRESULT f_setlabel (const TCHAR* label);							/* Set volume label */
-FRESULT f_forward (FIL* fp, UINT(*func)(const BYTE*,UINT), UINT btf, UINT* bf);	/* Forward data to the stream */
+/* FRESULT f_forward (FIL* fp, UINT(*func)(const BYTE*,UINT), UINT btf, UINT* bf);*/	/* Forward data to the stream */
 FRESULT f_expand (FIL* fp, FSIZE_t szf, BYTE opt);					/* Allocate a contiguous block to the file */
 FRESULT f_mount (FATFS* fs, const TCHAR* path, BYTE opt);			/* Mount/Unmount a logical drive */
 FRESULT f_mkfs (const TCHAR* path, BYTE opt, DWORD au, void* work, UINT len);	/* Create a FAT volume */
 FRESULT f_fdisk (BYTE pdrv, const DWORD* szt, void* work);			/* Divide a physical drive into some partitions */
 int f_putc (TCHAR c, FIL* fp);										/* Put a character to the file */
 int f_puts (const TCHAR* str, FIL* cp);								/* Put a string to the file */
-int f_printf (FIL* fp, const TCHAR* str, ...);						/* Put a formatted string to the file */
+/*int f_printf (FIL* fp, const TCHAR* str, ...);*/						/* Put a formatted string to the file */
 TCHAR* f_gets (TCHAR* buff, int len, FIL* fp);						/* Get a string from the file */
 
 #define f_eof(fp) ((int)((fp)->fptr == (fp)->obj.objsize))
@@ -286,10 +286,11 @@ TCHAR* f_gets (TCHAR* buff, int len, FIL* fp);						/* Get a string from the fil
 #define f_rewind(fp) f_lseek((fp), 0)
 #define f_rewinddir(dp) f_readdir((dp), 0)
 
+/*
 #ifndef EOF
 #define EOF (-1)
 #endif
-
+*/
 
 
 
@@ -327,13 +328,13 @@ int ff_del_syncobj (_SYNC_t sobj);				/* Delete a sync object */
 
 
 /* File access mode and open method flags (3rd argument of f_open) */
-#define	FA_READ				0x01
-#define	FA_WRITE			0x02
-#define	FA_OPEN_EXISTING	0x00
-#define	FA_CREATE_NEW		0x04
-#define	FA_CREATE_ALWAYS	0x08
-#define	FA_OPEN_ALWAYS		0x10
-#define	FA_OPEN_APPEND		0x30
+#define	FA_READ				0x01u
+#define	FA_WRITE			0x02u
+#define	FA_OPEN_EXISTING	0x00u
+#define	FA_CREATE_NEW		0x04u
+#define	FA_CREATE_ALWAYS	0x08u
+#define	FA_OPEN_ALWAYS		0x10u
+#define	FA_OPEN_APPEND		0x30u
 
 /* Fast seek controls (2nd argument of f_lseek) */
 #define CREATE_LINKMAP	((FSIZE_t)0 - 1)

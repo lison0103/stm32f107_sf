@@ -28,14 +28,16 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void PVD_Configuration(void);
-void SysTickTimerInit(void);
-void ExtCommDeviceInit(void);
-void PluseOutputInit(void);
-void Data_init(void);
+static void PVD_Configuration(void);
+static void SysTickTimerInit(void);
+#ifdef GEC_SF_MASTER
+static void ExtCommDeviceInit(void);
+static void PluseOutputInit(void);
+#endif
+static void Data_init(void);
 
 #ifdef GEC_SF_MASTER
-void DataIntegrityInFRAMCheck(void);
+static void DataIntegrityInFRAMCheck(void);
 
 #endif
 
@@ -158,7 +160,7 @@ void Initial_Device(void)
 * Return         : None
 *******************************************************************************/
 #ifdef GEC_SF_MASTER
-void DataIntegrityInFRAMCheck(void)
+static void DataIntegrityInFRAMCheck(void)
 {
     eep_init();
     esc_data_check();    
@@ -175,11 +177,12 @@ void DataIntegrityInFRAMCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ExtCommDeviceInit(void)
+#ifdef GEC_SF_MASTER
+static void ExtCommDeviceInit(void)
 {  
     USART2_Init();   
 }
-
+#endif
 /*******************************************************************************
 * Function Name  : PluseOutputInit
 * Description    : Initialization the pluse output.
@@ -189,7 +192,8 @@ void ExtCommDeviceInit(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void PluseOutputInit(void)
+#ifdef GEC_SF_MASTER
+static void PluseOutputInit(void)
 {
   
     /** TIM init 1MHZ, counting to 1000 is 1KZ **/
@@ -198,7 +202,7 @@ void PluseOutputInit(void)
     /* Set the Duty Cycle, accoring to the arr value, 1/2 arr is 50% duty cycle */
     TIM_SetCompare3(TIM1,780u);
 }
-
+#endif
 /*******************************************************************************
 * Function Name  : SysTickTimerInit
 * Description    : Initialization the systick timer.
@@ -208,7 +212,7 @@ void PluseOutputInit(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SysTickTimerInit(void)
+static void SysTickTimerInit(void)
 {
   
     /** interrupt time 5ms **/
@@ -228,7 +232,7 @@ void SysTickTimerInit(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void RCC_Configuration(void)
+static void RCC_Configuration(void)
 {
 
     /* HCLK = SYSCLK */
@@ -348,7 +352,7 @@ void RCC_Configuration(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void NVIC_Configuration(void)
+static void NVIC_Configuration(void)
 {
   
     NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x0u);
@@ -367,7 +371,7 @@ void NVIC_Configuration(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void PVD_Configuration(void)
+static void PVD_Configuration(void)
 {
   
     EXTI_InitTypeDef EXTI_InitStructure;
@@ -406,7 +410,7 @@ void PVD_Configuration(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Data_init(void)
+static void Data_init(void)
 {
     int i;
     

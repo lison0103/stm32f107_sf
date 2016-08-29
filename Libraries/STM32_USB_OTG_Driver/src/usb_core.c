@@ -580,7 +580,7 @@ USB_OTG_STS USB_OTG_SetCurrentMode(USB_OTG_CORE_HANDLE *pdev , uint8_t mode)
 * @param  pdev : Selected device
 * @retval current mode
 */
-uint32_t USB_OTG_GetMode(USB_OTG_CORE_HANDLE *pdev)
+static uint32_t USB_OTG_GetMode(USB_OTG_CORE_HANDLE *pdev)
 {
   return (USB_OTG_READ_REG32(&pdev->regs.GREGS->GINTSTS ) & 0x1);
 }

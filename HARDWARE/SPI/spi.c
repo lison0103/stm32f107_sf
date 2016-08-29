@@ -21,14 +21,14 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void SPI1_DMA_Configuration( void );
-void SPI1_Configuration(void);
+static void SPI1_DMA_Configuration( void );
+static void SPI1_Configuration(void);
 
-u8 SPI1_TX_Buff[buffersize] = { 0 };
-u8 SPI1_RX_Buff[buffersize] = { 0 };
+static u8 SPI1_TX_Buff[buffersize] = { 0 };
+static u8 SPI1_RX_Buff[buffersize] = { 0 };
 u8 SPI1_TX_Data[buffersize] = { 0 };
 u8 SPI1_RX_Data[buffersize] = { 0 };
-DMA_InitTypeDef     DMA_InitStructure;
+static DMA_InitTypeDef     DMA_InitStructure;
 static u16 waitus = 0u;
 
 
@@ -42,7 +42,7 @@ static u16 waitus = 0u;
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SPI1_Configuration(void)
+static void SPI1_Configuration(void)
 {       
         SPI_InitTypeDef  SPI_InitStructure;	
         
@@ -156,7 +156,7 @@ void SPI1_Init(void)
 * Return         : None
 *******************************************************************************/
 
-void SPI1_DMA_Configuration( void )
+static void SPI1_DMA_Configuration( void )
 {  
         
       

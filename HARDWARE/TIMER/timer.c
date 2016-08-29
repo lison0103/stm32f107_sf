@@ -31,7 +31,7 @@ void TIM3_IRQHandler(void);
 void TIM4_IRQHandler(void);
 
 u8 count = 0u;
-u32 t_count = 0u;
+static u32 t_count = 0u;
 
 /*******************************************************************************
 * Function Name  : TIM7_Int_Init

@@ -24,9 +24,9 @@
 /* Private functions ---------------------------------------------------------*/
 void SafetySwitchCheck( u8 pulse_on, u8 test_num );
 
-u8 sf_wdt_check_tms = 0u;
+static u8 sf_wdt_check_tms = 0u;
 u8 sf_wdt_check_en = 0u;
-u8 sf_relay_check_cnt = 0u;
+static u8 sf_relay_check_cnt = 0u;
 /* static u8 test_num = 0;*/
 #ifdef GEC_SF_MASTER
 u8 R_SF_RL2_FB_CPU1;
@@ -430,7 +430,7 @@ void SafetyOutputEnable(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SafetyRelayAuxRelayTest(void)
+static void SafetyRelayAuxRelayTest(void)
 {
    
     if( SfBase_EscState & ESC_STATE_RUNNING ) 
@@ -703,7 +703,7 @@ void SafetyExtWdt_RunCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SafetyCTR_Check(void)
+static void SafetyCTR_Check(void)
 {
     static u16 sf_ctr_check_tms = 0u;
     

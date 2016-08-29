@@ -108,7 +108,7 @@ void RTC_ITConfig(uint16_t RTC_IT, FunctionalState NewState)
   * @param  None
   * @retval None
   */
-void RTC_EnterConfigMode(void)
+static void RTC_EnterConfigMode(void)
 {
   /* Set the CNF flag to enter in the Configuration Mode */
   RTC->CRL |= RTC_CRL_CNF;
@@ -119,7 +119,7 @@ void RTC_EnterConfigMode(void)
   * @param  None
   * @retval None
   */
-void RTC_ExitConfigMode(void)
+static void RTC_ExitConfigMode(void)
 {
   /* Reset the CNF flag to exit from the Configuration Mode */
   RTC->CRL &= (uint16_t)~((uint16_t)RTC_CRL_CNF); 

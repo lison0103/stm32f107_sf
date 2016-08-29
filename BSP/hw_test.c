@@ -29,8 +29,8 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-u32 sflag1 = 0u,inputnum1 = 0u;
-u32 sflag2 = 0u,inputnum2 = 0u;
+static u32 sflag1 = 0u,inputnum1 = 0u;
+static u32 sflag2 = 0u,inputnum2 = 0u;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/

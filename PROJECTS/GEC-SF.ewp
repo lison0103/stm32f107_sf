@@ -4336,8 +4336,7 @@
               <state>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc</state>
               <state>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Core\inc</state>
               <state>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\inc</state>
-              <state>$PROJ_DIR$\..\FATFS\src</state>
-              <state>$PROJ_DIR$\..\FATFS\exfuns</state>
+              <state>$PROJ_DIR$\..\Libraries\Third_Party\fatfs_R0.12a\src</state>
               <state>$PROJ_DIR$\..\HARDWARE\LED</state>
               <state>$PROJ_DIR$\..\HARDWARE\MB85RCXX</state>
               <state>$PROJ_DIR$\..\HARDWARE\EWDT</state>
@@ -4346,7 +4345,6 @@
               <state>$PROJ_DIR$\..\HARDWARE\TIMER</state>
               <state>$PROJ_DIR$\..\HARDWARE\EXTI</state>
               <state>$PROJ_DIR$\..\HARDWARE\USART</state>
-              <state>$PROJ_DIR$\..\MALLOC</state>
               <state>$PROJ_DIR$\..\ESC\inc</state>
               <state>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib</state>
               <state>$PROJ_DIR$\..\SAFETYTEST\</state>

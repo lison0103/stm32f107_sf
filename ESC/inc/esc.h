@@ -141,6 +141,10 @@
 #define 	EN_ERROR9   	EscRTBuff[78]
 #define 	EN_ERROR10   	EscRTBuff[79]
 
+#define         TandemRunEnable                 EscRTBuff[90]
+#define         TandemMessageRunAllowed         EscRTBuff[91]
+#define         Tandemoutput                    EscRTBuff[92]
+
 typedef struct mtrfreqitem 
 {    
     u8 Tms_counter;      
@@ -214,9 +218,6 @@ extern HDLITEM HDL_Right;
 extern HDLITEM HDL_Left;
 extern STEPMISSINGITEM STPMS_UPPER;
 extern STEPMISSINGITEM STPMS_LOWER;
-extern u8 TandemRunEnable;
-extern u8 TandemMessageRunAllowed;
-extern u8 Tandemoutput;
 extern u8 Modbuff[3000];
 extern u8 *const Sys_Data;
 extern u16 *const pt_SysBuff;
@@ -224,7 +225,6 @@ extern u8 *const pcOMC_EscRTBuff;
 extern u8 sf_wdt_check_en;
 extern u16 pcOMC_SfBase_EscState;
 extern u8 *const pcErrorBuff;
-extern u8 *const pcEscErrorCodeBuff;
 extern u8 *const pcEscErrorBuff;
 extern u8 *const pcOmcErrorBuff;
 extern u8 SAFETY_SWITCH_STATUS[4];

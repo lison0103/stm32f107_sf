@@ -39,17 +39,17 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void EEP_SDA_OUT(void);
-void EEP_SCL_OUT(void);
-void eep_start(void);
-void eep_stop(void);
-u8 eep_write(u8 d);
-u8 eep_read(u8 ack);
-uint8_t eeprom_data_write1(u16 addr,u16 len,u8 dat[]);
-uint8_t eeprom_data_read1(u16 addr, u16 len, u8 dat[]);
+static void EEP_SDA_OUT(void);
+static void EEP_SCL_OUT(void);
+static void eep_start(void);
+static void eep_stop(void);
+static u8 eep_write(u8 d);
+static u8 eep_read(u8 ack);
+static uint8_t eeprom_data_write1(u16 addr,u16 len,u8 dat[]);
+static uint8_t eeprom_data_read1(u16 addr, u16 len, u8 dat[]);
 
 
-u16 EEPROM_WR_TIME = 0u;
+/* static u16 EEPROM_WR_TIME = 0u; */
 
 
 
@@ -62,7 +62,7 @@ u16 EEPROM_WR_TIME = 0u;
 * Output         : None
 * Return         : None
 *******************************************************************************/ 
-void EEP_SDA_OUT(void)  
+static void EEP_SDA_OUT(void)  
 {
     
       GPIO_InitTypeDef GPIO_InitStruct;
@@ -83,7 +83,7 @@ void EEP_SDA_OUT(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void EEP_SCL_OUT(void) 
+static void EEP_SCL_OUT(void) 
 {
       GPIO_InitTypeDef GPIO_InitStruct;
       
@@ -103,7 +103,7 @@ void EEP_SCL_OUT(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void eep_start(void)	 
+static void eep_start(void)	 
 { 
   /** scl and sda high level at the same **/
   delay_us(6u);
@@ -130,7 +130,7 @@ void eep_start(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void eep_stop(void)	
+static void eep_stop(void)	
 {
   /** scl and sda low level at the same **/
   EEP_SCL_CLR();  
@@ -157,7 +157,7 @@ void eep_stop(void)
 * Output         : None
 * Return         : EEP_ACK: success EEP_NACK: fail
 *******************************************************************************/
-u8 eep_write(u8 d)		
+static u8 eep_write(u8 d)		
 {
   u8 i;
                    
@@ -214,7 +214,7 @@ u8 eep_write(u8 d)
 * Output         : None
 * Return         : return read the data
 *******************************************************************************/
-u8 eep_read(u8 ack)	 
+static u8 eep_read(u8 ack)	 
 {
   u8 d=0u, i;
   
@@ -280,7 +280,7 @@ void eep_init(void)
 * Output         : None
 * Return         : 0: success 1: fail
 *******************************************************************************/
-uint8_t eeprom_data_write1(u16 addr,u16 len,u8 dat[])
+static uint8_t eeprom_data_write1(u16 addr,u16 len,u8 dat[])
 {
   u16 uint1; 
   u8 err=0u;
@@ -320,7 +320,7 @@ uint8_t eeprom_data_write1(u16 addr,u16 len,u8 dat[])
   
   eep_stop();	
   
-  EEPROM_WR_TIME = 1u;
+/*  EEPROM_WR_TIME = 1u; */
   
   return(err);
 }
@@ -363,7 +363,7 @@ u8 eeprom_write(u16 addr,u16 len,u8 *dat)
 * Output         : None
 * Return         : 0: success 1: fail
 *******************************************************************************/
-uint8_t eeprom_data_read1(u16 addr, u16 len, u8 dat[])
+static uint8_t eeprom_data_read1(u16 addr, u16 len, u8 dat[])
 {
 	u16 uint1;
 	u8 err=0u;
@@ -406,7 +406,7 @@ uint8_t eeprom_data_read1(u16 addr, u16 len, u8 dat[])
   
 	eep_stop();     	
 
-	EEPROM_WR_TIME = 1u;		 
+/*	EEPROM_WR_TIME = 1u;		 */
   
 	return(err);                                                                                              
 }

@@ -32,7 +32,7 @@
 #endif
 
 /* Exported functions ------------------------------------------------------- */
-void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity); 
+static void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity); 
 void USART1_Init(void);
 void USART2_Init(void);
 void USART3_Init(void);

@@ -19,14 +19,16 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-u16 Measure_motor_speed(MTRFREQITEM* ptMTR);
-
+static u16 Measure_motor_speed(MTRFREQITEM* ptMTR);
+static void Motor_Speed_Ready(MTRFREQITEM* ptMTR);
+static void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR);
+static void Check_Stopping_Distance(MTRFREQITEM* ptMTR);
 
 
 /* variable */
 u32 time_running_tms = 0u;
 u16 SfBase_EscState = ESC_STATE_READY;;
-u8 First_motorspeed_edge_detected = 0u;
+static u8 First_motorspeed_edge_detected = 0u;
 
 
 MTRFREQITEM MTRITEM[2]=
@@ -77,7 +79,7 @@ MTRFREQITEM MTRITEM[2]=
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
+static void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
 {
 
     u16 Escalator_speed = 0u;
@@ -106,7 +108,7 @@ void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
+static void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
 {
     
     u16 Escalator_speed = 0u;
@@ -168,7 +170,7 @@ void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
 * Output         : None
 * Return         : current motor speed pulse
 *******************************************************************************/
-u16 Measure_motor_speed(MTRFREQITEM* ptMTR)
+static u16 Measure_motor_speed(MTRFREQITEM* ptMTR)
 {
     u16 current_motor_speed_sensor,i = 0u;
     u8 timeDelayCnt = 100u;    
@@ -252,7 +254,7 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
+static void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
 {   
     
     if((SfBase_EscState & ESC_STATE_STOP ) && ( ptMTR->rt_brake_stop == 0u )) 
