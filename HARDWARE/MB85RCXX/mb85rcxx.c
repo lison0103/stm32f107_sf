@@ -45,8 +45,8 @@ void eep_start(void);
 void eep_stop(void);
 u8 eep_write(u8 d);
 u8 eep_read(u8 ack);
-uint8_t eeprom_data_write1(u16 addr,u16 len,u8 *dat);
-uint8_t eeprom_data_read1(u16 addr, u16 len, u8 *dat);
+uint8_t eeprom_data_write1(u16 addr,u16 len,u8 dat[]);
+uint8_t eeprom_data_read1(u16 addr, u16 len, u8 dat[]);
 
 
 u16 EEPROM_WR_TIME = 0u;
@@ -280,7 +280,7 @@ void eep_init(void)
 * Output         : None
 * Return         : 0: success 1: fail
 *******************************************************************************/
-uint8_t eeprom_data_write1(u16 addr,u16 len,u8 *dat)
+uint8_t eeprom_data_write1(u16 addr,u16 len,u8 dat[])
 {
   u16 uint1; 
   u8 err=0u;
@@ -311,12 +311,11 @@ uint8_t eeprom_data_write1(u16 addr,u16 len,u8 *dat)
              
   for(uint1 = 0u; uint1 < len; uint1++)  
   {
-    if(eep_write(*dat)) 
+    if(eep_write(dat[uint1])) 
     {
       err=1u;
       break;
     }
-    dat++;
   }  
   
   eep_stop();	
@@ -364,7 +363,7 @@ u8 eeprom_write(u16 addr,u16 len,u8 *dat)
 * Output         : None
 * Return         : 0: success 1: fail
 *******************************************************************************/
-uint8_t eeprom_data_read1(u16 addr, u16 len, u8 *dat)
+uint8_t eeprom_data_read1(u16 addr, u16 len, u8 dat[])
 {
 	u16 uint1;
 	u8 err=0u;
@@ -400,8 +399,7 @@ uint8_t eeprom_data_read1(u16 addr, u16 len, u8 *dat)
         
 	for(uint1=0u;uint1<(len-1u);uint1++)
 	{
-		*dat = eep_read(EEP_ACK);        
-		dat++;   	
+		dat[uint1] = eep_read(EEP_ACK);          	
 	}  
   
 	*dat = eep_read(EEP_NACK);         	

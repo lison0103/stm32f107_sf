@@ -17,7 +17,7 @@
 /* Exported types ------------------------------------------------------------*/
 typedef struct  {
   u8 sending;
-  u8* p_CanBuff;
+  u8 p_CanBuff;
   u8 mlen;
   u8 tx_buff[200];
 } CAN_TX_DATA_PROCESS_TypeDef;

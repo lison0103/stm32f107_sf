@@ -216,7 +216,7 @@ void get_para_from_usb(void)
             /* 7. Save parameters into variables */
             for( i = 0u; i < len - 2u; i++)
             {
-                Sys_Data[i] = paradata[i];
+                Modbuff[1100u + i] = paradata[i];
             } 
             
             /* 8. Parametrization Loading Finished. Send Finish message to CPU2 */
@@ -251,7 +251,7 @@ void get_para_from_usb(void)
     /* 1. Waiting for message from CPU1 to start parameter loading process */
     len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u ); 
 
-    if( len == 0x02u && recvdata[0] == MESSAGE_TO_CPU )
+    if( (len == 0x02u) && (recvdata[0] == MESSAGE_TO_CPU) )
     {
         if( recvdata[1] == USB_DETECTED )
         {
@@ -270,7 +270,7 @@ void get_para_from_usb(void)
             len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u ); 
             
             /* 3. Check paremeters received, CRC16 is ok */
-            if( recvdata[0] == MESSAGE_TO_CPU && recvdata[1] == SEND_PARAMETER )
+            if( (recvdata[0] == MESSAGE_TO_CPU) && (recvdata[1] == SEND_PARAMETER) )
             {
                 if( MB_CRC16( &recvdata[2], ((u16)len - 2u) ))
                 {
@@ -292,7 +292,7 @@ void get_para_from_usb(void)
                     
                     /* Received Finish message from CPU1 */  
                     len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u ); 
-                    if( recvdata[0] == MESSAGE_TO_CPU && recvdata[1] == PARAMETER_LOADED_FINSH )
+                    if( (recvdata[0] == MESSAGE_TO_CPU) && (recvdata[1] == PARAMETER_LOADED_FINSH) )
                     {
                         /* SPI Slave Send */
                         CPU_Exchange_Data(senddata, 2u);
@@ -314,6 +314,8 @@ void get_para_from_usb(void)
                 ESC_Init_Fault();                
             }
         }
+        else
+        {}
     }
     else
     {

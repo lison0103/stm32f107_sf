@@ -10,7 +10,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "diskio.h"		/* FatFs lower layer API */
-#include "malloc.h"		
+#include "malloc.h"
 #include "usbh_usr.h"
 
 /* Private typedef -----------------------------------------------------------*/

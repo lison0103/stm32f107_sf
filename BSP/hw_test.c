@@ -657,7 +657,7 @@ void HardwareTEST(void)
     CPU_Exchange_Data(senddata, 2u);
     CPU_Data_Check(recvdata, &len);
     
-    if( len == 0x02u && recvdata[0] == 0xbcu )
+    if( (len == 0x02u) && (recvdata[0] == 0xbcu) )
     {
         if( recvdata[1] == 1u )
         {
@@ -667,6 +667,8 @@ void HardwareTEST(void)
         {
             testmode = 0u;
         }
+        else
+        {}
 /*        
         CPU_Exchange_Data(senddata, 2);
         CPU_Data_Check(recvdata, &len);//recv 

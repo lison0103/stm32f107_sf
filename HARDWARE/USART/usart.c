@@ -916,28 +916,28 @@ void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t buff[],uint32_t len)
 *******************************************************************************/ 
 uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t buff[],uint32_t mlen)
 {
-	uint8_t *pstr;
+	uint8_t pstr = 0u;
 	uint32_t i = 0u,len = 0u;
 	
   switch (*(uint32_t*)&USARTx)
   {
     case USART1_BASE:
 			#ifdef USART1_EN 
-			pstr = uart1_rx_data;					
+			pstr = 1u;					
 			len = uart1_rx_number;
 			uart1_rx_number = 0u;  
 			#endif
 			break;			
     case USART2_BASE: 
 			#ifdef USART2_EN 
-			pstr = uart2_rx_data;			
+			pstr = 2u;			
 			len = uart2_rx_number;
 			uart2_rx_number = 0u;  
 			#endif
 			break;			
     case USART3_BASE:
 			#ifdef USART3_EN 
-			pstr = uart3_rx_data;					
+			pstr = 3u;					
 			len = uart3_rx_number; 
 			uart3_rx_number = 0u;  
 			#endif
@@ -957,7 +957,26 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t buff[],uint32_t mlen)
   }
   for(i = 0u; i < len; i++)
   {
-      buff[i] = pstr[i];
+    if(pstr == 1u) 
+    {
+#ifdef USART1_EN 
+        buff[i] = uart1_rx_data[i];
+#endif
+    }
+    else if(pstr == 2u) 
+    {
+#ifdef USART2_EN         
+      buff[i] = uart2_rx_data[i];
+#endif
+    }
+    else if(pstr == 3u) 
+    {
+#ifdef USART3_EN 
+      buff[i] = uart3_rx_data[i];
+#endif
+    }
+    else
+    {}
   }		
   
   return(len);

@@ -2499,9 +2499,6 @@
         <file>
           <name>$PROJ_DIR$\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_sil.c</name>
         </file>
-        <configuration>
-          <name>GEC-SF-S-NEW</name>
-        </configuration>
       </group>
       <file>
         <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\hw_config.c</name>
@@ -2524,6 +2521,9 @@
       <file>
         <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_virtual_com_port.c</name>
       </file>
+      <configuration>
+        <name>GEC-SF-S-NEW</name>
+      </configuration>
     </group>
     <group>
       <name>USB_HOST_MSC</name>
@@ -2541,9 +2541,6 @@
             <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_scsi.c</name>
           </file>
         </group>
-        <configuration>
-          <name>GEC-SF-M</name>
-        </configuration>
       </group>
       <group>
         <name>Core</name>
@@ -2559,9 +2556,6 @@
         <file>
           <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Core\src\usbh_stdreq.c</name>
         </file>
-        <configuration>
-          <name>GEC-SF-M</name>
-        </configuration>
       </group>
       <group>
         <name>Driver</name>
@@ -2574,28 +2568,19 @@
         <file>
           <name>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\src\usb_hcd_int.c</name>
         </file>
-        <configuration>
-          <name>GEC-SF-M</name>
-        </configuration>
       </group>
       <file>
         <name>$PROJ_DIR$\..\USB\USB_MASS_STORAGE\src\usb_bsp.c</name>
-        <configuration>
-          <name>GEC-SF-M</name>
-        </configuration>
       </file>
       <file>
         <name>$PROJ_DIR$\..\USB\USB_MASS_STORAGE\src\usb_func.c</name>
-        <configuration>
-          <name>GEC-SF-M</name>
-        </configuration>
       </file>
       <file>
         <name>$PROJ_DIR$\..\USB\USB_MASS_STORAGE\src\usbh_usr.c</name>
-        <configuration>
-          <name>GEC-SF-M</name>
-        </configuration>
       </file>
+      <configuration>
+        <name>GEC-SF-M</name>
+      </configuration>
     </group>
   </group>
   <group>

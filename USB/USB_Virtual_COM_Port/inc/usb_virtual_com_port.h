@@ -19,7 +19,7 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void Connect_To_COM(void);
-void USB_Send_Data(uint8_t *ptrBuffer, uint8_t Send_length);
+void USB_Send_Data(uint8_t ptrBuffer[], uint8_t Send_length);
 uint32_t USB_Receive_Data(uint8_t ptrBuffer[]);
 void USB_Receive_Data_Send(void);
 void USB_Disconnect(void);

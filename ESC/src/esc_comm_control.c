@@ -116,7 +116,7 @@ void Communication_To_Control(void)
     } 
     
     *pc_sfescstate = SfBase_EscState;
-    CAN1_TX2_Data[2] = pcEscErrorCodeBuff[0];
+    CAN1_TX2_Data[2] = Modbuff[454];
     
     
     if( testmode == 0u )

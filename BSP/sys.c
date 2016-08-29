@@ -20,48 +20,6 @@
 
 
 /*******************************************************************************
-* Function Name  : fputc
-* Description    : Redefine fputc function to support printf function.
-*                  
-* Input          : None
-*                 
-* Output         : None
-* Return         : None
-*******************************************************************************/  
-
-#if DEBUG_PRINTF
-#ifdef GEC_SF_S_NEW
-int fputc(int ch, FILE *f)
-{   
-    
-    while((USART3->ISR&0X40) == 0);
-      USART3->TDR = (u8) ch;  
-    
-    return ch;
-}
-#else
-int fputc(int ch, FILE *f)
-{   
-  
-    while((USART3->SR&0X40) == 0);  
-      USART3->DR = (u8) ch; 
-    
-    return ch;
-}
-#endif /* GEC_SF_S_NEW */
-
-#else
-int fputc(int ch, FILE *f)
-{
-      return ch;
-}
-#endif /* DEBUG_PRINTF */
-
-
-
-
-
-/*******************************************************************************
 * Function Name  : WFI_SET
 * Description    : The THUMB assembler does not support inline.
 *                  Use the following methods to achieve the implementation of assembly instructions WFI

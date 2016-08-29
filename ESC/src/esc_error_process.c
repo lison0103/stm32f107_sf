@@ -40,7 +40,7 @@ void fault_code_decode(u8 code_buff[])
        
     for( i = 0u; i < 10u; i++ ) 
     {
-        pcEscErrorBuff[i] = pcErrorBuff[i] | pcOmcErrorBuff[i];				
+        Modbuff[468u + i ] = EscRTBuff[70u + i] | McRxBuff[70u + i];				
     }  
     
     error_counter = 0u;
@@ -50,12 +50,12 @@ void fault_code_decode(u8 code_buff[])
     {
         error_code_temp = i*8u;
         
-        if(pcEscErrorBuff[i])
+        if(Modbuff[468u + i])
         {
             for( j = 0u; j < 8u; j++ )
             {
                 error_code_temp++;
-                if(pcEscErrorBuff[i] & (1u << j)) 
+                if(Modbuff[468u + i] & (1u << j)) 
                 {
                     error_temp[error_counter] = error_code_temp; 
                     error_counter++;

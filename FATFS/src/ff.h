@@ -244,11 +244,11 @@ TCHAR* f_gets (TCHAR* buff, int len, FIL* fp);						/* Get a string from the fil
 FRESULT dir_sdi (DIR *dp,UINT idx);					
 void ff_enter(FATFS *fs);							
 void ff_leave(FATFS* fs);
-
+/*
 #ifndef EOF
 #define EOF (-1)
 #endif
-
+*/
 
 
 

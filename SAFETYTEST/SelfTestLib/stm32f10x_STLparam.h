@@ -229,8 +229,15 @@ allow to react more quickly */
   #define RAM_END   (u32 *)0x20004FFc
 
   /* Constants necessary for Transparent March tests */
+  
   #define CLASS_B_START ((u32 *)(&__ICFEDIT_region_CLASSB_start__))
   #define CLASS_B_END ((u32 *)(&__ICFEDIT_region_CLASSB_end__))
+
+  /* For MISRA C 2004 17.4 */
+/*  
+  #define CLASS_B_START __ICFEDIT_region_CLASSB_start__
+  #define CLASS_B_END __ICFEDIT_region_CLASSB_end__  
+*/
   
   #define GotoCompilerStartUp() Reset_Handler(); /* __iar_program_start(); */
 

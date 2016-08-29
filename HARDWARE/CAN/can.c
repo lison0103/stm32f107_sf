@@ -438,7 +438,7 @@ void CAN1_RX0_IRQHandler(void)
 
             for( num = 0u; num < RxMessage.DLC; num++ )
             {
-                pcEscDataFromControl[num] = RxMessage.Data[num];
+/*                pcEscDataFromControl[num] = RxMessage.Data[num];*/
             }
         }  
         /** CB normal data RECEIVE **/        
@@ -564,7 +564,7 @@ void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_
                 CanTx->tx_buff[CanTx->mlen - 2u] = (u8)i;
                 CanTx->tx_buff[CanTx->mlen - 1u] = (u8)(i>>8u);    
                 
-                CanTx->p_CanBuff = &CanTx->tx_buff[0];
+                CanTx->p_CanBuff = 0u;
                 CanTx->sending = 1u;
                 
             } 
@@ -579,7 +579,7 @@ void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_
             {
                 for( i = 0u; i < 3u; i++ )
                 {
-                    result = Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CAN_FRAME_LEN ); 
+                    result = Can_Send_Msg(CANx, send_id, &CanTx->tx_buff[CanTx->p_CanBuff], CAN_FRAME_LEN ); 
                     if( result != 1u )
                     {
                         CanTx->p_CanBuff += CAN_FRAME_LEN;
@@ -594,7 +594,7 @@ void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_
                 {
                     for( i = 0u; i < 2u; i++ )
                     {
-                        result = Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CAN_FRAME_LEN ); 
+                        result = Can_Send_Msg(CANx, send_id, &CanTx->tx_buff[CanTx->p_CanBuff], CAN_FRAME_LEN ); 
                         if( result != 1u )
                         {
                             CanTx->p_CanBuff += CAN_FRAME_LEN;
@@ -605,7 +605,7 @@ void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_
                 else if( CanTx->mlen > CAN_FRAME_LEN )
                 {
                     
-                    result = Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CAN_FRAME_LEN ); 
+                    result = Can_Send_Msg(CANx, send_id, &CanTx->tx_buff[CanTx->p_CanBuff], CAN_FRAME_LEN ); 
                     if( result != 1u )
                     {
                         CanTx->p_CanBuff += CAN_FRAME_LEN;
@@ -617,7 +617,7 @@ void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_
                 
                 if( CanTx->mlen <= CAN_FRAME_LEN )
                 {
-                    result = Can_Send_Msg(CANx, send_id, CanTx->p_CanBuff, CanTx->mlen );
+                    result = Can_Send_Msg(CANx, send_id, &CanTx->tx_buff[CanTx->p_CanBuff], CanTx->mlen );
                     if( result != 1u )
                     {
                         CanTx->mlen = 0u;
@@ -682,7 +682,7 @@ void CAN2_TX_IRQHandler(void)
 *******************************************************************************/   
 uint8_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, uint8_t buff[], uint8_t mlen)
 {
-    uint8_t *pstr;
+    uint8_t pstr;
     uint8_t i = 0u,len = 0u;
 	
     switch (*(uint32_t*)&CANx)
@@ -695,7 +695,7 @@ uint8_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, ui
             if(!MB_CRC16(CanRx->rx_buff, (u16)CanRx->recv_len))
             {          
                 /* ok */
-                pstr = &CanRx->rx_buff[2];					
+                pstr = 2u;/*&CanRx->rx_buff[2];*/
                 len = CanRx->recv_len - 4u;
                 CanRx->recv_len = 0u;
             }
@@ -719,7 +719,7 @@ uint8_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, ui
             if(!MB_CRC16(CanRx->rx_buff, (u16)CanRx->recv_len))
             {          
                 /* ok */
-                pstr = &CanRx->rx_buff[2];					
+                pstr = 2u;/*&CanRx->rx_buff[2];*/				
                 len = CanRx->recv_len - 4u;
                 CanRx->recv_len = 0u;
             }
@@ -752,7 +752,7 @@ uint8_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, ui
     
     for(i = 0u; i < len; i++)
     {
-        buff[i] = pstr[i];
+        buff[i] = CanRx->rx_buff[pstr + i];
     }		
 			
     return(len);

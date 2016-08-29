@@ -19,16 +19,9 @@
 #endif
 #include "stdio.h"
 
-
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-#ifdef GEC_SF_MASTER
-#define DEBUG_PRINTF    0
-#else
-#define DEBUG_PRINTF    0
-#endif
-
 /* Exported functions ------------------------------------------------------- */	
 void WFI_SET(void);	
 void INTX_DISABLE(void);

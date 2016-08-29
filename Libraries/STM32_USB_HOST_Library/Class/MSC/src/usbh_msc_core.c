@@ -224,44 +224,44 @@ static USBH_Status USBH_MSC_InterfaceInit ( USB_OTG_CORE_HANDLE *pdev,
   {
     if (pphost->device_prop.Itf_Desc[0].bInterfaceClass == USB_HUB)
     {
-      printf("Hub is not supported.\n");
+/*      printf("Hub is not supported.\n");*/
     }
     
     else if (pphost->device_prop.Itf_Desc[0].bInterfaceClass == USB_CDCC)
     {
-      printf("Communications and CDC Control device is not supported.\n");
+/*      printf("Communications and CDC Control device is not supported.\n");*/
     }
     
     else if (pphost->device_prop.Itf_Desc[0].bInterfaceClass == USB_HID)
     {
-      printf("HID device is not supported.\n");
+/*      printf("HID device is not supported.\n");*/
     }
     
     else if (pphost->device_prop.Itf_Desc[0].bInterfaceClass == USB_PRINTER)
     {
-      printf("Printer device is not supported.\n");
+/*      printf("Printer device is not supported.\n");*/
     }
     
     else if (pphost->device_prop.Itf_Desc[0].bInterfaceClass == USB_SMARTCARD)
     {
-      printf("Smart Card device is not supported.\n");
+/*      printf("Smart Card device is not supported.\n");*/
     }
     
     
     else if (pphost->device_prop.Itf_Desc[0].bInterfaceClass == USB_VIDEO)
     {
-      printf("Video device  is not supported.\n");
+/*      printf("Video device  is not supported.\n");*/
     }
     
     
     else if (pphost->device_prop.Itf_Desc[0].bInterfaceClass == USB_AVD)
     {
-      printf("Audio/Video Devices is not supported.\n");
+/*      printf("Audio/Video Devices is not supported.\n");*/
     }
     
     else
     {
-      printf ("The attached device is not supported. \n");
+/*      printf ("The attached device is not supported. \n");*/
     }
     
     pphost->usr_cb->DeviceNotSupported();

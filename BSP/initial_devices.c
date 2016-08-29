@@ -75,12 +75,7 @@ void Initial_Device(void)
         
         /** exti init **/
         EXTIX_Init();
-
-        /** usart3 init **/
-        /** just for debug **/
-#if DEBUG_PRINTF
-        USART3_Init();
-#endif        
+       
 
         /** CAN1 init,baud rate 500Kbps **/
 	CAN_Int_Init(CAN1);      
