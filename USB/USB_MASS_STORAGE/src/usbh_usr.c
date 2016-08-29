@@ -308,7 +308,7 @@ int USBH_USR_MSC_Application(void)
 			AppState=USH_USR_FS_TEST;
                         
                         /* mount usb stick */ 
-                        f_mount(fs[0],"0:",1u); 
+                        f_mount(fs,"0:",1u); 
       		break;
     	case USH_USR_FS_TEST:	
 			res = USB_LoadParameter(); 

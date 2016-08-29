@@ -332,7 +332,6 @@
           <state>$PROJ_DIR$\..\HARDWARE\TIMER</state>
           <state>$PROJ_DIR$\..\HARDWARE\EXTI</state>
           <state>$PROJ_DIR$\..\HARDWARE\USART</state>
-          <state>$PROJ_DIR$\..\MALLOC</state>
           <state>$PROJ_DIR$\..\ESC\inc</state>
           <state>$PROJ_DIR$\..\SAFETYTEST\SelfTestLib</state>
           <state>$PROJ_DIR$\..\SAFETYTEST\</state>
@@ -2067,9 +2066,6 @@
       <configuration>GEC-SF-S-NEW</configuration>
     </excluded>
     <file>
-      <name>$PROJ_DIR$\..\FATFS\src\option\ccsbcs.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\FATFS\src\diskio.c</name>
     </file>
     <file>
@@ -3190,15 +3186,6 @@
       <excluded>
         <configuration>GEC-SF-S-NEW</configuration>
       </excluded>
-    </file>
-  </group>
-  <group>
-    <name>MALLOC</name>
-    <excluded>
-      <configuration>GEC-SF-S-NEW</configuration>
-    </excluded>
-    <file>
-      <name>$PROJ_DIR$\..\MALLOC\malloc.c</name>
     </file>
   </group>
   <group>

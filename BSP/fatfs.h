@@ -13,7 +13,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "ff.h"  
-#include "malloc.h" 
 #include "delay.h"
 
 /* Exported types ------------------------------------------------------------*/
@@ -26,7 +25,7 @@ u8 CopyFile(char *readfilename, char *newfilename);
 u8 fatfs_init(void);	
 u16 ReadFile(char *readfilename, u8 buffer[]);
 
-extern FATFS *fs[1]; 
+extern FATFS *fs; 
 
 #endif /* __FATFS_H */
 

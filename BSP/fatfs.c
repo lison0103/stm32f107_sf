@@ -20,7 +20,7 @@
 /* Private functions ---------------------------------------------------------*/
 
 
-FATFS *fs[1];           /* Logical Disk Workspace. */
+FATFS *fs,fatfs;           /* Logical Disk Workspace. */
 
 
 /*******************************************************************************
@@ -34,9 +34,9 @@ u8 fatfs_init(void)
 {
         u8 initresult = 0u;
         
-	fs[0]=(FATFS*)mymalloc(sizeof(FATFS));			
+	fs = &fatfs;			
         
-	if(fs[0])
+	if(fs)
         {
             initresult = 0u; 
         }
@@ -59,10 +59,10 @@ u8 fatfs_init(void)
 *******************************************************************************/
 u8 isFileExist(char *filename)
 {
-  FIL* fp;
+  FIL* fp,file;
   FRESULT res = FR_NO_FILE;
   
-  fp = (FIL*)mymalloc(sizeof(FIL));	
+  fp = &file;	
   if(fp != NULL)
   {    
       
@@ -71,8 +71,7 @@ u8 isFileExist(char *filename)
       if(res==FR_OK)
       {
 	 f_close(fp);						
-      }
-      myfree(fp);      
+      }     
   }  
     
   return res;
@@ -91,16 +90,15 @@ u8 isFileExist(char *filename)
 *******************************************************************************/
 u16 ReadFile(char *readfilename, u8 buffer[])
 {
-    FIL* fp1;
+    FIL* fp1,file;
     FRESULT res = FR_NO_FILE;
-    u8 *tempbuf;
+    u8 tempbuf[512];
     u16 bread = 0u;
     u16 offx = 0u;
     u16 i;
     u8 result = 0u;
     
-    fp1 = (FIL*)mymalloc(sizeof(FIL));		
-    tempbuf = mymalloc(512u);
+    fp1 = &file;		
     
     
     if( (fp1 != NULL) && (tempbuf != NULL) )
@@ -136,8 +134,6 @@ u16 ReadFile(char *readfilename, u8 buffer[])
         }       
                 
         f_close(fp1);          
-        myfree(fp1);    
-        myfree(tempbuf);
     }  
     
     return offx;
@@ -156,17 +152,16 @@ u16 ReadFile(char *readfilename, u8 buffer[])
 *******************************************************************************/
 u8 CopyFile(char *readfilename, char *newfilename)
 {
-    FIL* fp1;
-    FIL* fp2;
+    FIL* fp1,file1;
+    FIL* fp2,file2;
     FRESULT res = FR_NO_FILE;
-    u8 *tempbuf;
+    u8 tempbuf[1024];
     u32 bread;
     u32 offx = 0u;
     u8 result = 0u;
     
-    fp1 = (FIL*)mymalloc(sizeof(FIL));	
-    fp2 = (FIL*)mymalloc(sizeof(FIL));	
-    tempbuf = mymalloc(1024u);
+    fp1 = &file1;	
+    fp2 = &file2;	
         
     if( (fp1 != NULL) && (fp2 != NULL) && (tempbuf != NULL))
     {
@@ -199,9 +194,6 @@ u8 CopyFile(char *readfilename, char *newfilename)
         
         f_close(fp1); 
         f_close(fp2);        
-        myfree(fp1);    
-        myfree(fp2);
-        myfree(tempbuf);
     }  
     
     return res;

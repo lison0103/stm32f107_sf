@@ -11,7 +11,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "sys.h"
 #include "usbh_usr.h" 
-#include "malloc.h" 
 #include "ff.h"  
 #include "delay.h"
 #include "ewdt.h"
@@ -56,7 +55,8 @@ int USB_LoadParameter(void)
       int res = 0;
       u8 parabuffer[100];
       u16 filelen = 0u;
-
+            
+      
       LED_ON();
       ParaLoad |= USB_DETECTED;
       
@@ -181,8 +181,6 @@ void USBH_Mass_Storage_Init(void)
       u16 t = 0u;
       u32 timecounter = 0u;
       
-      /** mem init **/	
-      mmem_init(); 
       
       /** fatfs apply memory **/ 
       if(fatfs_init())			
@@ -200,15 +198,13 @@ void USBH_Mass_Storage_Init(void)
           {
               if( wait_for_restart == 0u )
               {
-                  USBH_DeInit(&USB_OTG_Core, &USB_Host);
-                  myfree(fs[0]);   
+                  USBH_DeInit(&USB_OTG_Core, &USB_Host);  
                   wait_for_restart = 1u;
               }
           }
           else if( timecounter == 1000u )
           {                             
               USBH_DeInit(&USB_OTG_Core, &USB_Host);
-              myfree(fs[0]);
               break;
           }
           else

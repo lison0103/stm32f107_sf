@@ -2178,9 +2178,6 @@
   <group>
     <name>FATFS</name>
     <file>
-      <name>$PROJ_DIR$\..\FATFS\src\option\ccsbcs.c</name>
-    </file>
-    <file>
       <name>$PROJ_DIR$\..\FATFS\src\diskio.c</name>
     </file>
     <file>
@@ -2395,12 +2392,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\HARDWARE\USART\usart.c</name>
-    </file>
-  </group>
-  <group>
-    <name>MALLOC</name>
-    <file>
-      <name>$PROJ_DIR$\..\MALLOC\malloc.c</name>
     </file>
   </group>
   <group>
