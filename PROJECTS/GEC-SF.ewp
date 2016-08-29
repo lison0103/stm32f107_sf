@@ -322,8 +322,7 @@
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Core\inc</state>
           <state>$PROJ_DIR$\..\Libraries\STM32_USB_OTG_Driver\inc</state>
-          <state>$PROJ_DIR$\..\FATFS\src</state>
-          <state>$PROJ_DIR$\..\FATFS\exfuns</state>
+          <state>$PROJ_DIR$\..\Libraries\Third_Party\fatfs_R0.12a\src</state>
           <state>$PROJ_DIR$\..\HARDWARE\LED</state>
           <state>$PROJ_DIR$\..\HARDWARE\MB85RCXX</state>
           <state>$PROJ_DIR$\..\HARDWARE\EWDT</state>
@@ -2066,10 +2065,7 @@
       <configuration>GEC-SF-S-NEW</configuration>
     </excluded>
     <file>
-      <name>$PROJ_DIR$\..\FATFS\src\diskio.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\FATFS\src\ff.c</name>
+      <name>$PROJ_DIR$\..\Libraries\Third_Party\fatfs_R0.12a\src\ff.c</name>
     </file>
     <configuration>
       <name>GEC-SF-M</name>
@@ -4144,6 +4140,9 @@
           </file>
           <file>
             <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_core.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_fatfs.c</name>
           </file>
           <file>
             <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_scsi.c</name>

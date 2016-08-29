@@ -2178,10 +2178,7 @@
   <group>
     <name>FATFS</name>
     <file>
-      <name>$PROJ_DIR$\..\FATFS\src\diskio.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\FATFS\src\ff.c</name>
+      <name>$PROJ_DIR$\..\Libraries\Third_Party\fatfs_R0.12a\src\ff.c</name>
     </file>
     <configuration>
       <name>GEC-SF-M</name>
@@ -2527,6 +2524,9 @@
           </file>
           <file>
             <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_core.c</name>
+          </file>
+          <file>
+            <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_fatfs.c</name>
           </file>
           <file>
             <name>$PROJ_DIR$\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_scsi.c</name>
