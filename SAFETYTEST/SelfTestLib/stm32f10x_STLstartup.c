@@ -107,8 +107,8 @@ void GeneralRegister_StartupCheck(void)
 void IWDTCheck(void)
 {
     CtrlFlowCnt += WDG_TEST_CALLER;
-    STL_WDGSelfTest();
-    EWDT_TOOGLE();
+/*    STL_WDGSelfTest();
+    EWDT_TOOGLE();*/
     CtrlFlowCntInv -= WDG_TEST_CALLER;
 
 }

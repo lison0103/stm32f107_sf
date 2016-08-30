@@ -85,6 +85,9 @@ ClockStatus STL_ClockStartUpTest(void)
 #else
       LSIPeriod = RTC_GetCounter(); /* LSI frequency measurement */
 #endif
+      
+      LSIPeriod /= 10u; /* 20ms/10 = 2ms */
+      
       /* Switch CPU clock source from internal RC to oscillator and check it */
       if (STL_SwitchToExtClockSrc() != SUCCESS)
       {
@@ -118,6 +121,8 @@ ClockStatus STL_ClockStartUpTest(void)
 #else        
         RefHSEPeriod = RTC_GetCounter();   /* HSE frequency measurement */
 #endif
+        RefHSEPeriod /= 10u; /* 20ms/10 = 2ms */
+        
         RefHSEPeriodInv = ~RefHSEPeriod;   /* Redundant storage */
 
         ClockFrequency = HSI_Freq * LSIPeriod;
@@ -337,7 +342,7 @@ void STL_SysTickInit(void)
   CtrlFlowCnt += SYSTICK_INIT_CALLEE;
 
   SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);
-  SysTick->LOAD = ((u32)16000uL);//SysTick_SetReload(SYSTICK_TB_START);          /* Set reload rate (Ref period) */
+  SysTick->LOAD = ((u32)160000uL);/* 20ms *///SysTick_SetReload(SYSTICK_TB_START);          /* Set reload rate (Ref period) */
   SysTick->VAL =0X00;//SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset counter */
   SysTick->CTRL|=SysTick_CTRL_ENABLE_Msk ;//SysTick_CounterCmd(SysTick_Counter_Enable);   /* Start down-counting */
 
