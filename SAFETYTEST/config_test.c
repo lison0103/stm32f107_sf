@@ -23,19 +23,20 @@ typedef struct {
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-type_testResult_t PWRReg_Check(void);
-type_testResult_t RCCReg_Check(void);
-type_testResult_t EXTIReg_Check(void);
-type_testResult_t DMAReg_Check(void);
-type_testResult_t TIMReg_Check(void);
-type_testResult_t CANReg_Check(void);
-type_testResult_t SPIReg_Check(void);
-type_testResult_t USARTReg_Check(void);
-
+static type_testResult_t PWRReg_Check(void);
+static type_testResult_t RCCReg_Check(void);
+static type_testResult_t EXTIReg_Check(void);
+static type_testResult_t DMAReg_Check(void);
+static type_testResult_t TIMReg_Check(void);
+static type_testResult_t CANReg_Check(void);
+static type_testResult_t SPIReg_Check(void);
+#ifdef GEC_SF_MASTER
+static type_testResult_t USARTReg_Check(void);
+#endif
 
 GPIO_InitTypeDef   GPIO_InitStructure;
-ErrorStatus HSEStartUpStatus;
-IEC61508_ConfCheck_struct  ConfigReg_Check;
+static ErrorStatus HSEStartUpStatus;
+static IEC61508_ConfCheck_struct  ConfigReg_Check;
 
 
 /*******************************************************************************
@@ -45,7 +46,7 @@ IEC61508_ConfCheck_struct  ConfigReg_Check;
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-type_testResult_t PWRReg_Check(void)
+static type_testResult_t PWRReg_Check(void)
 {
       type_testResult_t testResult = IEC61508_testPassed;
       uint32_t ReadRegVal = 0x00000000u;
@@ -67,7 +68,7 @@ type_testResult_t PWRReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-type_testResult_t RCCReg_Check(void)
+static type_testResult_t RCCReg_Check(void)
 {
       type_testResult_t testResult = IEC61508_testPassed;
       uint32_t ReadRegVal = 0x00000000u;
@@ -181,7 +182,7 @@ type_testResult_t RCCReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-type_testResult_t EXTIReg_Check(void)
+static type_testResult_t EXTIReg_Check(void)
 {
       type_testResult_t testResult = IEC61508_testPassed;
       uint32_t ReadRegVal = 0x00000000u;      
@@ -210,7 +211,7 @@ type_testResult_t EXTIReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-type_testResult_t DMAReg_Check(void)
+static type_testResult_t DMAReg_Check(void)
 {
       type_testResult_t testResult = IEC61508_testPassed;
       uint32_t ReadRegVal = 0x00000000u;
@@ -278,7 +279,7 @@ type_testResult_t DMAReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-type_testResult_t TIMReg_Check(void)
+static type_testResult_t TIMReg_Check(void)
 {
       type_testResult_t testResult = IEC61508_testPassed;
       uint32_t ReadRegVal = 0x00000000u;
@@ -332,7 +333,7 @@ type_testResult_t TIMReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-type_testResult_t CANReg_Check(void)
+static type_testResult_t CANReg_Check(void)
 {
       type_testResult_t testResult = IEC61508_testPassed;
       uint32_t ReadRegVal = 0x00000000u;
@@ -365,7 +366,7 @@ type_testResult_t CANReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-type_testResult_t SPIReg_Check(void)
+static type_testResult_t SPIReg_Check(void)
 {
       type_testResult_t testResult = IEC61508_testPassed;
       uint32_t ReadRegVal = 0x00000000u;
@@ -424,7 +425,8 @@ type_testResult_t SPIReg_Check(void)
 * Output         : None
 * Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
 *******************************************************************************/
-type_testResult_t USARTReg_Check(void)
+#ifdef GEC_SF_MASTER
+static type_testResult_t USARTReg_Check(void)
 {
       type_testResult_t testResult = IEC61508_testPassed;
       uint32_t ReadRegVal = 0x00000000u;
@@ -444,6 +446,7 @@ type_testResult_t USARTReg_Check(void)
       
       return testResult;
 }
+#endif
 
 /*******************************************************************************
 * Function Name  : ConfigurationRegister_Check

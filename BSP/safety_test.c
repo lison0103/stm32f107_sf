@@ -26,16 +26,16 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void ConfigurationRegister_StartupCheck(void);
-void ConfigurationRegister_RunCheck(void);
-void FlagRegisterCheck(void);
-void ProgramCounterCheck(void);
-void ProgramExecutionInstructionCheck(void);
+static void ConfigurationRegister_StartupCheck(void);
+static void ConfigurationRegister_RunCheck(void);
+static void FlagRegisterCheck(void);
+static void ProgramCounterCheck(void);
+static void ProgramExecutionInstructionCheck(void);
 
 /* variable is located in the stack */
-volatile type_testResult_t result = IEC61508_testFailed;   
-u32 SafetyTestFlowCnt = 0u;
-u32 SafetyTestFlowCntInv = 0xFFFFFFFFuL;
+static volatile type_testResult_t result = IEC61508_testFailed;   
+static u32 SafetyTestFlowCnt = 0u;
+static u32 SafetyTestFlowCntInv = 0xFFFFFFFFuL;
 
 
 /*******************************************************************************
@@ -46,7 +46,7 @@ u32 SafetyTestFlowCntInv = 0xFFFFFFFFuL;
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void FailSafeTest(void)
+static void FailSafeTest(void)
 {
     while(1)
     {
@@ -61,7 +61,7 @@ void FailSafeTest(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/  
-void ConfigurationRegister_StartupCheck(void)
+static void ConfigurationRegister_StartupCheck(void)
 {
     RCC_ClocksTypeDef RCC_Clocks;
     SafetyTestFlowCnt += CONFIGURATION_REG_TEST_CALLER;
@@ -91,7 +91,7 @@ void ConfigurationRegister_StartupCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ConfigurationRegister_RunCheck(void)
+static void ConfigurationRegister_RunCheck(void)
 {
     RCC_ClocksTypeDef RCC_Clocks;
     SafetyTestFlowCnt += CONFIGURATION_REG_TEST_CALLER;
@@ -128,7 +128,7 @@ void ConfigurationRegister_RunCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void FlagRegisterCheck(void)
+static void FlagRegisterCheck(void)
 {
     SafetyTestFlowCnt += FLAG_TEST_CALLER;
     result = flag_test();
@@ -149,7 +149,7 @@ void FlagRegisterCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ProgramCounterCheck(void)
+static void ProgramCounterCheck(void)
 {
     SafetyTestFlowCnt += PC_TEST_CALLER;
     result = IEC61508_PCTest_POST();
@@ -170,7 +170,7 @@ void ProgramCounterCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ProgramExecutionInstructionCheck(void)
+static void ProgramExecutionInstructionCheck(void)
 {
     SafetyTestFlowCnt += PEI_TEST_CALLER;
     /* Do the IEC61508 instruction tests */

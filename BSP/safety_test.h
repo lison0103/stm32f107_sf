@@ -36,9 +36,9 @@
 /* Exported functions ------------------------------------------------------- */
 void Safety_StartupCheck2(void);
 void Safety_RunCheck2(void);
-void FailSafeTest(void);
+static void FailSafeTest(void);
 
-extern volatile type_testResult_t result;   /* variable is located in the stack */
+
 
 #endif  /* __SAFETY_TEST_H */
 

@@ -88,7 +88,7 @@ void Safety_InitRunTimeChecks(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void GeneralRegister_RunCheck(void)
+static void GeneralRegister_RunCheck(void)
 {
     CtrlFlowCnt += CPU_TEST_CALLER;
     if (STL_RunTimeCPUTest() != CPUTEST_SUCCESS)
@@ -112,7 +112,7 @@ void GeneralRegister_RunCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Stack_RunCheck(void)
+static void Stack_RunCheck(void)
 {
     CtrlFlowCnt += STACK_OVERFLOW_TEST;
     if (STL_CheckStack() != SUCCESS)
@@ -136,7 +136,7 @@ void Stack_RunCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ClockFrequency_RunCheck(void)
+static void ClockFrequency_RunCheck(void)
 {
     CtrlFlowCnt += CLOCK_TEST_CALLER;
     switch ( STL_MainClockTest() )
@@ -187,7 +187,7 @@ void ClockFrequency_RunCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void DataIntegrityInFlash_RunCheck(u32* RomTest)
+static void DataIntegrityInFlash_RunCheck(u32* RomTest)
 {
     CtrlFlowCnt += FLASH_TEST_CALLER;
     *RomTest = STL_crc16Run();
@@ -337,7 +337,7 @@ void Safety_RunCheck1(void)
 *                  HSI_HSE_SWITCH_FAIL; TEST_ONGOING; EXT_SOURCE_FAIL;
 *                  CLASS_B_VAR_FAIL, CTRL_FLOW_ERROR, FREQ_OK}
 *******************************************************************************/
-ClockStatus STL_MainClockTest(void)
+static ClockStatus STL_MainClockTest(void)
 {
     ClockStatus Result = TEST_ONGOING; /* In case of unexpected exit */
 
@@ -387,7 +387,7 @@ ClockStatus STL_MainClockTest(void)
 * Output         : None
 * Return         : ErrorStatus = {ERROR; SUCCESS}
 *******************************************************************************/
-ErrorStatus STL_CheckStack(void)
+static ErrorStatus STL_CheckStack(void)
 {
     ErrorStatus Result = ERROR;
 
@@ -428,4 +428,117 @@ ErrorStatus STL_CheckStack(void)
   return (Result);
 
 }
+
+/*******************************************************************************
+* Function Name  : Safety_TimingCheck
+* Description    : This function for safety running check.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Safety_TimingCheck(void)
+{
+        
+    /* Verify TickCounter integrity */
+    if ((TickCounter ^ TickCounterInv) == 0xFFFFFFFFuL)
+    {
+        TickCounter++;
+        TickCounterInv = ~TickCounter;
+        
+        if (TickCounter >= SYSTICK_20ms_TB)
+        {
+            u32 RamTestResult;
+            
+            /* Reset timebase counter */
+            TickCounter = 0u;
+            TickCounterInv = 0xFFFFFFFFu;
+            
+            /* Set Flag read in main loop */
+            TimeBaseFlag = 0xAAAAAAAAu;
+            TimeBaseFlagInv = 0x55555555u;
+            
+            if ((CurrentHSEPeriod ^ CurrentHSEPeriodInv) == 0xFFFFFFFFuL)
+            {
+                ISRCtrlFlowCnt += MEASPERIOD_ISR_CALLER;
+                CurrentHSEPeriod = STL_MeasurePeriod();
+                CurrentHSEPeriodInv = ~CurrentHSEPeriod;
+                ISRCtrlFlowCntInv -= MEASPERIOD_ISR_CALLER;
+            }
+            else  /* Class B Error on CurrentHSEPeriod */
+            {
+#ifdef STL_VERBOSE
+                printf("\n\r Class B Error on CurrentHSEPeriod \n\r");
+#endif  /* STL_VERBOSE */
+            }
+            
+            ISRCtrlFlowCnt += RAM_MARCHC_ISR_CALLER;
+            RamTestResult = RAM_RunCheck();
+            ISRCtrlFlowCntInv -= RAM_MARCHC_ISR_CALLER;
+            /*
+            ISRCtrlFlowCnt += RAM_MARCHX_ISR_CALLER;
+            RamTestResult = STL_TranspMarchX();
+            ISRCtrlFlowCntInv -= RAM_MARCHX_ISR_CALLER;
+            */
+            switch ( RamTestResult )
+            {
+               case TEST_RUNNING:
+                break;
+               case TEST_OK:
+#ifdef STL_VERBOSE
+                /*                 
+                printf("\n\r Full RAM verified (Run-time)\n\r");
+                GPIO_WriteBit(GPIOC, GPIO_Pin_7, (BitAction)(1-GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_7)));
+                */                 
+#endif  /* STL_VERBOSE */
+                break;
+               case TEST_FAILURE:
+               case CLASS_B_DATA_FAIL:
+               default:
+#ifdef STL_VERBOSE
+                /* >>>>>>>>>>>>>>>>>>>  RAM Error (March C- Run-time check) */
+#endif  /* STL_VERBOSE */
+                FailSafePOR();
+                break;
+            } /* End of the switch */
+            
+            /* Do we reached the end of RAM test? */
+            /* Verify 1st ISRCtrlFlowCnt integrity */
+            if ((ISRCtrlFlowCnt ^ ISRCtrlFlowCntInv) == 0xFFFFFFFFuL)
+            {
+                if (RamTestResult == TEST_OK)
+                {
+                    if (ISRCtrlFlowCnt != RAM_TEST_COMPLETED)
+                    {
+#ifdef STL_VERBOSE
+                        /* Control Flow error (RAM test) */
+#endif  /* STL_VERBOSE */
+                        FailSafePOR();
+                    }
+                    else  /* Full RAM was scanned */
+                    {
+                        ISRCtrlFlowCnt = 0u;
+                        ISRCtrlFlowCntInv = 0xFFFFFFFFu;
+                    }
+                } /* End of RAM completed if*/
+            } /* End of control flow monitoring */
+            else
+            {
+#ifdef STL_VERBOSE
+                /* Control Flow error in ISR */
+#endif  /* STL_VERBOSE */
+                FailSafePOR();
+            }
+        } /* End of the 20 ms timebase interrupt */
+    }
+    else  /* Class error on TickCounter */
+    {
+#ifdef STL_VERBOSE
+        printf("\n\r Class B Error on TickCounter\n\r");
+#endif  /* STL_VERBOSE */
+        FailSafePOR();
+    }          
+
+}
+
+
 /******************* (C) COPYRIGHT 2007 STMicroelectronics *****END OF FILE****/

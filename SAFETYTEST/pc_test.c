@@ -12,12 +12,12 @@
 #include "iec61508.h"
 #include "pc_test.h"
 
-uint32_t IEC61508_PCTest_FctA(void);
-uint32_t IEC61508_PCTest_FctB(void);
-uint32_t IEC61508_PCTest_FctC(void);
-uint32_t IEC61508_PCTest_FctD(void);
-uint32_t IEC61508_PCTest_FctE(void);
-uint32_t IEC61508_PCTest_FctF(void);
+static uint32_t IEC61508_PCTest_FctA(void);
+static uint32_t IEC61508_PCTest_FctB(void);
+static uint32_t IEC61508_PCTest_FctC(void);
+static uint32_t IEC61508_PCTest_FctD(void);
+static uint32_t IEC61508_PCTest_FctE(void);
+static uint32_t IEC61508_PCTest_FctF(void);
 
 #define RET_FCT_A	1u
 #define RET_FCT_B	2u
@@ -32,7 +32,7 @@ uint32_t IEC61508_PCTest_lastFctTested = RET_FCT_F;
 	\return 
 */
 #pragma location = ".IEC61508_behindVectors"
-uint32_t IEC61508_PCTest_FctA(void)
+static uint32_t IEC61508_PCTest_FctA(void)
 {
 	return RET_FCT_A;
 }
@@ -41,7 +41,7 @@ uint32_t IEC61508_PCTest_FctA(void)
 	\return 
 */
 #pragma location = ".IEC61508_beforeText"
-uint32_t IEC61508_PCTest_FctB(void)
+static uint32_t IEC61508_PCTest_FctB(void)
 {
 	return RET_FCT_B;
 }
@@ -50,7 +50,7 @@ uint32_t IEC61508_PCTest_FctB(void)
 	\return 
 */
 #pragma location = ".IEC61508_behindText"
-uint32_t IEC61508_PCTest_FctC(void)
+static uint32_t IEC61508_PCTest_FctC(void)
 {
 	return RET_FCT_C;
 }
@@ -59,7 +59,7 @@ uint32_t IEC61508_PCTest_FctC(void)
 	\return 
 */
 #pragma location = ".IEC61508_lastFashSection"
-uint32_t IEC61508_PCTest_FctD(void)
+static uint32_t IEC61508_PCTest_FctD(void)
 {
 	return RET_FCT_D;
 }
@@ -68,7 +68,7 @@ uint32_t IEC61508_PCTest_FctD(void)
 	\return 
 */
 #pragma location = ".IEC61508_beforeRAMcode"
-uint32_t IEC61508_PCTest_FctE(void)
+static uint32_t IEC61508_PCTest_FctE(void)
 {
 	return RET_FCT_E;
 }
@@ -77,7 +77,7 @@ uint32_t IEC61508_PCTest_FctE(void)
 	\return 
 */
 #pragma location = ".IEC61508_behindRAMcode"
-uint32_t IEC61508_PCTest_FctF(void)
+static uint32_t IEC61508_PCTest_FctF(void)
 {
 	return RET_FCT_F;
 }

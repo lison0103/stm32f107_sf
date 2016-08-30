@@ -11,8 +11,8 @@
 
 #include "flag_test.h"
 
-IEC61508_FlagCheck_struct  FlagCheck;
-unsigned int RestFlag;
+static IEC61508_FlagCheck_struct  FlagCheck;
+static unsigned int RestFlag;
 
 type_testResult_t flag_test(void)
 {

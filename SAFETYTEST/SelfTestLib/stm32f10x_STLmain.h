@@ -25,6 +25,7 @@
 /* Exported functions ------------------------------------------------------- */
 void Safety_InitRunTimeChecks(void);
 void Safety_RunCheck1(void);
+void Safety_TimingCheck(void);
 
 #endif /* __STL_MAIN_H */
 

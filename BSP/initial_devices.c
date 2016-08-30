@@ -106,7 +106,7 @@ void Initial_Device(void)
         Adc_Init();
         
         /** PWM output test **/
-        PluseOutputInit();
+/*        PluseOutputInit();*/
         
 #else
         

@@ -73,7 +73,7 @@ void FailSafePOR(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void GeneralRegister_StartupCheck(void)
+static void GeneralRegister_StartupCheck(void)
 {
     /* Initializes counter for control flow monitoring */
     CtrlFlowCnt = CPU_TEST_CALLER;
@@ -104,7 +104,7 @@ void GeneralRegister_StartupCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void IWDTCheck(void)
+static void IWDTCheck(void)
 {
     CtrlFlowCnt += WDG_TEST_CALLER;
 /*    STL_WDGSelfTest();
@@ -120,7 +120,7 @@ void IWDTCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void DataIntegrityInFlash_StartupCheck(void)
+static void DataIntegrityInFlash_StartupCheck(void)
 {
     CtrlFlowCnt += CRC32_TEST_CALLER;
     {
@@ -169,7 +169,7 @@ void DataIntegrityInFlash_StartupCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ClockFrequency_StartupCheck(void)
+static void ClockFrequency_StartupCheck(void)
 {
     CtrlFlowCnt += CLOCK_TEST_CALLER;
     switch ( STL_ClockStartUpTest() )
@@ -234,7 +234,7 @@ void ClockFrequency_StartupCheck(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Stack_StartupCheck(void)
+static void Stack_StartupCheck(void)
 {
     CtrlFlowCnt += STACK_OVERFLOW_TEST;
     StackOverFlowPtrn[0] = 0xAAAAAAAAuL;
