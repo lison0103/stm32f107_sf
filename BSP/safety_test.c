@@ -11,7 +11,6 @@
 #include "safety_test.h"
 #include "sys.h"
 #include "stm32f10x_STLlib.h"
-#include "stm32f10x_STLclassBvar.h"
 #include "initial_devices.h"
 
 #include "check_instruction.h"

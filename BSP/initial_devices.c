@@ -10,7 +10,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "initial_devices.h"
 #include "stm32f10x_STLlib.h"
-#include "stm32f10x_STLclassBvar.h"
 #include "check_instruction.h"
 #include "check_instruction_2.h"
 #include "pc_test.h"

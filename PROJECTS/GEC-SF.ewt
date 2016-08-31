@@ -2446,6 +2446,12 @@
     </group>
     <file>
       <name>$PROJ_DIR$\..\SAFETYTEST\check_instruction.c</name>
+      <configuration>
+        <name>GEC-SF-M</name>
+      </configuration>
+      <configuration>
+        <name>GEC-SF-S-NEW</name>
+      </configuration>
     </file>
     <file>
       <name>$PROJ_DIR$\..\SAFETYTEST\check_instruction_post.s</name>

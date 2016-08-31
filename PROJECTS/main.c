@@ -12,7 +12,6 @@
 #include "esc_error_process.h"
 #include "safety_test.h"
 #include "stm32f10x_STLlib.h"
-#include "stm32f10x_STLclassBvar.h"
 #include "esc_motor_speed.h"
 #include "esc_handrail_speed.h"
 #include "esc_missing_step.h"
@@ -161,7 +160,7 @@ static void Task_Loop(void)
           CAN1_TX_Data[2] = SW_SPDT_KEY;
           CAN1_TX_Data[3] = Get_Adc_Average();
 #else
-          USB_Receive_Data_Send();
+/*          USB_Receive_Data_Send();*/
 #endif
       }
            

@@ -15,6 +15,8 @@
 IEC61508_InstCheck_struct InstCheckPOST_struct;
 IEC61508_InstCheck_struct InstCheckBIST_struct;
 
+__no_init int a @0x1500;
+
 type_testResult_t iec61508_InstCheck_POST (void)
 {
     type_testResult_t testResult = IEC61508_testPassed;

@@ -6,7 +6,7 @@
 __no_init int  b@0x1510;
 extern char a; 
 */
-__no_init int a @0x1500;
+
 /*
 int a @0x1500;
 int a=1;

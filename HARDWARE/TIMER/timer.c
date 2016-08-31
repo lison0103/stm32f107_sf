@@ -12,7 +12,6 @@
 #include "bsp_iocfg.h"
 #include "sys.h"
 #include "stm32f10x_STLlib.h"
-#include "stm32f10x_STLclassBvar.h"
 #include "esc_safety_check.h"
 
 #ifdef GEC_SF_MASTER

@@ -503,7 +503,7 @@ void RTC_WriteProtectionCmd(FunctionalState NewState)
   *          - SUCCESS: RTC is in Init mode
   *          - ERROR: RTC is not in Init mode  
   */
-ErrorStatus RTC_EnterInitMode(void)
+static ErrorStatus RTC_EnterInitMode(void)
 {
   __IO uint32_t initcounter = 0x00;
   ErrorStatus status = ERROR;
@@ -548,7 +548,7 @@ ErrorStatus RTC_EnterInitMode(void)
   * @param  None
   * @retval None
   */
-void RTC_ExitInitMode(void)
+static void RTC_ExitInitMode(void)
 {
   /* Exit Initialization mode */
   RTC->ISR &= (uint32_t)~RTC_ISR_INIT;
