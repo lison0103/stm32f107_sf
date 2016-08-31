@@ -4378,24 +4378,27 @@
           <name>$PROJ_DIR$\..\Libraries\STM32_USB-FS-Device_Driver\src\usb_sil.c</name>
         </file>
       </group>
-      <file>
-        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\hw_config.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_desc.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_endp.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_istr.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_prop.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_pwr.c</name>
-      </file>
+      <group>
+        <name>Virtual_COM_Port</name>
+        <file>
+          <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\hw_config.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_desc.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_endp.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_istr.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_prop.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_pwr.c</name>
+        </file>
+      </group>
       <file>
         <name>$PROJ_DIR$\..\USB\USB_Virtual_COM_Port\src\usb_virtual_com_port.c</name>
       </file>
@@ -4498,7 +4501,7 @@
             </option>
             <option>
               <name>CCLangConformance</name>
-              <state>0</state>
+              <state>1</state>
             </option>
             <option>
               <name>CCSignedPlainChar</name>

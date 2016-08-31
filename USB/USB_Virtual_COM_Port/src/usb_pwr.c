@@ -40,14 +40,14 @@ __IO uint32_t bDeviceState = UNCONNECTED; /* USB device status */
 __IO bool fSuspendEnabled = TRUE;  /* true when suspend is possible */
 __IO uint32_t EP[8];
 
-struct
+static struct
 {
   __IO RESUME_STATE eState;
   __IO uint8_t bESOFcnt;
 }
 ResumeS;
 
-__IO uint32_t remotewakeupon = 0u;
+static __IO uint32_t remotewakeupon = 0u;
 
 /* Extern variables ----------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -223,7 +223,7 @@ void Suspend(void)
 * Output         : None.
 * Return         : USB_SUCCESS.
 *******************************************************************************/
-void Resume_Init(void)
+static void Resume_Init(void)
 {
   uint16_t wCNTR;
   

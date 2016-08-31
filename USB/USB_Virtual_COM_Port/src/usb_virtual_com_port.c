@@ -10,9 +10,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usb_virtual_com_port.h"
-#include "hw_config.h"
 #include "usb_lib.h"
-#include "usb_desc.h"
 #include "usb_pwr.h"
 #include "delay.h"
 
@@ -23,7 +21,7 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-extern __IO uint8_t Receive_Buffer[64];
+extern  uint8_t Receive_Buffer[64];
 extern __IO  uint32_t Receive_length ;
 extern __IO  uint32_t length ;
 uint8_t Send_Buffer[64];
@@ -147,7 +145,7 @@ void USB_Receive_Data_Send(void)
       /*Check to see if we have data yet */
       while(Receive_length  != 0u)
       {
-          CDC_Send_DATA ((unsigned char*)Receive_Buffer,(u8)Receive_length);
+          CDC_Send_DATA (Receive_Buffer,(u8)Receive_length);
           Receive_length = 0u;
           CDC_Receive_DATA();
       }
@@ -164,9 +162,9 @@ void USB_Receive_Data_Send(void)
 *******************************************************************************/
 void USB_Disconnect(void)
 {
-
-  Disconnect_USB_Virtual_COM_Port();
-  
+    
+    PowerOff();
+    
 }
 
 /******************************  END OF FILE  *********************************/

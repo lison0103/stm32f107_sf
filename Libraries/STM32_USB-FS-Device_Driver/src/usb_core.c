@@ -48,9 +48,9 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-uint16_t_uint8_t StatusInfo;
+static uint16_t_uint8_t StatusInfo;
 
-bool Data_Mul_MaxPacketSize = FALSE;
+static bool Data_Mul_MaxPacketSize = FALSE;
 /* Private function prototypes -----------------------------------------------*/
 static void DataStageOut(void);
 static void DataStageIn(void);
@@ -66,7 +66,7 @@ static void Data_Setup0(void);
 * Return         : Return 1 , if the request is invalid when "Length" is 0.
 *                  Return "Buffer" if the "Length" is not 0.
 *******************************************************************************/
-uint8_t *Standard_GetConfiguration(uint16_t Length)
+static uint8_t *Standard_GetConfiguration(uint16_t Length)
 {
   if (Length == 0)
   {
@@ -87,7 +87,7 @@ uint8_t *Standard_GetConfiguration(uint16_t Length)
 * Return         : Return USB_SUCCESS, if the request is performed.
 *                  Return USB_UNSUPPORT, if the request is invalid.
 *******************************************************************************/
-RESULT Standard_SetConfiguration(void)
+static RESULT Standard_SetConfiguration(void)
 {
 
   if ((pInformation->USBwValue0 <=
@@ -112,7 +112,7 @@ RESULT Standard_SetConfiguration(void)
 * Return         : Return 0, if the request is invalid when "Length" is 0.
 *                  Return "Buffer" if the "Length" is not 0.
 *******************************************************************************/
-uint8_t *Standard_GetInterface(uint16_t Length)
+static uint8_t *Standard_GetInterface(uint16_t Length)
 {
   if (Length == 0)
   {
@@ -133,7 +133,7 @@ uint8_t *Standard_GetInterface(uint16_t Length)
 * Return         : - Return USB_SUCCESS, if the request is performed.
 *                  - Return USB_UNSUPPORT, if the request is invalid.
 *******************************************************************************/
-RESULT Standard_SetInterface(void)
+static RESULT Standard_SetInterface(void)
 {
   RESULT Re;
   /*Test if the specified Interface and Alternate Setting are supported by
@@ -168,7 +168,7 @@ RESULT Standard_SetInterface(void)
 * Return         : Return 0, if the request is at end of data block,
 *                  or is invalid when "Length" is 0.
 *******************************************************************************/
-uint8_t *Standard_GetStatus(uint16_t Length)
+static uint8_t *Standard_GetStatus(uint16_t Length)
 {
   if (Length == 0)
   {
@@ -250,7 +250,7 @@ uint8_t *Standard_GetStatus(uint16_t Length)
 * Return         : - Return USB_SUCCESS, if the request is performed.
 *                  - Return USB_UNSUPPORT, if the request is invalid.
 *******************************************************************************/
-RESULT Standard_ClearFeature(void)
+static RESULT Standard_ClearFeature(void)
 {
   uint32_t     Type_Rec = Type_Recipient;
   uint32_t     Status;
@@ -339,7 +339,7 @@ RESULT Standard_ClearFeature(void)
 * Return         : - Return USB_SUCCESS, if the request is performed.
 *                  - Return USB_UNSUPPORT, if the request is invalid.
 *******************************************************************************/
-RESULT Standard_SetEndPointFeature(void)
+static RESULT Standard_SetEndPointFeature(void)
 {
   uint32_t    wIndex0;
   uint32_t    Related_Endpoint;
@@ -393,7 +393,7 @@ RESULT Standard_SetEndPointFeature(void)
 * Return         : - Return USB_SUCCESS, if the request is performed.
 *                  - Return USB_UNSUPPORT, if the request is invalid.
 *******************************************************************************/
-RESULT Standard_SetDeviceFeature(void)
+static RESULT Standard_SetDeviceFeature(void)
 {
   SetBit(pInformation->Current_Feature, 5);
   pUser_Standard_Requests->User_SetDeviceFeature();
@@ -985,7 +985,7 @@ uint8_t Out0_Process(void)
 * Return         : - 0 if the control State is in PAUSE
 *                  - 1 if not.
 *******************************************************************************/
-uint8_t Post0_Process(void)
+static uint8_t Post0_Process(void)
 {
    
   SetEPRxCount(ENDP0, Device_Property.MaxPacketSize);

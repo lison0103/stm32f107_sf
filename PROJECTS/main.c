@@ -160,7 +160,7 @@ static void Task_Loop(void)
           CAN1_TX_Data[2] = SW_SPDT_KEY;
           CAN1_TX_Data[3] = Get_Adc_Average();
 #else
-/*          USB_Receive_Data_Send();*/
+          USB_Receive_Data_Send();
 #endif
       }
            

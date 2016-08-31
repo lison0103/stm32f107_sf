@@ -38,7 +38,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /*ErrorStatus HSEStartUpStatus;*/
-EXTI_InitTypeDef EXTI_InitStructure;
+static EXTI_InitTypeDef EXTI_InitStructure;
 extern __IO uint32_t packet_sent;
 extern __IO uint8_t Send_Buffer[VIRTUAL_COM_PORT_DATA_SIZE] ;
 extern __IO  uint32_t packet_receive;
@@ -85,11 +85,12 @@ void Set_System(void)
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIO_DISCONNECT, ENABLE);
 
   /* Configure USB pull-up pin */
-//  GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
-//  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-//  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
-//  GPIO_Init(USB_DISCONNECT, &GPIO_InitStructure);
-  
+/*  
+  GPIO_InitStructure.GPIO_Pin = USB_DISCONNECT_PIN;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
+  GPIO_Init(USB_DISCONNECT, &GPIO_InitStructure);
+*/  
 #endif /* STM32L1XX_MD && STM32L1XX_XD */
    
 #if defined(USB_USE_EXTERNAL_PULLUP)
@@ -347,13 +348,13 @@ uint32_t CDC_Send_DATA (uint8_t *ptrBuffer, uint8_t send_length)
     uint32_t res = 1u;
     
   /*if max buffer is Not reached*/
-  if(Send_length < VIRTUAL_COM_PORT_DATA_SIZE)     
+  if(send_length < VIRTUAL_COM_PORT_DATA_SIZE)     
   {
     /*Sent flag*/
     packet_sent = 0u;
     /* send  packet to PMA*/
     UserToPMABufferCopy((unsigned char*)ptrBuffer, ENDP1_TXADDR, (u16)send_length);
-    SetEPTxCount(ENDP1, (u16)Send_length);
+    SetEPTxCount(ENDP1, (u16)send_length);
     SetEPTxValid(ENDP1);
   }
   else
@@ -378,11 +379,5 @@ uint32_t CDC_Receive_DATA(void)
   return 1u ;
 }
 
-void Disconnect_USB_Virtual_COM_Port(void)
-{
-    
-  PowerOff();
-
-}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

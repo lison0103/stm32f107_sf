@@ -462,7 +462,7 @@ void CAN1_RX0_IRQHandler(void)
     else
     {
 #ifdef GEC_SF_S_NEW         
-/*        USB_Istr();*/
+        USB_Istr();
 #endif
     }
 }

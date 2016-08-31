@@ -37,7 +37,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 __IO uint16_t wIstr;  /* ISTR register last read value */
-__IO uint8_t bIntPackSOF = 0u;  /* SOFs received between 2 consecutive packets */
+static __IO uint8_t bIntPackSOF = 0u;  /* SOFs received between 2 consecutive packets */
 __IO uint32_t esof_counter = 0u; /* expected SOF counter */
 __IO uint32_t wCNTR = 0u;
 
