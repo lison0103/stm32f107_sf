@@ -286,12 +286,13 @@ static uint8_t eeprom_data_write1(u16 addr,u16 len,u8 dat[])
   u8 err=0u;
 		
   eep_start();  
-  if(eep_write(0xA0u)) 
-  {
-      err=1u;
-  }
+
   if(MB85RCXX_TYPE > MB85RC16)
   {
+      if(eep_write(0xA0u)) 
+      {
+          err = 1u;
+      }      
       if(eep_write((u8)(addr>>8u)))
       {
           err = 1u;
@@ -303,9 +304,13 @@ static uint8_t eeprom_data_write1(u16 addr,u16 len,u8 dat[])
   }
   else 
   {
+      if(eep_write( 0xA0u | (u8)(addr>>7)&0x0eu ))
+      {
+          err = 1u;      
+      }
       if(eep_write((u8)addr))
       {
-          err=1u;
+          err = 1u;
       }
   }
              
@@ -369,28 +374,33 @@ static uint8_t eeprom_data_read1(u16 addr, u16 len, u8 dat[])
 	u8 err=0u;
 	
 	eep_start();     
-	if(eep_write(0xA0u)) 
-        {
-            err=1u;
-        }
         if(MB85RCXX_TYPE > MB85RC16)
         {
+            if(eep_write(0xA0u)) 
+            {
+                err = 1u;
+            }      
             if(eep_write((u8)(addr>>8u)))
             {
-                err=1u;
+                err = 1u;
             }
             if(eep_write((u8)(addr&0x00ffu)))
             {
-                err=1u;
+                err = 1u;
             }
         }
         else 
         {
+            if(eep_write( 0xA0u | (u8)(addr>>7)&0x0eu ))
+            {
+                err = 1u;      
+            }
             if(eep_write((u8)addr))
             {
-                err=1u;
+                err = 1u;
             }
         }
+        
 	eep_start();
 	if(eep_write(0xA1u)) 
         {
@@ -402,7 +412,7 @@ static uint8_t eeprom_data_read1(u16 addr, u16 len, u8 dat[])
 		dat[uint1] = eep_read(EEP_ACK);          	
 	}  
   
-	*dat = eep_read(EEP_NACK);         	
+	dat[uint1] = eep_read(EEP_NACK);         	
   
 	eep_stop();     	
 
