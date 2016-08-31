@@ -514,7 +514,7 @@ static USBH_Status USBH_MSC_GETMaxLUN(USB_OTG_CORE_HANDLE *pdev , USBH_HOST *pho
   * @retval None
   */
 
-void USBH_MSC_ErrorHandle(uint8_t status)
+static void USBH_MSC_ErrorHandle(uint8_t status)
 {  
     if(status == USBH_MSC_FAIL)
     { 

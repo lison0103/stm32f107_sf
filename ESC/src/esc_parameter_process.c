@@ -23,6 +23,7 @@
 #include "mb85rcxx.h"
 #include "usb_func.h"
 #include "esc_record_data.h"
+#include "fatfs.h"
 #endif
 
 /* Private typedef -----------------------------------------------------------*/
@@ -35,7 +36,9 @@ void Check_Error_Present_Memory(void);
 #ifdef GEC_SF_MASTER
 static void esc_para_init(void);
 #endif
-void get_para_from_usb(void);
+static void get_para_from_usb(void);
+
+u8 ParaLoad = 0u;
 
 
 /*******************************************************************************
@@ -94,7 +97,7 @@ static void esc_para_init(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/ 
-u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len)
+static u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len)
 {
     u8 senddata[120],recvdata[120];
     u8 i;
@@ -162,7 +165,7 @@ u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void get_para_from_usb(void)
+static void get_para_from_usb(void)
 {
     
     u8 len = 0u;   
@@ -333,6 +336,111 @@ void get_para_from_usb(void)
 }
 
 /*******************************************************************************
+* Function Name  : USB_LoadParameter
+* Description    : Usb main program, load parameter.
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : 0:ok  1:error
+*******************************************************************************/ 
+#ifdef GEC_SF_MASTER
+int USB_LoadParameter(void)
+{ 
+
+      int res = 0;
+      u8 parabuffer[100];
+      u16 filelen = 0u;
+            
+      
+      LED_ON();
+      ParaLoad |= USB_DETECTED;
+      
+      /* USB-stick detected */     
+      /* 1. Message to CPU2 */
+      Send_State_Message( MESSAGE_TO_CPU, USB_DETECTED, NULL, 0u );
+      
+      /* 2. Message to Control */
+      Send_State_Message( MESSAGE_TO_CONTROL, USB_DETECTED, NULL, 0u );
+      
+      /* usb load parameter start -------------------------------------------*/
+      /* 1. S0001 file present */
+      if(!isFileExist("0:S0001.bin"))
+      {
+          
+          Send_State_Message( MESSAGE_TO_CONTROL, SAFETY_PARAMETER_EXIST, NULL, 0u );
+          
+          /* 2. Read parameters from usb stick to buffer */
+          filelen = ReadFile( "0:S0001.bin", parabuffer );
+          
+          /* 3. decrypt */
+          
+          /* 4. Check crc16 is it ok */
+          if( MB_CRC16( parabuffer, filelen ))
+          {
+              /* Error message. Abort parameter loading. System remains in Init Fault. */
+              EN_ERROR9 |= 0x01u;
+              
+              Send_State_Message( MESSAGE_TO_CONTROL, PARAMETER_ERROR, NULL, 0u );
+              
+              ESC_Init_Fault();
+          }
+          else
+          {
+              /* 5. Store the parameters in the fram */
+              fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, parabuffer);
+              
+              ParaLoad |= SAFETY_PARAMETER_LOADED;
+          }
+          
+      }
+      else
+      {
+          Send_State_Message( MESSAGE_TO_CONTROL, SAFETY_PARAMETER_NOT_EXIST, NULL, 0u );
+      }
+
+      /* 1. C0001 file present */
+      if(!isFileExist("0:C0001.bin"))
+      {
+          
+          Send_State_Message( MESSAGE_TO_CONTROL, CONTROL_PARAMETER_EXIST, NULL, 0u );
+          
+          /* 2. Read parameters from usb stick to buffer */
+          filelen = ReadFile( "0:C0001.bin", parabuffer );
+          
+          /* 3. decrypt */
+          
+          /* 4. Check crc16 is it ok */
+          if( MB_CRC16( parabuffer, filelen ))
+          {
+              /* Error message. Abort parameter loading. System remains in Init Fault. */
+              EN_ERROR9 |= 0x01u;   
+              
+              Send_State_Message( MESSAGE_TO_CONTROL, PARAMETER_ERROR, NULL, 0u );
+              
+              ESC_Init_Fault();
+          }
+          else
+          {         
+              /* 5. Send the parameters to the cb board */
+              Send_State_Message( MESSAGE_TO_CONTROL, SEND_PARAMETER, parabuffer, (u8)filelen );
+              
+              ParaLoad |= CONTROL_PARAMETER_LOADED;
+          }
+                      
+      }   
+      else
+      {
+          Send_State_Message( MESSAGE_TO_CONTROL, CONTROL_PARAMETER_NOT_EXIST, NULL, 0u );
+      }
+      /* usb load parameter finish -------------------------------------------*/ 
+      
+
+      return res;
+}
+#endif
+
+/*******************************************************************************
 * Function Name  : ParametersLoading
 * Description    : esc get parameter.                 
 * Input          : None          
@@ -349,7 +457,7 @@ void ParametersLoading(void)
 #else
 
 #endif
-/*        get_para_from_usb();*/
+        get_para_from_usb();
     }
 }
 

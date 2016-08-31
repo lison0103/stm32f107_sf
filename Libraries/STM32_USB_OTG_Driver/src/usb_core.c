@@ -485,7 +485,7 @@ USB_OTG_STS USB_OTG_DisableGlobalInt(USB_OTG_CORE_HANDLE *pdev)
 * @param  num : FO num
 * @retval USB_OTG_STS : status
 */
-USB_OTG_STS USB_OTG_FlushTxFifo (USB_OTG_CORE_HANDLE *pdev , uint32_t num )
+static USB_OTG_STS USB_OTG_FlushTxFifo (USB_OTG_CORE_HANDLE *pdev , uint32_t num )
 {
   USB_OTG_STS status = USB_OTG_OK;
   __IO USB_OTG_GRSTCTL_TypeDef  greset;
@@ -515,7 +515,7 @@ USB_OTG_STS USB_OTG_FlushTxFifo (USB_OTG_CORE_HANDLE *pdev , uint32_t num )
 * @param  pdev : Selected device
 * @retval USB_OTG_STS : status
 */
-USB_OTG_STS USB_OTG_FlushRxFifo( USB_OTG_CORE_HANDLE *pdev )
+static USB_OTG_STS USB_OTG_FlushRxFifo( USB_OTG_CORE_HANDLE *pdev )
 {
   USB_OTG_STS status = USB_OTG_OK;
   __IO USB_OTG_GRSTCTL_TypeDef  greset;
@@ -742,7 +742,7 @@ USB_OTG_STS USB_OTG_CoreInitHost(USB_OTG_CORE_HANDLE *pdev)
 * @param  pdev : Selected device
 * @retval Frame number
 */
-uint8_t USB_OTG_IsEvenFrame (USB_OTG_CORE_HANDLE *pdev) 
+static uint8_t USB_OTG_IsEvenFrame (USB_OTG_CORE_HANDLE *pdev) 
 {
   return !(USB_OTG_READ_REG32(&pdev->regs.HREGS->HFNUM) & 0x1);
 }
@@ -753,7 +753,7 @@ uint8_t USB_OTG_IsEvenFrame (USB_OTG_CORE_HANDLE *pdev)
 * @param  state : VBUS state
 * @retval None
 */
-void USB_OTG_DriveVbus (USB_OTG_CORE_HANDLE *pdev, uint8_t state)
+static void USB_OTG_DriveVbus (USB_OTG_CORE_HANDLE *pdev, uint8_t state)
 {
   USB_OTG_HPRT0_TypeDef     hprt0;
   
@@ -782,7 +782,7 @@ void USB_OTG_DriveVbus (USB_OTG_CORE_HANDLE *pdev, uint8_t state)
 * @param  pdev : Selected device
 * @retval USB_OTG_STS : status
 */
-USB_OTG_STS USB_OTG_EnableHostInt(USB_OTG_CORE_HANDLE *pdev)
+static USB_OTG_STS USB_OTG_EnableHostInt(USB_OTG_CORE_HANDLE *pdev)
 {
   USB_OTG_STS       status = USB_OTG_OK;
   USB_OTG_GINTMSK_TypeDef  intmsk;

@@ -20,8 +20,8 @@
 /* Private functions ---------------------------------------------------------*/
 
 
-FATFS *fs,fatfs;           /* Logical Disk Workspace. */
-
+FATFS *fs;           /* Logical Disk Workspace. */
+static FATFS fatfs;
 
 /*******************************************************************************
 * Function Name  : fatfs_init

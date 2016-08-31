@@ -3672,7 +3672,7 @@ FRESULT f_write (
 /* Synchronize the File                                                  */
 /*-----------------------------------------------------------------------*/
 
-FRESULT f_sync (
+static FRESULT f_sync (
 	FIL* fp		/* Pointer to the file object */
 )
 {

@@ -27,9 +27,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbh_usr.h" 
-#include "led.h"
 #include "ff.h" 
-#include "usart.h" 
 #include "fatfs.h" 	   
 
 void OTG_FS_IRQHandler(void);
@@ -82,7 +80,7 @@ USBH_Usr_cb_TypeDef USR_cb=
 * @param  None
 * @retval None
 */
-void USBH_USR_Init(void)
+static void USBH_USR_Init(void)
 {
     /*
 	printf("USB OTG HS MSC Host\r\n");
@@ -98,7 +96,7 @@ void USBH_USR_Init(void)
 * @param  None
 * @retval None
 */
-void USBH_USR_DeviceAttached(void)
+static void USBH_USR_DeviceAttached(void)
 {
 /*	LED1=0; 
 	printf("USB Device attached!\r\n");*/
@@ -111,7 +109,7 @@ void USBH_USR_DeviceAttached(void)
 * @param  None
 * @retval Status
 */
-void USBH_USR_DeviceDisconnected (void)
+static void USBH_USR_DeviceDisconnected (void)
 {
 /*	LED1=1;
 	printf("USB Device disconnect!\r\n"); */
@@ -123,7 +121,7 @@ void USBH_USR_DeviceDisconnected (void)
 * @param  None
 * @retval None
 */
-void USBH_USR_ResetDevice(void)
+static void USBH_USR_ResetDevice(void)
 {
 /*	printf("Reset device...\r\n"); */
 }
@@ -135,7 +133,7 @@ void USBH_USR_ResetDevice(void)
 * @param  Device speed
 * @retval None
 */
-void USBH_USR_DeviceSpeedDetected(uint8_t DeviceSpeed)
+static void USBH_USR_DeviceSpeedDetected(uint8_t DeviceSpeed)
 {
 	if(DeviceSpeed==HPRT0_PRTSPD_HIGH_SPEED)
 	{
@@ -161,7 +159,7 @@ void USBH_USR_DeviceSpeedDetected(uint8_t DeviceSpeed)
 * @param  device descriptor
 * @retval None
 */
-void USBH_USR_Device_DescAvailable(void *DeviceDesc)
+static void USBH_USR_Device_DescAvailable(void *DeviceDesc)
 { 
 /*	USBH_DevDesc_TypeDef *hs;
 	hs=DeviceDesc;   */
@@ -175,7 +173,7 @@ void USBH_USR_Device_DescAvailable(void *DeviceDesc)
 * @param  None
 * @retval None
 */
-void USBH_USR_DeviceAddressAssigned(void)
+static void USBH_USR_DeviceAddressAssigned(void)
 {
 /*	printf("USB device is successfully assigned the Address!\r\n");  */  
 }
@@ -187,7 +185,7 @@ void USBH_USR_DeviceAddressAssigned(void)
 * @param  Configuration descriptor
 * @retval None
 */
-void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
+static void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
                                           USBH_InterfaceDesc_TypeDef *itfDesc,
                                           USBH_EpDesc_TypeDef *epDesc)
 {
@@ -212,7 +210,7 @@ void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
 * @param  Manufacturer String 
 * @retval None
 */
-void USBH_USR_Manufacturer_String(void *ManufacturerString)
+static void USBH_USR_Manufacturer_String(void *ManufacturerString)
 {
 /*	printf("Manufacturer: %s\r\n",(char *)ManufacturerString); */
 }
@@ -224,7 +222,7 @@ void USBH_USR_Manufacturer_String(void *ManufacturerString)
 * @param  Product String
 * @retval None
 */
-void USBH_USR_Product_String(void *ProductString)
+static void USBH_USR_Product_String(void *ProductString)
 {
 /*	printf("Product: %s\r\n",(char *)ProductString);  */ 
 }
@@ -236,7 +234,7 @@ void USBH_USR_Product_String(void *ProductString)
 * @param  SerialNum_String 
 * @retval None
 */
-void USBH_USR_SerialNum_String(void *SerialNumString)
+static void USBH_USR_SerialNum_String(void *SerialNumString)
 {
 /*	printf("Serial Number: %s\r\n",(char *)SerialNumString);   */  
 } 
@@ -248,7 +246,7 @@ void USBH_USR_SerialNum_String(void *SerialNumString)
 * @param  None
 * @retval None
 */
-void USBH_USR_EnumerationDone(void)
+static void USBH_USR_EnumerationDone(void)
 { 
 /*	printf("Enumeration completed!\r\n\r\n");   */  
 } 
@@ -260,7 +258,7 @@ void USBH_USR_EnumerationDone(void)
 * @param  None
 * @retval None
 */
-void USBH_USR_DeviceNotSupported(void)
+static void USBH_USR_DeviceNotSupported(void)
 {
 /*	printf("No registered class for this device!\r\n\r\n");  */   
 }  
@@ -271,7 +269,7 @@ void USBH_USR_DeviceNotSupported(void)
 * @param  None
 * @retval USBH_USR_Status : User response for key button
 */
-USBH_USR_Status USBH_USR_UserInput(void)
+static USBH_USR_Status USBH_USR_UserInput(void)
 { 
 
 	return USBH_USR_RESP_OK;
@@ -284,12 +282,12 @@ USBH_USR_Status USBH_USR_UserInput(void)
 * @param  None
 * @retval Status
 */
-void USBH_USR_OverCurrentDetected (void)
+static void USBH_USR_OverCurrentDetected (void)
 {
 /*	printf("Overcurrent detected!!!\r\n"); */
 } 
 
-extern int USB_LoadParameter(void);	
+extern int USB_LoadParameterProcess(void);	
 
 
 /**
@@ -298,29 +296,28 @@ extern int USB_LoadParameter(void);
 * @param  None
 * @retval Status
 */
-int USBH_USR_MSC_Application(void)
+static int USBH_USR_MSC_Application(void)
 {
-	int res=0;
-  	switch(AppState)
-  	{
-    	case USH_USR_FS_INIT:
-		/*	printf("Start user program execution!!!\r\n"); */
-			AppState=USH_USR_FS_TEST;
-                        
-                        /* mount usb stick */ 
-                        f_mount(fs,"0:",1u); 
-      		break;
-    	case USH_USR_FS_TEST:	
-			res = USB_LoadParameter(); 
-                        res=0;
-			if(res)
-                        {
-                            AppState=USH_USR_FS_INIT;
-                        }
-      		break;
-    	default:break;
-  	} 
-	return res;
+
+    switch(AppState)
+    {
+       case USH_USR_FS_INIT:   
+        {
+            /* mount usb stick */ 
+            f_mount(fs,"0:",1u); 
+            AppState = USH_USR_FS_TEST;
+            break;
+        }
+       case USH_USR_FS_TEST:	
+        {
+            USB_LoadParameterProcess(); 
+            f_mount(NULL, "0:", 0);
+            break;
+        }
+       default:
+        break;
+    } 
+    return 0u;
 }
 
 
@@ -330,9 +327,9 @@ int USBH_USR_MSC_Application(void)
 * @param  None
 * @retval None
 */
-void USBH_USR_DeInit(void)
+static void USBH_USR_DeInit(void)
 {
-  	AppState=USH_USR_FS_INIT;
+  	AppState = USH_USR_FS_INIT;
 }
 
 
@@ -341,7 +338,7 @@ void USBH_USR_DeInit(void)
 * @param  None
 * @retval None
 */
-void USBH_USR_UnrecoveredError (void)
+static void USBH_USR_UnrecoveredError (void)
 {
 	/* printf("UNRECOVERED ERROR STATE!!!\r\n\r\n");	 */
 }
@@ -472,43 +469,3 @@ u8 USBH_UDISK_Write(u8* buf,u32 sector,u32 cnt)
 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

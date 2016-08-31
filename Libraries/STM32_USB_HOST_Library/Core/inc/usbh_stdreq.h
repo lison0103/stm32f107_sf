@@ -87,7 +87,8 @@
 /** @defgroup USBH_STDREQ_Exported_Variables
   * @{
   */ 
-extern uint8_t USBH_CfgDesc[512];
+/* For MISRA C 2004 8.10 */      
+/*extern uint8_t USBH_CfgDesc[512];*/
 /**
   * @}
   */ 

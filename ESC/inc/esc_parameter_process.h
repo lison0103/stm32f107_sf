@@ -37,8 +37,13 @@
 #define ESC_PARA_NUM 100u
 
 /* Exported functions ------------------------------------------------------- */
+#ifdef GEC_SF_MASTER
+int USB_LoadParameter(void);
+#endif
 void ParametersLoading(void);
-u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len);
+static u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len);
+
+extern u8 ParaLoad;
 
 #endif  /* __ESC_PARAMETER_PROCESS_H */
 

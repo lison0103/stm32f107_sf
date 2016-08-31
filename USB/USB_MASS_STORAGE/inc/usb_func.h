@@ -17,6 +17,8 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void USBH_Mass_Storage_Init(void);
+void USB_LoadParameterProcess(void);
+
 
 #endif /* _USB_FUNC_H */
 

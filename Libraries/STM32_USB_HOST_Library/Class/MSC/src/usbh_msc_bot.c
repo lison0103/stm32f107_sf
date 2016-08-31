@@ -511,7 +511,7 @@ void USBH_MSC_HandleBOTXfer (USB_OTG_CORE_HANDLE *pdev ,USBH_HOST *phost)
 * @param  direction : IN / OUT 
 * @retval None
 */
-USBH_Status USBH_MSC_BOT_Abort(USB_OTG_CORE_HANDLE *pdev, 
+static USBH_Status USBH_MSC_BOT_Abort(USB_OTG_CORE_HANDLE *pdev, 
                                USBH_HOST *phost,
                                uint8_t direction)
 {
@@ -566,7 +566,7 @@ USBH_Status USBH_MSC_BOT_Abort(USB_OTG_CORE_HANDLE *pdev,
 *     3. dCSWTag matches the dCBWTag from the corresponding CBW.
 */
 
-uint8_t USBH_MSC_DecodeCSW(USB_OTG_CORE_HANDLE *pdev , USBH_HOST *phost)
+static uint8_t USBH_MSC_DecodeCSW(USB_OTG_CORE_HANDLE *pdev , USBH_HOST *phost)
 {
   uint8_t status;
   uint32_t dataXferCount = 0;

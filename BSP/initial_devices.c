@@ -185,7 +185,7 @@ static void ExtCommDeviceInit(void)
 /*******************************************************************************
 * Function Name  : PluseOutputInit
 * Description    : Initialization the pluse output.
-*                  
+*                  For test.
 * Input          : None
 *                 
 * Output         : None

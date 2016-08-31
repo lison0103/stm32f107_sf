@@ -79,7 +79,8 @@
     #pragma data_alignment=4   
   #endif
 #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
-__ALIGN_BEGIN uint8_t          USBH_CfgDesc[CFG_DESC_MAX_SIZE] __ALIGN_END ;
+/* For MISRA C 2004 8.10 */
+/*__ALIGN_BEGIN uint8_t          USBH_CfgDesc[CFG_DESC_MAX_SIZE] __ALIGN_END ;*/
 
 
 /** @defgroup USBH_STDREQ_Private_FunctionPrototypes
@@ -168,7 +169,8 @@ USBH_Status USBH_Get_CfgDesc(USB_OTG_CORE_HANDLE *pdev,
     /*save Cfg descriptor for class parsing usage */
     for( ; index < length ; index ++)
     {
-      USBH_CfgDesc[index] = pdev->host.Rx_Buffer[index];
+        /* For MISRA C 2004 8.10 */
+      /*USBH_CfgDesc[index] = pdev->host.Rx_Buffer[index];*/
     }
     
     /* Commands successfully sent and Response Received  */       
@@ -227,7 +229,7 @@ USBH_Status USBH_Get_StringDesc(USB_OTG_CORE_HANDLE *pdev,
 * @param  length: Length of the descriptor
 * @retval Status
 */
-USBH_Status USBH_GetDescriptor(USB_OTG_CORE_HANDLE *pdev,
+static USBH_Status USBH_GetDescriptor(USB_OTG_CORE_HANDLE *pdev,
                                USBH_HOST           *phost,                                
                                uint8_t  req_type,
                                uint16_t value_idx, 
@@ -441,7 +443,7 @@ static void  USBH_ParseDevDesc (USBH_DevDesc_TypeDef* dev_desc,
 * @param  length: Length of the descriptor
 * @retval None
 */
-USBH_Status USBH_ParseCfgDesc (USBH_CfgDesc_TypeDef* cfg_desc,
+static USBH_Status USBH_ParseCfgDesc (USBH_CfgDesc_TypeDef* cfg_desc,
                                 USBH_InterfaceDesc_TypeDef* itf_desc,
                                 USBH_EpDesc_TypeDef   ep_desc[][USBH_MAX_NUM_ENDPOINTS], 
                                 uint8_t *buf, 
@@ -628,7 +630,7 @@ static void USBH_ParseStringDesc (uint8_t* psrc,
 * @param  ptr: data pointer inside the cfg descriptor
 * @retval next header
 */
-USBH_DescHeader_t  *USBH_GetNextDesc (uint8_t   *pbuf, uint16_t  *ptr)
+static USBH_DescHeader_t  *USBH_GetNextDesc (uint8_t   *pbuf, uint16_t  *ptr)
 {
   USBH_DescHeader_t  *pnext;
  

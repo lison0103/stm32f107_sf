@@ -450,7 +450,7 @@ void USBH_Process(USB_OTG_CORE_HANDLE *pdev , USBH_HOST *phost)
   * @param  errType : Type of Error or Busy/OK state
   * @retval None
   */
-void USBH_ErrorHandle(USBH_HOST *phost, USBH_Status errType)
+static void USBH_ErrorHandle(USBH_HOST *phost, USBH_Status errType)
 {
   /* Error unrecovered or not supported device speed */
   if ( (errType == USBH_ERROR_SPEED_UNKNOWN) ||
@@ -670,7 +670,7 @@ static USBH_Status USBH_HandleEnum(USB_OTG_CORE_HANDLE *pdev, USBH_HOST *phost)
   * @param  pdev: Selected device
   * @retval Status
   */
-USBH_Status USBH_HandleControl (USB_OTG_CORE_HANDLE *pdev, USBH_HOST *phost)
+static USBH_Status USBH_HandleControl (USB_OTG_CORE_HANDLE *pdev, USBH_HOST *phost)
 {
   uint8_t direction;  
   static uint16_t timeout = 0;
