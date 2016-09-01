@@ -78,16 +78,18 @@ void CRC_Init(void)
 * Output         : None
 * Return         : 32-bit CRC using the 0x4C11DB7 polynomial
 *******************************************************************************/
-u32 CRC_CalcBlockCrc(uc32 *p, u32 len)
+u32 CRC_CalcBlockCrc(uc32 p[], u32 len)
 {
-
+   u32 ptr = 0u; 
+   
   /* This is for control flow monitoring */
   CtrlFlowCnt += CRC32_TEST_CALLEE;
 
   /* Load memory content into the CRC generator data register */
   do
   {
-    CRC->DR = *p++;
+    CRC->DR = p[ptr];
+    ptr++;
   }
   while (len--);
 

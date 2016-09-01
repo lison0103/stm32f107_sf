@@ -62,7 +62,7 @@ void CRC_DeInit(void);
 #endif
 void CRC_Init(void);
 
-u32 CRC_CalcBlockCrc(uc32 *p, u32 len);
+u32 CRC_CalcBlockCrc(uc32 p[], u32 len);
 u32 GetCurrentCRC(void);
 
 void SetIDRegister(u8 Value);

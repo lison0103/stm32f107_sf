@@ -41,7 +41,7 @@
 void STL_FlashCrc32Init(void)
 {
   p_RunCrc32Chk = (u32*)ROM_START;
-  p_RunCrc32ChkInv = ((u32 *)~((u32)ROM_START));
+  p_RunCrc32ChkInv = ((u32 *)(u32)(~((u32)ROM_START)));
 
   CRC_Init(); /* Reset the CRC generator */
 }
@@ -68,7 +68,7 @@ ClassBTestStatus STL_crc32Run(void)
     {
       CRC_CalcBlockCrc((uc32 *)p_RunCrc32Chk, (u32)FLASH_BLOCK_WORDS);
       p_RunCrc32Chk += FLASH_BLOCK_WORDS+1u;     /* Increment pointer to next block */
-      p_RunCrc32ChkInv = ((u32 *)~((u32)p_RunCrc32Chk));
+      p_RunCrc32ChkInv = ((u32 *)(u32)(~((u32)p_RunCrc32Chk)));
       Result = TEST_RUNNING;
     }
     else

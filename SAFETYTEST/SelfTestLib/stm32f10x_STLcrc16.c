@@ -98,17 +98,24 @@ static uc16 crc16_table[256] =
 * Output         : None
 * Return         : 16-bit CRC using the 0x11021 polynomial
 *******************************************************************************/
-u16 STL_crc16(u16 sum, uc8 *p, u32 len)
+u16 STL_crc16(u16 sum, uc8 p[], u32 len)
 {
-  CtrlFlowCnt += CRC16_TEST_CALLEE;
-  while (len--)					
-  {
-    sum = crc16_table[(sum >> 8u) ^ *p++] ^ (sum << 8u);
-  }
-
-  CtrlFlowCntInv -= CRC16_TEST_CALLEE;
-
-  return sum;
+    uint16_t tCRC1 = 0u,tCRC2 = 0u,tCRC3 = 0u;
+    u32 ptr = 0u;
+    
+    CtrlFlowCnt += CRC16_TEST_CALLEE;
+    while (len--)					
+    {
+        tCRC1 = (sum >> 8u);
+        tCRC2 = (sum << 8u);
+        tCRC3 = crc16_table[(tCRC1) ^ p[ptr]];      
+        sum = tCRC3 ^ tCRC2;
+        ptr++;
+    }
+    
+    CtrlFlowCntInv -= CRC16_TEST_CALLEE;
+    
+    return sum;
 
 }
 

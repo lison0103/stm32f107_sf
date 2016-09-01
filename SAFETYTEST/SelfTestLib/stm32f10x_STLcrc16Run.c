@@ -41,7 +41,7 @@
 void STL_FlashCrc16Init(void)
 {
   p_RunCrc16Chk = ROM_START;
-  p_RunCrc16ChkInv = ((u8 *)~((u32)ROM_START));
+  p_RunCrc16ChkInv = ((u8 *)(u32)(~((u32)ROM_START)));
 
   CurrentCrc16 = 0u;
   CurrentCrc16Inv = 0xFFFFu;
@@ -73,7 +73,7 @@ ClassBTestStatus STL_crc16Run(void)
         CurrentCrc16 = STL_crc16(CurrentCrc16, p_RunCrc16Chk, FLASH_BLOCK);
         CurrentCrc16Inv = ~CurrentCrc16;  /* Store crc for next run */
         p_RunCrc16Chk += FLASH_BLOCK;     /* Increment pointer to next block */
-        p_RunCrc16ChkInv = ((u8 *)~((u32)p_RunCrc16Chk));
+        p_RunCrc16ChkInv = ((u8 *)(u32)(~((u32)p_RunCrc16Chk)));
         Result = TEST_RUNNING;
       }
       else

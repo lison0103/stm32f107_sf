@@ -275,19 +275,28 @@ void Safety_RunCheck1(void)
       {
         if (RomTest == TEST_OK)
         {
-          if ((CtrlFlowCnt == FULL_FLASH_CHECKED)
-          &&(CtrlFlowCnt - LastCtrlFlowCnt) == (LAST_DELTA_MAIN))
-          {
-            CtrlFlowCnt = 0u;
-            CtrlFlowCntInv = 0xFFFFFFFFuL;
-          }
-          else  /* Return value form crc check was corrupted */
-          {
-            #ifdef STL_VERBOSE
-              printf("Control Flow Error (main loop, Flash CRC)\n\r");
-            #endif  /* STL_VERBOSE */
-            FailSafePOR();
-          }
+            if(CtrlFlowCnt == FULL_FLASH_CHECKED)
+            {
+                if((CtrlFlowCnt - LastCtrlFlowCnt) == (LAST_DELTA_MAIN))
+                {
+                    CtrlFlowCnt = 0u;
+                    CtrlFlowCntInv = 0xFFFFFFFFuL;
+                }
+                else  /* Return value form crc check was corrupted */
+                {
+                  #ifdef STL_VERBOSE
+                    printf("Control Flow Error (main loop, Flash CRC)\n\r");
+                  #endif  /* STL_VERBOSE */
+                    FailSafePOR();
+                }
+            }                
+            else  /* Return value form crc check was corrupted */
+            {
+              #ifdef STL_VERBOSE
+                printf("Control Flow Error (main loop, Flash CRC)\n\r");
+              #endif  /* STL_VERBOSE */
+                FailSafePOR();
+            }
         }
         else  /* Flash test not completed yet*/
         {

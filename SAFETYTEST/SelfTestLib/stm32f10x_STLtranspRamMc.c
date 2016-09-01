@@ -54,7 +54,7 @@ static sc8 RT_RAMBUF_SCRMBL[RT_RAMBUF_BLOCKSIZE] = {-1,0,2,1,3,4,6,5,7};
 void STL_TranspMarchCInit(void)
 {
    p_RunTimeRamChk = CLASS_B_START;
-   p_RunTimeRamChkInv = ((u32 *)~((u32)CLASS_B_START));
+   p_RunTimeRamChkInv = ((u32 *)(u32)(~((u32)CLASS_B_START)));
 }
 
 
@@ -82,7 +82,7 @@ ClassBTestStatus RAM_RunCheck(void)
     {
       /*------------- Apply March C- to the RAM Buffer itself --------------- */
       p_RunTimeRamChk = &RunTimeRamBuf[0];
-      p_RunTimeRamChkInv = (u32*)(~(u32)(&RunTimeRamBuf[0]));
+      p_RunTimeRamChkInv = (u32*)(u32)((~(u32)(&RunTimeRamBuf[0])));
 
       /*---------------------------- STEP 1 --------------------------------- */
       /* Write background with addresses increasing */
@@ -168,7 +168,7 @@ ClassBTestStatus RAM_RunCheck(void)
       {
         /* Prepare next Tranparent RAM test from the beginning of Class A area */
         p_RunTimeRamChk = CLASS_B_START;
-        p_RunTimeRamChkInv = ((u32 *)~((u32)CLASS_B_START));
+        p_RunTimeRamChkInv = ((u32 *)(u32)(~((u32)CLASS_B_START)));
 
         if (Result == TEST_RUNNING)
         {
@@ -277,7 +277,7 @@ ClassBTestStatus RAM_RunCheck(void)
       {
         /* Prepare next Row Tranparent RAM test */
         p_RunTimeRamChk += RT_RAM_BLOCKSIZE- (2u*RT_RAM_BLOCK_OVERLAP);
-        p_RunTimeRamChkInv = (u32 *)(~((u32)p_RunTimeRamChk));
+        p_RunTimeRamChkInv = (u32 *)(u32)((~((u32)p_RunTimeRamChk)));
 
         if (Result != TEST_RUNNING)
         {
