@@ -7,6 +7,7 @@
  * @date	: 11-April-2014
  * @author	: Paul
 */
+
 ;Defined data area
   SECTION .text:DATA  ;REORDER:NOROOT    ;:ROOT
 ;MyData1

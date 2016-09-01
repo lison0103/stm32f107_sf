@@ -1,19 +1,20 @@
+/*******************************************************************************
+* File Name          : check_instruction.h
+* Author             : Paul
+* Version            : V1.0
+* Date               : 03/26/2014
+* Description        : main code for applications for IEC61508 verification on ETC-01 mainboard.
+*			          
+*******************************************************************************/
+
+/* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __CHECK_INS_H
 #define __CHECK_INS_H
+
+/* Includes ------------------------------------------------------------------*/
 #include "iec61508.h"
 
-/*
-__no_init int  b@0x1510;
-extern char a; 
-*/
-
-/*
-int a @0x1500;
-int a=1;
-register __no_init char g @ 15;
-__regvar __no_init static UINT8 glDeviceType @5; 
-*/
-
+/* Exported types ------------------------------------------------------------*/
 typedef struct {
   /* base 0 */
   unsigned int Instr_Proc_Cnt;     /*!< Instruction Check POST tests passed */
@@ -21,6 +22,9 @@ typedef struct {
   unsigned int Instr_Err_Cnt;      /*!< Instruction Check POST test status (PASS/FAIL) */
 }IEC61508_InstCheck_struct;
 
+/* Exported constants --------------------------------------------------------*/
+/* Exported macro ------------------------------------------------------------*/
+/* Exported functions ------------------------------------------------------- */
 /*!
  * @brief IEC607335 CPU register test POST (Pre Operation Self Test)
  */
@@ -30,8 +34,10 @@ extern void _BIT_Arithmetic (void);
 extern void _CMP_Arithmetic (void);
 extern void _DMB_Arithmetic (void);
 
-
 type_testResult_t  iec61508_InstCheck_POST (void);
-void Check_Instruction_Set(void);
+
 
 #endif /* __CHECK_INS_H */
+
+
+/******************************  END OF FILE  *********************************/

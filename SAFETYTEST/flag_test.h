@@ -1,22 +1,22 @@
-/**
- * Company	: ThyssenKrupp PDC
- * @file	: config_tes.h
- * @purpose     :
- * @brief	: header for c based Register flag bit test POST configure test
- *                  IEC61508 verification on ETC-01 mainboard.
- * @version	: 1.0
- * @date	: 13-May-2014
- * @author	: Paul
-*/
+/*******************************************************************************
+* File Name          : flag_test.h
+* Author             : Paul
+* Version            : V1.0
+* Date               : 05/13/2014
+* Description        : header for c based Register flag bit test POST configure test
+*                      IEC61508 verification on ETC-01 mainboard.
+*			          
+*******************************************************************************/
 
-#ifndef _FLAG_TEST_H__
-#define _FLAG_TEST_H__
+/* Define to prevent recursive inclusion -------------------------------------*/
+#ifndef __FLAG_TEST_H
+#define __FLAG_TEST_H
 
 /* Includes ------------------------------------------------------------------*/
 #include "sys.h"
 #include "iec61508.h"
 
-/* Private typedef -----------------------------------------------------------*/
+/* Exported types ------------------------------------------------------------*/
 typedef struct {
   /* base 0 */
   unsigned int Flag_Pass_Cnt;     /*!< tests passed */
@@ -24,12 +24,14 @@ typedef struct {
   unsigned int Flag_Err_Cnt;      /*!< tests failed */
 }IEC61508_FlagCheck_struct;
 
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-
-/* Private function prototypes -----------------------------------------------*/
+/* Exported constants --------------------------------------------------------*/
+/* Exported macro ------------------------------------------------------------*/
+/* Exported functions ------------------------------------------------------- */
 type_testResult_t flag_test(void);
-#endif  /* _FLAG_TEST_H__ */
 
-/************************************** EOF *********************************/
+
+#endif /* __FLAG_TEST_H */
+
+
+/******************************  END OF FILE  *********************************/
+

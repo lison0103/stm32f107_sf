@@ -1,22 +1,36 @@
-/**
- * Company	: ThyssenKrupp PDC
- * @file	: check_instruction.c
- * @purpose
- * @brief	: main code for applications for IEC61508 verification on ETC-01 mainboard.
- * @version	: 1.0
- * @date	: 26-March-2014
- * @author	: Paul
-*/
+/*******************************************************************************
+* File Name          : check_instruction.c
+* Author             : Paul
+* Version            : V1.0
+* Date               : 03/26/2014
+* Description        : main code for applications for IEC61508 verification on ETC-01 mainboard.
+*                      
+*******************************************************************************/
 
+
+/* Includes ------------------------------------------------------------------*/
 #include "sys.h"
 #include "check_instruction.h"
 #include "check_instruction_2.h"
 
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
+
 IEC61508_InstCheck_struct InstCheckPOST_struct;
 IEC61508_InstCheck_struct InstCheckBIST_struct;
 
-__no_init int a @0x1500;
 
+/*******************************************************************************
+* Function Name  : iec61508_InstCheck_POST
+* Description    : Check instruction.
+* Input          : None
+* Output         : None
+* Return         : fail: IEC61508_testFailed   pass: IEC61508_testPassed
+*******************************************************************************/
 type_testResult_t iec61508_InstCheck_POST (void)
 {
     type_testResult_t testResult = IEC61508_testPassed;
@@ -36,52 +50,4 @@ type_testResult_t iec61508_InstCheck_POST (void)
     return testResult;
 }
 
-void Check_Instruction_Set(void)
-{
-  
-  struct inst__type
-  { 
-    long instruction_err; 
-    long u16gvIndex; 
-  }; 
-  /*TEST INSTRUCTION*/
-int i=0;
-
-  __asm 
-  (
-  "MOV R0, #0x1" "\n\t"
-  "ADD R0, R0, #0x0" "\n\t"
-  "MOV R0,#55H" "\n\t"                        /*MOVB*/
-  "ADD R0, R0, #55H" "\n\t"                        /*ADDB*/
-  "SUB R0, R0, #11H" "\n\t"                        /*SUBB*/
-  "MOV R1, #0xFF" "\n\t"                        /*MOVB*/
-  "AND R0, R0, R1" "\n\t"                       /*ANDB*/
-  "MOV R1, #0x33" "\n\t"                        /*MOVB*/
-  "ORR R0, R0, R1" "\n\t"                        /*ORB*/
-  "MOV R1, #0x0F" "\n\t"                        /*MOVB*/
-  "EOR R0, R0, R1" "\n\t"                       /*XORB*/
-  "CMP R0, #0xB4" "\n\t"                       /*CMPB*/
-  );
-i++;
-  asm 
-  (
-  "MOV R0, #0x1 \n"
-  "ADD R0, R0, #0x0 \n"
-  "CBZ R0, JNB_TEST \n"
-    "NOP \n"
-  "JNB_TEST: \n"    
-    "NOP \n"
-  "MOV R0,#55H" "\n\t"                        /*MOVB*/
-  "ADD R0, R0, #55H" "\n\t"                        /*ADDB*/
-  "SUB R0, R0, #11H" "\n\t"                        /*SUBB*/
-  "MOV R1, #0xFF" "\n\t"                        /*MOVB*/
-  "AND R0, R0, R1" "\n\t"                       /*ANDB*/
-  "MOV R1, #0x33" "\n\t"                        /*MOVB*/
-  "ORR R0, R0, R1" "\n\t"                        /*ORB*/
-  "MOV R1, #0x0F" "\n\t"                        /*MOVB*/
-  "EOR R0, R0, R1" "\n\t"                       /*XORB*/
-  "CMP R0, #0xB4" "\n\t"                       /*CMPB*/
-  );
-
-
-}
+/******************************  END OF FILE  *********************************/
