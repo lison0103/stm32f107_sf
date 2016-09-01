@@ -20,7 +20,6 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-//#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
 
@@ -51,7 +50,7 @@ ClockStatus STL_ClockStartUpTest(void)
       vu32 LSIPeriod, ClockFrequency;
       ClockStatus Result = TEST_ONGOING; /* In case of unexpected exit */
 #ifdef GEC_SF_S_NEW
-      uint32_t PeriodConversion = 0;
+      uint32_t PeriodConversion = 0u;
 #endif
 
   CtrlFlowCnt += CLOCK_TEST_CALLEE;
@@ -79,9 +78,9 @@ ClockStatus STL_ClockStartUpTest(void)
       }
       /*-------------- Reference Measurement ---------------------------------*/
 #ifdef GEC_SF_S_NEW
-      PeriodConversion = 0;
-      PeriodConversion = (uint32_t)(RTC->TR & ((uint32_t)0x007F7F7F));
-      LSIPeriod = (uint32_t)((PeriodConversion>>8)&0x7f)*60 + (uint32_t)(PeriodConversion&0x7f);   /* LSI frequency measurement */     
+      PeriodConversion = 0u;
+      PeriodConversion = (uint32_t)(RTC->TR & ((uint32_t)0x007F7F7Fu));
+      LSIPeriod = (uint32_t)((PeriodConversion>>8u)&0x7fu)*60u + (uint32_t)(PeriodConversion&0x7fu);   /* LSI frequency measurement */     
 #else
       LSIPeriod = RTC_GetCounter(); /* LSI frequency measurement */
 #endif
@@ -96,17 +95,18 @@ ClockStatus STL_ClockStartUpTest(void)
       else    /* Clock switched correctly */
       {
 #ifdef GEC_SF_S_NEW
-	RTC->WPR=0xCA;
-	RTC->WPR=0x53; 
-        RTC->ISR|=1<<7;	
-	while(((RTC->ISR&(1<<6))==0x00));
-	RTC->TR = 0;                                  /* Reset RTC */ 
-	RTC->ISR&=~(1<<7);		
+	RTC->WPR=0xCAu;
+	RTC->WPR=0x53u; 
+        RTC->ISR|=1u<<7u;	
+	while(((RTC->ISR&(1u<<6u))==0x00u))
+        {}
+	RTC->TR = 0u;                                  /* Reset RTC */ 
+	RTC->ISR&=~(1u<<7u);		
 #else          
-        RTC_SetCounter(0);                            /* Reset RTC */
+        RTC_SetCounter(0u);                            /* Reset RTC */
         RTC_WaitForLastTask();
 #endif
-        SysTick->VAL =0X00;//SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset SysTick counter */
+        SysTick->VAL = 0X00u;    /* Reset SysTick counter */
 
         /* Wait Systick underflow before measurement */
         while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
@@ -115,9 +115,9 @@ ClockStatus STL_ClockStartUpTest(void)
 
         /*-------------------- HSE Measurement -------------------------------*/
 #ifdef GEC_SF_S_NEW
-        PeriodConversion = 0;
-        PeriodConversion = (uint32_t)(RTC->TR & ((uint32_t)0x007F7F7F));
-        RefHSEPeriod = (uint32_t)((PeriodConversion>>8)&0x7f)*60 + (uint32_t)(PeriodConversion&0x7f);   /* HSE frequency measurement */  
+        PeriodConversion = 0u;
+        PeriodConversion = (uint32_t)(RTC->TR & ((uint32_t)0x007F7F7Fu));
+        RefHSEPeriod = (uint32_t)((PeriodConversion>>8u)&0x7fu)*60u + (uint32_t)(PeriodConversion&0x7fu);   /* HSE frequency measurement */  
 #else        
         RefHSEPeriod = RTC_GetCounter();   /* HSE frequency measurement */
 #endif
@@ -131,7 +131,7 @@ ClockStatus STL_ClockStartUpTest(void)
         StartUpClockFreq = ClockFrequency;
         StartUpClockFreqInv = ~ClockFrequency;  /* Redundant storage */
 
-        if (RefHSEPeriod !=0)  /* Test for divide by zero */
+        if (RefHSEPeriod !=0u)  /* Test for divide by zero */
         {
             u32 TmpHSEPEriod = RefHSEPeriod;  /* Added for MISRA compliance */
           ClockFrequency /= TmpHSEPEriod;
@@ -183,7 +183,7 @@ ClockStatus STL_ClockStartUpTest(void)
 * Output         : None
 * Return         : ErrorStatus = {ERROR; SUCCESS}
 *******************************************************************************/
-ErrorStatus STL_LSIinit(void)
+static ErrorStatus STL_LSIinit(void)
 {
     ErrorStatus Result = ERROR;
     u32 TimeOut = LSI_START_TIMEOUT;
@@ -215,9 +215,9 @@ ErrorStatus STL_LSIinit(void)
   {
     TimeOut--;
   }
-  while((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) && (TimeOut != 0));
+  while((RCC_GetFlagStatus(RCC_FLAG_LSIRDY) == RESET) && (TimeOut != 0u));
 
-  if (TimeOut == 0)
+  if (TimeOut == 0u)
   {
     Result = ERROR;     /* Internal low speed oscillator failure */
   }
@@ -241,7 +241,7 @@ ErrorStatus STL_LSIinit(void)
 * Output         : None
 * Return         : ErrorStatus = {ERROR; SUCCESS}
 *******************************************************************************/
-ErrorStatus STL_HSE_CSSinit(void)
+static ErrorStatus STL_HSE_CSSinit(void)
 {
     ErrorStatus Result = ERROR;
     u32 TimeOut = HSE_START_TIMEOUT;
@@ -256,9 +256,9 @@ ErrorStatus STL_HSE_CSSinit(void)
   {
     TimeOut--;
   }
-  while((RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET) && (TimeOut != 0));
+  while((RCC_GetFlagStatus(RCC_FLAG_HSERDY) == RESET) && (TimeOut != 0u));
 
-  if (TimeOut == 0)
+  if (TimeOut == 0u)
   {
     Result = ERROR;     /* Internal low speed oscillator failure */
   }
@@ -285,7 +285,7 @@ ErrorStatus STL_HSE_CSSinit(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void STL_RTCinit(void)
+static void STL_RTCinit(void)
 {
 
 #ifdef GEC_SF_S_NEW
@@ -300,8 +300,8 @@ void STL_RTCinit(void)
   RTC_BypassShadowCmd(ENABLE);
 
   /* Configure the RTC data register and RTC prescaler */
-  RTC_InitStructure.RTC_AsynchPrediv = 0x00;
-  RTC_InitStructure.RTC_SynchPrediv  = 0x00;
+  RTC_InitStructure.RTC_AsynchPrediv = 0x00u;
+  RTC_InitStructure.RTC_SynchPrediv  = 0x00u;
   RTC_Init(&RTC_InitStructure);
   
   /* Wait for RTC registers synchronization */
@@ -320,7 +320,7 @@ void STL_RTCinit(void)
   /* Wait until last write operation on RTC registers has finished */
   RTC_WaitForLastTask();
 
-  RTC_SetPrescaler(0);    /* Do not prescale to have the highest precision */
+  RTC_SetPrescaler(0u);    /* Do not prescale to have the highest precision */
 
 #endif
   
@@ -337,14 +337,14 @@ void STL_RTCinit(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void STL_SysTickInit(void)
+static void STL_SysTickInit(void)
 {
   CtrlFlowCnt += SYSTICK_INIT_CALLEE;
 
   SysTick_CLKSourceConfig(SysTick_CLKSource_HCLK);
-  SysTick->LOAD = ((u32)160000uL);/* 20ms *///SysTick_SetReload(SYSTICK_TB_START);          /* Set reload rate (Ref period) */
-  SysTick->VAL =0X00;//SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset counter */
-  SysTick->CTRL|=SysTick_CTRL_ENABLE_Msk ;//SysTick_CounterCmd(SysTick_Counter_Enable);   /* Start down-counting */
+  SysTick->LOAD = ((u32)160000uL);/* 20ms */          /* Set reload rate (Ref period) */
+  SysTick->VAL =0X00u;   /* Reset counter */
+  SysTick->CTRL|=SysTick_CTRL_ENABLE_Msk ;   /* Start down-counting */
 
   CtrlFlowCntInv -= SYSTICK_INIT_CALLEE;
 
@@ -359,7 +359,7 @@ void STL_SysTickInit(void)
 * Output         : None
 * Return         : ErrorStatus = {ERROR; SUCCESS}
 *******************************************************************************/
-ErrorStatus STL_SwitchToExtClockSrc(void)
+static ErrorStatus STL_SwitchToExtClockSrc(void)
 {
     ErrorStatus Result = ERROR;
     u32 TimeOut = CLOCK_SWITCH_TIMEOUT;
@@ -376,9 +376,9 @@ ErrorStatus STL_SwitchToExtClockSrc(void)
   {
     TimeOut--;
   }
-  while ((RCC_GetSYSCLKSource() != 0x04) && (TimeOut != 0));
+  while ((RCC_GetSYSCLKSource() != 0x04u) && (TimeOut != 0u));
 
-  if (TimeOut == 0)
+  if (TimeOut == 0u)
   {
     Result = ERROR;     /* Clock switch failure */
   }

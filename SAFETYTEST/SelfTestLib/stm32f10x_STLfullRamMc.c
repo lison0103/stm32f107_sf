@@ -21,7 +21,6 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-//#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
 
@@ -66,7 +65,7 @@ ErrorStatus RAM_StarupCheck(void)
    /* Verify background and write inverted background with addresses increasing */
    for (p = RAM_START; p <= RAM_END; p += RAM_BLOCKSIZE)
    {
-      for (j = 0; j < RAM_BLOCKSIZE; j++)
+      for (j = 0u; j < RAM_BLOCKSIZE; j++)
       {
          if ( *(p + (u32)RAM_SCRMBL[j]) != BCKGRND)
          {
@@ -80,7 +79,7 @@ ErrorStatus RAM_StarupCheck(void)
    /* Verify inverted background and write background with addresses increasing */
    for (p = RAM_START; p <= RAM_END; p += RAM_BLOCKSIZE)
    {
-      for (j = 0; j < RAM_BLOCKSIZE; j++)
+      for (j = 0u; j < RAM_BLOCKSIZE; j++)
       {
          if ( *(p + (u32)RAM_SCRMBL[j]) != INV_BCKGRND)
          {
@@ -94,7 +93,7 @@ ErrorStatus RAM_StarupCheck(void)
    /* Verify background and write inverted background with addresses decreasing */
    for (p = RAM_END; p > RAM_START; p -= RAM_BLOCKSIZE)
    {
-      for (j = 0; j < RAM_BLOCKSIZE; j++)
+      for (j = 0u; j < RAM_BLOCKSIZE; j++)
       {
          if ( *(p - (u32)RAM_REVSCRMBL[j]) != BCKGRND)
          {
@@ -108,7 +107,7 @@ ErrorStatus RAM_StarupCheck(void)
    /* Verify inverted background and write background with addresses decreasing */
    for (p = RAM_END; p > RAM_START; p -= RAM_BLOCKSIZE)
    {
-      for (j = 0; j < RAM_BLOCKSIZE; j++)
+      for (j = 0u; j < RAM_BLOCKSIZE; j++)
       {
          if ( *(p - (u32)RAM_REVSCRMBL[j]) != INV_BCKGRND)
          {

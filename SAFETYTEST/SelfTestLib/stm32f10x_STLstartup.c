@@ -20,11 +20,10 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-//#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 #include "ewdt.h"
 
-#define ALLOC_GLOBALS
+/*#define ALLOC_GLOBALS*/
 #include "stm32f10x_STLclassBvar.h"
 
 #ifdef STL_VERBOSE_POR
@@ -39,11 +38,78 @@
 /* Private functions ---------------------------------------------------------*/
 #ifdef STL_VERBOSE_POR
   static void STL_VerbosePORInit(void);
-//  static void USART_Configuration(void);
 #endif  /* STL_VERBOSE_POR */
 
 static ErrorStatus RCC_Config64MHzOnHSI(void);
 static ErrorStatus RCC_SwitchOffPLL(void);
+static void GeneralRegister_StartupCheck(void);
+static void IWDTCheck(void);
+static void DataIntegrityInFlash_StartupCheck(void);
+static void ClockFrequency_StartupCheck(void);
+static void Stack_StartupCheck(void);
+
+#ifdef __IAR_SYSTEMS_ICC__  /* IAR Compiler */
+
+  /* Temporary RAM buffer used during transparent run-time tests */
+  /* WARNING: Real reserved RAM location from 0x20000000 to 0x20000024*/
+  __no_init  u32 RunTimeRamBuf[RT_RAM_BLOCKSIZE] @ "RUN_TIME_RAM_BUF";
+
+  /* RAM pointer for run-time tests */
+  __no_init  u32 *p_RunTimeRamChk     @ "RUN_TIME_RAM_PNT";
+  __no_init  u32 *p_RunTimeRamChkInv  @ "RUN_TIME_RAM_PNT";
+
+  /* Counter for verifying correct program execution at start */
+  __no_init  u32 CtrlFlowCnt          @ "CLASS_B_RAM";
+  __no_init  u32 CtrlFlowCntInv       @ "CLASS_B_RAM_REV";
+
+  /* Counter for verifying correct program execution in interrupt */
+  __no_init  u32 ISRCtrlFlowCnt       @ "CLASS_B_RAM";
+  __no_init  u32 ISRCtrlFlowCntInv    @ "CLASS_B_RAM_REV";
+
+  /* First measure stored as reference for run-time checks */
+  __no_init  u32 StartUpClockFreq     @ "CLASS_B_RAM";
+  __no_init  u32 StartUpClockFreqInv  @ "CLASS_B_RAM_REV";
+
+  /* First period measure stored as reference for run-time checks */
+  __no_init  u32 RefHSEPeriod         @ "CLASS_B_RAM";
+  __no_init  u32 RefHSEPeriodInv      @ "CLASS_B_RAM_REV";
+
+  /* Last period measure stored as reference for run-time checks */
+  __no_init  u32 CurrentHSEPeriod     @ "CLASS_B_RAM";
+  __no_init  u32 CurrentHSEPeriodInv  @ "CLASS_B_RAM_REV";
+
+  /* Sofware time base used in main program (incremented in SysTick timer ISR */
+  __no_init  u32 TickCounter          @ "CLASS_B_RAM";
+  __no_init  u32 TickCounterInv       @ "CLASS_B_RAM_REV";
+
+  /* Indicates to the main routine a 100ms tick */
+  __no_init  vu32 TimeBaseFlag        @ "CLASS_B_RAM";
+  __no_init  vu32 TimeBaseFlagInv     @ "CLASS_B_RAM_REV";
+
+  /* Stores the Control flow counter from one main loop to the other */
+  __no_init  u32 LastCtrlFlowCnt      @ "CLASS_B_RAM";
+  __no_init  u32 LastCtrlFlowCntInv   @ "CLASS_B_RAM_REV";
+
+  /* Pointer to FLASH for crc16 run-time tests */
+  __no_init  u8 *p_RunCrc16Chk        @ "CLASS_B_RAM";
+  __no_init  u8 *p_RunCrc16ChkInv     @ "CLASS_B_RAM_REV";
+
+  /* Pointer to FLASH for crc32 run-time tests */
+  __no_init  u32 *p_RunCrc32Chk       @ "CLASS_B_RAM";
+  __no_init  u32 *p_RunCrc32ChkInv    @ "CLASS_B_RAM_REV";
+
+  /* Reference 32-bit CRC for run-time tests */
+  __no_init  u32 RefCrc32             @ "CLASS_B_RAM";
+  __no_init  u32 RefCrc32Inv          @ "CLASS_B_RAM_REV";
+
+  /* Current FLASH 16-bit Crc */
+  __no_init  u16 CurrentCrc16         @ "CLASS_B_RAM";
+  __no_init  u16 CurrentCrc16Inv      @ "CLASS_B_RAM_REV";
+
+  /* Magic pattern for Stack overflow in this array */
+  __no_init  vu32 StackOverFlowPtrn[4] @ "STACK_BOTTOM";
+
+#endif  /* __IAR_SYSTEMS_ICC__ */
 
 
 /*******************************************************************************
@@ -56,7 +122,7 @@ static ErrorStatus RCC_SwitchOffPLL(void);
 *******************************************************************************/
 void FailSafePOR(void)
 {
-//  SysTick_ITConfig(DISABLE);
+/*  SysTick_ITConfig(DISABLE);*/
   #ifdef STL_VERBOSE_POR
   printf(" >>>>>>>>>> POR FailSafe Mode <<<<<<<<<<\n\r");
   #endif  /* STL_VERBOSE_POR */
@@ -140,7 +206,7 @@ static void DataIntegrityInFlash_StartupCheck(void)
     
     /* Regular 16-bit crc computation */
     CtrlFlowCnt += CRC16_TEST_CALLER;
-    if(STL_crc16(CRC_INIT,(u8 *)ROM_START, ROM_SIZE) != REF_CRC16)
+    if(STL_crc16((u16)CRC_INIT,(u8 *)ROM_START, ROM_SIZE) != REF_CRC16)
     {
 #ifdef STL_VERBOSE_POR
         printf(" FLASH 16-bit CRC Error at Start-up\n\r");
@@ -218,7 +284,7 @@ static void ClockFrequency_StartupCheck(void)
         FailSafePOR();
         break;
     }
-    // Either switch back to HSI or start PLL on HSE asap
+    /* Either switch back to HSI or start PLL on HSE asap */
     CtrlFlowCntInv -= CLOCK_TEST_CALLER;
     
     /* Reload IWDG / EWDT counter */
@@ -269,7 +335,7 @@ void Safety_StartupCheck1(void)
   /*--------------------------- EWDT check -----------------------------------*/  
   /*--------------------------------------------------------------------------*/ 
   EWDT_Drv_pin_config();
-//  ExtWdtCheck();
+/*  ExtWdtCheck(); */
   
   /*--------------------------------------------------------------------------*/
   /*------------------- CPU registers and Flags Self Test --------------------*/
@@ -471,42 +537,42 @@ void STL_VerbosePORInit(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-//void USART_Configuration(void)
-//{
-//  USART_InitTypeDef USART_InitStructure;
-//
-//  USART_DeInit(USART1);
-//
-///* USART1 configuration ------------------------------------------------------*/
-//  /* USART1 configured as follow:
-//        - BaudRate = 115200 baud
-//        - Word Length = 8 Bits
-//        - One Stop Bit
-//        - No parity
-//        - Hardware flow control disabled (RTS and CTS signals)
-//        - Receive and transmit enabled
-//        - USART Clock disabled
-//        - USART CPOL: Clock is active low
-//        - USART CPHA: Data is captured on the middle
-//        - USART LastBit: The clock pulse of the last data bit is not output to
-//                         the SCLK pin
-//  */
-//  USART_InitStructure.USART_BaudRate = 115200uL;
-//  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-//  USART_InitStructure.USART_StopBits = USART_StopBits_1;
-//  USART_InitStructure.USART_Parity = USART_Parity_No;
-//  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-//  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-//  USART_InitStructure.USART_Clock = USART_Clock_Disable;
-//  USART_InitStructure.USART_CPOL = USART_CPOL_Low;
-//  USART_InitStructure.USART_CPHA = USART_CPHA_2Edge;
-//  USART_InitStructure.USART_LastBit = USART_LastBit_Disable;
-//
-//  USART_Init(USART1, &USART_InitStructure);
-//
-//  /* Enable USART1 */
-//  USART_Cmd(USART1, ENABLE);
-//}
+void USART_Configuration(void)
+{
+  USART_InitTypeDef USART_InitStructure;
+
+  USART_DeInit(USART1);
+
+/* USART1 configuration ------------------------------------------------------*/
+  /* USART1 configured as follow:
+        - BaudRate = 115200 baud
+        - Word Length = 8 Bits
+        - One Stop Bit
+        - No parity
+        - Hardware flow control disabled (RTS and CTS signals)
+        - Receive and transmit enabled
+        - USART Clock disabled
+        - USART CPOL: Clock is active low
+        - USART CPHA: Data is captured on the middle
+        - USART LastBit: The clock pulse of the last data bit is not output to
+                         the SCLK pin
+  */
+  USART_InitStructure.USART_BaudRate = 115200uL;
+  USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+  USART_InitStructure.USART_StopBits = USART_StopBits_1;
+  USART_InitStructure.USART_Parity = USART_Parity_No;
+  USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+  USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+  USART_InitStructure.USART_Clock = USART_Clock_Disable;
+  USART_InitStructure.USART_CPOL = USART_CPOL_Low;
+  USART_InitStructure.USART_CPHA = USART_CPHA_2Edge;
+  USART_InitStructure.USART_LastBit = USART_LastBit_Disable;
+
+  USART_Init(USART1, &USART_InitStructure);
+
+  /* Enable USART1 */
+  USART_Cmd(USART1, ENABLE);
+}
 
 #endif  /* STL_VERBOSE_POR */
 
@@ -518,7 +584,7 @@ void STL_VerbosePORInit(void)
 * Output         : None
 * Return         : ErrorStatus = {ERROR; SUCCESS}
 *******************************************************************************/
-ErrorStatus RCC_Config64MHzOnHSI(void)
+static ErrorStatus RCC_Config64MHzOnHSI(void)
 {
     ErrorStatus Result = ERROR;
     u32 TimeOut = PLL_LOCK_TIMEOUT;
@@ -540,7 +606,7 @@ ErrorStatus RCC_Config64MHzOnHSI(void)
 #endif
 
   /* PLLCLK = 4MHz * 16 = 64 MHz */
-//  RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_16);
+/*  RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_16);*/
   /* Enable PLL */
   RCC_PLLCmd(ENABLE);
 
@@ -549,9 +615,9 @@ ErrorStatus RCC_Config64MHzOnHSI(void)
   {
     TimeOut--;
   }
-  while((RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET) && (TimeOut != 0));
+  while((RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET) && (TimeOut != 0u));
 
-  if (TimeOut == 0)
+  if (TimeOut == 0u)
   {
     Result = ERROR;     /* Clock switch failure */
   }
@@ -568,9 +634,9 @@ ErrorStatus RCC_Config64MHzOnHSI(void)
     {
       TimeOut--;
     }
-    while((RCC_GetSYSCLKSource() != 0x08) && (TimeOut != 0));
+    while((RCC_GetSYSCLKSource() != 0x08u) && (TimeOut != 0u));
 
-    if (TimeOut == 0)
+    if (TimeOut == 0u)
     {
       Result = ERROR;     /* Clock switch failure */
     }
@@ -592,7 +658,7 @@ ErrorStatus RCC_Config64MHzOnHSI(void)
 * Output         : None
 * Return         : ErrorStatus = {ERROR; SUCCESS}
 *******************************************************************************/
-ErrorStatus RCC_SwitchOffPLL(void)
+static ErrorStatus RCC_SwitchOffPLL(void)
 {
     ErrorStatus Result = ERROR;
     u32 TimeOut = CLOCK_SWITCH_TIMEOUT;
@@ -606,9 +672,9 @@ ErrorStatus RCC_SwitchOffPLL(void)
   {
     TimeOut--;
   }
-  while ((RCC_GetSYSCLKSource() != 0x00) && (TimeOut != 0));
+  while ((RCC_GetSYSCLKSource() != 0x00u) && (TimeOut != 0u));
 
-  if (TimeOut == 0)
+  if (TimeOut == 0u)
   {
     Result = ERROR;     /* Clock switch failure */
   }
@@ -660,7 +726,7 @@ void STL_WDGSelfTest(void)
     /* IWDG clock: 40KHz(LSI) / 4 = 10KHz  */
     IWDG_SetPrescaler(IWDG_Prescaler_4);
     /* Set counter reload value to 1 (125¦Ìs */
-    IWDG_SetReload(1);
+    IWDG_SetReload(1u);
     /* Reload IWDG counter */
     IWDG_ReloadCounter();
     /* Enable IWDG (LSI automatically enabled by HW) */
@@ -669,8 +735,9 @@ void STL_WDGSelfTest(void)
     RCC_ClearFlag();        /* Clear all flags before reuming test */
     /* Wait for an independant watchdog reset */
     /* set the flag,don't check the ewdt */
-    iwdg_check_flag = 1;
-    while(1);
+    iwdg_check_flag = 1u;
+    while(1)
+    {}
   }
   else  /* Watchdog test or software reset triggered by application failure */
   {
@@ -695,15 +762,15 @@ void STL_WDGSelfTest(void)
           /* IWDG clock: 40KHz(LSI)  max:0xFFF / 4095    Tout = ((4*2^prer)*count) / 40*/
           IWDG_SetPrescaler(IWDG_Prescaler_64);
           /* Set counter reload value to 1250 ,  64 * 1250 / 40 = 2s */
-          IWDG_SetReload(1250);
+          IWDG_SetReload(1250u);
           /* Reload IWDG counter */
           IWDG_ReloadCounter();
           /* Enable IWDG (LSI automatically enabled by HW) */
           IWDG_Enable();        
         
         
-//          RCC_ClearFlag();
-          iwdg_check_flag = 0;
+/*          RCC_ClearFlag();*/
+          iwdg_check_flag = 0u;
           #ifdef STL_VERBOSE_POR
             printf("... WWDG reset, WDG test completed ... \r\n");
           #endif  /* STL_VERBOSE_POR */

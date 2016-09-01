@@ -1289,7 +1289,7 @@ typedef struct
 #define RCC_BASE              (AHB1PERIPH_BASE + 0x00001000u)
 #define FLASH_R_BASE          (AHB1PERIPH_BASE + 0x00002000) /*!< Flash registers base address */
 #define OB_BASE               ((uint32_t)0x1FFFF800)     /*!< Flash Option Bytes base address */
-#define CRC_BASE              (AHB1PERIPH_BASE + 0x00003000)
+#define CRC_BASE              (AHB1PERIPH_BASE + 0x00003000u)
 #define TSC_BASE              (AHB1PERIPH_BASE + 0x00004000)
 
 /*!< AHB2 peripherals */

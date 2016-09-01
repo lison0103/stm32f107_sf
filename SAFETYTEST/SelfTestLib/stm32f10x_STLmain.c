@@ -15,7 +15,6 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-//#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
 
@@ -29,9 +28,12 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-ClockStatus STL_MainClockTest(void);
-ErrorStatus STL_CheckStack(void);
-
+static ClockStatus STL_MainClockTest(void);
+static ErrorStatus STL_CheckStack(void);
+static void GeneralRegister_RunCheck(void);
+static void Stack_RunCheck(void);
+static void ClockFrequency_RunCheck(void);
+static void DataIntegrityInFlash_RunCheck(u32* RomTest);
 
 /*******************************************************************************
 * Function Name  : Safety_InitRunTimeChecks
@@ -46,25 +48,25 @@ void Safety_InitRunTimeChecks(void)
 {
   /* Init Class B variables required in main routine and SysTick interrupt
   service routine for timing purposes */
-  TickCounter = 0;
+  TickCounter = 0u;
   TickCounterInv = 0xFFFFFFFFuL;
 
-  TimeBaseFlag = 0;
+  TimeBaseFlag = 0u;
   TimeBaseFlagInv = 0xFFFFFFFFuL;
 
-  LastCtrlFlowCnt = 0;
+  LastCtrlFlowCnt = 0u;
   LastCtrlFlowCntInv = 0xFFFFFFFFuL;
 
   /* Initialize variables for SysTick interrupt routine control flow monitoring */
-  ISRCtrlFlowCnt = 0;
+  ISRCtrlFlowCnt = 0u;
   ISRCtrlFlowCntInv = 0xFFFFFFFFuL;
 
   /* Initialize variables for invariable memory check */
   STL_TranspMarchCInit();
-//  STL_TranspMarchXInit();
+/*  STL_TranspMarchXInit();*/
 
   /* Initialize variable for clock memory check */
-  CurrentHSEPeriod = 0;
+  CurrentHSEPeriod = 0u;
   CurrentHSEPeriodInv = 0xFFFFFFFFuL;
 
   /* Initialize SysTick for clock frequency measurement and main time base */
@@ -76,7 +78,7 @@ void Safety_InitRunTimeChecks(void)
   STL_FlashCrc32Init();
 
   /* Initialize variables for main routine control flow monitoring */
-  CtrlFlowCnt = 0;
+  CtrlFlowCnt = 0u;
   CtrlFlowCntInv = 0xFFFFFFFFuL;
 
 }
@@ -191,13 +193,10 @@ static void DataIntegrityInFlash_RunCheck(u32* RomTest)
 {
     CtrlFlowCnt += FLASH_TEST_CALLER;
     *RomTest = STL_crc16Run();
-    //      RomTest = STL_crc32Run(); // Requires the control flow check to be modified
     switch ( *RomTest )
     {
        case TEST_RUNNING:
-        //          #ifdef STL_VERBOSE
         CtrlFlowCntInv -= FLASH_TEST_CALLER;
-        //          #endif /* STL_VERBOSE */
         break;
         
        case TEST_OK:
@@ -240,10 +239,8 @@ void Safety_RunCheck1(void)
 
       /* Reset Flag (no need to reset the redundant: it is not tested if
       TimeBaseFlag != 0xAAAAAAAA, it means that 100ms elapsed */
-      TimeBaseFlag = 0;
+      TimeBaseFlag = 0u;
 
-      /* For debug purposes */
-      //GPIO_WriteBit(GPIOC, GPIO_Pin_7, (BitAction)(1-GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_7)));
 
       /*----------------------------------------------------------------------*/
       /*---------------------------- CPU registers ----------------------------*/
@@ -270,8 +267,6 @@ void Safety_RunCheck1(void)
       /*---------------- Check Safety routines Control flow  -----------------*/
       /*------------- Refresh Window and independent watchdogs ---------------*/
       /*----------------------------------------------------------------------*/
-      /* Update WWDG counter */
-//      WWDG_SetCounter(0x7F);
       /* Reload IWDG counter */
       IWDG_ReloadCounter();
 
@@ -283,7 +278,7 @@ void Safety_RunCheck1(void)
           if ((CtrlFlowCnt == FULL_FLASH_CHECKED)
           &&(CtrlFlowCnt - LastCtrlFlowCnt) == (LAST_DELTA_MAIN))
           {
-            CtrlFlowCnt = 0;
+            CtrlFlowCnt = 0u;
             CtrlFlowCntInv = 0xFFFFFFFFuL;
           }
           else  /* Return value form crc check was corrupted */
@@ -294,7 +289,7 @@ void Safety_RunCheck1(void)
             FailSafePOR();
           }
         }
-        else  // Flash test not completed yet
+        else  /* Flash test not completed yet*/
         {
           if ((CtrlFlowCnt - LastCtrlFlowCnt) != DELTA_MAIN)
           {
@@ -343,19 +338,6 @@ static ClockStatus STL_MainClockTest(void)
 
   CtrlFlowCnt += CLOCK_TEST_CALLEE;
   
-  
-//          RTC_SetCounter(0);                            /* Reset RTC */
-//        RTC_WaitForLastTask();
-//        SysTick->VAL =0X00;//SysTick_CounterCmd(SysTick_Counter_Clear);    /* Reset SysTick counter */
-//
-//        /* Wait Systick underflow before measurement */
-//        while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
-//        {
-//        }
-//        
-//        /*-------------------- HSE Measurement -------------------------------*/
-//        CurrentHSEPeriod = RTC_GetCounter();   /* HSE frequency measurement */
-//        CurrentHSEPeriodInv = ~CurrentHSEPeriod;   /* Redundant storage */
 
   if ((CurrentHSEPeriod ^ CurrentHSEPeriodInv) == 0xFFFFFFFFuL)
   {

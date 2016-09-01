@@ -20,7 +20,6 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-//#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
 
@@ -68,7 +67,7 @@ ClassBTestStatus STL_crc32Run(void)
     if (p_RunCrc32Chk < (u32 *)ROM_END)
     {
       CRC_CalcBlockCrc((uc32 *)p_RunCrc32Chk, (u32)FLASH_BLOCK_WORDS);
-      p_RunCrc32Chk += FLASH_BLOCK_WORDS+1;     /* Increment pointer to next block */
+      p_RunCrc32Chk += FLASH_BLOCK_WORDS+1u;     /* Increment pointer to next block */
       p_RunCrc32ChkInv = ((u32 *)~((u32)p_RunCrc32Chk));
       Result = TEST_RUNNING;
     }

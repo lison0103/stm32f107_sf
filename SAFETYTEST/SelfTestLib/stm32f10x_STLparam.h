@@ -84,10 +84,10 @@ allow to react more quickly */
 #define HSI_Freq    ((u32)8000000uL)
 
 /* HSE frequency above this limit considered as harmonics*/
-#define HSE_LimitHigh ((u32)(HSE_Value*5)/4) /* (HSEValue + 25%) */
+#define HSE_LimitHigh ((u32)(HSE_Value*5u)/4u) /* (HSEValue + 25%) */
 
 /* HSE frequency below this limit considered as sub-harmonics*/
-#define HSE_LimitLow ((u32)(HSE_Value*3)/4)  /* (HSEValue - 25%) */
+#define HSE_LimitLow ((u32)(HSE_Value*3u)/4u)  /* (HSEValue - 25%) */
 
 /* -------------------------------------------------------------------------- */
 /* ------------------ CONTROL FLOW TAGS and CHECKPOINTS --------------------- */
@@ -216,12 +216,12 @@ allow to react more quickly */
   
 
   #define ROM_START (unsigned char *)&__ICFEDIT_region_ROM_start__ 
-  #define ROM_SIZE  (unsigned int)&__ICFEDIT_region_ROM_end__ - 2 -(unsigned int)&__ICFEDIT_region_ROM_start__ + 1 /* ROM_SIZE in byte */
-  #define ROM_SIZEinWORDS ((u32)&__ICFEDIT_region_ROM_end__ -2 -(u32)&__ICFEDIT_region_ROM_start__ +1)/4 /* ...in words */
+  #define ROM_SIZE  (unsigned int)&__ICFEDIT_region_ROM_end__ - 2u -(unsigned int)&__ICFEDIT_region_ROM_start__ + 1u /* ROM_SIZE in byte */
+  #define ROM_SIZEinWORDS ((u32)&__ICFEDIT_region_ROM_end__ -2u -(u32)&__ICFEDIT_region_ROM_start__ +1u)/4u /* ...in words */
   #define ROM_END   ((u8 *)(&__ICFEDIT_region_ROM_end__))
 
   #define STEPS_NUMBER        ((u32)1024uL)
-  #define FLASH_BLOCK         (u32)((ROM_SIZE+2) / STEPS_NUMBER)
+  #define FLASH_BLOCK         (u32)((ROM_SIZE+2u) / STEPS_NUMBER)
   #define FLASH_BLOCK_WORDS   ((u32)(ROM_SIZEinWORDS / STEPS_NUMBER))
 
   /* Constants necessary for RAM test (RAM_END is word aligned) */

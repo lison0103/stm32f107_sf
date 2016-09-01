@@ -31,7 +31,7 @@ static void PVD_Configuration(void);
 static void SysTickTimerInit(void);
 #ifdef GEC_SF_MASTER
 static void ExtCommDeviceInit(void);
-static void PluseOutputInit(void);
+/*static void PluseOutputInit(void);*/
 #endif
 static void Data_init(void);
 
@@ -191,7 +191,8 @@ static void ExtCommDeviceInit(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-#ifdef GEC_SF_MASTER
+/*#ifdef GEC_SF_MASTER*/
+#if 0
 static void PluseOutputInit(void)
 {
   

@@ -12,7 +12,7 @@
 #include "flag_test.h"
 
 static IEC61508_FlagCheck_struct  FlagCheck;
-static unsigned int RestFlag;
+/*static unsigned int RestFlag;*/
 
 type_testResult_t flag_test(void)
 {
@@ -138,7 +138,7 @@ type_testResult_t flag_test(void)
   {
     FlagCheck.Flag_Err_Cnt++;
   }    
-    
+#if 0    
   /* RCC_FLAG_IWDGRST:  IWDG RESET */
   if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)
   {
@@ -156,7 +156,7 @@ type_testResult_t flag_test(void)
   }
   else
   {}
-  
+#endif  
   if (FlagCheck.Flag_Err_Cnt >= IEC61508_testPassed) 
   {
       testResult = IEC61508_testFailed;

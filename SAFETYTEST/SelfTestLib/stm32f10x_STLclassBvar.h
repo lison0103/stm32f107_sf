@@ -43,62 +43,62 @@
 
   /* Temporary RAM buffer used during transparent run-time tests */
   /* WARNING: Real reserved RAM location from 0x20000000 to 0x20000024*/
-  __no_init EXTERN u32 RunTimeRamBuf[RT_RAM_BLOCKSIZE] @ "RUN_TIME_RAM_BUF";
+   EXTERN u32 RunTimeRamBuf[RT_RAM_BLOCKSIZE] ;
 
   /* RAM pointer for run-time tests */
-  __no_init EXTERN u32 *p_RunTimeRamChk     @ "RUN_TIME_RAM_PNT";
-  __no_init EXTERN u32 *p_RunTimeRamChkInv  @ "RUN_TIME_RAM_PNT";
+   EXTERN u32 *p_RunTimeRamChk  ;
+   EXTERN u32 *p_RunTimeRamChkInv ;
 
   /* Counter for verifying correct program execution at start */
-  __no_init EXTERN u32 CtrlFlowCnt          @ "CLASS_B_RAM";
-  __no_init EXTERN u32 CtrlFlowCntInv       @ "CLASS_B_RAM_REV";
+   EXTERN u32 CtrlFlowCnt;
+   EXTERN u32 CtrlFlowCntInv;
 
   /* Counter for verifying correct program execution in interrupt */
-  __no_init EXTERN u32 ISRCtrlFlowCnt       @ "CLASS_B_RAM";
-  __no_init EXTERN u32 ISRCtrlFlowCntInv    @ "CLASS_B_RAM_REV";
+   EXTERN u32 ISRCtrlFlowCnt ;
+   EXTERN u32 ISRCtrlFlowCntInv ;
 
   /* First measure stored as reference for run-time checks */
-  __no_init EXTERN u32 StartUpClockFreq     @ "CLASS_B_RAM";
-  __no_init EXTERN u32 StartUpClockFreqInv  @ "CLASS_B_RAM_REV";
+   EXTERN u32 StartUpClockFreq ;
+   EXTERN u32 StartUpClockFreqInv ;
 
   /* First period measure stored as reference for run-time checks */
-  __no_init EXTERN u32 RefHSEPeriod         @ "CLASS_B_RAM";
-  __no_init EXTERN u32 RefHSEPeriodInv      @ "CLASS_B_RAM_REV";
+   EXTERN u32 RefHSEPeriod ;
+   EXTERN u32 RefHSEPeriodInv ;
 
   /* Last period measure stored as reference for run-time checks */
-  __no_init EXTERN u32 CurrentHSEPeriod     @ "CLASS_B_RAM";
-  __no_init EXTERN u32 CurrentHSEPeriodInv  @ "CLASS_B_RAM_REV";
+   EXTERN u32 CurrentHSEPeriod ;
+   EXTERN u32 CurrentHSEPeriodInv;
 
   /* Sofware time base used in main program (incremented in SysTick timer ISR */
-  __no_init EXTERN u32 TickCounter          @ "CLASS_B_RAM";
-  __no_init EXTERN u32 TickCounterInv       @ "CLASS_B_RAM_REV";
+   EXTERN u32 TickCounter ;
+   EXTERN u32 TickCounterInv ;
 
   /* Indicates to the main routine a 100ms tick */
-  __no_init EXTERN vu32 TimeBaseFlag        @ "CLASS_B_RAM";
-  __no_init EXTERN vu32 TimeBaseFlagInv     @ "CLASS_B_RAM_REV";
+   EXTERN vu32 TimeBaseFlag ;
+   EXTERN vu32 TimeBaseFlagInv  ;
 
   /* Stores the Control flow counter from one main loop to the other */
-  __no_init EXTERN u32 LastCtrlFlowCnt      @ "CLASS_B_RAM";
-  __no_init EXTERN u32 LastCtrlFlowCntInv   @ "CLASS_B_RAM_REV";
+   EXTERN u32 LastCtrlFlowCnt ;
+   EXTERN u32 LastCtrlFlowCntInv ;
 
   /* Pointer to FLASH for crc16 run-time tests */
-  __no_init EXTERN u8 *p_RunCrc16Chk        @ "CLASS_B_RAM";
-  __no_init EXTERN u8 *p_RunCrc16ChkInv     @ "CLASS_B_RAM_REV";
+   EXTERN u8 *p_RunCrc16Chk ;
+   EXTERN u8 *p_RunCrc16ChkInv ;
 
   /* Pointer to FLASH for crc32 run-time tests */
-  __no_init EXTERN u32 *p_RunCrc32Chk       @ "CLASS_B_RAM";
-  __no_init EXTERN u32 *p_RunCrc32ChkInv    @ "CLASS_B_RAM_REV";
+   EXTERN u32 *p_RunCrc32Chk ;
+   EXTERN u32 *p_RunCrc32ChkInv  ;
 
   /* Reference 32-bit CRC for run-time tests */
-  __no_init EXTERN u32 RefCrc32             @ "CLASS_B_RAM";
-  __no_init EXTERN u32 RefCrc32Inv          @ "CLASS_B_RAM_REV";
+   EXTERN u32 RefCrc32  ;
+   EXTERN u32 RefCrc32Inv;
 
   /* Current FLASH 16-bit Crc */
-  __no_init EXTERN u16 CurrentCrc16         @ "CLASS_B_RAM";
-  __no_init EXTERN u16 CurrentCrc16Inv      @ "CLASS_B_RAM_REV";
+   EXTERN u16 CurrentCrc16 ;
+   EXTERN u16 CurrentCrc16Inv ;
 
   /* Magic pattern for Stack overflow in this array */
-  __no_init EXTERN vu32 StackOverFlowPtrn[4] @ "STACK_BOTTOM";
+   EXTERN vu32 StackOverFlowPtrn[4];
 
 #endif  /* __IAR_SYSTEMS_ICC__ */
 

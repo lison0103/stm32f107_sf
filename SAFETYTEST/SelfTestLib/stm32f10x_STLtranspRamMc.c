@@ -21,7 +21,6 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-//#include "stm32f10x_lib.h"
 #include "stm32f10x_STLlib.h"
 #include "stm32f10x_STLclassBvar.h"
 
@@ -125,7 +124,7 @@ ClassBTestStatus RAM_RunCheck(void)
 
       /*---------------------------- STEP 4 --------------------------------- */
       /* Verify background and write inverted background addresses decreasing */
-      pBlock = &RT_RAMBUF_SCRMBL[RT_RAMBUF_BLOCKSIZE-1];
+      pBlock = &RT_RAMBUF_SCRMBL[RT_RAMBUF_BLOCKSIZE-1u];
       do
       {
         if ( *(p_RunTimeRamChk + *pBlock) != BCKGRND)
@@ -139,7 +138,7 @@ ClassBTestStatus RAM_RunCheck(void)
 
       /*---------------------------- STEP 5 --------------------------------- */
       /* Verify inverted background and write background addresses decreasing */
-      pBlock = &RT_RAMBUF_SCRMBL[RT_RAMBUF_BLOCKSIZE-1];
+      pBlock = &RT_RAMBUF_SCRMBL[RT_RAMBUF_BLOCKSIZE-1u];
       do
       {
         if ( *(p_RunTimeRamChk + *pBlock) != INV_BCKGRND)
@@ -192,7 +191,7 @@ ClassBTestStatus RAM_RunCheck(void)
       /* Save the content of the 6 words to be tested and start MarchC-
          Write background with addresses increasing */
       pBlock = &RT_RAM_SCRMBL[0]; /* Takes into account RAM scrambling */
-      i=0;
+      i=0u;
       do
       {
         RunTimeRamBuf[i++] = *(p_RunTimeRamChk + *pBlock);
@@ -231,7 +230,7 @@ ClassBTestStatus RAM_RunCheck(void)
 
       /*---------------------------- STEP 4 --------------------------------- */
       /* Verify background and write inverted background addresses decreasing */
-      pBlock = &RT_RAM_SCRMBL[RT_RAM_BLOCKSIZE-1];
+      pBlock = &RT_RAM_SCRMBL[RT_RAM_BLOCKSIZE-1u];
       do
       {
         if ( *(p_RunTimeRamChk + *pBlock) != BCKGRND)
@@ -245,7 +244,7 @@ ClassBTestStatus RAM_RunCheck(void)
 
       /*---------------------------- STEP 5 --------------------------------- */
       /* Verify inverted background and write background addresses decreasing */
-      pBlock = &RT_RAM_SCRMBL[RT_RAM_BLOCKSIZE-1];
+      pBlock = &RT_RAM_SCRMBL[RT_RAM_BLOCKSIZE-1u];
       do
       {
         if ( *(p_RunTimeRamChk + *pBlock) != INV_BCKGRND)
@@ -261,7 +260,7 @@ ClassBTestStatus RAM_RunCheck(void)
       /* Verify background with addresses increasing */
       /* and restore the content of the 6 tested words */
       pBlock = &RT_RAM_SCRMBL[0];
-      i=0;
+      i=0u;
       do
       {
         if ( *(p_RunTimeRamChk + *pBlock) != BCKGRND)
@@ -277,7 +276,7 @@ ClassBTestStatus RAM_RunCheck(void)
       if ((((u32)p_RunTimeRamChk) ^ ((u32)p_RunTimeRamChkInv)) == 0xFFFFFFFFuL)
       {
         /* Prepare next Row Tranparent RAM test */
-        p_RunTimeRamChk += RT_RAM_BLOCKSIZE- (2*RT_RAM_BLOCK_OVERLAP);
+        p_RunTimeRamChk += RT_RAM_BLOCKSIZE- (2u*RT_RAM_BLOCK_OVERLAP);
         p_RunTimeRamChkInv = (u32 *)(~((u32)p_RunTimeRamChk));
 
         if (Result != TEST_RUNNING)
@@ -286,7 +285,7 @@ ClassBTestStatus RAM_RunCheck(void)
         }
         else
         {
-          // Do nothing: keep Result as TEST_RUNNING;
+          /* Do nothing: keep Result as TEST_RUNNING;*/
         }
       }
       else  /* Class B error on p_RunTimeRamChk when exiting the function*/
