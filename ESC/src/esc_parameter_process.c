@@ -224,6 +224,7 @@ static void get_para_from_usb(void)
                 Modbuff[1100u + i] = paradata[i];
             } 
             
+            delay_ms(5u);
             /* 8. Parametrization Loading Finished. Send Finish message to CPU2 */
             Send_State_Message( MESSAGE_TO_CPU, PARAMETER_LOADED_FINSH, NULL, 0u );
         }

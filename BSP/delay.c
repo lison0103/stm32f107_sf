@@ -129,6 +129,7 @@ void delay_ms(u16 nms)
 *******************************************************************************/
 void Delay_Init(void)	 
 {
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM3 , ENABLE);
     TIM3_Int_Init(65535u, 71u);
 }	
 

@@ -173,8 +173,8 @@ static void GeneralRegister_StartupCheck(void)
 static void IWDTCheck(void)
 {
     CtrlFlowCnt += WDG_TEST_CALLER;
-/*    STL_WDGSelfTest();
-    EWDT_TOOGLE();*/
+    STL_WDGSelfTest();
+    EWDT_TOOGLE();
     CtrlFlowCntInv -= WDG_TEST_CALLER;
 
 }
@@ -311,7 +311,6 @@ static void Stack_StartupCheck(void)
 }
 
 
-
 /*******************************************************************************
 * Function Name  : Safety_StartupCheck1
 * Description    : Contains the very first test routines executed right after
@@ -335,7 +334,7 @@ void Safety_StartupCheck1(void)
   /*--------------------------- EWDT check -----------------------------------*/  
   /*--------------------------------------------------------------------------*/ 
   EWDT_Drv_pin_config();
-/*  ExtWdtCheck(); */
+  ExtWdtCheck(); 
   
   /*--------------------------------------------------------------------------*/
   /*------------------- CPU registers and Flags Self Test --------------------*/
@@ -698,7 +697,7 @@ static ErrorStatus RCC_SwitchOffPLL(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void STL_WDGSelfTest(void)
+static void STL_WDGSelfTest(void)
 {
   #ifdef STL_VERBOSE_POR
     if (RCC_GetFlagStatus(RCC_FLAG_PINRST) == SET) printf("Pin reset \r\n");
@@ -735,7 +734,11 @@ void STL_WDGSelfTest(void)
     RCC_ClearFlag();        /* Clear all flags before reuming test */
     /* Wait for an independant watchdog reset */
     /* set the flag,don't check the ewdt */
-    iwdg_check_flag = 1u;
+#ifdef GEC_SF_S_NEW
+    write_bkp(RTC_BKP_DR2, 1u);  
+#else
+    write_bkp(BKP_DR2, 1u);
+#endif 
     while(1)
     {}
   }
@@ -770,7 +773,11 @@ void STL_WDGSelfTest(void)
         
         
 /*          RCC_ClearFlag();*/
-          iwdg_check_flag = 0u;
+#ifdef GEC_SF_S_NEW
+          write_bkp(RTC_BKP_DR2, 0u);  
+#else
+          write_bkp(BKP_DR2, 0u);
+#endif 
           #ifdef STL_VERBOSE_POR
             printf("... WWDG reset, WDG test completed ... \r\n");
           #endif  /* STL_VERBOSE_POR */

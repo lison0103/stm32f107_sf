@@ -32,7 +32,7 @@
 void Safety_StartupCheck1(void);
 void FailSafe(void);
 void FailSafeCPU(void);
-void STL_WDGSelfTest(void);
+static void STL_WDGSelfTest(void);
 
 
 #endif /* __SELF_TEST_START_UP_H */

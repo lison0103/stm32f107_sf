@@ -131,9 +131,10 @@ void ESC_EWDT_Error_Process(void)
     /** Disconnect the safety relay **/
     SF_RL_CTR_CLR();
     SF_RL_WDT_CLR();
-   
+/*   
     while(1)
     {
+*/    
         /** In the error handling routine in an infinite loop **/
           /**  Wait manual reset fault **/
 /*        
@@ -143,9 +144,9 @@ void ESC_EWDT_Error_Process(void)
                 NVIC_SystemReset();
           
           }
-*/        
+      
     }
-
+*/  
 }
 
 

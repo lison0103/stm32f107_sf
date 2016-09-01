@@ -27,8 +27,7 @@
 /* Exported functions ------------------------------------------------------- */
 void ExtWdtCheck(void);
 void EWDT_Drv_pin_config(void);
-
-extern u8 iwdg_check_flag;
+void write_bkp(u32 adr,u32 dat);
 
 #endif  /* __EWDT_H */
 

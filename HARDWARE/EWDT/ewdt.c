@@ -12,6 +12,7 @@
 #include "delay.h"
 #include "ewdt.h"
 #include "esc_error_process.h"
+#include "config_test.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -19,9 +20,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void write_bkp(u32 adr,u32 dat);
 
-u8 iwdg_check_flag = 0u;
 
 /*******************************************************************************
 * Function Name  : EWDT_Drv_pin_config
@@ -93,14 +92,23 @@ void write_bkp(u32 adr,u32 dat)
 *******************************************************************************/
 void ExtWdtCheck(void)
 {
+    u32 iwdg_check_flag = 0u;
 #ifdef GEC_SF_S_NEW    
-  u32 bkr_rst_flag = 0u;
+    u32 bkr_rst_flag = 0u;
 #else
-  u16 bkr_rst_flag = 0u;  
+    u16 bkr_rst_flag = 0u;  
 #endif
   
+#ifdef GEC_SF_S_NEW
+      iwdg_check_flag = RTC_ReadBackupRegister(RTC_BKP_DR2);
+#else
+      iwdg_check_flag = BKP_ReadBackupRegister(BKP_DR2);
+#endif
   if( iwdg_check_flag == 0u )
   {
+      RCC_Configuration_72M();
+      Delay_Init();
+      
       delay_ms(10u); 
       EWDT_TOOGLE();
       delay_ms(10u);    
