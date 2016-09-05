@@ -3,6 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
+* Last modify date   : 09/05/2016
 * Description        : This file contains esc parameters.
 *			          
 *******************************************************************************/
@@ -19,6 +20,15 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* ESC STATE */
+#define ESC_INIT_STATE                   ((u16)0x0001)
+#define ESC_FAULT_STATE                 ((u16)0x0002)
+#define ESC_READY_STATE                  ((u16)0x0004)
+#define ESC_STARTING_PROCESS_STATE        ((u16)0x0008)
+#define ESC_RUN_STATE                    ((u16)0x0010)
+#define ESC_STOPPING_PROCESS_STATE        ((u16)0x0020)
+#define ESC_INTERM_STATE                 ((u16)0x0040)
+
+/* old */
 #define ESC_STATE_STOP        ((u16)0x0001)
 #define ESC_STATE_INSP        ((u16)0x0002)
 #define ESC_STATE_RUN         ((u16)0x0004)
@@ -26,7 +36,7 @@
 #define ESC_STATE_SLOW        ((u16)0x0010)
 #define ESC_STATE_INTT        ((u16)0x0020)
 #define ESC_STATE_SPEEDUP     ((u16)0x0040)
-#define ESC_STATE_RUN5S       ((u16)0x0080)
+#define ESC_RUN_STATE5S       ((u16)0x0080)
 #define ESC_STATE_UP          ((u16)0x0100)
 #define ESC_STATE_DOWN        ((u16)0x0200)
 #define ESC_STATE_READY       ((u16)0x0400)
@@ -145,33 +155,54 @@
 #define         TandemMessageRunAllowed         EscRTBuff[91]
 #define         Tandemoutput                    EscRTBuff[92]
 
-typedef struct mtrfreqitem 
+typedef struct motorspeeditem 
 {    
+    /* Measure 1s pulse time counter */
     u8 Tms_counter;      
-    u8 MtrSpeedHigh115Cnt;  
     
-    volatile u16 rt_pulse;  			
-    u16 pulseArray[20]; 					      
+    /* motor speed real time pulse */
+    volatile u16 rt_pulse;  
+    
+    /* record 100ms motor speed pulse count */
+    u16 pulseArray[20]; 					                  
+    
+    /* Escalator speed */
+    u16 *const ptFreqBuff;   
+    
+    /* record motor speed error code */
+    u8 *const pcErrorCodeBuff;   
+    
+    /* motor speed overspeed pulse not ok counter */
+    u8 NotOkCounter;
+    
+    /* motor speed overspeed pulse ok counter */
+    u8 OkCounter;
+    
+    /* motor between pulse time */
+    u32 TimerMotorSpeedBetweenPulse[10];
+    
+    /* motor between pulse counter */
+    u8 between_pulse_counter;
+    
+    /* Sensor use timer init */
+    void (*Timer_Init)(u16 p1,u16 p2);
+    
+    /* Sensor use timer number */
+    TIM_TypeDef* TimerNum;
+  
+    /* Brake distance */
+    u16 *const ptBrakeDistanceBuff;
     
     u16 BrakeCalTms;
-    volatile u16 rt_brake_pulse;             
-    
-    
-    u16 *const ptFreqBuff;  					              
-    u16 *const ptBrakeDistanceBuff;	    
-    
-    u16 PulseCalCounter;
-    u16 PulseCalArray[12];
-    
-    volatile u16 SensorPulse;
+    volatile u16 rt_brake_pulse;     
     
     u16 delay_no_pulse_tms;
     u16 last_brake_pulse;
-    u16 rt_brake_stop ;
+    u16 rt_brake_stop ;    
     
-    u8 *const pcErrorCodeBuff;   
-    
-}MTRFREQITEM;
+}MotorSpeedItem;
+
+
 
 typedef struct hdlitem 
 {
@@ -208,7 +239,7 @@ typedef struct stepmissingitem
 /* Exported functions ------------------------------------------------------- */
 
 extern u16 SfBase_EscState;
-extern MTRFREQITEM MTRITEM[2];
+extern MotorSpeedItem MTRITEM[2];
 extern u8 EscRTBuff[200];
 extern u8 McRxBuff[1000];
 extern HDLITEM HDL_Right;

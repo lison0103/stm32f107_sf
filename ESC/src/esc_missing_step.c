@@ -3,6 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/10/2016
+* Last modify date   : 09/05/2016
 * Description        : This file contains esc missing step check.
 *                      
 *******************************************************************************/
@@ -66,7 +67,7 @@ STEPMISSINGITEM STPMS_LOWER=
 static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
 {      
     /* System in Ready or 0Hz state */
-    if( SfBase_EscState & ESC_STATE_READY ) 
+    if( SfBase_EscState & ESC_READY_STATE ) 
     {                
         psSTPMS->ms_ready_delay++;
         
@@ -99,7 +100,7 @@ static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
 static void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
 {
     /* System in Run */
-    if( SfBase_EscState & ESC_STATE_RUN )
+    if( SfBase_EscState & ESC_RUN_STATE )
     {       
         /* First_entry_missing_step_detection == 0? */
         if( psSTPMS->First_entry_missing_step_detection == 0u )
@@ -186,7 +187,7 @@ static void Missing_Step_UpperLower_SyncRun(void)
 {
     static u8 stat_u8UpperMissingStepCounter = 0u,stat_u8LowerMissingStepCounter = 0u;    
     
-    if( SfBase_EscState & ESC_STATE_RUN )
+    if( SfBase_EscState & ESC_RUN_STATE )
     {  
         if( g_u8FirstMissingStepSyncEntry == 0u )
         {
@@ -238,7 +239,7 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
 {
     static u32 stat_u32TimerMissingStepShortcircuit = 0u;
     
-    if( SfBase_EscState & ESC_STATE_RUN )
+    if( SfBase_EscState & ESC_RUN_STATE )
     {  
         if( g_u8FirstMissingStepEdgeDetected == 0u )
         {
@@ -285,7 +286,7 @@ void ESC_Missingstep_Check(void)
   Missing_Step_Ready(&STPMS_LOWER);		
  
   /* esc turn to run state, init */
-  if((SfBase_EscState & ESC_STATE_RUN) && (!(stat_u16EscStateOld & ESC_STATE_RUN))) 
+  if((SfBase_EscState & ESC_RUN_STATE) && (!(stat_u16EscStateOld & ESC_RUN_STATE))) 
   { 
       STPMS_UPPER.First_entry_missing_step_detection = 0u;
       STPMS_LOWER.First_entry_missing_step_detection = 0u;

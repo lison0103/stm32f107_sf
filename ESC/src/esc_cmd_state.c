@@ -23,6 +23,7 @@ void en_key_check(void);
 void run_key_check(void);
 void CheckUpDown_Key(void);
 
+u16 SfBase_EscState = ESC_READY_STATE;
 
 /*******************************************************************************
 * Function Name  : CheckUpDown_Key
@@ -285,7 +286,7 @@ void sfEscStateCheck(void)
     u8 i;
     
     
-    if( (SfBase_EscState & ESC_STATE_READY) )
+    if( (SfBase_EscState & ESC_READY_STATE) )
     {
         key_on = 1u;
     }
@@ -296,9 +297,9 @@ void sfEscStateCheck(void)
     if( (CMD_FLAG1 & 0x0cu) && (CMD_OMC_FLAG1 & 0x0cu) && ( key_on == 1u ) )
     {
         SfBase_EscState &= (u16)(~ESC_STATE_STOP);
-        SfBase_EscState &= (u16)(~ESC_STATE_READY);
+        SfBase_EscState &= (u16)(~ESC_READY_STATE);
         
-        SfBase_EscState |= ESC_STATE_RUN;
+        SfBase_EscState |= ESC_RUN_STATE;
         
         SfBase_EscState |= ESC_STATE_NORMAL;
         
@@ -309,7 +310,7 @@ void sfEscStateCheck(void)
         
         if( (sf_running_tms * SYSTEMTICK) > UNDERSPEED_TIME )
         {
-            SfBase_EscState |= ESC_STATE_RUN5S;
+            SfBase_EscState |= ESC_RUN_STATE5S;
         }
         else
         {
@@ -322,9 +323,9 @@ void sfEscStateCheck(void)
     }
     else
     {
-        SfBase_EscState &= (u16)(~ESC_STATE_RUN);
+        SfBase_EscState &= (u16)(~ESC_RUN_STATE);
         SfBase_EscState &= (u16)(~ESC_STATE_SPEEDUP);
-        SfBase_EscState &= (u16)(~ESC_STATE_RUN5S);
+        SfBase_EscState &= (u16)(~ESC_RUN_STATE5S);
         
         SfBase_EscState &= (u16)(~ESC_STATE_NORMAL);
         
@@ -334,7 +335,7 @@ void sfEscStateCheck(void)
         
         if(( (sf_stopping_tms * SYSTEMTICK) > 3000u ) && (MTRITEM[0].rt_brake_stop == 1u) && (MTRITEM[1].rt_brake_stop == 1u) )
         {
-            SfBase_EscState |= ESC_STATE_READY;
+            SfBase_EscState |= ESC_READY_STATE;
         }
         else
         {        

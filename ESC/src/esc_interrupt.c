@@ -3,6 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
+* Last modify date   : 09/05/2016
 * Description        : This file contains esc interrupt process function.
 *                      
 *******************************************************************************/
@@ -32,16 +33,15 @@
 * Return         : None
 *******************************************************************************/
 void mtr_X1_int(void)
-{
-    MTRITEM[0].SensorPulse++;    
+{   
     MTRITEM[0].rt_pulse++; 			
     MTRITEM[0].rt_brake_pulse++; 
-    MTRITEM[0].PulseCalCounter++;
     
 #ifdef GEC_SF_MASTER      
     STPMS_UPPER.MtrPulse++;
     STPMS_LOWER.MtrPulse++;
 #endif
+    Measure_motor_between_pulse(&MTRITEM[0]);
     Motor_Speed_1_2_Shortcircuit_Run();
 }
 
@@ -53,18 +53,15 @@ void mtr_X1_int(void)
 * Return         : None
 *******************************************************************************/
 void mtr_X2_int(void)
-{
-  
-    MTRITEM[1].SensorPulse++;    
+{   
     MTRITEM[1].rt_pulse++; 	
     MTRITEM[1].rt_brake_pulse++; 
-    MTRITEM[1].PulseCalCounter++;
     
 #ifndef GEC_SF_MASTER  
     STPMS_UPPER.MtrPulse++;
     STPMS_LOWER.MtrPulse++;
 #endif
-    
+    Measure_motor_between_pulse(&MTRITEM[1]);
     Motor_Speed_1_2_Shortcircuit_Run();
 }
 

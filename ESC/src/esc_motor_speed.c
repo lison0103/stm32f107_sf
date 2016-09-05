@@ -3,7 +3,8 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
-* Description        : This file contains esc motor speed.
+* Last modify date   : 09/05/2016
+* Description        : This file contains esc motor speed and brake distance.
 *                      
 *******************************************************************************/
 
@@ -17,58 +18,61 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+static u8 g_u8FirstMotorSpeedEdgeDetected = 0u; 
+static u32 g_u32TimeRuningTms = 0u;
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-static u16 Measure_motor_speed(MTRFREQITEM* ptMTR);
-static void Motor_Speed_Ready(MTRFREQITEM* ptMTR);
-static void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR);
-static void Check_Stopping_Distance(MTRFREQITEM* ptMTR);
+static u16 Measure_motor_speed(MotorSpeedItem* ptMTR);
+static void Motor_Speed_Ready(MotorSpeedItem* ptMTR);
+static void Motor_Speed_Run_EN115(MotorSpeedItem* ptMTR);
+static void Check_Stopping_Distance(MotorSpeedItem* ptMTR);
 
 
-/* variable */
-u32 time_running_tms = 0u;
-u16 SfBase_EscState = ESC_STATE_READY;;
-static u8 First_motorspeed_edge_detected = 0u;
-
-
-MTRFREQITEM MTRITEM[2]=
+MotorSpeedItem MTRITEM[2]=
 {
     {
-        0,0,
-        
-        0,   
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, 
-        
-        0,0,
-        
+        /* motor speed 1 */
+        0,
+        0,    
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},                 
         (u16*)&EscRTBuff[40], 
-        (u16*)&EscRTBuff[44],  
+        &EscRTBuff[48],
+        0,
+        0,
+        {0,0,0,0,0,0,0,0,0,0},
+        0,
+        TIM1_Int_Init,
+        TIM1,
         
+        /* brake distance */
+        (u16*)&EscRTBuff[44],
         0,
-        {0,0,0,0,0,0,0,0,0,0,0,0},
-        0,
-        0,0,1,
-        &EscRTBuff[48]
+        0,   
+        0,0,1
     },
     {
-        0,0,
-        
-        0,  
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}, 
-        
-        0,0,
-        
+        /* motor speed 2 */
+        0,
+        0,    
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
         (u16*)&EscRTBuff[42], 
-        (u16*)&EscRTBuff[46],  
-        
+        &EscRTBuff[49],
         0,
-        {0,0,0,0,0,0,0,0,0,0,0,0},
         0,
-        0,0,1,
-        &EscRTBuff[49]
+        {0,0,0,0,0,0,0,0,0,0},
+        0,
+        TIM2_Int_Init,
+        TIM2,
+            
+        /* brake distance */
+        (u16*)&EscRTBuff[46],
+        0,
+        0,   
+        0,0,1            
+            
     }
 };
-
 
 
 
@@ -79,14 +83,12 @@ MTRFREQITEM MTRITEM[2]=
 * Output         : None
 * Return         : None
 *******************************************************************************/
-static void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
+static void Motor_Speed_Ready(MotorSpeedItem* ptMTR)
 {
-
     u16 Escalator_speed = 0u;
     
-    if( SfBase_EscState & ESC_STATE_READY ) 
-    {
-               
+    if( SfBase_EscState & ESC_READY_STATE ) 
+    {              
         Escalator_speed = Measure_motor_speed(ptMTR);
         
         if( Escalator_speed > 1u )
@@ -96,8 +98,6 @@ static void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
             EN_ERROR1 |= 0x01u;
         }            
     } 
-    
-
 }
 
 
@@ -108,59 +108,99 @@ static void Motor_Speed_Ready(MTRFREQITEM* ptMTR)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-static void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
+static void Motor_Speed_Run_EN115(MotorSpeedItem* ptMTR)
 {
     
     u16 Escalator_speed = 0u;
-    	
-
-    if( ( SfBase_EscState & ESC_STATE_RUN ) || ( (SfBase_EscState & ESC_STATE_STOP) && (!(SfBase_EscState & ESC_STATE_READY))))
+    u8 i;	
+    
+    if( ( SfBase_EscState & ESC_RUN_STATE ) || ( SfBase_EscState & ESC_STOPPING_PROCESS_STATE ))
     {      
-               
-        
+                
+        g_u32TimeRuningTms++;
         Escalator_speed = Measure_motor_speed(ptMTR);
+        
+        /* for debug */
         MTR_MAX_SPEED = MAX_SPEED;
         MTR_MIN_SPEED = MIN_SPEED;
         
-        if( Escalator_speed >= MAX_SPEED )
-        {
 
-            if( ptMTR->MtrSpeedHigh115Cnt >= 5u )
+        for( i = 0u; i < ptMTR->between_pulse_counter; i++ )
+        {
+            /* judge overspeed */
+            if( ptMTR->TimerMotorSpeedBetweenPulse[i] < ( 1000000u / MAX_SPEED ))
             {
-                /* overspeed fault */
-                *(ptMTR->pcErrorCodeBuff) |= 0x02u;
-                EN_ERROR1 |= 0x02u;
-            } 
+                ptMTR->NotOkCounter++;
+                ptMTR->OkCounter = 0u;
+                if( ptMTR->NotOkCounter >= 5u )
+                {
+                    /* overspeed fault */
+                    EN_ERROR1 |= 0x02u;
+                    /* reset timer */
+                    g_u32TimeRuningTms = 0u;
+                }
+            }
             else
             {
-                ptMTR->MtrSpeedHigh115Cnt++;
-            }  
-           
-        }
-        else
-        {
-            
-            ptMTR->MtrSpeedHigh115Cnt = 0u;
-            
-            if( SfBase_EscState & ESC_STATE_RUN5S )
-            {
-                if( Escalator_speed <= MIN_SPEED )
+                ptMTR->OkCounter++;
+                if( ptMTR->OkCounter >= 10u )
                 {
-                    /* underspeed fault */
-                    *(ptMTR->pcErrorCodeBuff) |= 0x04u;
-                    EN_ERROR1 |= 0x04u;
+                    ptMTR->NotOkCounter = 0u;
                 }
-            }            
+            }
+            
+            /* judge underspeed */
+            if( ptMTR->NotOkCounter < 5u )
+            {
+                if( ( g_u32TimeRuningTms * SYSTEMTICK ) > UNDERSPEED_TIME )
+                {
+                    if( ptMTR->TimerMotorSpeedBetweenPulse[i] > ( 1000000u / MIN_SPEED ))
+                    {
+                        /* underspeed fault */
+                        EN_ERROR1 |= 0x04u; 
+                        /* reset timer */
+                        g_u32TimeRuningTms = 0u;
+                    }
+                    else
+                    {
+                        /* if no motor pulse */
+                        if( TIM_GetCounter(ptMTR->TimerNum) > ( 1000000u / MIN_SPEED ))
+                        {
+                            /* underspeed fault */
+                            EN_ERROR1 |= 0x04u; 
+                            /* reset timer */
+                            g_u32TimeRuningTms = 0u;
+                        }
+                    }
+                }
+            }
+            
+            ptMTR->TimerMotorSpeedBetweenPulse[i] = 0u;          
         }
         
-
-     
+        ptMTR->between_pulse_counter = 0u;
         
-        /* record the escalator speed */
-        *ptMTR->ptFreqBuff = Escalator_speed;   
-
-    }
+    } 
     
+    /* record the escalator speed */
+    *ptMTR->ptFreqBuff = Escalator_speed;   
+
+}
+
+/*******************************************************************************
+* Function Name  : Measure_motor_between_pulse
+* Description    : Measure the escalator motor between pulse.
+* Input          : ptMTR: motor speed sensor id            
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Measure_motor_between_pulse(MotorSpeedItem* ptMTR)
+{
+        /* Get between two pulse Timer counter */
+        ptMTR->TimerMotorSpeedBetweenPulse[ptMTR->between_pulse_counter] = TIM_GetCounter(ptMTR->TimerNum);
+        /* Clear the Timer counter */
+        TIM_SetCounter(ptMTR->TimerNum, 0u); 
+        ptMTR->between_pulse_counter++;      
 }
 
 /*******************************************************************************
@@ -170,34 +210,35 @@ static void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
 * Output         : None
 * Return         : current motor speed pulse
 *******************************************************************************/
-static u16 Measure_motor_speed(MTRFREQITEM* ptMTR)
+static u16 Measure_motor_speed(MotorSpeedItem* ptMTR)
 {
-    u16 current_motor_speed_sensor,i = 0u;
-    u8 timeDelayCnt = 100u;    
-     
+    u16 u16CurrentMotorSpeedSensor = 0u;
+    u8 u8TimeDelayCnt = 100u;
+    u8 i;
     
     /* 20 * 5 = 100ms */
     ptMTR->Tms_counter++;
-    if( ( ptMTR->Tms_counter * SYSTEMTICK ) >= timeDelayCnt) 
-    { 
-        ptMTR->Tms_counter = 0u; 
+    if( ( ptMTR->Tms_counter * SYSTEMTICK ) >= u8TimeDelayCnt )
+    {
+        ptMTR->Tms_counter = 0u;
         
-        for( i = 9u; i > 0u; i-- )                                                   
-        {   
+        for( i = 9u; i > 0u; i-- )                                                         
+        {
             ptMTR->pulseArray[i] = ptMTR->pulseArray[i - 1u];
         }
         ptMTR->pulseArray[0] = ptMTR->rt_pulse;
         ptMTR->rt_pulse = 0u;
         
     }
-    current_motor_speed_sensor = 0u;
+    u16CurrentMotorSpeedSensor = 0u;
+    
     /* 100ms * 10 = 1s */
-    for( i = 0u; i < 10u; i++ ) 
+    for( i = 0u; i < 10u; i++ )
     {
-        current_motor_speed_sensor += ptMTR->pulseArray[i];
-    }      
-
-    return current_motor_speed_sensor;
+        u16CurrentMotorSpeedSensor += ptMTR->pulseArray[i];
+    }
+    
+    return u16CurrentMotorSpeedSensor;
 }
 
 /*******************************************************************************
@@ -209,25 +250,23 @@ static u16 Measure_motor_speed(MTRFREQITEM* ptMTR)
 *******************************************************************************/
 void Motor_Speed_1_2_Shortcircuit_Run(void)
 {
-    static u32 Timer_motorspeed_shortcircuit = 0u;
-
-    
-    if( SfBase_EscState & ESC_STATE_RUN )
+    static u32 stat_u32TimerMotorSpeedShortCircuit = 0u;
+   
+    if( SfBase_EscState & ESC_RUN_STATE )
     {  
-        if( First_motorspeed_edge_detected == 0u )
+        if( g_u8FirstMotorSpeedEdgeDetected == 0u )
         {
-            First_motorspeed_edge_detected = 1u;
-            Timer_motorspeed_shortcircuit = 0u;
+            g_u8FirstMotorSpeedEdgeDetected = 1u;
+            stat_u32TimerMotorSpeedShortCircuit = 0u;
             TIM_Cmd(TIM5, DISABLE);
-            TIM5_Int_Init(65535u,71u);
-            
+            TIM5_Int_Init(65535u,71u);           
         }    
         else
         {
-            Timer_motorspeed_shortcircuit = TIM_GetCounter(TIM5);
-            if( Timer_motorspeed_shortcircuit < SSM_SHORTCIRCUIT_TIME )
+            stat_u32TimerMotorSpeedShortCircuit = TIM_GetCounter(TIM5);
+            if( stat_u32TimerMotorSpeedShortCircuit < SSM_SHORTCIRCUIT_TIME )
             {
-                Timer_motorspeed_shortcircuit = 0u;               
+                stat_u32TimerMotorSpeedShortCircuit = 0u;               
                 TIM_SetCounter(TIM5,0u); 
                 
                 /* Fault ¨C Motorspeed Sensor shortcircuited */
@@ -236,15 +275,13 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
             }
             else
             {
-                Timer_motorspeed_shortcircuit = 0u;             
+                stat_u32TimerMotorSpeedShortCircuit = 0u;             
                 TIM_SetCounter(TIM5,0u);  
                 
                 SHORTCIRCUIT_ERROR &= ~0x01u;
             }
         }
     }
-
-
 }
 
 /*******************************************************************************
@@ -254,10 +291,10 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-static void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
+static void Check_Stopping_Distance(MotorSpeedItem* ptMTR)
 {   
     
-    if((SfBase_EscState & ESC_STATE_STOP ) && ( ptMTR->rt_brake_stop == 0u )) 
+    if((SfBase_EscState & ESC_STOPPING_PROCESS_STATE ) && ( ptMTR->rt_brake_stop == 0u )) 
     {
         if((ptMTR->rt_brake_pulse) > MAX_DISTANCE)
         {
@@ -302,34 +339,44 @@ static void Check_Stopping_Distance(MTRFREQITEM* ptMTR)
 
 /*******************************************************************************
 * Function Name  : ESC_Motor_Check
-* Description    : Esc motor speed check.
+* Description    : Esc motor speed and brake distance check.
 * Input          : None               
 * Output         : None
 * Return         : None
 *******************************************************************************/
 void ESC_Motor_Check(void)
 {
-    static u16 escState_old = ESC_STATE_STOP; 
+    static u16 stat_u16EscStateOld = ESC_STATE_STOP; 
     
     
     Motor_Speed_Ready(&MTRITEM[0]);
     Motor_Speed_Ready(&MTRITEM[1]);		
     
-    if((SfBase_EscState & ESC_STATE_RUN) && (!(escState_old & ESC_STATE_RUN))) 
+    if((SfBase_EscState & ESC_RUN_STATE) && (!(stat_u16EscStateOld & ESC_RUN_STATE))) 
     { 
-        First_motorspeed_edge_detected = 0u;
-    } 
-    else if(( SfBase_EscState & ESC_STATE_STOP ) && ( !(escState_old & ESC_STATE_STOP)))
-    {
-        MTRITEM[0].last_brake_pulse = MTRITEM[0].rt_brake_pulse;
-        MTRITEM[1].last_brake_pulse = MTRITEM[1].rt_brake_pulse;
-        MTRITEM[0].rt_brake_stop = 0u;
-        MTRITEM[1].rt_brake_stop = 0u;
+        g_u8FirstMotorSpeedEdgeDetected = 0u;
+        g_u32TimeRuningTms = 0u;
+        
+        /* Clear motor between pulse counter */
+        MTRITEM[0].between_pulse_counter = 0u;
+        MTRITEM[1].between_pulse_counter = 0u;
+        
+        /* Timer init, counter is 1us */
+        TIM_Cmd(MTRITEM[0].TimerNum, DISABLE);
+        TIM_Cmd(MTRITEM[1].TimerNum, DISABLE);
+        MTRITEM[0].Timer_Init(65535u, 71u);
+        MTRITEM[1].Timer_Init(65535u, 71u);
     } 
     else
-    {
-      
-    }
+    {        
+        if(( SfBase_EscState & ESC_STOPPING_PROCESS_STATE ) && ( !(stat_u16EscStateOld & ESC_STOPPING_PROCESS_STATE)))
+        {
+            MTRITEM[0].last_brake_pulse = MTRITEM[0].rt_brake_pulse;
+            MTRITEM[1].last_brake_pulse = MTRITEM[1].rt_brake_pulse;
+            MTRITEM[0].rt_brake_stop = 0u;
+            MTRITEM[1].rt_brake_stop = 0u;
+        }            
+    }   
     
     Motor_Speed_Run_EN115(&MTRITEM[0]);
     Motor_Speed_Run_EN115(&MTRITEM[1]);
@@ -338,7 +385,7 @@ void ESC_Motor_Check(void)
     Check_Stopping_Distance(&MTRITEM[1]);
     
     
-    escState_old = SfBase_EscState;                                      
+    stat_u16EscStateOld = SfBase_EscState;                                      
 
 }
 

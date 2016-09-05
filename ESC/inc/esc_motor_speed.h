@@ -3,7 +3,8 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
-* Description        : This file contains prototype of esc motor speed.
+* Last modify date   : 09/05/2016
+* Description        : This file contains prototype of esc motor speed and brake distance.
 *			          
 *******************************************************************************/
 
@@ -20,7 +21,7 @@
 #define F1      ( ( MOTOR_RPM * MOTOR_PLUSE_PER_REV ) / 60u )
 
 /* motor speed */
-#define MAX_SPEED       ( ( F1 * 115u ) / 100u )
+#define MAX_SPEED       ( ( F1 * 118u ) / 100u )
 #define MIN_SPEED       ( ( F1 * 10u ) / 100u )
 
 /* stopping distance */
@@ -30,7 +31,7 @@
 /* Exported functions ------------------------------------------------------- */
 void Motor_Speed_1_2_Shortcircuit_Run(void);
 void ESC_Motor_Check(void);
-
+void Measure_motor_between_pulse(MotorSpeedItem* ptMTR);
 
 #endif  /* __ESC_MOTOR_SPEED_H */
 

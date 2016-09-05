@@ -181,11 +181,11 @@ static void TandemOutput(void)
 void ESC_Tandem_Check(void)
 {
 
-    if( SfBase_EscState & ESC_STATE_READY )
+    if( SfBase_EscState & ESC_READY_STATE )
     {
         CheckTandemReady();
     }
-    else if(SfBase_EscState & ESC_STATE_RUN)
+    else if(SfBase_EscState & ESC_RUN_STATE)
     {
         CheckTandemRun();
         TandemOutput();
