@@ -31,7 +31,6 @@ static void PVD_Configuration(void);
 static void SysTickTimerInit(void);
 #ifdef GEC_SF_MASTER
 static void ExtCommDeviceInit(void);
-/*static void PluseOutputInit(void);*/
 #endif
 static void Data_init(void);
 
@@ -102,10 +101,7 @@ void Initial_Device(void)
         
         
         /* ADC init, measure the sf_in voltage */
-        Adc_Init();
-        
-        /** PWM output test **/
-/*        PluseOutputInit();*/
+        Adc_Init();       
         
 #else
         
@@ -182,27 +178,7 @@ static void ExtCommDeviceInit(void)
     USART2_Init();   
 }
 #endif
-/*******************************************************************************
-* Function Name  : PluseOutputInit
-* Description    : Initialization the pluse output.
-*                  For test.
-* Input          : None
-*                 
-* Output         : None
-* Return         : None
-*******************************************************************************/
-/*#ifdef GEC_SF_MASTER*/
-#if 0
-static void PluseOutputInit(void)
-{
-  
-    /** TIM init 1MHZ, counting to 1000 is 1KZ **/
-    TIM1_PWM_Init(999u,71u); 
-    
-    /* Set the Duty Cycle, accoring to the arr value, 1/2 arr is 50% duty cycle */
-    TIM_SetCompare3(TIM1,780u);
-}
-#endif
+
 /*******************************************************************************
 * Function Name  : SysTickTimerInit
 * Description    : Initialization the systick timer.

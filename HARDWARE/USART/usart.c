@@ -13,325 +13,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-static void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *buff,uint32_t dir,uint32_t len);
-static void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff);
-void USART1_IRQHandler(void);
-void USART2_IRQHandler(void);
-void USART3_IRQHandler(void);
-static void NVIC_Configuration_Usart(USART_TypeDef* USARTx);
-
-#ifdef USING_USART3_OVERTIME
-static int32_t USART3_ReceiveTimeCounter = 0;
-uint8_t USART3_receive_buf[USART3_BUF_SIZE],USART3_ready_buf[USART3_BUF_SIZE];
-__IO uint16_t USART3_receive_index=0; 
-__IO uint8_t USART3_ready_buf_ok = 0;
-__IO uint16_t USART3_ready_buf_len=0;
-#endif
-
-
-
-
-#ifdef USING_USART3_OVERTIME
-
-
-/*******************************************************************************
-* Function Name  : BSP_USART_Init
-* Description    : Initialization usart.
-*                  
-* Input          : USARTx: USART1,USART2 or USART3
-*                  baud: Baud rate
-*                  Parity: Parity check
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void BSP_USART_Init(USART_TypeDef* USARTx, uint32_t baud, uint16_t Parity) 
-{
-  USART_InitTypeDef   USART_InitStruct;
-
-  switch (*(uint32_t*)&USARTx)
-  {
-
-    case USART3_BASE:
-      RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3 , ENABLE); 
-  		break;
-  }
-
-  USART_StructInit(&USART_InitStruct); 
-  USART_InitStruct.USART_BaudRate = baud;
-  USART_InitStruct.USART_WordLength = USART_WordLength_8b;
-  USART_InitStruct.USART_StopBits = USART_StopBits_1;
-  USART_InitStruct.USART_Parity = Parity;
-  USART_InitStruct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-  USART_InitStruct.USART_HardwareFlowControl =USART_HardwareFlowControl_None; 
-  USART_Init(USARTx , &USART_InitStruct); 
-} 
-
-/*******************************************************************************
-* Function Name  : NVIC_Configuration_Usart
-* Description    : Configuring usart interrupt group.                 
-* Input          : USARTx: USART1,USART2 or USART3
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void NVIC_Configuration_Usart(USART_TypeDef* USARTx)
-{
-  NVIC_InitTypeDef NVIC_InitStructure;
-
-  switch (*(uint32_t*)&USARTx)
-  {
-
-    default:
-      NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
-      
-      break;
-  }
-  
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
-  /* Enable the USARTy Interrupt */  
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-}
-
-/*******************************************************************************
-* Function Name  : USART3_Init
-* Description    : Initialization usart3.                
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void USART3_Init(void)
-{
-
-	GPIO_InitTypeDef GPIO_InitStruct;					
-
-#ifdef GEC_SF_MASTER 
-#if DEBUG_PRINTF
-        
-        GPIO_PinRemapConfig(GPIO_FullRemap_USART3, ENABLE);
-        
-        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_8;
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; 
-        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-        GPIO_Init(GPIOD , &GPIO_InitStruct);
-              
-        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-        GPIO_Init(GPIOD , &GPIO_InitStruct);
-        
-        BSP_USART_Init(USART3, 115200, USART_Parity_No);
-        USART_Cmd(USART3,ENABLE);
-  
-#else
-        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP; 
-        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-        GPIO_Init(GPIOB , &GPIO_InitStruct);
-              
-        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; 
-        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-        GPIO_Init(GPIOB , &GPIO_InitStruct);
-
-	
-	BSP_USART_Init(USART3, 19200, USART_Parity_No);
-	
-	NVIC_Configuration_Usart(USART3);       	
- 
-	USART_ClearFlag(USART3, USART_FLAG_TC);  
-	USART_Cmd(USART3,ENABLE);
-	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);	
-#endif
-        
-#else
-        
-#ifdef GEC_SF_S_NEW
-        
-        /* Connect PXx to USARTx_Tx */
-        GPIO_PinAFConfig(GPIOB, GPIO_PinSource10, GPIO_AF_7);
-        
-        /* Connect PXx to USARTx_Rx */
-        GPIO_PinAFConfig(GPIOB, GPIO_PinSource11, GPIO_AF_7);
-        
-        /* Configure USART Tx and Rx as alternate function push-pull */
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF;
-        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-        GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
-        GPIO_InitStruct.GPIO_PuPd = GPIO_PuPd_UP;
-        
-        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11;
-        GPIO_Init(GPIOB, &GPIO_InitStruct);
-#else
-        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
-        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-        GPIO_Init(GPIOB , &GPIO_InitStruct);
-              
-        GPIO_InitStruct.GPIO_Pin = GPIO_Pin_11;
-        GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING; 
-        GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-        GPIO_Init(GPIOB , &GPIO_InitStruct);        
-#endif   
-        BSP_USART_Init(USART3, 115200, USART_Parity_No);
-        USART_Cmd(USART3,ENABLE);
-#endif
-
-}
-
-/*******************************************************************************
-* Function Name  : BSP_USART_Send
-* Description    : usart send data
-*                  
-* Input          : USARTx: USART1,USART2 or USART3
-*                  buff: the first address of send data 
-*                  len: the length of send data
-* Output         : None
-* Return         : None
-*******************************************************************************/ 
-void BSP_USART_Send(USART_TypeDef* USARTx,uint8_t *buff,uint32_t len)
-{			
-
-	uint16_t i = 0;
-	for(i = 0; i < len; i++)
-	{
-#ifdef GEC_SF_S_NEW            
-    	USARTx->TDR = (*(buff + i) & (uint16_t)0x01FF);
-		while (USART_GetFlagStatus(USARTx, USART_FLAG_TC) == RESET);
-#else
-    	USARTx->DR = (*(buff + i) & (uint16_t)0x01FF);
-		while (USART_GetFlagStatus(USARTx, USART_FLAG_TC) == RESET);
-#endif                
-	} 
-  
-}
-
-/*******************************************************************************
-* Function Name  : USART3_ISR
-* Description    : usart3 interrupt handles.
-*                  
-* Input          : None
-*                  None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void USART3_ISR(void)
-{
-
-	if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)
-	{
-		USART3_ReceiveTimeCounter = USART3_RECEIVE_OVERTIME;
-		if(USART3_receive_index >= USART3_BUF_SIZE)
-			USART3_receive_index = 0;
-		
-		USART3_receive_buf[USART3_receive_index++] = (uint8_t)USART_ReceiveData(USART3);
-		
-	}
-		
-	if (USART_GetFlagStatus(USART3, USART_FLAG_ORE) != RESET)
-	{
-		(void)USART_ReceiveData(USART3);
-	}
-}
-
-/*******************************************************************************
-* Function Name  : USART3_IRQHandler
-* Description    : This function handles USART3 global interrupt request.             
-* Input          : None                
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void USART3_IRQHandler(void)
-{	 
-      USART3_ISR();
-}
-
-
-/*******************************************************************************
-* Function Name  : USART_ReceiveOvertimeProcess
-* Description    : usart3 receive data overtime process.                
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void USART_ReceiveOvertimeProcess(void)
-{
-	uint16_t i = 0;	
-
-	if(USART3_ReceiveTimeCounter>=SYSTEMTICK_PERIOD_MS)
-	{
-		USART3_ReceiveTimeCounter -= SYSTEMTICK_PERIOD_MS;
-
-		if(USART3_ReceiveTimeCounter<SYSTEMTICK_PERIOD_MS)
-		{
-			USART3_ready_buf_len = USART3_receive_index;
-
-			for(i = 0;i <= USART3_ready_buf_len; i ++)
-				USART3_ready_buf[i] = USART3_receive_buf[i];
-	
-			USART3_ready_buf_ok = 1;
-			USART3_receive_index=0;
-			USART3_ReceiveTimeCounter = 0;
-		}
-	}
-}
-
-
-/*******************************************************************************
-* Function Name  : BSP_USART_Receive
-* Description    : usart receive data.                 
-* Input          : USARTx: USART1,USART2 or USART3
-*                  buff: the first address of receive data 
-*                  mlen: want to receive the length of data
-* Output         : None
-* Return         : the length of receive data
-*******************************************************************************/
-uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
-{
-	uint8_t *pstr;
-	uint32_t i=0,len=0;
-	
-        if(USART3_ready_buf_ok)
-        {
-              switch (*(uint32_t*)&USARTx)
-              {		
-                  case USART3_BASE:
-                    
-                        pstr = USART3_ready_buf;					
-                        len = USART3_ready_buf_len; 
-                        USART3_ready_buf_len = 0;  
-                        break;			
-              }	   
-                    
-                    if(mlen && (mlen<len))
-                    {
-                            len = mlen;
-                    }
-                    
-                    if(len>500) len=0;
-              
-                    for(i=0;i<len;i++)
-                    {
-                            buff[i] = pstr[i];
-                    }		
-                    
-        }
-			
-	return(len);
-}
-
-
-
-
-
-
-#else
-
-
 /* #define USART1_EN     	1 */
 #define USART2_EN    		1
 /*
@@ -341,10 +22,6 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 #define USART1_TRX_EN         	1
 */
 
-/***************************************************************************************************
-***************************************************************************************************/
-
-
 #ifdef USART1_EN
 #ifdef USART1_TRX_EN
 #define USART1_TRX_GPIO        	GPIOB
@@ -352,9 +29,6 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 #define USART1_TRX_PIN        	GPIO_Pin_5																													
 #endif
 #endif
-
-/***************************************************************************************************
-***************************************************************************************************/
 
 #define USART1_DR_Base    0x40013804u
 #define USART2_DR_Base    0x40004404u
@@ -374,7 +48,8 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t *buff,uint32_t mlen)
 #define USART3_TX_DMA_CHANNEL       DMA1_Channel2
 #define USART3_RX_DMA_CHANNEL       DMA1_Channel3
 
-  
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/  
 #ifdef USART1_EN 
 u8 uart1_rx_buff[512],uart1_rx_data[512],uart1_tx_buff[512];
 u16 uart1_rx_number=0,uart1_tx_number=0; 	
@@ -389,6 +64,17 @@ static u32 uart2_rx_number = 0u;
 u8 uart3_rx_buff[512],uart3_rx_data[512],uart3_tx_buff[512];
 u16 uart3_rx_number=0,uart3_tx_number=0;	
 #endif
+
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
+static void DMA_Configuration_USART(DMA_Channel_TypeDef* DMA_Chx,uint32_t DB,uint8_t *buff,uint32_t dir,uint32_t len);
+static void BSP_USART_DMA_Init(USART_TypeDef* USARTx, uint8_t *txBuff, uint8_t *rxBuff);
+void USART1_IRQHandler(void);
+void USART2_IRQHandler(void);
+void USART3_IRQHandler(void);
+static void NVIC_Configuration_Usart(USART_TypeDef* USARTx);
+
+
 
 
 /*******************************************************************************
@@ -982,8 +668,6 @@ uint32_t BSP_USART_Receive(USART_TypeDef* USARTx,uint8_t buff[],uint32_t mlen)
   return(len);
 }
 
-
-#endif
 
 
 /******************************  END OF FILE  *********************************/
