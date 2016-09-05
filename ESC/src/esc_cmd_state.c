@@ -298,7 +298,7 @@ void sfEscStateCheck(void)
         SfBase_EscState &= (u16)(~ESC_STATE_STOP);
         SfBase_EscState &= (u16)(~ESC_STATE_READY);
         
-        SfBase_EscState |= ESC_STATE_RUNNING;
+        SfBase_EscState |= ESC_STATE_RUN;
         
         SfBase_EscState |= ESC_STATE_NORMAL;
         
@@ -322,7 +322,7 @@ void sfEscStateCheck(void)
     }
     else
     {
-        SfBase_EscState &= (u16)(~ESC_STATE_RUNNING);
+        SfBase_EscState &= (u16)(~ESC_STATE_RUN);
         SfBase_EscState &= (u16)(~ESC_STATE_SPEEDUP);
         SfBase_EscState &= (u16)(~ESC_STATE_RUN5S);
         

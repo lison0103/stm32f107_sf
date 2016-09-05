@@ -21,7 +21,7 @@
 /* ESC STATE */
 #define ESC_STATE_STOP        ((u16)0x0001)
 #define ESC_STATE_INSP        ((u16)0x0002)
-#define ESC_STATE_RUNNING     ((u16)0x0004)
+#define ESC_STATE_RUN         ((u16)0x0004)
 #define ESC_STATE_FAST        ((u16)0x0008)
 #define ESC_STATE_SLOW        ((u16)0x0010)
 #define ESC_STATE_INTT        ((u16)0x0020)
@@ -192,10 +192,7 @@ typedef struct stepmissingitem
 {
     u8 *const pcErrorCodeBuff;   
     
-    volatile u16 MtrPulse;
-    
-    u16 sensor_error_cnt;
-    u16 sensor_error_tms;	
+    volatile u16 MtrPulse;	
     
     u8 rising_edge_detected[2];
     u16 *const ptStepMtrBuff;

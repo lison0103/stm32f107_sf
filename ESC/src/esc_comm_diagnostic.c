@@ -130,7 +130,7 @@ void Safety_Comm_Diag(void)
             {
                 TandemMessageRunAllowed = CAN1_RX_Data[1];
             }
-            else if( SfBase_EscState & ESC_STATE_RUNNING )
+            else if( SfBase_EscState & ESC_STATE_RUN )
             {
                 TandemMessageRunAllowed = CAN1_RX_Data[2];
             }

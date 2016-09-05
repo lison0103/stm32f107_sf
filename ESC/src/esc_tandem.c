@@ -185,7 +185,7 @@ void ESC_Tandem_Check(void)
     {
         CheckTandemReady();
     }
-    else if(SfBase_EscState & ESC_STATE_RUNNING)
+    else if(SfBase_EscState & ESC_STATE_RUN)
     {
         CheckTandemRun();
         TandemOutput();

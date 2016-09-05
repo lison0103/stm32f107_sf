@@ -26,7 +26,7 @@
 
 /*******************************************************************************
 * Function Name  : mtr_X1_int
-* Description    : motor pulse counter x1.
+* Description    : motor pulse counter x1 interrupt.
 * Input          : None          
 * Output         : None
 * Return         : None
@@ -47,7 +47,7 @@ void mtr_X1_int(void)
 
 /*******************************************************************************
 * Function Name  : mtr_X2_int
-* Description    : motor pulse counter x2.
+* Description    : motor pulse counter x2 interrupt.
 * Input          : None          
 * Output         : None
 * Return         : None
@@ -71,7 +71,7 @@ void mtr_X2_int(void)
 
 /*******************************************************************************
 * Function Name  : handrail_X1_int
-* Description    : handrail pulse counter x1.
+* Description    : handrail pulse counter x1 interrupt.
 * Input          : None          
 * Output         : None
 * Return         : None
@@ -87,7 +87,7 @@ void handrail_X1_int(void)
 
 /*******************************************************************************
 * Function Name  : handrail_X2_int
-* Description    : handrail pulse counter x2.
+* Description    : handrail pulse counter x2 interrupt.
 * Input          : None          
 * Output         : None
 * Return         : None
@@ -102,7 +102,7 @@ void handrail_X2_int(void)
 
 /*******************************************************************************
 * Function Name  : missingstep_X1_int
-* Description    : missingstep pulse counter x1.
+* Description    : missingstep pulse counter x1 interrupt.
 * Input          : None          
 * Output         : None
 * Return         : None
@@ -118,7 +118,7 @@ void missingstep_X1_int(void)
 
 /*******************************************************************************
 * Function Name  : missingstep_X2_int
-* Description    : missingstep pulse counter x2.
+* Description    : missingstep pulse counter x2 interrupt.
 * Input          : None          
 * Output         : None
 * Return         : None

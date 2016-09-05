@@ -114,7 +114,7 @@ static void Motor_Speed_Run_EN115(MTRFREQITEM* ptMTR)
     u16 Escalator_speed = 0u;
     	
 
-    if( ( SfBase_EscState & ESC_STATE_RUNNING ) || ( (SfBase_EscState & ESC_STATE_STOP) && (!(SfBase_EscState & ESC_STATE_READY))))
+    if( ( SfBase_EscState & ESC_STATE_RUN ) || ( (SfBase_EscState & ESC_STATE_STOP) && (!(SfBase_EscState & ESC_STATE_READY))))
     {      
                
         
@@ -212,7 +212,7 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
     static u32 Timer_motorspeed_shortcircuit = 0u;
 
     
-    if( SfBase_EscState & ESC_STATE_RUNNING )
+    if( SfBase_EscState & ESC_STATE_RUN )
     {  
         if( First_motorspeed_edge_detected == 0u )
         {
@@ -315,7 +315,7 @@ void ESC_Motor_Check(void)
     Motor_Speed_Ready(&MTRITEM[0]);
     Motor_Speed_Ready(&MTRITEM[1]);		
     
-    if((SfBase_EscState & ESC_STATE_RUNNING) && (!(escState_old & ESC_STATE_RUNNING))) 
+    if((SfBase_EscState & ESC_STATE_RUN) && (!(escState_old & ESC_STATE_RUN))) 
     { 
         First_motorspeed_edge_detected = 0u;
     } 

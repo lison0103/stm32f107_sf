@@ -90,7 +90,7 @@ static void HR_Speed_Run_EN115(HDLITEM* psHDL)
 {
     u16 Escalator_speed,Handrail_speed,Handrail_speed_freq,Escalator_speed_freq = 0u;
     
-    if( ( SfBase_EscState & ESC_STATE_RUNNING ) || ( (SfBase_EscState & ESC_STATE_STOP) && (!(SfBase_EscState & ESC_STATE_READY))))
+    if( ( SfBase_EscState & ESC_STATE_RUN ) || ( (SfBase_EscState & ESC_STATE_STOP) && (!(SfBase_EscState & ESC_STATE_READY))))
     {
         
         Handrail_speed_freq = Measure_handrail_speed(psHDL);
@@ -101,7 +101,7 @@ static void HR_Speed_Run_EN115(HDLITEM* psHDL)
         *HR_SPEED = Handrail_speed;
         *MOTOR_SPEED = Escalator_speed;
         
-        if( SfBase_EscState & ESC_STATE_RUNNING )
+        if( SfBase_EscState & ESC_STATE_RUN )
         {
         
             if( ( psHDL->delay_no_pulse_tms * SYSTEMTICK ) > DELAY_NO_PULSE_CHECKING )
@@ -204,7 +204,7 @@ void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
 {
     static u32 Timer_HS_shortcircuit = 0u;
     
-    if( SfBase_EscState & ESC_STATE_RUNNING )
+    if( SfBase_EscState & ESC_STATE_RUN )
     {  
         if( First_HS_edge_detected == 0u )
         {
@@ -254,7 +254,7 @@ void ESC_Handrail_Check(void)
   HR_Speed_Ready(&HDL_Right);
   HR_Speed_Ready(&HDL_Left);		
  
-  if((SfBase_EscState & ESC_STATE_RUNNING) && (!(escState_old & ESC_STATE_RUNNING))) 
+  if((SfBase_EscState & ESC_STATE_RUN) && (!(escState_old & ESC_STATE_RUN))) 
   { 
       First_HS_edge_detected = 0u;
       HDL_Left.delay_no_pulse_tms = 0u;
