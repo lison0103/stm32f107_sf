@@ -3,7 +3,8 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 08/16/2016
-* Description        : 
+* Last modify date   : 09/07/2016
+* Description        : This file contains prototype of Esc state machine.
 *			          
 *******************************************************************************/
 
@@ -13,15 +14,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
-typedef enum  
-{
-    s_init = 0u, 
-    s_ready, 
-    s_run, 
-    s_fault 
-}
-ESCState;
-
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */

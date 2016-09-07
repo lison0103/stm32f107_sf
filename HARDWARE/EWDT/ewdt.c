@@ -82,7 +82,7 @@ void write_bkp(u32 adr,u32 dat)
 }
 
 /*******************************************************************************
-* Function Name  : ExtWdtCheck
+* Function Name  : ExternalWatchdogCheck
 * Description    : Check the external watchdog.
 *                  
 * Input          : None
@@ -90,9 +90,11 @@ void write_bkp(u32 adr,u32 dat)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void ExtWdtCheck(void)
+void ExternalWatchdogCheck(void)
 {
     u32 iwdg_check_flag = 0u;
+    u8 u8EwdtError = 0u;
+    
 #ifdef GEC_SF_S_NEW    
     u32 bkr_rst_flag = 0u;
 #else
@@ -106,6 +108,14 @@ void ExtWdtCheck(void)
 #endif
   if( iwdg_check_flag == 0u )
   {
+      
+     /* Clear the init test error flag */
+#ifdef GEC_SF_S_NEW
+          write_bkp(RTC_BKP_DR3, 0u);  
+#else
+          write_bkp(BKP_DR3, 0u);
+#endif 
+          
       RCC_Configuration_72M();
       Delay_Init();
       
@@ -139,7 +149,7 @@ void ExtWdtCheck(void)
             write_bkp(BKP_DR1, 0u);
 #endif  
             RCC_ClearFlag();   
-            EN_ERROR_SYS1 |= 0x01u;
+            u8EwdtError = 0x01u;
         }   
       }  
       else
@@ -154,7 +164,7 @@ void ExtWdtCheck(void)
           
           delay_ms(2000u);    
           
-          EN_ERROR_SYS1 |= 0x01u;
+          u8EwdtError = 0x01u;
       }  
       
 #ifdef GEC_SF_S_NEW
@@ -163,9 +173,17 @@ void ExtWdtCheck(void)
       write_bkp(BKP_DR1, 0u);  
 #endif  
       
-      if( EN_ERROR_SYS1 & 0x01u ) 
+      if( u8EwdtError == 1u ) 
       {
+/*          
           ESC_EWDT_Error_Process();
+*/
+     /* Reocrd the init test error */
+#ifdef GEC_SF_S_NEW
+          write_bkp(RTC_BKP_DR3, 1u);  
+#else
+          write_bkp(BKP_DR3, 1u);
+#endif           
       }
       
   }

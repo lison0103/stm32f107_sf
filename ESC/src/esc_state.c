@@ -3,6 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 08/16/2016
+* Last modify date   : 09/07/2016
 * Description        : Esc state machine.
 *                      
 *******************************************************************************/
@@ -12,6 +13,8 @@
 #include "esc_motor_speed.h"
 #include "esc_handrail_speed.h"
 #include "esc_missing_step.h"
+#include "esc_error_process.h"
+#include "esc_parameter_process.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -20,7 +23,10 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-
+u16 SfBase_EscState = ESC_INIT_STATE;
+u32 g_u32InitTestError = 0u;
+u16 g_u16RunTestError = 0u;
+u16 g_u16ParameterLoadingError = 0u;
 
 /*******************************************************************************
 * Function Name  : Esc_State_Machine
@@ -32,30 +38,32 @@
 void Esc_State_Machine(void)
 { 
     
-    switch (EscState) {
+    switch (SfBase_EscState) 
+    {
         
-      case INIT_STATE:
+      case ESC_INIT_STATE:
         {
-            if( self_test_error || parameter_loading_error )
+            
+            if( g_u32InitTestError || g_u16ParameterLoadingError )
             {
-                Init_Fault();
+                ESC_Init_Fault();
             }
             else
             {
-                Last_PowerOff_State = Check_Error_Present_Memory();
-                EscState = LastPowerOffState;
+                SfBase_EscState = Check_Error_Present_Memory();
             }
+            
             break;
         }
-      case FAULT_STATE:
+      case ESC_FAULT_STATE:
         {
-            
+#if 0            
             StoreFaultInMemory();
 
             /* falut increase */
             
             
-            //check the type of fault
+            /* check the type of fault */
             if( failure_lock )
             {
                 if( g_u8ResetButton )
@@ -85,7 +93,7 @@ void Esc_State_Machine(void)
             else if( recovery_fault )
             {
                 /* check stopping distance and no other fault */
-                EscState = READY_STATE;
+                SfBase_EscState = READY_STATE;
             }
             else
             {
@@ -94,15 +102,17 @@ void Esc_State_Machine(void)
                 
             if( no_fault )
             {
-                EscState = READY_STATE;
+                SfBase_EscState = READY_STATE;
             }
+#endif            
             break;    
         }
-      case READY_STATE:
+      case ESC_READY_STATE:
         {
+/*            
             if (fault) 
             {  
-                EscState = FAULT
+                SfBase_EscState = FAULT
                 break;
             }         
               
@@ -111,7 +121,7 @@ void Esc_State_Machine(void)
                 check_up_down_key();
                 if( up_down_order_check_ok )
                 {
-                    EscState = STARTING_PROCESS_STATE;
+                    SfBase_EscState = STARTING_PROCESS_STATE;
                 }
             }
             else if(inspec && not_fault) 
@@ -119,25 +129,27 @@ void Esc_State_Machine(void)
                 check_inpspec_up_down_button();
                 if( inspec_up_down_order_check_ok )
                 {
-                    EscState = STARTING_PROCESS_STATE;
+                    SfBase_EscState = STARTING_PROCESS_STATE;
                 }                
             }
+*/            
    /*        
             if (remote && not_fault)
             {
                 check_remote_order();
                 if( remote_up_down_order_check_ok )
                 {
-                    EscState = STARTING_PROCESS_STATE;
+                    SfBase_EscState = STARTING_PROCESS_STATE;
                 }                 
             }
    */
               break;      
         }
 
-      case STARTING_PROCESS_STATE:
+      case ESC_STARTING_PROCESS_STATE:
        {
-        if (fault) EscState = FAULT
+/*           
+        if (fault) SfBase_EscState = FAULT
          
             
             
@@ -148,39 +160,42 @@ void Esc_State_Machine(void)
             
              
            If conditions ok > RUN_STATE 
-            
+*/            
             break;
        }
-      case RUN_STATE:
+      case ESC_RUN_STATE:
         {
+/*            
             if ( fault || programmed_stop || fault_order_from_control || 
                 up_down_maintenance_button_released || stop_order_from_control ) 
             {
-                EscState = STOPPING_PROCESS_STATE;
+                SfBase_EscState = STOPPING_PROCESS_STATE;
             }
             
-            if (finish count of interm mode) EscState = INTERM_STATE;
+            if (finish count of interm mode) SfBase_EscState = INTERM_STATE;
             if  (change from every mode to contious mode) set all timers to 0
             if  (change from interm to standby mode) if lightbarier sensor is false fo the duration of stand by time
             ...
-                  
+*/                  
             break;
         } 
-      case STOPPING_PROCESS_STATE: 
+      case ESC_STOPPING_PROCESS_STATE: 
         {
-            
+/*            
             stopping_process(); 
-            
+*/            
             
             break;
         }
-        case INTERM_STATE:
+        case ESC_INTERM_STATE:
         {
+/*            
             if ( not fault) check people detection 
-            if  (change to contious mode) EscState = STARTING_PROCESS_STATE
-            if  (change to standby mode) EscState = STARTING_PROCESS_STATE
+            if  (change to contious mode) SfBase_EscState = STARTING_PROCESS_STATE
+            if  (change to standby mode) SfBase_EscState = STARTING_PROCESS_STATE
                 
-                if (fault) EscState = FAULT
+                if (fault) SfBase_EscState = FAULT
+*/            
                     break;
         }      
       default:

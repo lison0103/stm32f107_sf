@@ -34,6 +34,8 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+static u32 g_u32InitTestTemp = 0u;
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 #ifdef STL_VERBOSE_POR
@@ -42,6 +44,7 @@
 
 static ErrorStatus RCC_Config64MHzOnHSI(void);
 static ErrorStatus RCC_SwitchOffPLL(void);
+static void ExtWdtCheck(void);
 static void GeneralRegister_StartupCheck(void);
 static void IWDTCheck(void);
 static void DataIntegrityInFlash_StartupCheck(void);
@@ -154,10 +157,35 @@ void FailSafePOR(void)
   #ifdef STL_VERBOSE_POR
   printf(" >>>>>>>>>> POR FailSafe Mode <<<<<<<<<<\n\r");
   #endif  /* STL_VERBOSE_POR */
+/*  
   while(1)
   {
     NVIC_SystemReset();
   }
+*/
+     /* Reocrd the init test error */
+  /* Set 2 flag, because the test has bkp reset and ram reset */
+#ifdef GEC_SF_S_NEW
+          write_bkp(RTC_BKP_DR3, 1u);  
+#else
+          write_bkp(BKP_DR3, 1u);
+#endif  
+    g_u32InitTestTemp = 1u;      
+}
+
+/*******************************************************************************
+* Function Name  : ExtWdtCheck
+* Description    : Check the external watchdong.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+static void ExtWdtCheck(void)
+{
+
+    EWDT_Drv_pin_config();
+    ExternalWatchdogCheck(); 
+
 }
 
 /*******************************************************************************
@@ -200,10 +228,10 @@ static void GeneralRegister_StartupCheck(void)
 *******************************************************************************/
 static void IWDTCheck(void)
 {
-    CtrlFlowCnt += WDG_TEST_CALLER;
+    CtrlFlowCnt += IWDG_TEST_CALLER;
     STL_WDGSelfTest();
     EWDT_TOOGLE();
-    CtrlFlowCntInv -= WDG_TEST_CALLER;
+    CtrlFlowCntInv -= IWDG_TEST_CALLER;
 
 }
 
@@ -358,11 +386,13 @@ void Safety_StartupCheck1(void)
     printf("\n\n\r *******  Self Test Library Init  *******\n\r");
   #endif
    
+   /* Clear the init test error flag */ 
+   g_u32InitTestTemp = 0u;
+   
   /*--------------------------------------------------------------------------*/ 
   /*--------------------------- EWDT check -----------------------------------*/  
   /*--------------------------------------------------------------------------*/ 
-  EWDT_Drv_pin_config();
-  ExtWdtCheck(); 
+  ExtWdtCheck();
   
   /*--------------------------------------------------------------------------*/
   /*------------------- CPU registers and Flags Self Test --------------------*/
@@ -491,7 +521,12 @@ void Safety_StartupCheck1(void)
   /*--------------------------------------------------------------------------*/
   /*----------------------- Clock Frequency Self Test ------------------------*/
   /*--------------------------------------------------------------------------*/
-  
+
+#ifdef GEC_SF_S_NEW
+      g_u32InitTestTemp = RTC_ReadBackupRegister(RTC_BKP_DR3);
+#else
+      g_u32InitTestTemp = BKP_ReadBackupRegister(BKP_DR3);
+#endif
   ClockFrequency_StartupCheck();
   
   /*--------------------------------------------------------------------------*/
@@ -514,6 +549,11 @@ void Safety_StartupCheck1(void)
    #ifdef STL_VERBOSE_POR
     printf("Control Flow Checkpoint 2 OK \n\r");
    #endif  /* STL_VERBOSE_POR */
+   
+   if( g_u32InitTestTemp )
+   {
+      FailSafePOR();
+   }
    
   /* Reload IWDG / EWDT counter */
   IWDG_ReloadCounter();
@@ -858,7 +898,8 @@ static void STL_WDGSelfTest(void)
           #ifdef STL_VERBOSE_POR
             printf("...Unexpected Flag configuration, re-start WDG test... \r\n");
           #endif  /* STL_VERBOSE_POR */
-          NVIC_SystemReset();
+          /*NVIC_SystemReset();*/
+          FailSafePOR();
       } /* End of Unexpected Flag configuration */
 
     } /* End of partial WDG test (IWDG test done) */

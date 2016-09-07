@@ -50,6 +50,9 @@
 /* Exported functions ------------------------------------------------------- */
 void FailSafePOR(void);
 
+extern u32 g_u32InitTestError;
+extern u16 g_u16RunTestError;
+
 #endif /* __STM32F10x_STL_LIB_H */
 
 /******************* (C) COPYRIGHT 2007 STMicroelectronics *****END OF FILE****/

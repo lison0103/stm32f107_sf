@@ -25,7 +25,7 @@
 #endif
 
 /* Exported functions ------------------------------------------------------- */
-void ExtWdtCheck(void);
+void ExternalWatchdogCheck(void);
 void EWDT_Drv_pin_config(void);
 void write_bkp(u32 adr,u32 dat);
 

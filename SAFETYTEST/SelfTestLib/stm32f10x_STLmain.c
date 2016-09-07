@@ -331,14 +331,16 @@ void Safety_RunCheck1(void)
           printf("Control Flow Error (main loop)\n\r");
         #endif  /* STL_VERBOSE */
         FailSafePOR();
+        g_u16RunTestError = 1u;
       }
     } /* End of periodic Self-test routine */
-    else  /* Class B variable error (can be Systick interrupt lost) */
+    else  /* Class B variable error (can be Timer interrupt lost) */
     {
       #ifdef STL_VERBOSE
         printf("\n\r Class B variable error (clock test)\n\r");
       #endif  /* STL_VERBOSE */
       FailSafePOR();
+      g_u16RunTestError = 1u;
     }
   } /* End of periodic Self-test routine */
 

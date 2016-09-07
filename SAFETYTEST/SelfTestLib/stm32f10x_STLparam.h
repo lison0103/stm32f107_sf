@@ -98,7 +98,7 @@ allow to react more quickly */
 
 #define CPU_TEST_CALLER         ((u32)2)
 #define CPU_TEST_CALLEE         ((u32)3) /* Do not modify: hard coded in assembly file */
-#define WDG_TEST_CALLER         ((u32)5)
+#define IWDG_TEST_CALLER         ((u32)5)
 #define CRC32_INIT_CALLEE       ((u32)7)
 #define CRC32_TEST_CALLER       ((u32)11)
 #define CRC32_TEST_CALLEE       ((u32)13)
@@ -120,7 +120,7 @@ allow to react more quickly */
 
 #define CHECKPOINT1 ((u32)CPU_TEST_CALLER + \
                           CPU_TEST_CALLEE + \
-                          WDG_TEST_CALLER + \
+                          IWDG_TEST_CALLER + \
                           CRC32_INIT_CALLEE + \
                           CRC32_TEST_CALLER + \
                           CRC32_TEST_CALLEE + \

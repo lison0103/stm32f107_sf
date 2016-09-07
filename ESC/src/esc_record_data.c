@@ -17,11 +17,9 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-#define ESC_RECORD_ADR 0u
-#define ESC_BACKUP_ADR 1024u
-#define ESC_RECORD_NUM 1020u
+#define ESC_RECORD_NUM 1024u
 
+/* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -37,8 +35,8 @@
 u8 fram_data_read(u16 Adr, u16 len, u8 ReadData[])
 {
     u16 i;
-    u8 Fram_Data[ESC_RECORD_NUM] = {0};
-    u8 Fram_Data_Backup[ESC_RECORD_NUM] = {0};
+    u8 Fram_Data[ESC_PARA_NUM] = {0};
+    u8 Fram_Data_Backup[ESC_PARA_NUM] = {0};
     u8 errorflag = 0u,result = 0u;
         
     if(!eeprom_read(Adr, len, Fram_Data))
@@ -132,21 +130,21 @@ void esc_data_check(void)
     u8 Fram_Data[ESC_RECORD_NUM] = {0};
     u8 Fram_Data_Backup[ESC_RECORD_NUM] = {0};
     
-    if(!eeprom_read(ESC_RECORD_ADR, ESC_RECORD_NUM, Fram_Data))
+    if(!eeprom_read(ESC_PARA_ADR, ESC_PARA_NUM, Fram_Data))
     {
         j = (u16)Fram_Data[1] << 8;
         j |= (u16)Fram_Data[0];
         
-        if(!MB_CRC16(Fram_Data, ESC_RECORD_NUM))
+        if(!MB_CRC16(Fram_Data, ESC_PARA_NUM))
         {
             delay_ms(10u);
             
-            if(!eeprom_read(ESC_BACKUP_ADR, ESC_RECORD_NUM, Fram_Data_Backup))
+            if(!eeprom_read(ESC_BACKUP_ADR, ESC_PARA_NUM, Fram_Data_Backup))
             {
-                if(!MB_CRC16(Fram_Data_Backup, ESC_RECORD_NUM))
+                if(!MB_CRC16(Fram_Data_Backup, ESC_PARA_NUM))
                 {
                     
-                    for(i = 0u; i < ESC_RECORD_NUM; i++)
+                    for(i = 0u; i < ESC_PARA_NUM; i++)
                     {
                         result = Fram_Data[i]^Fram_Data_Backup[i];
                         if( result )
@@ -183,22 +181,23 @@ void esc_data_check(void)
         Fram_Data[0] = 0xf1u;
         Fram_Data[1] = 0xf1u;
         
-        for(i = 2u; i < ESC_RECORD_NUM; i++)
+        for(i = 2u; i < ESC_RECORD_NUM * 2u; i++)
         {
             Fram_Data[i] = 0u;
         }  
 
-        i = MB_CRC16( Fram_Data, ESC_RECORD_NUM - 2u );
-        Fram_Data[ESC_RECORD_NUM - 2u] = (u8)i;
-        Fram_Data[ESC_RECORD_NUM - 1u] = (u8)(i >> 8u);
+        i = MB_CRC16( Fram_Data, ESC_PARA_NUM - 2u );
+        Fram_Data[ESC_PARA_NUM - 2u] = (u8)i;
+        Fram_Data[ESC_PARA_NUM - 1u] = (u8)(i >> 8u);
         
-        eeprom_write(ESC_RECORD_ADR, ESC_RECORD_NUM, Fram_Data);
+        eeprom_write(ESC_PARA_ADR, ESC_PARA_NUM, Fram_Data);
         
-        eeprom_write(ESC_BACKUP_ADR, ESC_RECORD_NUM, Fram_Data); 
+        eeprom_write(ESC_BACKUP_ADR, ESC_PARA_NUM, Fram_Data); 
         
         if( j == 0xf1f1u )
         {
             ESC_Fram_Error_Process();
+            g_u32InitTestError = 1u;
         }
 
     }

@@ -3,6 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
+* Last modify date   : 09/07/2016
 * Description        : Main program body.
 *                      
 *******************************************************************************/
@@ -111,7 +112,8 @@ static void Task_Loop(void)
       /*  ESC  */
       if( testmode == 0u )
       {
-/*          sfEscStateCheck(); */ 
+/*          sfEscStateCheck(); */
+          Esc_State_Machine();
           ESC_Tandem_Check();
           ESC_Motor_Check();
           ESC_Handrail_Check();

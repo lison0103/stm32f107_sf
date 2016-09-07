@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 06/12/2016
-* Last modify date   : 09/06/2016
+* Last modify date   : 09/07/2016
 * Description        : This file contains esc parameter process.
 *                      
 *******************************************************************************/
@@ -33,7 +33,6 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void Check_Error_Present_Memory(void);
 static void get_para_from_usb(void);
 #ifdef GEC_SF_MASTER
 static void esc_para_init(void);
@@ -48,11 +47,12 @@ u8 ParaLoad = 0u;
 * Description    : esc check error in memory.                 
 * Input          : None          
 * Output         : None
-* Return         : None
+* Return         : return last power off esc state
 *******************************************************************************/
-void Check_Error_Present_Memory(void)
+u16 Check_Error_Present_Memory(void)
 {
 
+    return 0u;
 }
 
 #ifdef GEC_SF_MASTER
@@ -101,7 +101,7 @@ static void esc_para_init(void)
 *******************************************************************************/ 
 static u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len)
 {
-    u8 senddata[120],recvdata[120];
+    u8 senddata[250],recvdata[250];
     u8 i;
     u8 res = 0u;
     
@@ -175,7 +175,7 @@ static void get_para_from_usb(void)
 #ifdef GEC_SF_MASTER 
     
     u8 recvdata[10];
-    u8 paradata[120];
+    u8 paradata[250];
     u8 i;
     
     USBH_Mass_Storage_Init();
@@ -195,8 +195,7 @@ static void get_para_from_usb(void)
         {
             /* Error message. Abort parameter loading. System remains in Init Fault. */
             EN_ERROR9 |= 0x01u;
-            
-            ESC_Init_Fault();
+            g_u16ParameterLoadingError = 1u;
         }
         else
         {
@@ -207,53 +206,56 @@ static void get_para_from_usb(void)
     else
     {
         EN_ERROR9 |= 0x01u;
-        
-        ESC_Init_Fault();    
+        g_u16ParameterLoadingError = 1u;   
     }
           
-    
-    /* 6. Message received from CPU2 */
-    delay_ms(50u);
-    len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u );   
-    
-    if( (len == 0x02u) && (recvdata[0] == MESSAGE_TO_CPU) )
+    /* if no fault, continue */
+    if( g_u16ParameterLoadingError == 0u )
     {
-        if( recvdata[1] == PARAMETER_CORRECT )
+        
+        /* 6. Message received from CPU2 */
+        delay_ms(50u);
+        len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u );   
+        
+        if( (len == 0x02u) && (recvdata[0] == MESSAGE_TO_CPU) )
         {
-            /* 7. Save parameters into variables */
-            for( i = 0u; i < len - 2u; i++)
+            if( recvdata[1] == PARAMETER_CORRECT )
             {
-                Modbuff[1100u + i] = paradata[i];
-            } 
-            
-            delay_ms(5u);
-            /* 8. Parametrization Loading Finished. Send Finish message to CPU2 */
-            Send_State_Message( MESSAGE_TO_CPU, PARAMETER_LOADED_FINSH, NULL, 0u );
+                /* 7. Save parameters into variables */
+                for( i = 0u; i < len - 2u; i++)
+                {
+                    Modbuff[1100u + i] = paradata[i];
+                } 
+                
+                delay_ms(5u);
+                /* 8. Parametrization Loading Finished. Send Finish message to CPU2 */
+                Send_State_Message( MESSAGE_TO_CPU, PARAMETER_LOADED_FINSH, NULL, 0u );
+            }
+            else if( recvdata[1] == PARAMETER_ERROR )
+            {        
+                /* Error message. Abort parameter loading due to CRC fault in CPU2. 
+                System remains in Init Fault. */
+                EN_ERROR9 |= 0x01u;
+                
+                g_u16ParameterLoadingError = 1u;   
+            }
+            else
+            {}
         }
-        else if( recvdata[1] == PARAMETER_ERROR )
-        {        
-            /* Error message. Abort parameter loading due to CRC fault in CPU2. 
+        else
+        {
+            /* Message received timeout. Send error to CPU2. Restart required. 
             System remains in Init Fault. */
             EN_ERROR9 |= 0x01u;
             
-            ESC_Init_Fault();
+            g_u16ParameterLoadingError = 1u;   
         }
-        else
-        {}
-    }
-    else
-    {
-        /* Message received timeout. Send error to CPU2. Restart required. 
-        System remains in Init Fault. */
-        EN_ERROR9 |= 0x01u;
-        
-        ESC_Init_Fault();
     }
     
 #else
     
     u8 senddata[5];
-    u8 recvdata[120];
+    u8 recvdata[250];
     u8 i;
     
     /* 1. Waiting for message from CPU1 to start parameter loading process */
@@ -272,65 +274,66 @@ static void get_para_from_usb(void)
                 IWDG_ReloadCounter();
             }
         }
-        else if( recvdata[1] == USB_NOT_DETECTED )
-        {
-            /* 2. Message received with parameters from CPU1 */
-            len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u ); 
-            
-            /* 3. Check paremeters received, CRC16 is ok */
-            if( (recvdata[0] == MESSAGE_TO_CPU) && (recvdata[1] == SEND_PARAMETER) )
+        else
+        {  
+            if( recvdata[1] == USB_NOT_DETECTED )
             {
-                if( MB_CRC16( &recvdata[2], ((u16)len - 2u) ))
+                /* 2. Message received with parameters from CPU1 */
+                len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u ); 
+                
+                /* 3. Check paremeters received, CRC16 is ok */
+                if( (recvdata[0] == MESSAGE_TO_CPU) && (recvdata[1] == SEND_PARAMETER) )
                 {
-                    /* Send error to CPU1. ¡°CPU2 parameters error¡± System remains in Init Fault. */
-                    Send_State_Message( MESSAGE_TO_CPU, PARAMETER_ERROR, NULL, 0u );
-                    
-                    ESC_Init_Fault();
-                }
-                else
-                {
-                    /* 4. Save parameters into variables */
-                    for( i = 0u; i < len - 4u; i++)
+                    if( MB_CRC16( &recvdata[2], ((u16)len - 2u) ))
                     {
-                        Modbuff[1100u + i] = recvdata[i + 2u];
-                    }  
-                    
-                    /* 5. Send confirmation to CPU1 or Send error to CPU1 */  
-                    Send_State_Message( MESSAGE_TO_CPU, PARAMETER_CORRECT, NULL, 0u );
-                    
-                    /* Received Finish message from CPU1 */  
-                    len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u ); 
-                    if( (recvdata[0] == MESSAGE_TO_CPU) && (recvdata[1] == PARAMETER_LOADED_FINSH) )
-                    {
-                        /* SPI Slave Send */
-                        CPU_Exchange_Data(senddata, 2u);
+                        /* Send error to CPU1. ¡°CPU2 parameters error¡± System remains in Init Fault. */
+                        Send_State_Message( MESSAGE_TO_CPU, PARAMETER_ERROR, NULL, 0u );
+                        
+                        g_u16ParameterLoadingError = 1u;   
                     }
                     else
                     {
-                        EN_ERROR9 |= 0x01u;
+                        /* 4. Save parameters into variables */
+                        for( i = 0u; i < len - 4u; i++)
+                        {
+                            Modbuff[1100u + i] = recvdata[i + 2u];
+                        }  
                         
-                        ESC_Init_Fault(); 
+                        /* 5. Send confirmation to CPU1 or Send error to CPU1 */  
+                        Send_State_Message( MESSAGE_TO_CPU, PARAMETER_CORRECT, NULL, 0u );
+                        
+                        /* Received Finish message from CPU1 */  
+                        len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u ); 
+                        if( (recvdata[0] == MESSAGE_TO_CPU) && (recvdata[1] == PARAMETER_LOADED_FINSH) )
+                        {
+                            /* SPI Slave Send */
+                            CPU_Exchange_Data(senddata, 2u);
+                        }
+                        else
+                        {
+                            EN_ERROR9 |= 0x01u;
+                            
+                            g_u16ParameterLoadingError = 1u;    
+                        }
                     }
                 }
-            }
-            else
-            {
-                /* Message received timeout. Send error to CPU1. ¡°CPU2 parameters 
-                communication error. Timeout message from CPU1¡± */
-                EN_ERROR9 |= 0x01u;
-                
-                ESC_Init_Fault();                
+                else
+                {
+                    /* Message received timeout. Send error to CPU1. ¡°CPU2 parameters 
+                    communication error. Timeout message from CPU1¡± */
+                    EN_ERROR9 |= 0x01u;
+                    
+                    g_u16ParameterLoadingError = 1u;                
+                }
             }
         }
-        else
-        {}
     }
     else
     {
         /* para init error */
         EN_ERROR9 |= 0x01u;
         
-        ESC_Init_Fault();
+        g_u16ParameterLoadingError = 1u;  
     }
 
 
@@ -386,7 +389,7 @@ int USB_LoadParameter(void)
               
               Send_State_Message( MESSAGE_TO_CONTROL, PARAMETER_ERROR, NULL, 0u );
               
-              ESC_Init_Fault();
+              g_u16ParameterLoadingError = 1u;  
           }
           else
           {
@@ -421,7 +424,7 @@ int USB_LoadParameter(void)
               
               Send_State_Message( MESSAGE_TO_CONTROL, PARAMETER_ERROR, NULL, 0u );
               
-              ESC_Init_Fault();
+              g_u16ParameterLoadingError = 1u;  
           }
           else
           {         

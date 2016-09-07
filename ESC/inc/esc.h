@@ -259,6 +259,8 @@ typedef struct stepmissingitem
 /* Exported functions ------------------------------------------------------- */
 
 extern u16 SfBase_EscState;
+extern u32 g_u32InitTestError;
+extern u16 g_u16ParameterLoadingError;
 extern MotorSpeedItem MTRITEM[2];
 extern u8 EscRTBuff[200];
 extern u8 McRxBuff[1000];

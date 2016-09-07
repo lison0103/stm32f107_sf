@@ -605,7 +605,10 @@ void SafetyExtWdt_StartUpCheck(void)
         SF_RELAY_OFF(); 
     }   
         
-
+    if( EN_ERROR8 & 0x03u )
+    {
+        g_u32InitTestError = 1u;
+    }
 
 }
 

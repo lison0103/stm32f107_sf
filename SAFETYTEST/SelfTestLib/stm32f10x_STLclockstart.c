@@ -200,6 +200,7 @@ static ErrorStatus STL_LSIinit(void)
   PWR_BackupAccessCmd(ENABLE);
 
   /* Reset Backup Domain */
+  
 #ifdef GEC_SF_S_NEW  
   RCC_BackupResetCmd(ENABLE);
   RCC_BackupResetCmd(DISABLE);  

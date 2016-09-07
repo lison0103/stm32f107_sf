@@ -324,6 +324,7 @@ void CrossCommCPUCheck(void)
     {
         /* SPI1_DMA_Check error */
         EN_ERROR7 |= 0x01u;
+        g_u32InitTestError = 1u;
 /*        FailSafeTest();*/
     }
 

@@ -48,10 +48,12 @@ static u32 SafetyTestFlowCntInv = 0xFFFFFFFFuL;
 *******************************************************************************/
 static void FailSafeTest(void)
 {
-    while(1)
-    {
-        NVIC_SystemReset();
-    }
+/*  
+  while(1)
+  {
+    NVIC_SystemReset();
+  }
+*/     
 }
     
 /*******************************************************************************
@@ -70,6 +72,7 @@ static void ConfigurationRegister_StartupCheck(void)
     RCC_GetClocksFreq(&RCC_Clocks); 
     if (RCC_Clocks.SYSCLK_Frequency != 8000000u)
     {
+        g_u32InitTestError = 1u;
         FailSafeTest();
     }
     
@@ -77,6 +80,7 @@ static void ConfigurationRegister_StartupCheck(void)
     RCC_GetClocksFreq(&RCC_Clocks); 
     if (RCC_Clocks.SYSCLK_Frequency != 72000000u)
     {
+        g_u32InitTestError = 1u;
         FailSafeTest();
     }       
     
@@ -99,11 +103,13 @@ static void ConfigurationRegister_RunCheck(void)
     RCC_GetClocksFreq(&RCC_Clocks); 
     if (RCC_Clocks.SYSCLK_Frequency != 72000000u)
     {
+        g_u16RunTestError = 1u;
         FailSafeTest();
     }
     /* Wait till PLL is used as system clock source */ 
     if (RCC_GetSYSCLKSource() != 0x08u ) 
     {
+        g_u16RunTestError = 1u;
         FailSafeTest();
     } 
     result = ConfigurationRegister_Check();
@@ -194,7 +200,15 @@ static void ProgramExecutionInstructionCheck(void)
 * Return         : None
 *******************************************************************************/
 void Safety_StartupCheck2(void)
-{       
+{    
+    /* Get the Safety_StartupCheck1 startup init test result */
+#ifdef GEC_SF_S_NEW
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR, ENABLE);
+    g_u32InitTestError = RTC_ReadBackupRegister(RTC_BKP_DR3);
+#else
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_BKP | RCC_APB1Periph_PWR, ENABLE );
+    g_u32InitTestError = BKP_ReadBackupRegister(BKP_DR3);
+#endif
              
       /*----------------------------------------------------------------------*/
       /*---------------------- Configuration registers -----------------------*/
@@ -218,7 +232,7 @@ void Safety_StartupCheck2(void)
        if (((SafetyTestFlowCnt ^ SafetyTestFlowCntInv) != 0xFFFFFFFFuL)
           ||(SafetyTestFlowCnt != CHECKCNT ))  
        {
-          FailSafeTest();
+           g_u32InitTestError = 1u;
        }
        else
        {
@@ -277,7 +291,7 @@ void Safety_RunCheck2(void)
         if (((SafetyTestFlowCnt ^ SafetyTestFlowCntInv) != 0xFFFFFFFFuL)
             ||(SafetyTestFlowCnt != CHECKCNTRUN ))  
         {
-            FailSafeTest();
+            g_u16RunTestError = 1u;
         }
         else
         {

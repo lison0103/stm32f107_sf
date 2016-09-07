@@ -33,10 +33,9 @@
 #define RECEIVE_PARAMETER        0x0Au
 #define PARAMETER_LOADED_FINSH        0x0Bu
 
-#define ESC_PARA_ADR 20u
-#define ESC_PARA_NUM 100u
 
 /* Exported functions ------------------------------------------------------- */
+u16 Check_Error_Present_Memory(void);
 #ifdef GEC_SF_MASTER
 int USB_LoadParameter(void);
 #endif

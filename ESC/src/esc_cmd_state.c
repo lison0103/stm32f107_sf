@@ -23,7 +23,7 @@ void en_key_check(void);
 void run_key_check(void);
 void CheckUpDown_Key(void);
 
-u16 SfBase_EscState = ESC_READY_STATE;
+
 
 /*******************************************************************************
 * Function Name  : CheckUpDown_Key

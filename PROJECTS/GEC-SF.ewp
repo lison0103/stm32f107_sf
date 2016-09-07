@@ -2050,10 +2050,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_state.c</name>
-      <excluded>
-        <configuration>GEC-SF-M</configuration>
-        <configuration>GEC-SF-S-NEW</configuration>
-      </excluded>
     </file>
     <file>
       <name>$PROJ_DIR$\..\ESC\src\esc_tandem.c</name>
