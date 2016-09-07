@@ -26,6 +26,8 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+static u8 g_u8RomCheckOkFlag = 0u;
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 static ClockStatus STL_MainClockTest(void);
@@ -38,7 +40,7 @@ static void DataIntegrityInFlash_RunCheck(u32* RomTest);
 /*******************************************************************************
 * Function Name  : Safety_InitRunTimeChecks
 * Description    : Initializes the Class B variables and their inverted
-*                  redundant counterparts. Init also the Systick and RTC timer
+*                  redundant counterparts. Init also the Timer and RTC timer
 *                  for clock frequency monitoring.
 * Input          : None
 * Output         : None
@@ -46,7 +48,7 @@ static void DataIntegrityInFlash_RunCheck(u32* RomTest);
 *******************************************************************************/
 void Safety_InitRunTimeChecks(void)
 {
-  /* Init Class B variables required in main routine and SysTick interrupt
+  /* Init Class B variables required in main routine and Timer interrupt
   service routine for timing purposes */
   TickCounter = 0u;
   TickCounterInv = 0xFFFFFFFFuL;
@@ -57,7 +59,7 @@ void Safety_InitRunTimeChecks(void)
   LastCtrlFlowCnt = 0u;
   LastCtrlFlowCntInv = 0xFFFFFFFFuL;
 
-  /* Initialize variables for SysTick interrupt routine control flow monitoring */
+  /* Initialize variables for Timer interrupt routine control flow monitoring */
   ISRCtrlFlowCnt = 0u;
   ISRCtrlFlowCntInv = 0xFFFFFFFFuL;
 
@@ -69,8 +71,8 @@ void Safety_InitRunTimeChecks(void)
   CurrentHSEPeriod = 0u;
   CurrentHSEPeriodInv = 0xFFFFFFFFuL;
 
-  /* Initialize SysTick for clock frequency measurement and main time base */
-  /* The RTC is also reset and synchronized to do measures in SysTick ISR */
+  /* Initialize Timer for clock frequency measurement and main time base */
+  /* The RTC is also reset and synchronized to do measures in Timer ISR */
   STL_SysTickRTCSync();
 
   /* Initialize variables for invariable memory check */
@@ -150,11 +152,7 @@ static void ClockFrequency_RunCheck(void)
        case EXT_SOURCE_FAIL:
 #ifdef STL_VERBOSE
         /* Loop until the end of current transmission */
-        //            while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET)
-        //            {
-        //            }
         /* Re-config USART baudrate FOR 115200 bds with HSI clock (8MHz) */
-        //            USART1->BRR = 0x45u;
         printf("\n\r Clock Source failure (Run-time)\n\r");
 #endif /* STL_VERBOSE */
         FailSafePOR();
@@ -227,6 +225,16 @@ static void DataIntegrityInFlash_RunCheck(u32* RomTest)
 *******************************************************************************/
 void Safety_RunCheck1(void)
 {
+    static u32 stat_u32CheckTimePeriod = 0u;
+    
+    stat_u32CheckTimePeriod++;
+    if( ( stat_u32CheckTimePeriod * 5u ) >= RUNCHECK_TIME_PERIOD )
+    {
+        stat_u32CheckTimePeriod = 0u;
+        Safety_InitRunTimeChecks();
+    }
+    
+    
   /* Is the time base duration elapsed? */
   if (TimeBaseFlag == 0xAAAAAAAAuL)
   {
@@ -236,6 +244,8 @@ void Safety_RunCheck1(void)
     if ((TimeBaseFlag ^ TmpFlag) == 0xFFFFFFFFuL)
     {
         u32 RomTest;
+        
+        stat_u32CheckTimePeriod = 0u;
 
       /* Reset Flag (no need to reset the redundant: it is not tested if
       TimeBaseFlag != 0xAAAAAAAA, it means that 100ms elapsed */
@@ -281,6 +291,9 @@ void Safety_RunCheck1(void)
                 {
                     CtrlFlowCnt = 0u;
                     CtrlFlowCntInv = 0xFFFFFFFFuL;
+                    
+                    /* Rom test ok */
+                    g_u8RomCheckOkFlag = 1u;
                 }
                 else  /* Return value form crc check was corrupted */
                 {
@@ -475,11 +488,8 @@ void Safety_TimingCheck(void)
                case TEST_RUNNING:
                 break;
                case TEST_OK:
-#ifdef STL_VERBOSE
-                /*                 
-                printf("\n\r Full RAM verified (Run-time)\n\r");
-                GPIO_WriteBit(GPIOC, GPIO_Pin_7, (BitAction)(1-GPIO_ReadOutputDataBit(GPIOC, GPIO_Pin_7)));
-                */                 
+#ifdef STL_VERBOSE                
+                printf("\n\r Full RAM verified (Run-time)\n\r");                 
 #endif  /* STL_VERBOSE */
                 break;
                case TEST_FAILURE:
@@ -509,6 +519,15 @@ void Safety_TimingCheck(void)
                     {
                         ISRCtrlFlowCnt = 0u;
                         ISRCtrlFlowCntInv = 0xFFFFFFFFu;
+                        
+                        /* Rom test is ok ? */
+                        if( g_u8RomCheckOkFlag == 1u )
+                        {
+                            /* Full RAM check ok, disable Timer */
+                            TIM_Cmd(TIM4, DISABLE);
+                            RCC_RTCCLKCmd(DISABLE);
+                            g_u8RomCheckOkFlag = 0u;
+                        }
                     }
                 } /* End of RAM completed if*/
             } /* End of control flow monitoring */

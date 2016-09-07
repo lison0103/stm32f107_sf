@@ -225,8 +225,8 @@ allow to react more quickly */
   #define FLASH_BLOCK_WORDS   ((u32)(ROM_SIZEinWORDS / STEPS_NUMBER))
 
   /* Constants necessary for RAM test (RAM_END is word aligned) */
-  #define RAM_START (u32 *)0x20000000
-  #define RAM_END   (u32 *)0x20004FFc
+  #define RAM_START ((u32 *)(&__ICFEDIT_region_RAM_start__))
+  #define RAM_END   ((u32 *)((unsigned int)&__ICFEDIT_region_RAM_end__ - 3u))
 
   /* Constants necessary for Transparent March tests */  
   #define CLASS_B_START ((u32 *)(&__ICFEDIT_region_CLASSB_start__))
