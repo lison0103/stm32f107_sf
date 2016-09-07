@@ -3,6 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 06/12/2016
+* Last modify date   : 09/06/2016
 * Description        : This file contains esc parameter process.
 *                      
 *******************************************************************************/
@@ -33,10 +34,11 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 void Check_Error_Present_Memory(void);
+static void get_para_from_usb(void);
 #ifdef GEC_SF_MASTER
 static void esc_para_init(void);
 #endif
-static void get_para_from_usb(void);
+
 
 u8 ParaLoad = 0u;
 
@@ -70,14 +72,14 @@ static void esc_para_init(void)
         MOTOR_RPM = 1000u;
         MOTOR_PLUSE_PER_REV = 10u;
         UNDERSPEED_TIME = 5000u;
-        DELAY_NO_PULSE_CHECKING = 1500u;
+        HANDRAIL_MOTOR_PULSE = 230u;
         NOMINAL_SPEED = 500u;
         SSM_SHORTCIRCUIT_TIME = 750u;
         HR_FAULT_TIME = 10000u;
         ROLLER_HR_RADIUS = 50u; /*( 0.050 * 1000 );  mm */
         HR_PULSES_PER_REV = 2u;
         STEP_WIDTH = 400u;
-        TANDEM_TYPE = 0u;
+        TANDEM_TYPE = 0u;       
         
         PARA_INIT = 0xff01u;
    

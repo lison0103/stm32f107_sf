@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
-* Last modify date   : 09/05/2016
+* Last modify date   : 09/06/2016
 * Description        : This file contains esc parameters.
 *			          
 *******************************************************************************/
@@ -204,30 +204,50 @@ typedef struct motorspeeditem
 
 
 
-typedef struct hdlitem 
+typedef struct handrailspeeditem 
 {
-    u8 Tms_counter;   
-    volatile u16 hr_pulse;  			
-    u16 pulseArray[20]; 					
+    /* handrail speed in ready state time counter */
+    u32 hdl_pulse_tms;   
     
+    /* motor speed real time pulse */
+    volatile u16 handrail_speed_rt_pulse; 					
+    
+    /* handrail speed continuous fault time counter */
     u16 HR_Fault_timer;
-    u16 delay_no_pulse_tms;
     
+    /* Handrail rising edge detecte */
+    u8 rising_edge_detected;
+    
+    /* Number of pulses of motor speed between two consecutives pulses of handrail array */ 
+    u16 hdl_mp_array[10];
+    
+    /* handrail speed pulse counter */
+    u8 hdl_pulse_counter;
+    
+    /* Handrail speed */
     u16 *const ptHDLDataBuff;
     
+    /* record handrail speed error code */
     u8 *const pcErrorCodeBuff;   
 	
-}HDLITEM;
+}HandrailSpeedItem;
 
 typedef struct stepmissingitem 
 {
+    /* record missing step error code */
     u8 *const pcErrorCodeBuff;   
     
+    /* motor speed real time pulse */
     volatile u16 MtrPulse;	
     
+    /* Missing step rising edge detecte */
     u8 rising_edge_detected[2];
+    
+    /* Measure number of pulses of motor speed between two consecutives pulses of missing step */
     u16 *const ptStepMtrBuff;
-    u16 ms_ready_delay;
+    
+    /* Missing step in ready state time counter */
+    u32 ms_ready_delay;
     
     u32 Motor_speed_pulse_counter_init;
     u32 Motor_speed_pulse_counter;
@@ -242,8 +262,8 @@ extern u16 SfBase_EscState;
 extern MotorSpeedItem MTRITEM[2];
 extern u8 EscRTBuff[200];
 extern u8 McRxBuff[1000];
-extern HDLITEM HDL_Right;
-extern HDLITEM HDL_Left;
+extern HandrailSpeedItem HDL_Right;
+extern HandrailSpeedItem HDL_Left;
 extern STEPMISSINGITEM STPMS_UPPER;
 extern STEPMISSINGITEM STPMS_LOWER;
 extern u8 Modbuff[3000];
@@ -265,7 +285,7 @@ extern u8 *const pcEscDataFromControl;
 #define MOTOR_RPM                        *(u16*)&Modbuff[1120]
 #define MOTOR_PLUSE_PER_REV              *(u16*)&Modbuff[1122]
 #define UNDERSPEED_TIME                 *(u16*)&Modbuff[1124]
-#define DELAY_NO_PULSE_CHECKING          *(u16*)&Modbuff[1126]
+#define HANDRAIL_MOTOR_PULSE            *(u16*)&Modbuff[1126]
 #define NOMINAL_SPEED                   *(u16*)&Modbuff[1128]
 #define SSM_SHORTCIRCUIT_TIME            *(u16*)&Modbuff[1130]
 #define HR_FAULT_TIME                   *(u16*)&Modbuff[1132]

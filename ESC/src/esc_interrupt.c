@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
-* Last modify date   : 09/05/2016
+* Last modify date   : 09/06/2016
 * Description        : This file contains esc interrupt process function.
 *                      
 *******************************************************************************/
@@ -34,15 +34,17 @@
 *******************************************************************************/
 void mtr_X1_int(void)
 {   
+    Measure_motor_between_pulse(&MTRITEM[0]);
+    Motor_Speed_1_2_Shortcircuit_Run();
+    
     MTRITEM[0].rt_pulse++; 			
     MTRITEM[0].rt_brake_pulse++; 
+    HDL_Left.handrail_speed_rt_pulse++;
     
 #ifdef GEC_SF_MASTER      
     STPMS_UPPER.MtrPulse++;
     STPMS_LOWER.MtrPulse++;
 #endif
-    Measure_motor_between_pulse(&MTRITEM[0]);
-    Motor_Speed_1_2_Shortcircuit_Run();
 }
 
 /*******************************************************************************
@@ -53,16 +55,18 @@ void mtr_X1_int(void)
 * Return         : None
 *******************************************************************************/
 void mtr_X2_int(void)
-{   
+{      
+    Measure_motor_between_pulse(&MTRITEM[1]);
+    Motor_Speed_1_2_Shortcircuit_Run();
+    
     MTRITEM[1].rt_pulse++; 	
     MTRITEM[1].rt_brake_pulse++; 
+    HDL_Right.handrail_speed_rt_pulse++;
     
 #ifndef GEC_SF_MASTER  
     STPMS_UPPER.MtrPulse++;
     STPMS_LOWER.MtrPulse++;
 #endif
-    Measure_motor_between_pulse(&MTRITEM[1]);
-    Motor_Speed_1_2_Shortcircuit_Run();
 }
 
 
@@ -76,7 +80,7 @@ void mtr_X2_int(void)
 void handrail_X1_int(void)
 {  
 
-    HDL_Left.hr_pulse++;
+    HDL_Left.rising_edge_detected = 1u;
     
     Handrail_Speed_Right_Left_Shortcircuit_Run();
 }
@@ -92,7 +96,7 @@ void handrail_X1_int(void)
 void handrail_X2_int(void)
 {  
 
-    HDL_Right.hr_pulse++;
+    HDL_Right.rising_edge_detected = 1u;
     
     Handrail_Speed_Right_Left_Shortcircuit_Run();
 }

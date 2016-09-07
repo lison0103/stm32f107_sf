@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
-* Last modify date   : 09/05/2016
+* Last modify date   : 09/06/2016
 * Description        : This file contains esc motor speed and brake distance.
 *                      
 *******************************************************************************/
@@ -109,12 +109,11 @@ static void Motor_Speed_Ready(MotorSpeedItem* ptMTR)
 * Return         : None
 *******************************************************************************/
 static void Motor_Speed_Run_EN115(MotorSpeedItem* ptMTR)
-{
-    
+{  
     u16 Escalator_speed = 0u;
     u8 i;	
     
-    if( ( SfBase_EscState & ESC_RUN_STATE ) || ( SfBase_EscState & ESC_STOPPING_PROCESS_STATE ))
+    if(( SfBase_EscState & ESC_RUN_STATE ) || ( SfBase_EscState & ESC_STOPPING_PROCESS_STATE ))
     {      
                 
         g_u32TimeRuningTms++;
@@ -346,7 +345,7 @@ static void Check_Stopping_Distance(MotorSpeedItem* ptMTR)
 *******************************************************************************/
 void ESC_Motor_Check(void)
 {
-    static u16 stat_u16EscStateOld = ESC_STATE_STOP; 
+    static u16 stat_u16EscStateOld = 0u; 
     
     
     Motor_Speed_Ready(&MTRITEM[0]);
