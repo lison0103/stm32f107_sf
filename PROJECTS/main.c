@@ -60,7 +60,7 @@ u8 *const pcEscErrorBuff = &Modbuff[468];
 u8 *const pcSafetyInputToControl = &EscRTBuff[4];
 u8 *const pcEscDataToControl = &EscRTBuff[12];
 u8 *const pcEscDataFromControl = &EscRTBuff[81];
-u16 pcOMC_SfBase_EscState;
+u16 pcOMC_SfBase_EscState = 0u;
 
 /*******************************************************************************
 * Function Name  : LED_indicator

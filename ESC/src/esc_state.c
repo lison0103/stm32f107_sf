@@ -42,15 +42,26 @@ void Esc_State_Machine(void)
     {
         
       case ESC_INIT_STATE:
-        {
-            
+        {           
             if( g_u32InitTestError || g_u16ParameterLoadingError )
             {
+                /* Init fault do what??? specfication don't describe detail ???? */
+                
+                /* informs to the CPU2 the reason */
+                
+                /* informs to the control board the reason */
+                
+                /* goes to init fault state */       
                 ESC_Init_Fault();
             }
-            else
+            else 
             {
+                /* everything is OK, the system goes to the previous state (before the power off)*/
+#ifdef GEC_SF_MASTER
                 SfBase_EscState = Check_Error_Present_Memory();
+#else
+                SfBase_EscState = pcOMC_SfBase_EscState;
+#endif
             }
             
             break;

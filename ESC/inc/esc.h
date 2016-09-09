@@ -17,18 +17,21 @@
 
 
 /* Exported types ------------------------------------------------------------*/
+/* ESC STATE */
+enum EscState
+{
+    ESC_INIT_STATE = 0u,
+    ESC_FAULT_STATE = 1u,
+    ESC_READY_STATE = 2u,
+    ESC_STARTING_PROCESS_STATE = 3u,
+    ESC_RUN_STATE = 4u,
+    ESC_STOPPING_PROCESS_STATE = 5u,
+    ESC_INTERM_STATE = 6u
+};
+
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-/* ESC STATE */
-#define ESC_INIT_STATE                   ((u16)0x0001)
-#define ESC_FAULT_STATE                 ((u16)0x0002)
-#define ESC_READY_STATE                  ((u16)0x0004)
-#define ESC_STARTING_PROCESS_STATE        ((u16)0x0008)
-#define ESC_RUN_STATE                    ((u16)0x0010)
-#define ESC_STOPPING_PROCESS_STATE        ((u16)0x0020)
-#define ESC_INTERM_STATE                 ((u16)0x0040)
-
-/* old */
+/* old, not use */
 #define ESC_STATE_STOP        ((u16)0x0001)
 #define ESC_STATE_INSP        ((u16)0x0002)
 #define ESC_STATE_RUN         ((u16)0x0004)

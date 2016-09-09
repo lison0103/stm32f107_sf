@@ -52,7 +52,7 @@ u8 ParaLoad = 0u;
 u16 Check_Error_Present_Memory(void)
 {
 
-    return 0u;
+    return 2u;
 }
 
 #ifdef GEC_SF_MASTER
