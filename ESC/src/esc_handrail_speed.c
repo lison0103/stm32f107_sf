@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
-* Last modify date   : 09/06/2016
+* Last modify date   : 09/12/2016
 * Description        : This file contains esc handrail speed.
 *                      
 *******************************************************************************/
@@ -180,35 +180,50 @@ static void HR_Speed_Run_EN115(HandrailSpeedItem* psHDL)
 *******************************************************************************/
 void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
 {
-    static u32 Timer_HS_shortcircuit = 0u;
+    static u32 stat_u32TimerHandrailSpeedShortcircuit = 0u;
+    static u32 stat_u32HandrailShortcircuitOkCounter = 0u;
+    static u32 stat_u32HandrailShortcircuitNotOkCounter = 0u;
     
     if( SfBase_EscState & ESC_RUN_STATE )
     {  
         if( g_u8FirstHandrailSpeedEdgeDetected == 0u )
         {
             g_u8FirstHandrailSpeedEdgeDetected = 1u;
-            Timer_HS_shortcircuit = 0u;
+            stat_u32TimerHandrailSpeedShortcircuit = 0u;
+            stat_u32HandrailShortcircuitOkCounter = 0u;
+            stat_u32HandrailShortcircuitNotOkCounter = 0u;
             TIM_Cmd(TIM6, DISABLE);  
             TIM6_Int_Init(65535u,71u);         
         }    
         else
         {
-            Timer_HS_shortcircuit = TIM_GetCounter(TIM6);
-            if( Timer_HS_shortcircuit < SSM_SHORTCIRCUIT_TIME )
+            /* Get the time between the two signals */
+            stat_u32TimerHandrailSpeedShortcircuit = TIM_GetCounter(TIM6);
+            TIM_SetCounter(TIM6,0u);
+            
+            if( stat_u32TimerHandrailSpeedShortcircuit < SSM_SHORTCIRCUIT_TIME )
             {
-                Timer_HS_shortcircuit = 0u;               
-                TIM_SetCounter(TIM6,0u); 
-                
-                /* Fault ¨C Motorspeed Sensor shortcircuited */
-                SHORTCIRCUIT_ERROR |= 0x02u;
-                EN_ERROR4 |= 0x02u;
+                stat_u32TimerHandrailSpeedShortcircuit = 0u;               
+                stat_u32HandrailShortcircuitNotOkCounter++;
+                stat_u32HandrailShortcircuitOkCounter = 0u; 
+
+                /* 100 consecutive pulses with less than SSM_SHORTCIRCUIT_TIME, go to fault */
+                if( stat_u32HandrailShortcircuitNotOkCounter >= 100u )
+                {                
+                    /* Fault ¨C Motorspeed Sensor shortcircuited */
+                    EN_ERROR4 |= 0x02u;
+                }
             }
             else
             {
-                Timer_HS_shortcircuit = 0u;             
-                TIM_SetCounter(TIM6,0u);     
-                
-                SHORTCIRCUIT_ERROR &= ~0x02u;
+                stat_u32TimerHandrailSpeedShortcircuit = 0u;             
+                stat_u32HandrailShortcircuitOkCounter++;     
+
+                /* counter should be resetted after 10 consecutive different pulses with more than SSM_SHORTCIRCUIT_TIME */
+                if( stat_u32HandrailShortcircuitOkCounter >= 10u )
+                {
+                    stat_u32HandrailShortcircuitNotOkCounter = 0u;
+                }
             }
         }
     }        

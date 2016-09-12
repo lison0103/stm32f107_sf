@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
-* Last modify date   : 09/06/2016
+* Last modify date   : 09/12/2016
 * Description        : This file contains esc motor speed and brake distance.
 *                      
 *******************************************************************************/
@@ -27,7 +27,7 @@ static u16 Measure_motor_speed(MotorSpeedItem* ptMTR);
 static void Motor_Speed_Ready(MotorSpeedItem* ptMTR);
 static void Motor_Speed_Run_EN115(MotorSpeedItem* ptMTR);
 static void Check_Stopping_Distance(MotorSpeedItem* ptMTR);
-
+static void Motor_Senor_Check(void);
 
 MotorSpeedItem MTRITEM[2]=
 {
@@ -250,6 +250,8 @@ static u16 Measure_motor_speed(MotorSpeedItem* ptMTR)
 void Motor_Speed_1_2_Shortcircuit_Run(void)
 {
     static u32 stat_u32TimerMotorSpeedShortCircuit = 0u;
+    static u32 stat_u32MotorSpeedShortCircuitOkCounter = 0u;
+    static u32 stat_u32MotorSpeedShortCircuitNotOkCounter = 0u;
    
     if( SfBase_EscState & ESC_RUN_STATE )
     {  
@@ -257,31 +259,65 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
         {
             g_u8FirstMotorSpeedEdgeDetected = 1u;
             stat_u32TimerMotorSpeedShortCircuit = 0u;
+            stat_u32MotorSpeedShortCircuitOkCounter = 0u;
+            stat_u32MotorSpeedShortCircuitNotOkCounter = 0u;
             TIM_Cmd(TIM5, DISABLE);
             TIM5_Int_Init(65535u,71u);           
         }    
         else
         {
+            /* Get the time between the two signals */
             stat_u32TimerMotorSpeedShortCircuit = TIM_GetCounter(TIM5);
+            TIM_SetCounter(TIM5,0u);
+            
             if( stat_u32TimerMotorSpeedShortCircuit < SSM_SHORTCIRCUIT_TIME )
             {
-                stat_u32TimerMotorSpeedShortCircuit = 0u;               
-                TIM_SetCounter(TIM5,0u); 
+                stat_u32TimerMotorSpeedShortCircuit = 0u;                                 
+                stat_u32MotorSpeedShortCircuitNotOkCounter++;
+                stat_u32MotorSpeedShortCircuitOkCounter = 0u;
                 
-                /* Fault ¨C Motorspeed Sensor shortcircuited */
-                SHORTCIRCUIT_ERROR |= 0x01u;
-                EN_ERROR4 |= 0x01u;
+                /* 100 consecutive pulses with less than SSM_SHORTCIRCUIT_TIME, go to fault */
+                if( stat_u32MotorSpeedShortCircuitNotOkCounter >= 100u )
+                {
+                    /* Fault ¨C Motorspeed Sensor shortcircuited */
+                    EN_ERROR4 |= 0x01u;
+                }
             }
             else
             {
-                stat_u32TimerMotorSpeedShortCircuit = 0u;             
-                TIM_SetCounter(TIM5,0u);  
+                stat_u32TimerMotorSpeedShortCircuit = 0u;              
+                stat_u32MotorSpeedShortCircuitOkCounter++;
                 
-                SHORTCIRCUIT_ERROR &= ~0x01u;
+                /* counter should be resetted after 10 consecutive different pulses with more than SSM_SHORTCIRCUIT_TIME */
+                if( stat_u32MotorSpeedShortCircuitOkCounter >= 10u )
+                {
+                    stat_u32MotorSpeedShortCircuitNotOkCounter = 0u;
+                }  
             }
         }
     }
 }
+
+/*******************************************************************************
+* Function Name  : Motor_Senor_Check
+* Description    : Check the difference in both speed sensors.
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+static void Motor_Senor_Check(void)
+{
+    /* The safety board goes to fault when the difference 
+    in both speed sensors is more than 5% for more than 1 second */
+    
+    
+    
+    /* The safety board goes to fault when the difference in both speed 
+    sensors between microprocessors is more than 5% for more than 1 second */
+    
+    
+}
+
 
 /*******************************************************************************
 * Function Name  : Check_Stopping_Distance

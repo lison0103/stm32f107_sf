@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/10/2016
-* Last modify date   : 09/06/2016
+* Last modify date   : 09/12/2016
 * Description        : This file contains esc missing step check.
 *                      
 *******************************************************************************/
@@ -240,6 +240,8 @@ static void Missing_Step_UpperLower_SyncRun(void)
 void Missing_Step_UpperLower_Shortcircuit_Run(void)
 {
     static u32 stat_u32TimerMissingStepShortcircuit = 0u;
+    static u32 stat_u32MissingStepSCOkCounter = 0u;
+    static u32 stat_u32MissingStepSCNotOkCounter = 0u;    
     
     if( SfBase_EscState & ESC_RUN_STATE )
     {  
@@ -247,25 +249,40 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
         {
             g_u8FirstMissingStepEdgeDetected = 1u;
             stat_u32TimerMissingStepShortcircuit = 0u;
+            stat_u32MissingStepSCOkCounter = 0u;
+            stat_u32MissingStepSCNotOkCounter = 0u;            
             TIM_Cmd(TIM7, DISABLE); 
-            TIM7_Int_Init(65535u,71u);
-            
+            TIM7_Int_Init(65535u,71u);           
         }    
         else
         {
+            /* Get the time between the two signals */
             stat_u32TimerMissingStepShortcircuit = TIM_GetCounter(TIM7);
+            TIM_SetCounter(TIM7,0u);            
+            
             if( stat_u32TimerMissingStepShortcircuit < SSM_SHORTCIRCUIT_TIME )
             {
                 stat_u32TimerMissingStepShortcircuit = 0u;               
-                TIM_SetCounter(TIM7,0u); 
+                stat_u32MissingStepSCNotOkCounter++;
+                stat_u32MissingStepSCOkCounter = 0u;
                 
-                /* Fault ¨C Motorspeed Sensor shortcircuited */
-                EN_ERROR4 |= 0x04u;
+                /* 100 consecutive pulses with less than SSM_SHORTCIRCUIT_TIME, go to fault */
+                if( stat_u32MissingStepSCNotOkCounter >= 100u )
+                {                
+                    /* Fault ¨C Motorspeed Sensor shortcircuited */
+                    EN_ERROR4 |= 0x04u;
+                }
             }
             else
             {
                 stat_u32TimerMissingStepShortcircuit = 0u;             
-                TIM_SetCounter(TIM7,0u);                     
+                stat_u32MissingStepSCOkCounter++;
+                
+                /* counter should be resetted after 10 consecutive different pulses with more than SSM_SHORTCIRCUIT_TIME */
+                if( stat_u32MissingStepSCOkCounter >= 10u )
+                {
+                    stat_u32MissingStepSCNotOkCounter = 0u;                   
+                }
             }
         }
     }    
