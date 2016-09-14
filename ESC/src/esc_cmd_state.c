@@ -3,6 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 06/16/2016
+* Date               : 09/12/2016
 * Description        : This file contains esc command and state.
 *                      
 *******************************************************************************/
@@ -22,8 +23,141 @@ void key_run_detect(void);
 void en_key_check(void);
 void run_key_check(void);
 void CheckUpDown_Key(void);
+void CheckKey(void);
+void Inspection_UpDown_Button(void);
+void CheckReset(void);
 
+/*******************************************************************************
+* Function Name  : CheckKey
+* Description    : 
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void CheckKey(void)
+{
+    static u8 stat_u8UpInputPreviousState = 0u;
+    static u16 stat_u16TimerKeyOn = 0u;
+    
+    stat_u16TimerKeyOn++;
+    if( UP_DOWN_ALLOWED != 2u )
+    {
+        if( stat_u8UpInputPreviousState == 0u )
+        {
+            if( CMD_FLAG6 & 0x01u )
+            {
+                if( (CMD_FLAG6 & 0x02u) == 0u )
+                {
+                    stat_u16TimerKeyOn = 0u;
+                    stat_u8UpInputPreviousState = 1u;
+                }
+                else
+                {
+                    /* Key up-down fault */
+                    
+                }
+            }
+            else
+            {
+                stat_u8UpInputPreviousState = 0u;
+            }
+        }
+        else
+        {
+            if( CMD_FLAG6 & 0x01u )
+            {
+                if( (CMD_FLAG6 & 0x02u) == 0u )
+                {
+                    if( (stat_u16TimerKeyOn * SYSTEMTICK) > 5000u )
+                    {
+                        /* Key up-down fault */
+                    }
+                }
+                else
+                {
+                    /* Key up-down fault */
+                    
+                }
+            }
+            else
+            {
+                stat_u8UpInputPreviousState = 0u;
+                if( (stat_u16TimerKeyOn * SYSTEMTICK) > KEY_MINIMUM_TIME )
+                {
+                    stat_u16TimerKeyOn = 0u;
+                    
+                    /* Order to Run Up */
+                    
+                }
+            }
+        }
+    }
 
+   
+}
+
+/*******************************************************************************
+* Function Name  : Inspection_UpDown_Button
+* Description    : 
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Inspection_UpDown_Button(void)
+{
+    if( CMD_FLAG6 & 0x04u )
+    {
+        if( (CMD_FLAG6 & 0x08u) == 0u )
+        {
+            /* Order to inspect Run Up */
+            
+        }
+    }
+    else if( CMD_FLAG6 & 0x08u )
+    {
+        if( (CMD_FLAG6 & 0x04u) == 0u )
+        {
+            /* Order to inspect Run Down */
+            
+        }
+    }
+    else
+    {
+        /* In RUN state, when the actual direction input (up or down) is not 
+        activated, the sytem exectues the stopping process */
+        
+    }
+}
+
+/*******************************************************************************
+* Function Name  : CheckReset
+* Description    : 
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void CheckReset(void)
+{
+    static u16 stat_u16TimerResetPress = 0u;
+       
+    if( CMD_FLAG6 & 0x10u )
+    {
+        stat_u16TimerResetPress++;
+    }
+    else
+    {       
+        if(((stat_u16TimerResetPress * SYSTEMTICK) > RESET_MINIMUM_TIME ) && ((stat_u16TimerResetPress * SYSTEMTICK) < 5000u ))
+        {
+            stat_u16TimerResetPress = 0u;
+            
+            /* Reset a fault */
+            if( SfBase_EscState & ESC_FAULT_STATE )
+            {
+                g_u8ResetButton = 1u;
+            }
+        }
+    }
+}
 
 /*******************************************************************************
 * Function Name  : CheckUpDown_Key
@@ -268,6 +402,26 @@ void run_key_check(void)
     {
         CMD_FLAG6 &= ~0x08u;
     }
+    
+    /* reset button */
+    if((INPUT_PORT9_16 & INPUT_PORT10_MASK)) 
+    {
+        CMD_FLAG6 |= 0x10u;
+    }
+    else
+    {
+        CMD_FLAG6 &= ~0x10u;
+    }    
+    
+    /* inspect normal key */
+    if((INPUT_PORT9_16 & INPUT_PORT11_MASK)) 
+    {
+        CMD_FLAG6 |= 0x20u;
+    }
+    else
+    {
+        CMD_FLAG6 &= ~0x20u;
+    }      
 }
 
 

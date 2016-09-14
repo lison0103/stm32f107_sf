@@ -27,6 +27,7 @@ u16 SfBase_EscState = ESC_INIT_STATE;
 u32 g_u32InitTestError = 0u;
 u16 g_u16RunTestError = 0u;
 u16 g_u16ParameterLoadingError = 0u;
+u8 g_u8ResetButton = 0u;
 
 /*******************************************************************************
 * Function Name  : Esc_State_Machine

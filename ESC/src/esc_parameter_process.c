@@ -80,6 +80,9 @@ static void esc_para_init(void)
         HR_PULSES_PER_REV = 2u;
         STEP_WIDTH = 400u;
         TANDEM_TYPE = 0u;       
+        KEY_MINIMUM_TIME = 1500u;
+        UP_DOWN_ALLOWED = 0u;
+        RESET_MINIMUM_TIME = 1000u;
         
         PARA_INIT = 0xff01u;
    

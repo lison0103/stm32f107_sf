@@ -284,6 +284,9 @@ extern u8 SAFETY_SWITCH_STATUS[4];
 extern u8 *const pcSafetyInputToControl;
 extern u8 *const pcEscDataToControl;
 extern u8 *const pcEscDataFromControl;
+extern u8 g_u8ResetButton;
+extern u16 *const g_u16ptCpu2MotorFreqSensor1;
+extern u16 *const g_u16ptCpu2MotorFreqSensor2;
 
 #define PARA_INIT                       *(u16*)&Modbuff[1102]
 /* parameters */
@@ -298,8 +301,9 @@ extern u8 *const pcEscDataFromControl;
 #define HR_PULSES_PER_REV                *(u16*)&Modbuff[1136]
 #define STEP_WIDTH                      *(u16*)&Modbuff[1138]
 #define TANDEM_TYPE                     *(u16*)&Modbuff[1140]
-
-
+#define KEY_MINIMUM_TIME                *(u16*)&Modbuff[1142]
+#define UP_DOWN_ALLOWED                 *(u16*)&Modbuff[1144]
+#define RESET_MINIMUM_TIME                 *(u16*)&Modbuff[1146]
 
 #endif  /* __ESC_H */
 

@@ -23,6 +23,19 @@
 
 u8 EscBuff[10] = {0};
 
+/*******************************************************************************
+* Function Name  : StoreFaultInMemory
+* Description    : Store Fault code In Memory.
+* Input          : None            
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void StoreFaultInMemory(void)
+{
+ 
+
+
+}
 
 /*******************************************************************************
 * Function Name  : fault_code_decode

@@ -61,6 +61,9 @@ u8 *const pcSafetyInputToControl = &EscRTBuff[4];
 u8 *const pcEscDataToControl = &EscRTBuff[12];
 u8 *const pcEscDataFromControl = &EscRTBuff[81];
 u16 pcOMC_SfBase_EscState = 0u;
+/* cpu2 motor speed */
+u16 *const g_u16ptCpu2MotorFreqSensor1 = (u16*)&McRxBuff[40];
+u16 *const g_u16ptCpu2MotorFreqSensor2 = (u16*)&McRxBuff[42];
 
 /*******************************************************************************
 * Function Name  : LED_indicator

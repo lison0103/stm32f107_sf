@@ -27,7 +27,8 @@ static u16 Measure_motor_speed(MotorSpeedItem* ptMTR);
 static void Motor_Speed_Ready(MotorSpeedItem* ptMTR);
 static void Motor_Speed_Run_EN115(MotorSpeedItem* ptMTR);
 static void Check_Stopping_Distance(MotorSpeedItem* ptMTR);
-static void Motor_Senor_Check(void);
+static void Motor_Speed_Senor_Check(void);
+static void Motor_Speed_Direction_Check(void);
 
 MotorSpeedItem MTRITEM[2]=
 {
@@ -299,22 +300,115 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
 }
 
 /*******************************************************************************
-* Function Name  : Motor_Senor_Check
+* Function Name  : Motor_Speed_Senor_Check
 * Description    : Check the difference in both speed sensors.
+*                  Check the difference in both speed sensors between micro.     
 * Input          : None          
 * Output         : None
 * Return         : None
 *******************************************************************************/
-static void Motor_Senor_Check(void)
+static void Motor_Speed_Senor_Check(void)
 {
-    /* The safety board goes to fault when the difference 
-    in both speed sensors is more than 5% for more than 1 second */
+    static u16 stat_u16TimerMotorSpeedSensor = 0u;
+    static u16 stat_u16Timer1Cpu2MotorSpeedSensor = 0u;
+    static u16 stat_u16Timer2Cpu2MotorSpeedSensor = 0u;
+    u16 u16MotorSpeedSensorDiff = 0u;
     
-    
-    
-    /* The safety board goes to fault when the difference in both speed 
-    sensors between microprocessors is more than 5% for more than 1 second */
-    
+    if( SfBase_EscState & ESC_RUN_STATE )
+    {
+        /* The safety board goes to fault when the difference 
+        in both speed sensors is more than 5% for more than 1 second */        
+        if( MTRITEM[0].ptFreqBuff > MTRITEM[1].ptFreqBuff )
+        {
+            u16MotorSpeedSensorDiff = ( *MTRITEM[0].ptFreqBuff - *MTRITEM[1].ptFreqBuff ) * 100u / *MTRITEM[1].ptFreqBuff;
+        }
+        else if( MTRITEM[0].ptFreqBuff < MTRITEM[1].ptFreqBuff )
+        {
+            u16MotorSpeedSensorDiff = ( *MTRITEM[1].ptFreqBuff - *MTRITEM[0].ptFreqBuff ) * 100u / *MTRITEM[0].ptFreqBuff;
+        }
+        else
+        {
+            stat_u16TimerMotorSpeedSensor = 0u;
+        }
+        
+        if( u16MotorSpeedSensorDiff > 5u )
+        {
+            stat_u16TimerMotorSpeedSensor++;
+            if(( stat_u16TimerMotorSpeedSensor * SYSTEMTICK ) > 1000u )
+            {
+                /* Fault: DISCRESPANCE_SPEED_SENSOR */
+                
+            }
+        }
+        
+        
+        /* The safety board goes to fault when the difference in both speed 
+        sensors between microprocessors is more than 5% for more than 1 second */
+        
+        /* wait the speed stable */
+        if( ( g_u32TimeRuningTms * SYSTEMTICK ) > UNDERSPEED_TIME )
+        {
+            /* Motor speed sensor 1 */
+            if( *g_u16ptCpu2MotorFreqSensor1 > *MTRITEM[0].ptFreqBuff )
+            {
+                u16MotorSpeedSensorDiff = ( *g_u16ptCpu2MotorFreqSensor1 - *MTRITEM[0].ptFreqBuff ) * 100u / *MTRITEM[0].ptFreqBuff;
+            }
+            else if( *g_u16ptCpu2MotorFreqSensor1 < *MTRITEM[0].ptFreqBuff )
+            {
+                u16MotorSpeedSensorDiff = ( *MTRITEM[0].ptFreqBuff - *g_u16ptCpu2MotorFreqSensor1 ) * 100u / *g_u16ptCpu2MotorFreqSensor1;
+            }
+            else
+            {
+                stat_u16Timer1Cpu2MotorSpeedSensor = 0u;
+            }  
+            
+            if( u16MotorSpeedSensorDiff > 5u )
+            {
+                stat_u16Timer1Cpu2MotorSpeedSensor++;
+                if(( stat_u16Timer1Cpu2MotorSpeedSensor * SYSTEMTICK ) > 1000u )
+                {
+                    /* Fault: DISCREPANCE_SPEED_CPU */
+                    
+                }
+            }            
+            
+            /* Motor speed sensor 2 */
+            if( *g_u16ptCpu2MotorFreqSensor2 > *MTRITEM[1].ptFreqBuff )
+            {
+                u16MotorSpeedSensorDiff = ( *g_u16ptCpu2MotorFreqSensor2 - *MTRITEM[1].ptFreqBuff ) * 100u / *MTRITEM[1].ptFreqBuff;
+            }
+            else if( *g_u16ptCpu2MotorFreqSensor2 < *MTRITEM[1].ptFreqBuff )
+            {
+                u16MotorSpeedSensorDiff = ( *MTRITEM[1].ptFreqBuff - *g_u16ptCpu2MotorFreqSensor2 ) * 100u / *g_u16ptCpu2MotorFreqSensor2;
+            }
+            else
+            {
+                stat_u16Timer2Cpu2MotorSpeedSensor = 0u;
+            }  
+            
+            if( u16MotorSpeedSensorDiff > 5u )
+            {
+                stat_u16Timer2Cpu2MotorSpeedSensor++;
+                if(( stat_u16Timer2Cpu2MotorSpeedSensor * SYSTEMTICK ) > 1000u )
+                {
+                    /* Fault: DISCREPANCE_SPEED_CPU */
+                    
+                }
+            }
+        }       
+    }
+}
+
+/*******************************************************************************
+* Function Name  : Motor_Speed_Direction_Check
+* Description    : Check the motor speed direction.    
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+static void Motor_Speed_Direction_Check(void)
+{
+    /* how to measure the motor speed direction? */
     
 }
 
@@ -415,6 +509,8 @@ void ESC_Motor_Check(void)
     
     Motor_Speed_Run_EN115(&MTRITEM[0]);
     Motor_Speed_Run_EN115(&MTRITEM[1]);
+    
+    Motor_Speed_Senor_Check();
     
     Check_Stopping_Distance(&MTRITEM[0]);
     Check_Stopping_Distance(&MTRITEM[1]);
