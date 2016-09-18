@@ -399,7 +399,7 @@ void SafetyOutputEnable(void)
     static u8 sf_output_en_tms = 0u; 
     
     
-    if( SfBase_EscState & ESC_RUN_STATE ) 
+    if( SfBase_EscState == ESC_RUN_STATE ) 
     { 
         SF_RELAY_ON();    
         SF_EWDT_TOOGLE();
@@ -433,7 +433,7 @@ void SafetyOutputEnable(void)
 static void SafetyRelayAuxRelayTest(void)
 {
    
-    if( SfBase_EscState & ESC_RUN_STATE ) 
+    if( SfBase_EscState == ESC_RUN_STATE ) 
     { 
         /* safety circuit is  connected */
         if( SF_RL_DRV_FB )
@@ -626,7 +626,7 @@ void SafetyExtWdt_RunCheck(void)
 
     static u16 escState_old = ESC_READY_STATE; 
     
-    if(( SfBase_EscState & ESC_READY_STATE ) && ( !(escState_old & ESC_READY_STATE)))
+    if(( SfBase_EscState == ESC_READY_STATE ) && ( !(escState_old == ESC_READY_STATE)))
     {
         sf_wdt_check_en = 1u;
     }
@@ -710,7 +710,7 @@ static void SafetyCTR_Check(void)
 {
     static u16 sf_ctr_check_tms = 0u;
     
-    if( SfBase_EscState & ESC_RUN_STATE ) 
+    if( SfBase_EscState == ESC_RUN_STATE ) 
     {    
         sf_ctr_check_tms++;
         /* check period 1s */ 

@@ -68,7 +68,7 @@ STEPMISSINGITEM STPMS_LOWER=
 static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
 {      
     /* System in Ready or 0Hz state */
-    if( SfBase_EscState & ESC_READY_STATE ) 
+    if( SfBase_EscState == ESC_READY_STATE ) 
     {                
         psSTPMS->ms_ready_delay++;
         
@@ -101,7 +101,7 @@ static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
 static void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
 {
     /* System in run or stopping process state */
-    if(( SfBase_EscState & ESC_RUN_STATE ) || ( SfBase_EscState & ESC_STOPPING_PROCESS_STATE ))
+    if(( SfBase_EscState == ESC_RUN_STATE ) || ( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ))
     {       
         psSTPMS->ms_ready_delay = 200u;
         
@@ -189,7 +189,7 @@ static void Missing_Step_UpperLower_SyncRun(void)
 {
     static u8 stat_u8UpperMissingStepCounter = 0u,stat_u8LowerMissingStepCounter = 0u;    
     
-    if(( SfBase_EscState & ESC_RUN_STATE ) || ( SfBase_EscState & ESC_STOPPING_PROCESS_STATE ))
+    if(( SfBase_EscState == ESC_RUN_STATE ) || ( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ))
     {  
         if( g_u8FirstMissingStepSyncEntry == 0u )
         {
@@ -243,7 +243,7 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
     static u32 stat_u32MissingStepSCOkCounter = 0u;
     static u32 stat_u32MissingStepSCNotOkCounter = 0u;    
     
-    if( SfBase_EscState & ESC_RUN_STATE )
+    if( SfBase_EscState == ESC_RUN_STATE )
     {  
         if( g_u8FirstMissingStepEdgeDetected == 0u )
         {
@@ -304,7 +304,7 @@ void ESC_Missingstep_Check(void)
     Missing_Step_Ready(&STPMS_LOWER);		
     
     /* esc turn to run state, init */
-    if((SfBase_EscState & ESC_RUN_STATE) && (!(stat_u16EscStateOld & ESC_RUN_STATE))) 
+    if((SfBase_EscState == ESC_RUN_STATE) && (!(stat_u16EscStateOld == ESC_RUN_STATE))) 
     { 
         STPMS_UPPER.First_entry_missing_step_detection = 0u;
         STPMS_LOWER.First_entry_missing_step_detection = 0u;

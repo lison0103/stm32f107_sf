@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
-* Last modify date   : 09/12/2016
+* Last modify date   : 09/18/2016
 * Description        : This file contains esc motor speed and brake distance.
 *                      
 *******************************************************************************/
@@ -88,7 +88,7 @@ static void Motor_Speed_Ready(MotorSpeedItem* ptMTR)
 {
     u16 Escalator_speed = 0u;
     
-    if( SfBase_EscState & ESC_READY_STATE ) 
+    if( SfBase_EscState == ESC_READY_STATE ) 
     {              
         Escalator_speed = Measure_motor_speed(ptMTR);
         
@@ -114,7 +114,7 @@ static void Motor_Speed_Run_EN115(MotorSpeedItem* ptMTR)
     u16 Escalator_speed = 0u;
     u8 i;	
     
-    if(( SfBase_EscState & ESC_RUN_STATE ) || ( SfBase_EscState & ESC_STOPPING_PROCESS_STATE ))
+    if(( SfBase_EscState == ESC_RUN_STATE ) || ( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ))
     {      
                 
         g_u32TimeRuningTms++;
@@ -148,28 +148,32 @@ static void Motor_Speed_Run_EN115(MotorSpeedItem* ptMTR)
                     ptMTR->NotOkCounter = 0u;
                 }
             }
-            
-            /* judge underspeed */
-            if( ptMTR->NotOkCounter < 5u )
+           
+            /* In stopping process state not need to judge the underspeed */
+            if( SfBase_EscState == ESC_RUN_STATE )
             {
-                if( ( g_u32TimeRuningTms * SYSTEMTICK ) > UNDERSPEED_TIME )
+                /* judge underspeed */
+                if( ptMTR->NotOkCounter < 5u )
                 {
-                    if( ptMTR->TimerMotorSpeedBetweenPulse[i] > ( 1000000u / MIN_SPEED ))
+                    if( ( g_u32TimeRuningTms * SYSTEMTICK ) > UNDERSPEED_TIME )
                     {
-                        /* underspeed fault */
-                        EN_ERROR1 |= 0x04u; 
-                        /* reset timer */
-                        g_u32TimeRuningTms = 0u;
-                    }
-                    else
-                    {
-                        /* if no motor pulse */
-                        if( TIM_GetCounter(ptMTR->TimerNum) > ( 1000000u / MIN_SPEED ))
+                        if( ptMTR->TimerMotorSpeedBetweenPulse[i] > ( 1000000u / MIN_SPEED ))
                         {
                             /* underspeed fault */
                             EN_ERROR1 |= 0x04u; 
                             /* reset timer */
                             g_u32TimeRuningTms = 0u;
+                        }
+                        else
+                        {
+                            /* if no motor pulse */
+                            if( TIM_GetCounter(ptMTR->TimerNum) > ( 1000000u / MIN_SPEED ))
+                            {
+                                /* underspeed fault */
+                                EN_ERROR1 |= 0x04u; 
+                                /* reset timer */
+                                g_u32TimeRuningTms = 0u;
+                            }
                         }
                     }
                 }
@@ -254,7 +258,7 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
     static u32 stat_u32MotorSpeedShortCircuitOkCounter = 0u;
     static u32 stat_u32MotorSpeedShortCircuitNotOkCounter = 0u;
    
-    if( SfBase_EscState & ESC_RUN_STATE )
+    if( SfBase_EscState == ESC_RUN_STATE )
     {  
         if( g_u8FirstMotorSpeedEdgeDetected == 0u )
         {
@@ -314,7 +318,7 @@ static void Motor_Speed_Senor_Check(void)
     static u16 stat_u16Timer2Cpu2MotorSpeedSensor = 0u;
     u16 u16MotorSpeedSensorDiff = 0u;
     
-    if( SfBase_EscState & ESC_RUN_STATE )
+    if( SfBase_EscState == ESC_RUN_STATE )
     {
         /* The safety board goes to fault when the difference 
         in both speed sensors is more than 5% for more than 1 second */        
@@ -423,7 +427,7 @@ static void Motor_Speed_Direction_Check(void)
 static void Check_Stopping_Distance(MotorSpeedItem* ptMTR)
 {   
     
-    if((SfBase_EscState & ESC_STOPPING_PROCESS_STATE ) && ( ptMTR->rt_brake_stop == 0u )) 
+    if((SfBase_EscState == ESC_STOPPING_PROCESS_STATE ) && ( ptMTR->rt_brake_stop == 0u )) 
     {
         if((ptMTR->rt_brake_pulse) > MAX_DISTANCE)
         {
@@ -481,7 +485,7 @@ void ESC_Motor_Check(void)
     Motor_Speed_Ready(&MTRITEM[0]);
     Motor_Speed_Ready(&MTRITEM[1]);		
     
-    if((SfBase_EscState & ESC_RUN_STATE) && (!(stat_u16EscStateOld & ESC_RUN_STATE))) 
+    if((SfBase_EscState == ESC_RUN_STATE) && (!(stat_u16EscStateOld == ESC_RUN_STATE))) 
     { 
         g_u8FirstMotorSpeedEdgeDetected = 0u;
         g_u32TimeRuningTms = 0u;
@@ -498,7 +502,7 @@ void ESC_Motor_Check(void)
     } 
     else
     {        
-        if(( SfBase_EscState & ESC_STOPPING_PROCESS_STATE ) && ( !(stat_u16EscStateOld & ESC_STOPPING_PROCESS_STATE)))
+        if(( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ) && ( !(stat_u16EscStateOld == ESC_STOPPING_PROCESS_STATE)))
         {
             MTRITEM[0].last_brake_pulse = MTRITEM[0].rt_brake_pulse;
             MTRITEM[1].last_brake_pulse = MTRITEM[1].rt_brake_pulse;

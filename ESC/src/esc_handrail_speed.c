@@ -66,7 +66,7 @@ HandrailSpeedItem HDL_Right =
 static void HR_Speed_Ready(HandrailSpeedItem* psHDL)
 {     
     
-    if( SfBase_EscState & ESC_READY_STATE ) 
+    if( SfBase_EscState == ESC_READY_STATE ) 
     {                      
         psHDL->hdl_pulse_tms++;
         
@@ -102,7 +102,7 @@ static void HR_Speed_Run_EN115(HandrailSpeedItem* psHDL)
     u16 u16PulseSum = 0u, u8FaultFlag = 0u;
     u16 i;
     
-    if(( SfBase_EscState & ESC_RUN_STATE ) || ( SfBase_EscState & ESC_STOPPING_PROCESS_STATE ))
+    if(( SfBase_EscState == ESC_RUN_STATE ) || ( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ))
     {
         psHDL->hdl_pulse_tms = 200u;
         
@@ -184,7 +184,7 @@ void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
     static u32 stat_u32HandrailShortcircuitOkCounter = 0u;
     static u32 stat_u32HandrailShortcircuitNotOkCounter = 0u;
     
-    if( SfBase_EscState & ESC_RUN_STATE )
+    if( SfBase_EscState == ESC_RUN_STATE )
     {  
         if( g_u8FirstHandrailSpeedEdgeDetected == 0u )
         {
@@ -245,7 +245,7 @@ void ESC_Handrail_Check(void)
   HR_Speed_Ready(&HDL_Right);
   HR_Speed_Ready(&HDL_Left);		
  
-  if((SfBase_EscState & ESC_RUN_STATE) && (!(stat_u16EscStateOld & ESC_RUN_STATE))) 
+  if((SfBase_EscState == ESC_RUN_STATE) && (!(stat_u16EscStateOld == ESC_RUN_STATE))) 
   { 
       g_u8FirstHandrailSpeedEdgeDetected = 0u;
       

@@ -151,7 +151,7 @@ void CheckReset(void)
             stat_u16TimerResetPress = 0u;
             
             /* Reset a fault */
-            if( SfBase_EscState & ESC_FAULT_STATE )
+            if( SfBase_EscState == ESC_FAULT_STATE )
             {
                 g_u8ResetButton = 1u;
             }
