@@ -258,6 +258,22 @@ typedef struct stepmissingitem
         
 }STEPMISSINGITEM;
 
+typedef struct updownkey 
+{
+    /* Up down key previous input state */
+    u8 InputPreviousState;
+    
+    /* define key type, up or down*/
+    u8 key;
+    
+    /* define key type, up or down*/
+    u8 otherkey;
+    
+    /* A timer, counting key on times */
+    u16 TimerKeyOn;
+	
+}UpDownKeyItem;
+
 
 /* Exported functions ------------------------------------------------------- */
 
@@ -275,7 +291,6 @@ extern u8 Modbuff[3000];
 extern u8 *const Sys_Data;
 extern u16 *const pt_SysBuff;
 extern u8 *const pcOMC_EscRTBuff;
-extern u8 sf_wdt_check_en;
 extern u16 pcOMC_SfBase_EscState;
 extern u8 *const pcErrorBuff;
 extern u8 *const pcEscErrorBuff;

@@ -3,6 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 06/20/2016
+* Last modify date   : 09/19/2016
 * Description        : This file contains esc safety module check.
 *                      
 *******************************************************************************/
@@ -25,7 +26,7 @@
 void SafetySwitchCheck( u8 pulse_on, u8 test_num );
 
 static u8 sf_wdt_check_tms = 0u;
-u8 sf_wdt_check_en = 0u;
+static u8 sf_wdt_check_en = 0u;
 static u8 sf_relay_check_cnt = 0u;
 /* static u8 test_num = 0;*/
 #ifdef GEC_SF_MASTER
@@ -365,20 +366,24 @@ void SafetyOutputDisable(void)
 {
     static u8 sf_output_dis_tms = 0u; 
     
-    if(( sf_wdt_check_en == 0u ) && ( SfBase_EscState & ESC_STATE_STOP )) 
+    if( sf_wdt_check_en == 0u ) 
     { 
-        SF_RELAY_OFF();
-        
-        if( sf_relay_check_cnt == 1u )
+        if(( SfBase_EscState == ESC_INIT_STATE ) || ( SfBase_EscState == ESC_FAULT_STATE ) 
+           || ( SfBase_EscState == ESC_READY_STATE ) || ( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ))
         {
-            sf_output_dis_tms++;
-            if( sf_output_dis_tms * SYSTEMTICK > 50u )
+            SF_RELAY_OFF();
+            
+            if( sf_relay_check_cnt == 1u )
             {
-                SafetyRelayAuxRelayTest();
-                sf_relay_check_cnt = 0u;
-                sf_output_dis_tms = 0u;
-            }
-        }  
+                sf_output_dis_tms++;
+                if( sf_output_dis_tms * SYSTEMTICK > 50u )
+                {
+                    SafetyRelayAuxRelayTest();
+                    sf_relay_check_cnt = 0u;
+                    sf_output_dis_tms = 0u;
+                }
+            }  
+        }
         
     }
 
