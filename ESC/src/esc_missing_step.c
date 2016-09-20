@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/10/2016
-* Last modify date   : 09/12/2016
+* Last modify date   : 09/20/2016
 * Description        : This file contains esc missing step check.
 *                      
 *******************************************************************************/
@@ -36,25 +36,25 @@ static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS);
 STEPMISSINGITEM STPMS_UPPER=
 {
     &EscRTBuff[64],
-    0,
-    {0,0},
+    0u,
+    {0u,0u},
     (u16*)&EscRTBuff[60],
-    0,
-    0,
-    0,
-    0
+    200u,
+    0u,
+    0u,
+    0u
 };
 
 STEPMISSINGITEM STPMS_LOWER=
 {
     &EscRTBuff[65],
-    0,          
-    {0,0},
+    0u,          
+    {0u,0u},
     (u16*)&EscRTBuff[62],
-    0,
-    0,
-    0,
-    0
+    200u,
+    0u,
+    0u,
+    0u
 };
 
 
@@ -67,28 +67,25 @@ STEPMISSINGITEM STPMS_LOWER=
 *******************************************************************************/
 static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
 {      
-    /* System in Ready or 0Hz state */
-    if( SfBase_EscState == ESC_READY_STATE ) 
-    {                
-        psSTPMS->ms_ready_delay++;
+            
+    psSTPMS->ms_ready_delay++;
+    
+    if( psSTPMS->rising_edge_detected[0] == 1u )
+    {
+        psSTPMS->rising_edge_detected[0] = 0u;
         
-        if( psSTPMS->rising_edge_detected[0] == 1u )
+        /* Missing Step pulse detected with freq > 1 Hz? */
+        if( psSTPMS->ms_ready_delay * SYSTEMTICK < 1000u )
         {
-            psSTPMS->rising_edge_detected[0] = 0u;
-  
-            /* Missing Step pulse detected with freq > 1 Hz? */
-            if( psSTPMS->ms_ready_delay * SYSTEMTICK < 1000u )
-            {
-                /* fault */ 
-                *(psSTPMS->pcErrorCodeBuff) |= 0x01u;
-                EN_ERROR3 |= 0x01u;
-            }
-            else
-            {
-                psSTPMS->ms_ready_delay = 0u;
-            }
-        }         
-    } 
+            /* fault */ 
+            *(psSTPMS->pcErrorCodeBuff) |= 0x01u;
+            EN_ERROR3 |= 0x01u;
+        }
+        else
+        {
+            psSTPMS->ms_ready_delay = 0u;
+        }
+    }         
 }
 
 /*****************************************************************************
@@ -100,63 +97,42 @@ static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
 *****************************************************************************/
 static void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
 {
-    /* System in run or stopping process state */
-    if(( SfBase_EscState == ESC_RUN_STATE ) || ( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ))
-    {       
-        psSTPMS->ms_ready_delay = 200u;
-        
-        /* First_entry_missing_step_detection == 0? */
-        if( psSTPMS->First_entry_missing_step_detection == 0u )
-        {
-            psSTPMS->First_entry_missing_step_detection = 1u;
-            psSTPMS->Motor_speed_pulse_counter_init = Pulse_counter_sensor_speed(psSTPMS);
-        }
-        
-        psSTPMS->Motor_speed_pulse_counter =  Pulse_counter_sensor_speed(psSTPMS) - psSTPMS->Motor_speed_pulse_counter_init;
-        
-        /* Motor_speed_pulse_ counter > R*1.1? */
-        if( psSTPMS->Motor_speed_pulse_counter > (( R * 11u ) / 10u ) )
-        {
-            if( SfBase_EscState & ESC_STATE_INSP )
-            {     
-                /* Missing step warning */
-
-            }
-            else
-            {
-                /* Missing step fault */
-                *(psSTPMS->pcErrorCodeBuff) |= 0x02u;
-                EN_ERROR3 |= 0x02u;
-            }
+    
+    /* First_entry_missing_step_detection == 0? */
+    if( psSTPMS->First_entry_missing_step_detection == 0u )
+    {
+        psSTPMS->First_entry_missing_step_detection = 1u;
+        psSTPMS->MtrPulse = 0u;
+        /*psSTPMS->Motor_speed_pulse_counter_init = Pulse_counter_sensor_speed(psSTPMS);*/
+    }
+    
+    /*psSTPMS->Motor_speed_pulse_counter =  Pulse_counter_sensor_speed(psSTPMS) - psSTPMS->Motor_speed_pulse_counter_init;*/
+    psSTPMS->Motor_speed_pulse_counter =  Pulse_counter_sensor_speed(psSTPMS);
+    
+    /* Motor_speed_pulse_ counter > R*1.1? */
+    if( psSTPMS->Motor_speed_pulse_counter > (( R * 11u ) / 10u ) )
+    {
+        if( SfBase_EscState & ESC_STATE_INSP )
+        {     
+            /* Missing step warning */
+            
         }
         else
         {
-            /* Missing step signal rising edge detected ? */
-            if( psSTPMS->rising_edge_detected[0] == 1u )
-            {
-                psSTPMS->rising_edge_detected[0] = 0u;
-                
-                psSTPMS->Motor_speed_pulse_counter =  Pulse_counter_sensor_speed(psSTPMS) - psSTPMS->Motor_speed_pulse_counter_init;
-                
-                /* Motor_speed_pulse_ counter > R*1.1? */
-                if( psSTPMS->Motor_speed_pulse_counter > (( R * 11u ) / 10u ))
-                {
-                    if( SfBase_EscState & ESC_STATE_INSP )
-                    {     
-                        /* Missing step warning */
-
-                    }
-                    else
-                    {
-                        /* Missing step fault */
-                        *(psSTPMS->pcErrorCodeBuff) |= 0x04u;
-                        EN_ERROR3 |= 0x04u;
-                    }
-                }
-
-                psSTPMS->MtrPulse = 0u;
-                psSTPMS->Motor_speed_pulse_counter_init = Pulse_counter_sensor_speed(psSTPMS);                                                       
-            }
+            /* Missing step fault */
+            *(psSTPMS->pcErrorCodeBuff) |= 0x02u;
+            EN_ERROR3 |= 0x02u;
+        }
+    }
+    else
+    {
+        /* Missing step signal rising edge detected ? */
+        if( psSTPMS->rising_edge_detected[0] == 1u )
+        {
+            psSTPMS->rising_edge_detected[0] = 0u;            
+            
+            psSTPMS->MtrPulse = 0u;
+            /*psSTPMS->Motor_speed_pulse_counter_init = Pulse_counter_sensor_speed(psSTPMS);*/                                                       
         }
     }       
 }
@@ -188,44 +164,41 @@ static u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS)
 static void Missing_Step_UpperLower_SyncRun(void)
 {
     static u8 stat_u8UpperMissingStepCounter = 0u,stat_u8LowerMissingStepCounter = 0u;    
+     
+    if( g_u8FirstMissingStepSyncEntry == 0u )
+    {
+        g_u8FirstMissingStepSyncEntry = 1u;
+        stat_u8UpperMissingStepCounter = 0u;
+        stat_u8LowerMissingStepCounter = 0u;
+    } 
     
-    if(( SfBase_EscState == ESC_RUN_STATE ) || ( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ))
-    {  
-        if( g_u8FirstMissingStepSyncEntry == 0u )
-        {
-            g_u8FirstMissingStepSyncEntry = 1u;
-            stat_u8UpperMissingStepCounter = 0u;
-            stat_u8LowerMissingStepCounter = 0u;
-        } 
-
-        /* Upper Missing step signal: rising edge detected ? */
-        if( STPMS_UPPER.rising_edge_detected[1] == 1u )
-        {
-            STPMS_UPPER.rising_edge_detected[1] = 0u;
-            
-            stat_u8UpperMissingStepCounter += 1u;
-            stat_u8LowerMissingStepCounter = 0u;
-            
-            if( stat_u8UpperMissingStepCounter >= 2u )
-            {
-                /* Fault */
-                EN_ERROR5 |= 0x01u;         
-            }
-        }
+    /* Upper Missing step signal: rising edge detected ? */
+    if( STPMS_UPPER.rising_edge_detected[1] == 1u )
+    {
+        STPMS_UPPER.rising_edge_detected[1] = 0u;
         
-        /* Upper Missing step no fault and Lower Missing step signal: rising edge detected ? */
-        if( ( (u8)(EN_ERROR5 & 0x01u)  == 0u ) && ( STPMS_LOWER.rising_edge_detected[1] == 1u ) )
+        stat_u8UpperMissingStepCounter += 1u;
+        stat_u8LowerMissingStepCounter = 0u;
+        
+        if( stat_u8UpperMissingStepCounter >= 2u )
         {
-            STPMS_LOWER.rising_edge_detected[1] = 0u;
-            
-            stat_u8LowerMissingStepCounter += 1u;
-            stat_u8UpperMissingStepCounter = 0u;
-            
-            if( stat_u8LowerMissingStepCounter >= 2u )
-            {
-                /* Fault */
-                EN_ERROR5 |= 0x02u;
-            }
+            /* Fault */
+            EN_ERROR5 |= 0x01u;         
+        }
+    }
+    
+    /* Upper Missing step no fault and Lower Missing step signal: rising edge detected ? */
+    if( ( (u8)(EN_ERROR5 & 0x01u)  == 0u ) && ( STPMS_LOWER.rising_edge_detected[1] == 1u ) )
+    {
+        STPMS_LOWER.rising_edge_detected[1] = 0u;
+        
+        stat_u8LowerMissingStepCounter += 1u;
+        stat_u8UpperMissingStepCounter = 0u;
+        
+        if( stat_u8LowerMissingStepCounter >= 2u )
+        {
+            /* Fault */
+            EN_ERROR5 |= 0x02u;
         }
     }
 }
@@ -243,6 +216,7 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
     static u32 stat_u32MissingStepSCOkCounter = 0u;
     static u32 stat_u32MissingStepSCNotOkCounter = 0u;    
     
+    /* System in run state */
     if( SfBase_EscState == ESC_RUN_STATE )
     {  
         if( g_u8FirstMissingStepEdgeDetected == 0u )
@@ -250,7 +224,8 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
             g_u8FirstMissingStepEdgeDetected = 1u;
             stat_u32TimerMissingStepShortcircuit = 0u;
             stat_u32MissingStepSCOkCounter = 0u;
-            stat_u32MissingStepSCNotOkCounter = 0u;            
+            stat_u32MissingStepSCNotOkCounter = 0u;  
+            /* Timer init, counter is 1us */
             TIM_Cmd(TIM7, DISABLE); 
             TIM7_Int_Init(65535u,71u);           
         }    
@@ -258,6 +233,7 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
         {
             /* Get the time between the two signals */
             stat_u32TimerMissingStepShortcircuit = TIM_GetCounter(TIM7);
+            /* Reset the timer */
             TIM_SetCounter(TIM7,0u);            
             
             if( stat_u32TimerMissingStepShortcircuit < SSM_SHORTCIRCUIT_TIME )
@@ -300,9 +276,6 @@ void ESC_Missingstep_Check(void)
 {
     static u16 stat_u16EscStateOld = 0u; 
     
-    Missing_Step_Ready(&STPMS_UPPER);
-    Missing_Step_Ready(&STPMS_LOWER);		
-    
     /* esc turn to run state, init */
     if((SfBase_EscState == ESC_RUN_STATE) && (!(stat_u16EscStateOld == ESC_RUN_STATE))) 
     { 
@@ -310,11 +283,22 @@ void ESC_Missingstep_Check(void)
         STPMS_LOWER.First_entry_missing_step_detection = 0u;
         g_u8FirstMissingStepSyncEntry = 0u;
         g_u8FirstMissingStepEdgeDetected = 0u;
+        STPMS_UPPER.ms_ready_delay = 200u;
+        STPMS_LOWER.ms_ready_delay = 200u;
     } 
     
-    Missing_StepRun(&STPMS_UPPER);
-    Missing_StepRun(&STPMS_LOWER);
-    Missing_Step_UpperLower_SyncRun();
+    /* System in run or stopping process state */
+    if(( SfBase_EscState == ESC_RUN_STATE ) || ( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ))
+    { 
+        Missing_StepRun(&STPMS_UPPER);
+        Missing_StepRun(&STPMS_LOWER);
+        Missing_Step_UpperLower_SyncRun();
+    }
+    else /* System in Ready or 0Hz state , except run and stopping process state */
+    {
+        Missing_Step_Ready(&STPMS_UPPER);
+        Missing_Step_Ready(&STPMS_LOWER);        
+    }
     
     stat_u16EscStateOld = SfBase_EscState;                                      
 }

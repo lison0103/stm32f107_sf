@@ -108,7 +108,10 @@ void CheckUpDown_Key(UpDownKeyItem *ptKEY)
                 {
                     ptKEY->TimerKeyOn = 0u;
                     
-                    /* Order to Run Up or Down*/
+                    /* In ready state, Order to Run Up or Down*/
+                    
+                    
+                    /* In fault state, reset standard fault */
                     
                 }
             }
@@ -170,6 +173,7 @@ void CheckReset(void)
 {
     static u16 stat_u16TimerResetPress = 0u;
        
+    /* reset Button */
     if( CMD_FLAG6 & ESC_RESET_BUTTON )
     {
         stat_u16TimerResetPress++;
@@ -186,6 +190,33 @@ void CheckReset(void)
         }
         stat_u16TimerResetPress = 0u;
     }
+}
+
+
+/*******************************************************************************
+* Function Name  : Brake_Status_Ready
+* Description    : 
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Brake_Status_Ready(void)
+{
+    
+    
+}
+
+/*******************************************************************************
+* Function Name  : Brake_Status_Run
+* Description    : 
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Brake_Status_Run(void)
+{
+    
+    
 }
 
 
