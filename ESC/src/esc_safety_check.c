@@ -19,27 +19,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-void SafetySwitchCheck( u8 pulse_on, u8 test_num );
-
-static u8 sf_wdt_check_tms = 0u;
-static u8 sf_wdt_check_en = 0u;
-static u8 sf_relay_check_cnt = 0u;
-/* static u8 test_num = 0;*/
-#ifdef GEC_SF_MASTER
-u8 R_SF_RL2_FB_CPU1;
-#else
-u8 R_SF_RL_FB_CPU2;
-
-#endif
-
-u8 SAFETY_SWITCH[4][4];
-u8 SAFETY_SWITCH_STATUS[4];
-u8 FAULT = 0u;
-
 #ifdef GEC_SF_MASTER
 #define TEST_PATTERN    0x09u
 #else
@@ -52,6 +31,30 @@ u8 FAULT = 0u;
 #define ERROR       3u 
 #define SYNCLINE        4u
 #define FEEDBACK_PULSE_OUTPUT   5u
+
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+static u8 sf_wdt_check_tms = 0u;
+static u8 sf_wdt_check_en = 0u;
+static u8 sf_relay_check_cnt = 0u;
+/* static u8 test_num = 0;*/
+
+/* Private function prototypes -----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
+void SafetySwitchCheck( u8 pulse_on, u8 test_num );
+static void Safety_String_End(void);
+
+
+#ifdef GEC_SF_MASTER
+u8 R_SF_RL2_FB_CPU1;
+#else
+u8 R_SF_RL_FB_CPU2;
+#endif
+u8 SAFETY_SWITCH[4][4];
+u8 SAFETY_SWITCH_STATUS[4];
+u8 FAULT = 0u;
+
+
 
 /*******************************************************************************
 * Function Name  : SafetySwitchCheck
@@ -425,6 +428,21 @@ void SafetyOutputEnable(void)
 
 }
 
+/*******************************************************************************
+* Function Name  : Safety_String_End
+* Description    :       
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+static void Safety_String_End(void)
+{
+        if( SF_PWR_FB_CPU )
+        {
+            EN_ERROR8 |= 0x01u;
+        }   
+}
+
 
 /*******************************************************************************
 * Function Name  : SafetyRelayAuxRelayTest
@@ -440,7 +458,7 @@ static void SafetyRelayAuxRelayTest(void)
    
     if( SfBase_EscState == ESC_RUN_STATE ) 
     { 
-        /* safety circuit is  connected */
+        /* safety circuit is connected */
         if( SF_RL_DRV_FB )
         {
             EN_ERROR8 |= 0x01u;
@@ -448,7 +466,7 @@ static void SafetyRelayAuxRelayTest(void)
         else if( SF_PWR_FB_CPU )
         {
             EN_ERROR8 |= 0x01u;
-        }
+        }        
         else if ( SF_RL_FB )
         {
             EN_ERROR8 |= 0x01u;
@@ -461,17 +479,8 @@ static void SafetyRelayAuxRelayTest(void)
         {
             
         }
-        
-        /* MISRA C 2004 rule 12.4/12.5 can not compile */
-/*
-        if( SF_RL_DRV_FB || SF_PWR_FB_CPU || SF_RL_FB || !AUX_FB )
-        {
-//            FailSafeTest();
-            EN_ERROR8 |= 0x01u;
-        }   
-*/
     }
-    else if( SfBase_EscState & ESC_STATE_STOP )  
+    else
     {
         /* safety circuit is disconnected */
         if( !SF_RL_DRV_FB )
@@ -481,7 +490,7 @@ static void SafetyRelayAuxRelayTest(void)
         else if( SF_PWR_FB_CPU )
         {
             EN_ERROR8 |= 0x01u;
-        }
+        }        
         else if ( !SF_RL_FB )
         {
             EN_ERROR8 |= 0x01u;
@@ -489,20 +498,7 @@ static void SafetyRelayAuxRelayTest(void)
         else
         {
             
-        }        
-        
-        /* MISRA C 2004 rule 12.4/12.5 can not compile */
-/*                
-        if( !SF_RL_DRV_FB || SF_PWR_FB_CPU || !SF_RL_FB )
-        {
-//            FailSafeTest();
-            EN_ERROR8 |= 0x01u;
-        } 
-*/    
-    }
-    else
-    {
-    
+        }  
     }
 }
 
@@ -522,15 +518,6 @@ void SafetyExtWdt_StartUpCheck(void)
 /*    delay_ms(700);*/
 #endif
 
-    /* MISRA C 2004 rule 12.4/12.5 can not compile */
-/*    
-    if( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB && AUX_FB )
-    {
-        SF_EWDT_TOOGLE();
-        SF_RELAY_ON();   
-        SF_EWDT_TOOGLE();
-    }   
-*/
     if( !SF_RL_DRV_FB )
     {
 
@@ -585,16 +572,7 @@ void SafetyExtWdt_StartUpCheck(void)
     else
     {
         
-    }    
-    
-    /* MISRA C 2004 rule 12.4/12.5 can not compile */
-/*     
-    if( (SF_RL_DRV_FB) || (SF_PWR_FB_CPU) || (SF_RL_FB) || (!AUX_FB) )
-    {
-//        FailSafeTest();
-        EN_ERROR8 |= 0x01u;
-    }   
-*/    
+    }     
     
     delay_ms(600u);
     EWDT_TOOGLE();
@@ -639,16 +617,7 @@ void SafetyExtWdt_RunCheck(void)
     
     if( sf_wdt_check_en == 1u )
     {
-
-        /* MISRA C 2004 rule 12.4/12.5 can not compile */
-/*            
-        if(( sf_wdt_check_tms == 0u ) && ( SF_RL_DRV_FB && !SF_PWR_FB_CPU && SF_RL_FB ))
-        {
-            SF_EWDT_TOOGLE();
-            SF_RELAY_ON();  
-            SF_EWDT_TOOGLE();
-        }   
-*/     
+    
         if( sf_wdt_check_tms == 0u )
         {
             if( !SF_RL_DRV_FB )

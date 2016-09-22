@@ -32,7 +32,8 @@ void check_key_input(void);
 void CheckUpDown_Key(UpDownKeyItem *ptKEY);
 void Inspection_UpDown_Button(void);
 void CheckReset(void);
-
+void Brake_Status_Ready(void);
+void Brake_Status_Run(void);
 
 UpDownKeyItem UpKey = 
 { 
