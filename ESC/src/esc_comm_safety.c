@@ -22,14 +22,8 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-static void Safety_ReceiveA_Diagnostic(u8 DBL2Type, u8 DBL2InputData[], u8 DBL2ReceiveDataA[] );
+static void Safety_ReceiveA_Diagnostic( u8 validate, u8 DBL2InputData[], u8 ReceiveData[] );
 
-
-#ifdef GEC_SF_MASTER
-u8 SEQN_UPPER_A = 1u,SEQN_LOWER_A = 1u,SEQN_INTERM1_A = 1u,SEQN_INTERM2_A = 1u;
-#else
-static u8 SEQN_UPPER_B = 250u,SEQN_LOWER_B = 250u,SEQN_INTERM1_B = 250u,SEQN_INTERM2_B = 250u;
-#endif
 
 /* for test */
 u8 g_u8DBL2Respone = 0u;
@@ -192,28 +186,24 @@ void Safety_Request_Data(void)
 * Output         : None
 * Return         : None 
 *******************************************************************************/
-static void Safety_ReceiveA_Diagnostic(u8 DBL2Type, u8 DBL2InputData[], u8 DBL2ReceiveDataA[] )
+static void Safety_ReceiveA_Diagnostic( u8 validate, u8 DBL2InputData[], u8 ReceiveData[] )
 {
     u8 i;
     
-    if(( EscRtData.DBL2ValidateResult & DBL2Type ) && ( OmcEscRtData.DBL2ValidateResult & DBL2Type ))
+    if(( EscRtData.DBL2ValidateResult & validate ) && ( OmcEscRtData.DBL2ValidateResult & validate ))
     {
         /* data ok */
-        DBL2InputData[0] = DBL2ReceiveDataA[1];
-        DBL2InputData[1] = DBL2ReceiveDataA[2];
+        DBL2InputData[0] = ReceiveData[1];
+        DBL2InputData[1] = ReceiveData[2];
         
-        EscRtData.DBL2ValidateResult &= (u8)(~DBL2Type); 
+        EscRtData.DBL2ValidateResult &= (u8)(~validate); 
         
         /* clear receive data */
         for( i = 0u; i < 12u; i++ )
         {
-            DBL2ReceiveDataA[i] = 0u;
+            ReceiveData[i] = 0u;
         }            
-    }
-    else
-    {
-        
-    }    
+    }   
 }
       
 /*******************************************************************************
@@ -297,63 +287,62 @@ void Safety_ReceiveB_Diagnostic(u8 Connection, u8 SEQN, u8 DBL2Type, u8 DBL2Inpu
 
 /*******************************************************************************
 * Function Name  : Safety_Receive_Data_Process
-* Description    :                  
+* Description    :  
+*
+    MESSAGE 1
+    Byte	Bits (7 is MSB)	Data
+    0	0-1	CONNECTION_A_1
+    0	2-8	FAULT_STATUS_A_1
+    1	0-7	SAFETY_SENSOR_INPUTS_A_1 (8inputs =8x1 bit )
+    2	0-5	SAFETY_SENSOR_INPUTS_A_1 (6inputs =6x1 bit )
+    2	6-7	SAFETY_SWITCH_INPUTS_A_1 (2inputs =2x1 bit )
+    3	0-7	SEQN_A_1
+    4	0-1	CONNECTION_A_2
+    4	2-8	FAULT_STATUS_A_2
+    5	0-7	SAFETY_SENSOR_INPUTS_A_2 (8inputs =8x1 bit )
+    6	0-5	SAFETY_SENSOR_INPUTS_A_2 (6inputs =6x1 bit )
+    6	6-7	SAFETY_SWITCH_INPUTS_A _2 (2inputs =2x1 bit )
+    7	0-7	SEQN_A_2
+
+    MESSAGE 2
+    Byte	Bits (7 is MSB)	Data
+    0	0-1	CONNECTION_B_1
+    0	2-8	FAULT_STATUS_B_1
+    1	0-7	SAFETY_SENSOR_INPUTS_B_1 (8inputs =8x1 bit )
+    2	0-5	SAFETY_SENSOR_INPUTS_B_1 (6inputs =6x1 bit )
+    2	6-7	SAFETY_SWITCH_INPUTS_B_1 (2inputs =2x1 bit )
+    3	0-7	SEQN_B_1
+    4	0-1	CONNECTION_B_2
+    4	2-8	FAULT_STATUS_B_2
+    5	0-7	SAFETY_SENSOR_INPUTS_B_2 (8inputs =8x1 bit )
+    6	0-5	SAFETY_SENSOR_INPUTS_B_2 (6inputs =6x1 bit )
+    6	6-7	SAFETY_SWITCH_INPUTS_B_2 (2inputs =2x1 bit )
+    7	0-7	SEQN_B_1
+        
+    MESSAGE 3
+    Byte	Bits (7 is MSB)	Data
+    0,1,2,3	0-31	CRC_A
+    4,5,6,7	0-31	CRC_B
+
+    CRC_A: CONNECTION_A , FAULT_STATUS_A, SAFETY_SENSOR_INPUTS_A, 
+    SAFETY_SWITCH_INPUTS_A, SEQN_A
+
+    CRC_B: CONNECTION_B , FAULT_STATUS_B, SAFETY_SENSOR_INPUTS_B, 
+    SAFETY_SWITCH_INPUTS_B, SEQN_B
+
+*
 * Input          : None
 * Output         : None
 * Return         : None 
 *******************************************************************************/
 void Safety_Receive_Data_Process(void)
-{	
-
-/*
-MESSAGE 1
-Byte	Bits (7 is MSB)	Data
-0	0-1	CONNECTION_A_1
-0	2-8	FAULT_STATUS_A_1
-1	0-7	SAFETY_SENSOR_INPUTS_A_1 (8inputs =8x1 bit )
-2	0-5	SAFETY_SENSOR_INPUTS_A_1 (6inputs =6x1 bit )
-2	6-7	SAFETY_SWITCH_INPUTS_A_1 (2inputs =2x1 bit )
-3	0-7	SEQN_A_1
-4	0-1	CONNECTION_A_2
-4	2-8	FAULT_STATUS_A_2
-5	0-7	SAFETY_SENSOR_INPUTS_A_2 (8inputs =8x1 bit )
-6	0-5	SAFETY_SENSOR_INPUTS_A_2 (6inputs =6x1 bit )
-6	6-7	SAFETY_SWITCH_INPUTS_A _2 (2inputs =2x1 bit )
-7	0-7	SEQN_A_2
-
-MESSAGE 2
-Byte	Bits (7 is MSB)	Data
-0	0-1	CONNECTION_B_1
-0	2-8	FAULT_STATUS_B_1
-1	0-7	SAFETY_SENSOR_INPUTS_B_1 (8inputs =8x1 bit )
-2	0-5	SAFETY_SENSOR_INPUTS_B_1 (6inputs =6x1 bit )
-2	6-7	SAFETY_SWITCH_INPUTS_B_1 (2inputs =2x1 bit )
-3	0-7	SEQN_B_1
-4	0-1	CONNECTION_B_2
-4	2-8	FAULT_STATUS_B_2
-5	0-7	SAFETY_SENSOR_INPUTS_B_2 (8inputs =8x1 bit )
-6	0-5	SAFETY_SENSOR_INPUTS_B_2 (6inputs =6x1 bit )
-6	6-7	SAFETY_SWITCH_INPUTS_B_2 (2inputs =2x1 bit )
-7	0-7	SEQN_B_1
-    
-MESSAGE 3
-Byte	Bits (7 is MSB)	Data
-0,1,2,3	0-31	CRC_A
-4,5,6,7	0-31	CRC_B
-
-CRC_A: CONNECTION_A , FAULT_STATUS_A, SAFETY_SENSOR_INPUTS_A, 
-SAFETY_SWITCH_INPUTS_A, SEQN_A
-
-CRC_B: CONNECTION_B , FAULT_STATUS_B, SAFETY_SENSOR_INPUTS_B, 
-SAFETY_SWITCH_INPUTS_B, SEQN_B
-    
-*/    
+{	 
 
 #ifdef GEC_SF_MASTER
-    Safety_ReceiveA_Diagnostic(DBL2_UPPER_VALIDATE, EscRtData.DBL2UpperInputData, EscRtData.DBL2ReceiveUpperDataA );
-    Safety_ReceiveA_Diagnostic(DBL2_LOWER_VALIDATE, EscRtData.DBL2LowerInputData, EscRtData.DBL2ReceiveLowerDataA );
-    Safety_ReceiveA_Diagnostic(DBL2_INTERM1_VALIDATE, EscRtData.DBL2Interm1InputData, EscRtData.DBL2ReceiveInterm1DataA );
-    Safety_ReceiveA_Diagnostic(DBL2_INTERM2_VALIDATE, EscRtData.DBL2Interm2InputData, EscRtData.DBL2ReceiveInterm2DataA );
+    Safety_ReceiveA_Diagnostic(EscRtData.DBL2Upper.BoardType, EscRtData.DBL2UpperInputData, EscRtData.DBL2Upper.ReceiveDataA );
+    Safety_ReceiveA_Diagnostic(EscRtData.DBL2Lower.BoardType, EscRtData.DBL2LowerInputData, EscRtData.DBL2Lower.ReceiveDataA );
+    Safety_ReceiveA_Diagnostic(EscRtData.DBL2Interm1.BoardType, EscRtData.DBL2Interm1InputData, EscRtData.DBL2Interm1.ReceiveDataA );
+    Safety_ReceiveA_Diagnostic(EscRtData.DBL2Interm2.BoardType, EscRtData.DBL2Interm2InputData, EscRtData.DBL2Interm2.ReceiveDataA );
 #else
     Safety_ReceiveB_Diagnostic(CONNECTION_DBL2_UPPER, SEQN_UPPER_B, DBL2_UPPER_VALIDATE, EscRtData.DBL2UpperInputData, OmcEscRtData.DBL2ReceiveUpperDataB );
     Safety_ReceiveB_Diagnostic(CONNECTION_DBL2_LOWER, SEQN_LOWER_B, DBL2_LOWER_VALIDATE, EscRtData.DBL2LowerInputData, OmcEscRtData.DBL2ReceiveLowerDataB );
@@ -366,7 +355,33 @@ SAFETY_SWITCH_INPUTS_B, SEQN_B
 
 /*******************************************************************************
 * Function Name  : Safety_Send_Data_Process
-* Description    :                  
+* Description    :     
+*
+    MESSAGE 1
+    Byte	Bits (7 is MSB)	Data
+    0	0-1	CONNECTION_A_1
+    0	2-3	RESET_A_1
+    0	4-5	CONNECTION_B_1
+    0	6-7	RESET_B_1
+    1	0-7	SEQN_A_1
+    2	0-7	SEQN_B_1
+    3	0-1	CONNECTION_A_2
+    3	2-3	RESET_A_2
+    3	4-5	CONNECTION_B_2
+    3	6-7	RESET_B_2
+    4	0-7	SEQN_A_2
+    5	0-7	SEQN_B_2
+    6	0-7	OUTPUTS (No safety relevant)
+    7	0-7	NOT USED
+
+    MESSAGE 2
+    Byte	Bits (7 is MSB)	Data
+    0,1,2,3	0-31	CRC_A
+    4,5,6,7	0-31	CRC_B
+
+    CRC_A: RESET_A, SEQN_A, CONNECTION_A, OUTPUTS
+    CRC_B: RESET_B, SEQN_B, CONNECTION_B
+*
 * Input          : None
 * Output         : None
 * Return         : None 
@@ -374,34 +389,7 @@ SAFETY_SWITCH_INPUTS_B, SEQN_B
 void Safety_Send_Data_Process(u8 connection, u8 *SEQN, u8 DBL2SendData[], u8 request)
 {	
     u16 crc,len;
-    u8 i;
-/*
-MESSAGE 1
-Byte	Bits (7 is MSB)	Data
-0	0-1	CONNECTION_A_1
-0	2-3	RESET_A_1
-0	4-5	CONNECTION_B_1
-0	6-7	RESET_B_1
-1	0-7	SEQN_A_1
-2	0-7	SEQN_B_1
-3	0-1	CONNECTION_A_2
-3	2-3	RESET_A_2
-3	4-5	CONNECTION_B_2
-3	6-7	RESET_B_2
-4	0-7	SEQN_A_2
-5	0-7	SEQN_B_2
-6	0-7	OUTPUTS (No safety relevant)
-7	0-7	NOT USED
-
-MESSAGE 2
-Byte	Bits (7 is MSB)	Data
-0,1,2,3	0-31	CRC_A
-4,5,6,7	0-31	CRC_B
-
-CRC_A: RESET_A, SEQN_A, CONNECTION_A, OUTPUTS
-CRC_B: RESET_B, SEQN_B, CONNECTION_B
-    
-*/     
+    u8 i;    
     
     if( request )
     {                        

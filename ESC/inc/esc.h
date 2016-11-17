@@ -30,6 +30,26 @@ enum EscState
     ESC_INTERM_STATE = 6u
 };
 
+typedef struct safetycommdata
+{
+    /* type */
+    u8 BoardType;
+    
+    /* connection */
+    u8 Connection; 
+      
+    /* SEQN */
+    u8 SEQN;
+  
+    /* safety comm send data */
+    u8 SendData[8];
+    
+    /* safety comm receive data */
+    u8 ReceiveDataA[14];
+    u8 ReceiveDataB[14];   
+  
+}SafetyCommData;
+
 typedef struct sfescdata 
 {
     /* Header code and comm times */
@@ -75,29 +95,19 @@ typedef struct sfescdata
     
     /* Esc parameter crc value */
     u8 ParaCRC[4];
-
-    /* Esc DBL2 send data */
-    u8 DBL2SendUpperData[8];
-    u8 DBL2SendLowerData[8];
-    u8 DBL2SendInterm1Data[8];
-    u8 DBL2SendInterm2Data[8];
-        
-    /* Esc DBL2 receive data */
-    u8 DBL2ReceiveUpperDataA[14];
-    u8 DBL2ReceiveUpperDataB[14];
-    u8 DBL2ReceiveLowerDataA[14];
-    u8 DBL2ReceiveLowerDataB[14];
-    u8 DBL2ReceiveInterm1DataA[14];
-    u8 DBL2ReceiveInterm1DataB[14];
-    u8 DBL2ReceiveInterm2DataA[14];
-    u8 DBL2ReceiveInterm2DataB[14];
-    
-    /* Esc DBL2 validate success */
-    u8 DBL2ValidateResult;
     
     /* Configurable input buff */
     u8 Cfg_Input_Mask[20]; 
     u8 Cfg_Input_Level[20]; 
+    
+    /* Safety comm to DBL2 */
+    SafetyCommData DBL2Upper;
+    SafetyCommData DBL2Lower;
+    SafetyCommData DBL2Interm1;
+    SafetyCommData DBL2Interm2;
+    
+    /* DBL2 comm validate result */
+    u8 DBL2ValidateResult;
     
 }SafetyEscData;    
 

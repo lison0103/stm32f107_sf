@@ -24,9 +24,9 @@
 #define CONNECTION_DBL2_INTERM2   0x03u
 
 #define DBL2_UPPER_VALIDATE   0x01u  
-#define DBL2_LOWER_VALIDATE   0x02u
-#define DBL2_INTERM1_VALIDATE   0x04u    
-#define DBL2_INTERM2_VALIDATE   0x08u
+#define DBL2_LOWER_VALIDATE   0x04u
+#define DBL2_INTERM1_VALIDATE   0x10u    
+#define DBL2_INTERM2_VALIDATE   0x40u
 
 /* Exported functions ------------------------------------------------------- */
 void Safety_Send_Data_Process(u8 connection, u8 *SEQN, u8 DBL2SendData[], u8 request);
@@ -34,11 +34,6 @@ void Safety_Receive_Data_Process(void);
 void Safety_Request_Data(void);
 void Safety_ReceiveB_Diagnostic(u8 Connection, u8 SEQN, u8 DBL2Type, u8 DBL2InputData[], u8 DBL2ReceiveData[] );
 
-#ifdef GEC_SF_MASTER
-extern u8 SEQN_UPPER_A,SEQN_LOWER_A,SEQN_INTERM1_A,SEQN_INTERM2_A;
-#else
-
-#endif
 
 #endif  /* __ESC_COMM_SAFETY_H */
 

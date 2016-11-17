@@ -30,6 +30,9 @@ static void Send_Data_To_DBL2_Process(void);
 static void Receive_Data_From_DBL2_Process(void);
 static void Esc_Comm_Diagnostic_Error_Process(void);
 static void Safety_Comm_Timeout_Check(void);
+static void Send_Data_To_DBL2(u8 Connection, u8 *SEQN, u8 SendDataA[], u8 SendDataB[], u8 CANSendData[], u8 CANID, u8 errornum);
+static void Receive_Data_From_DBL2(u8 CANID, u8 ReceiveDataA[], u8 ReceiveDataB[], u8 CANReceiveData[], 
+                                   u8 Connection, u8 SEQN, u8 DBL2Type, u8 DBL2InputData[], u16 DBL2AnalogData[]);
 
 u8 g_u8DBL1CommDataValidate = 0u;
 
@@ -72,7 +75,16 @@ static void Esc_Comm_Diagnostic_Error_Process(void)
 
 /*******************************************************************************
 * Function Name  : Receive_Data_From_DBL1_Process
-* Description    :                  
+* Description    :     
+*
+    0	0-7	LIFE SIGNAL	
+    1	0-7	INPUTS 1-8
+    2	0-7	INPUTS 9-16
+    3	0-7	INPUTS 17-24
+    4	0-7	INPUTS 25-32
+    5-6	0-15	CRC
+    7	0-7	NOT USED
+*
 * Input          : None
 * Output         : None
 * Return         : None 
@@ -80,16 +92,7 @@ static void Esc_Comm_Diagnostic_Error_Process(void)
 static void Receive_Data_From_DBL1_Process(void)
 {	
     u8 i;
-
-/*
-0	0-7	LIFE SIGNAL	
-1	0-7	INPUTS 1-8
-2	0-7	INPUTS 9-16
-3	0-7	INPUTS 17-24
-4	0-7	INPUTS 25-32
-5-6	0-15	CRC
-7	0-7	NOT USED
-*/   
+  
     
     /*********************** DBL1 UPPER *********************************/  
     if(( DIAGNOSTIC_BOARD_L1_QUANTITY == 2u ) || ( DIAGNOSTIC_BOARD_L1_QUANTITY == 3u ) || ( DIAGNOSTIC_BOARD_L1_QUANTITY == 4u ))
@@ -199,7 +202,16 @@ static void Receive_Data_From_DBL1_Process(void)
 
 /*******************************************************************************
 * Function Name  : Send_Data_To_DBL1_Process
-* Description    :                  
+* Description    :      
+*
+    0	0-7	LIFE SIGNAL	
+    1	0-7	OUTPUTS DBL1 UPPER
+    2	0-7	OUTPUTS DBL1 	LOWER
+    3	0-7	OUTPUTS DBL1 INTERM. 1
+    4	0-7	OUTPUTS DBL1 INTERM. 2
+    5-6	0-15	CRC
+    7	0-7	NOT USED
+*
 * Input          : None
 * Output         : None
 * Return         : None 
@@ -210,16 +222,7 @@ static void Send_Data_To_DBL1_Process(void)
     u16 *const pEscErrorCode = (u16*)&EscDataToDBL1[0][0];
     u8 result;
     
-/*
-0	0-7	LIFE SIGNAL	
-1	0-7	OUTPUTS DBL1 UPPER
-2	0-7	OUTPUTS DBL1 	LOWER
-3	0-7	OUTPUTS DBL1 INTERM. 1
-4	0-7	OUTPUTS DBL1 INTERM. 2
-5-6	0-15	CRC
-7	0-7	NOT USED
-*/     
-
+    
     /* for test */
     if( EscErrorCodeBuff[0] )
     {
@@ -255,9 +258,118 @@ static void Send_Data_To_DBL1_Process(void)
     } 
 }
 
+
+static void Receive_Data_From_DBL2(u8 CANID, u8 ReceiveDataA[], u8 ReceiveDataB[], u8 CANReceiveData[], 
+                                   u8 Connection, u8 SEQN, u8 DBL2Type, u8 DBL2InputData[], u16 DBL2AnalogData[])
+{	
+    u8 i;
+
+    if( (CANReceiveData[3]) && (CANReceiveData[11]) && ((CANReceiveData[16]) || (CANReceiveData[17])))
+    {
+        Can_Clean_Buffer(CANID,DATA_FROM_DBL2);
+        Can_Clean_Buffer(CANID+1u,DATA_FROM_DBL2);
+        Can_Clean_Buffer(CANID+2u,DATA_FROM_DBL2);
+        
+        /* for debug */
+        EscRtData.HeaderCode[1]++;
+        
+        for( i = 0u; i < 8u; i++ )
+        {
+            ReceiveDataA[i] = CANReceiveData[i];
+            ReceiveDataB[i] = CANReceiveData[i + 8u];
+        }
+        for( i = 0u; i < 4u; i++ )
+        {
+            ReceiveDataA[i+8u] = CANReceiveData[i + 16u];
+            ReceiveDataB[i+8u] = CANReceiveData[i + 20u];
+        }
+
+        Safety_ReceiveB_Diagnostic(Connection, SEQN, DBL2Type, DBL2InputData, ReceiveDataA );
+        
+        /* receive finish, clear the data */
+        for( i = 0u; i < 24u; i++ )
+        {
+          CANReceiveData[i] = 0u;
+        }   
+    }
+    
+    /********************* NON Safety Data **********************************/
+    
+    for( i = 0u; i < 2u; i++ )
+    {
+        ReceiveDataA[i+12u] = CANReceiveData[i + 100u];
+        ReceiveDataB[i+12u] = CANReceiveData[i + 102u];
+    }
+    DBL2AnalogData[0] |= (u8)CANReceiveData[96];
+    DBL2AnalogData[0] |= (u16)(((u16)CANReceiveData[97] << 8u) & 0x0f00u);
+    DBL2AnalogData[1] |= (u8)((CANReceiveData[97] >> 4u) & 0x0fu);
+    DBL2AnalogData[1] |= (u16)(((u16)CANReceiveData[98] << 4u) & 0x0ff0u);
+    DBL2AnalogData[2] = CANReceiveData[99];
+    DBL2InputData[2] = CANReceiveData[100];
+    DBL2InputData[3] = CANReceiveData[101];    
+    
+    
+}
+
+
+
 /*******************************************************************************
 * Function Name  : Receive_Data_From_DBL2_Process
-* Description    :                  
+* Description    :      
+*
+    MESSAGE 1
+    Byte	Bits (7 is MSB)	Data
+    0	0-1	CONNECTION_A_1
+    0	2-8	FAULT_STATUS_A_1
+    1	0-7	SAFETY_SENSOR_INPUTS_A_1 (8inputs =8x1 bit )
+    2	0-5	SAFETY_SENSOR_INPUTS_A_1 (6inputs =6x1 bit )
+    2	6-7	SAFETY_SWITCH_INPUTS_A_1 (2inputs =2x1 bit )
+    3	0-7	SEQN_A_1
+    4	0-1	CONNECTION_A_2
+    4	2-8	FAULT_STATUS_A_2
+    5	0-7	SAFETY_SENSOR_INPUTS_A_2 (8inputs =8x1 bit )
+    6	0-5	SAFETY_SENSOR_INPUTS_A_2 (6inputs =6x1 bit )
+    6	6-7	SAFETY_SWITCH_INPUTS_A _2 (2inputs =2x1 bit )
+    7	0-7	SEQN_A_2
+
+    MESSAGE 2
+    Byte	Bits (7 is MSB)	Data
+    0	0-1	CONNECTION_B_1
+    0	2-8	FAULT_STATUS_B_1
+    1	0-7	SAFETY_SENSOR_INPUTS_B_1 (8inputs =8x1 bit )
+    2	0-5	SAFETY_SENSOR_INPUTS_B_1 (6inputs =6x1 bit )
+    2	6-7	SAFETY_SWITCH_INPUTS_B_1 (2inputs =2x1 bit )
+    3	0-7	SEQN_B_1
+    4	0-1	CONNECTION_B_2
+    4	2-8	FAULT_STATUS_B_2
+    5	0-7	SAFETY_SENSOR_INPUTS_B_2 (8inputs =8x1 bit )
+    6	0-5	SAFETY_SENSOR_INPUTS_B_2 (6inputs =6x1 bit )
+    6	6-7	SAFETY_SWITCH_INPUTS_B_2 (2inputs =2x1 bit )
+    7	0-7	SEQN_B_1
+        
+    MESSAGE 3
+    Byte	Bits (7 is MSB)	Data
+    0,1,2,3	0-31	CRC_A
+    4,5,6,7	0-31	CRC_B
+
+    CRC_A: CONNECTION_A , FAULT_STATUS_A, SAFETY_SENSOR_INPUTS_A, 
+    SAFETY_SWITCH_INPUTS_A, SEQN_A
+
+    CRC_B: CONNECTION_B , FAULT_STATUS_B, SAFETY_SENSOR_INPUTS_B, 
+    SAFETY_SWITCH_INPUTS_B, SEQN_B
+
+
+    NON SAFE DATA     
+    Byte	Bits (7 is MSB)	Data
+    0-1	0-11	ANALOG INPUT 1
+    1-2	12-23	ANALOG INPUT 2
+    3	4-7	PT100
+    4	0-7	SAFETY SWITCH INPUTS_A (8 inputs)
+    5	0-7	SAFETY SWITCH INPUTS_A (8 inputs)
+    6	0-7	SAFETY SWITCH INPUTS_B (8 inputs)
+    7	0-7	SAFETY SWITCH INPUTS_B (8 inputs)
+
+*
 * Input          : None
 * Output         : None
 * Return         : None 
@@ -266,528 +378,171 @@ static void Receive_Data_From_DBL2_Process(void)
 {	
     u8 i,j;
 
-/*
-MESSAGE 1
-Byte	Bits (7 is MSB)	Data
-0	0-1	CONNECTION_A_1
-0	2-8	FAULT_STATUS_A_1
-1	0-7	SAFETY_SENSOR_INPUTS_A_1 (8inputs =8x1 bit )
-2	0-5	SAFETY_SENSOR_INPUTS_A_1 (6inputs =6x1 bit )
-2	6-7	SAFETY_SWITCH_INPUTS_A_1 (2inputs =2x1 bit )
-3	0-7	SEQN_A_1
-4	0-1	CONNECTION_A_2
-4	2-8	FAULT_STATUS_A_2
-5	0-7	SAFETY_SENSOR_INPUTS_A_2 (8inputs =8x1 bit )
-6	0-5	SAFETY_SENSOR_INPUTS_A_2 (6inputs =6x1 bit )
-6	6-7	SAFETY_SWITCH_INPUTS_A _2 (2inputs =2x1 bit )
-7	0-7	SEQN_A_2
-
-MESSAGE 2
-Byte	Bits (7 is MSB)	Data
-0	0-1	CONNECTION_B_1
-0	2-8	FAULT_STATUS_B_1
-1	0-7	SAFETY_SENSOR_INPUTS_B_1 (8inputs =8x1 bit )
-2	0-5	SAFETY_SENSOR_INPUTS_B_1 (6inputs =6x1 bit )
-2	6-7	SAFETY_SWITCH_INPUTS_B_1 (2inputs =2x1 bit )
-3	0-7	SEQN_B_1
-4	0-1	CONNECTION_B_2
-4	2-8	FAULT_STATUS_B_2
-5	0-7	SAFETY_SENSOR_INPUTS_B_2 (8inputs =8x1 bit )
-6	0-5	SAFETY_SENSOR_INPUTS_B_2 (6inputs =6x1 bit )
-6	6-7	SAFETY_SWITCH_INPUTS_B_2 (2inputs =2x1 bit )
-7	0-7	SEQN_B_1
-    
-MESSAGE 3
-Byte	Bits (7 is MSB)	Data
-0,1,2,3	0-31	CRC_A
-4,5,6,7	0-31	CRC_B
-
-CRC_A: CONNECTION_A , FAULT_STATUS_A, SAFETY_SENSOR_INPUTS_A, 
-SAFETY_SWITCH_INPUTS_A, SEQN_A
-
-CRC_B: CONNECTION_B , FAULT_STATUS_B, SAFETY_SENSOR_INPUTS_B, 
-SAFETY_SWITCH_INPUTS_B, SEQN_B
-    
-*/    
 
     /********************************************************************/
     /*********************** DBL2 UPPER *********************************/
-    /********************************************************************/
-    if( (EscDataFromDBL2[0][3]) && (EscDataFromDBL2[1][3]) && ((EscDataFromDBL2[2][0]) || (EscDataFromDBL2[2][1])))
-    {
-        Can_Clean_Buffer(CAN2RX_DBL2_UPPER_ID1,DATA_FROM_DBL2);
-        Can_Clean_Buffer(CAN2RX_DBL2_UPPER_ID2,DATA_FROM_DBL2);
-        Can_Clean_Buffer(CAN2RX_DBL2_UPPER_ID3,DATA_FROM_DBL2);
-        
-        /* for debug */
-        EscRtData.HeaderCode[1]++;
-        
-        for( i = 0u; i < 8u; i++ )
-        {
-            EscRtData.DBL2ReceiveUpperDataA[i] = EscDataFromDBL2[0][i];
-            EscRtData.DBL2ReceiveUpperDataB[i] = EscDataFromDBL2[1][i];
-        }
-        for( i = 0u; i < 4u; i++ )
-        {
-            EscRtData.DBL2ReceiveUpperDataA[i+8u] = EscDataFromDBL2[2][i];
-            EscRtData.DBL2ReceiveUpperDataB[i+8u] = EscDataFromDBL2[2][i+4u];
-        }
+    /********************************************************************/   
+    Receive_Data_From_DBL2(CAN2RX_DBL2_UPPER_ID1, EscRtData.DBL2Upper.ReceiveDataA, EscRtData.DBL2Upper.ReceiveDataB, 
+                           &EscDataFromDBL2[0][0], EscRtData.DBL2Upper.Connection, EscRtData.DBL2Upper.SEQN, 
+                           EscRtData.DBL2Upper.BoardType, EscRtData.DBL2UpperInputData, EscRtData.DBL2UpperAnalogData);
+    
 
-        Safety_ReceiveB_Diagnostic(CONNECTION_DBL2_UPPER, SEQN_UPPER_A, DBL2_UPPER_VALIDATE, EscRtData.DBL2UpperInputData, EscRtData.DBL2ReceiveUpperDataA );
-        
-        /* receive finish, clear the data */
-        for( j = 0u; j < 3u; j++ )
-        {
-            for( i = 0u; i < 8u; i++ )
-            {
-                EscDataFromDBL2[j][i] = 0u;
-            }    
-        } 
-    }
 
     /********************************************************************/
     /*************************** DBL2 LOWER *****************************/
     /********************************************************************/
-    if( (EscDataFromDBL2[3][3]) && (EscDataFromDBL2[4][3]) && ((EscDataFromDBL2[5][0]) || (EscDataFromDBL2[5][1])))
-    {
-        Can_Clean_Buffer(CAN2RX_DBL2_LOWER_ID1,DATA_FROM_DBL2);
-        Can_Clean_Buffer(CAN2RX_DBL2_LOWER_ID2,DATA_FROM_DBL2);
-        Can_Clean_Buffer(CAN2RX_DBL2_LOWER_ID3,DATA_FROM_DBL2);  
-        /* for debug */
-        EscRtData.HeaderCode[4]++;
+    Receive_Data_From_DBL2(CAN2RX_DBL2_LOWER_ID1, EscRtData.DBL2Lower.ReceiveDataA, EscRtData.DBL2Lower.ReceiveDataB, 
+                           &EscDataFromDBL2[3][0], EscRtData.DBL2Lower.Connection, EscRtData.DBL2Lower.SEQN, 
+                           EscRtData.DBL2Lower.BoardType, EscRtData.DBL2LowerInputData, EscRtData.DBL2LowerAnalogData);
         
-        for( i = 0u; i < 8u; i++ )
-        {
-            EscRtData.DBL2ReceiveLowerDataA[i] = EscDataFromDBL2[3][i];
-            EscRtData.DBL2ReceiveLowerDataB[i] = EscDataFromDBL2[4][i];
-        }
-        for( i = 0u; i < 4u; i++ )
-        {
-            EscRtData.DBL2ReceiveLowerDataA[i+8u] = EscDataFromDBL2[5][i];
-            EscRtData.DBL2ReceiveLowerDataB[i+8u] = EscDataFromDBL2[5][i+4u];
-        }
-               
-        Safety_ReceiveB_Diagnostic(CONNECTION_DBL2_LOWER, SEQN_LOWER_A, DBL2_LOWER_VALIDATE, EscRtData.DBL2LowerInputData, EscRtData.DBL2ReceiveLowerDataA ); 
-        
-        /* receive finish, clear the data */
-        for( j = 3u; j < 6u; j++ )
-        {
-            for( i = 0u; i < 8u; i++ )
-            {
-                EscDataFromDBL2[j][i] = 0u;
-            }    
-        }                 
-    }        
         
 
     /********************************************************************/
     /*************************** DBL2 INTERM1 ************************ **/
     /********************************************************************/
-    if( (EscDataFromDBL2[6][3]) && (EscDataFromDBL2[7][3]) && ((EscDataFromDBL2[8][0]) || (EscDataFromDBL2[8][1])))
-    {
-        Can_Clean_Buffer(CAN2RX_DBL2_INTERM1_ID1,DATA_FROM_DBL2);
-        Can_Clean_Buffer(CAN2RX_DBL2_INTERM1_ID2,DATA_FROM_DBL2);
-        Can_Clean_Buffer(CAN2RX_DBL2_INTERM1_ID3,DATA_FROM_DBL2);
-        
-        /* for debug */
-        EscRtData.HeaderCode[7]++;
-        
-        for( i = 0u; i < 8u; i++ )
-        {
-            EscRtData.DBL2ReceiveInterm1DataA[i] = EscDataFromDBL2[6][i];
-            EscRtData.DBL2ReceiveInterm1DataB[i] = EscDataFromDBL2[7][i];
-        }
-        for( i = 0u; i < 4u; i++ )
-        {
-            EscRtData.DBL2ReceiveInterm1DataA[i+8u] = EscDataFromDBL2[8][i];
-            EscRtData.DBL2ReceiveInterm1DataB[i+8u] = EscDataFromDBL2[8][i+4u];
-        }
-        
-        Safety_ReceiveB_Diagnostic(CONNECTION_DBL2_INTERM1, SEQN_INTERM1_A, DBL2_INTERM1_VALIDATE, EscRtData.DBL2Interm1InputData, EscRtData.DBL2ReceiveInterm1DataA ); 
-        
-        /* receive finish, clear the data */
-        for( j = 6u; j < 9u; j++ )
-        {
-            for( i = 0u; i < 8u; i++ )
-            {
-                EscDataFromDBL2[j][i] = 0u;
-            }    
-        }                 
-    }    
+    Receive_Data_From_DBL2(CAN2RX_DBL2_INTERM1_ID1, EscRtData.DBL2Interm1.ReceiveDataA, EscRtData.DBL2Interm1.ReceiveDataB, 
+                           &EscDataFromDBL2[6][0], EscRtData.DBL2Interm1.Connection, EscRtData.DBL2Interm1.SEQN, 
+                           EscRtData.DBL2Interm1.BoardType, EscRtData.DBL2Interm1InputData, EscRtData.DBL2Interm1AnalogData);    
+  
     
     /********************************************************************/
     /*************************** DBL2 INTERM2 ***************************/
     /********************************************************************/
-    if( (EscDataFromDBL2[9][3]) && (EscDataFromDBL2[10][3]) && ((EscDataFromDBL2[11][0]) || (EscDataFromDBL2[11][1])))
-    {
-        Can_Clean_Buffer(CAN2RX_DBL2_INTERM2_ID1,DATA_FROM_DBL2);
-        Can_Clean_Buffer(CAN2RX_DBL2_INTERM2_ID2,DATA_FROM_DBL2);
-        Can_Clean_Buffer(CAN2RX_DBL2_INTERM2_ID3,DATA_FROM_DBL2);
-        
-        /* for debug */
-        EscRtData.HeaderCode[10]++;
-        
-        for( i = 0u; i < 8u; i++ )
-        {
-            EscRtData.DBL2ReceiveInterm2DataA[i] = EscDataFromDBL2[9][i];
-            EscRtData.DBL2ReceiveInterm2DataB[i] = EscDataFromDBL2[10][i];
-        }
-        for( i = 0u; i < 4u; i++ )
-        {
-            EscRtData.DBL2ReceiveInterm2DataA[i+8u] = EscDataFromDBL2[11][i];
-            EscRtData.DBL2ReceiveInterm2DataB[i+8u] = EscDataFromDBL2[11][i+4u];
-        }
-               
-        Safety_ReceiveB_Diagnostic(CONNECTION_DBL2_INTERM2, SEQN_INTERM2_A, DBL2_INTERM2_VALIDATE, EscRtData.DBL2Interm2InputData, EscRtData.DBL2ReceiveInterm2DataA );  
-        
-        /* receive finish, clear the data */
-        for( j = 9u; j < 12u; j++ )
-        {
-            for( i = 0u; i < 8u; i++ )
-            {
-                EscDataFromDBL2[j][i] = 0u;
-            }    
-        }                 
-    }    
+    Receive_Data_From_DBL2(CAN2RX_DBL2_INTERM2_ID1, EscRtData.DBL2Interm2.ReceiveDataA, EscRtData.DBL2Interm2.ReceiveDataB, 
+                           &EscDataFromDBL2[9][0], EscRtData.DBL2Interm2.Connection, EscRtData.DBL2Interm2.SEQN, 
+                           EscRtData.DBL2Interm2.BoardType, EscRtData.DBL2Interm2InputData, EscRtData.DBL2Interm2AnalogData);    
     
-/*
-NON SAFE DATA     
-Byte	Bits (7 is MSB)	Data
-0-1	0-11	ANALOG INPUT 1
-1-2	12-23	ANALOG INPUT 2
-3	4-7	PT100
-4	0-7	SAFETY SWITCH INPUTS_A (8 inputs)
-5	0-7	SAFETY SWITCH INPUTS_A (8 inputs)
-6	0-7	SAFETY SWITCH INPUTS_B (8 inputs)
-7	0-7	SAFETY SWITCH INPUTS_B (8 inputs)
-*/   
 
-    /********************* DBL2 UPPER **********************************/
-    for( i = 0u; i < 2u; i++ )
-    {
-        EscRtData.DBL2ReceiveUpperDataA[i+12u] = EscDataFromDBL2[12][i+4u];
-        EscRtData.DBL2ReceiveUpperDataB[i+12u] = EscDataFromDBL2[12][i+6u];
-    }
-    EscRtData.DBL2UpperAnalogData[0] |= (u8)EscDataFromDBL2[12][0];
-    EscRtData.DBL2UpperAnalogData[0] |= (u16)(((u16)EscDataFromDBL2[12][1] << 8u) & 0x0f00u);
-    EscRtData.DBL2UpperAnalogData[1] |= (u8)((EscDataFromDBL2[12][1] >> 4u) & 0x0fu);
-    EscRtData.DBL2UpperAnalogData[1] |= (u16)(((u16)EscDataFromDBL2[12][2] << 4u) & 0x0ff0u);
-    EscRtData.DBL2UpperAnalogData[2] = EscDataFromDBL2[12][3];
-    EscRtData.DBL2UpperInputData[2] = EscDataFromDBL2[12][4];
-    EscRtData.DBL2UpperInputData[3] = EscDataFromDBL2[12][5];
-    
-    /*************************** DBL2 LOWER *****************************/
-    for( i = 0u; i < 2u; i++ )
-    {
-        EscRtData.DBL2ReceiveLowerDataA[i+12u] = EscDataFromDBL2[13][i+4u];
-        EscRtData.DBL2ReceiveLowerDataB[i+12u] = EscDataFromDBL2[13][i+6u];
-    }
-    EscRtData.DBL2LowerAnalogData[0] |= (u8)EscDataFromDBL2[13][0];
-    EscRtData.DBL2LowerAnalogData[0] |= (u16)(((u16)EscDataFromDBL2[13][1] << 8u) & 0x0f00u);
-    EscRtData.DBL2LowerAnalogData[1] |= (u8)((EscDataFromDBL2[13][1] >> 4u) & 0x0fu);
-    EscRtData.DBL2LowerAnalogData[1] |= (u16)(((u16)EscDataFromDBL2[13][2] << 4u) & 0x0ff0u);
-    EscRtData.DBL2LowerAnalogData[2] = EscDataFromDBL2[13][3];
-    EscRtData.DBL2LowerInputData[2] = EscDataFromDBL2[13][4];
-    EscRtData.DBL2LowerInputData[3] = EscDataFromDBL2[13][5];    
-    
-    
-    /*************************** DBL2 INTERM1 **************************/
-    for( i = 0u; i < 2u; i++ )
-    {
-        EscRtData.DBL2ReceiveInterm1DataA[i+12u] = EscDataFromDBL2[14][i+4u];
-        EscRtData.DBL2ReceiveInterm1DataB[i+12u] = EscDataFromDBL2[14][i+6u];
-    }
-    EscRtData.DBL2Interm1AnalogData[0] |= (u8)EscDataFromDBL2[14][0];
-    EscRtData.DBL2Interm1AnalogData[0] |= (u16)(((u16)EscDataFromDBL2[14][1] << 8u) & 0x0f00u);
-    EscRtData.DBL2Interm1AnalogData[1] |= (u8)((EscDataFromDBL2[14][1] >> 4u) & 0x0fu);
-    EscRtData.DBL2Interm1AnalogData[1] |= (u16)(((u16)EscDataFromDBL2[14][2] << 4u) & 0x0ff0u);
-    EscRtData.DBL2Interm1AnalogData[2] = EscDataFromDBL2[14][3];
-    EscRtData.DBL2Interm1InputData[2] = EscDataFromDBL2[14][4];
-    EscRtData.DBL2Interm1InputData[3] = EscDataFromDBL2[14][5];    
-    
-    
-    /*************************** DBL2 INTERM2 ***************************/  
-    for( i = 0u; i < 2u; i++ )
-    {
-        EscRtData.DBL2ReceiveInterm2DataA[i+12u] = EscDataFromDBL2[15][i+4u];
-        EscRtData.DBL2ReceiveInterm2DataB[i+12u] = EscDataFromDBL2[15][i+6u];
-    }
-    EscRtData.DBL2Interm2AnalogData[0] |= (u8)EscDataFromDBL2[15][0];
-    EscRtData.DBL2Interm2AnalogData[0] |= (u16)(((u16)EscDataFromDBL2[15][1] << 8u) & 0x0f00u);
-    EscRtData.DBL2Interm2AnalogData[1] |= (u8)((EscDataFromDBL2[15][1] >> 4u) & 0x0fu);
-    EscRtData.DBL2Interm2AnalogData[1] |= (u16)(((u16)EscDataFromDBL2[15][2] << 4u) & 0x0ff0u);
-    EscRtData.DBL2Interm2AnalogData[2] = EscDataFromDBL2[15][3];
-    EscRtData.DBL2Interm2InputData[2] = EscDataFromDBL2[15][4];
-    EscRtData.DBL2Interm2InputData[3] = EscDataFromDBL2[15][5];     
-    
 }
 
 
-/*******************************************************************************
-* Function Name  : Send_Data_To_DBL2_Process
-* Description    :                  
-* Input          : None
-* Output         : None
-* Return         : None 
-*******************************************************************************/
-static void Send_Data_To_DBL2_Process(void)
+static void Send_Data_To_DBL2(u8 Connection, u8 *SEQN, u8 SendDataA[], u8 SendDataB[], u8 CANSendData[], u8 CANID, u8 errornum)
 {	
     u8 i,result;
-/*
-MESSAGE 1
-Byte	Bits (7 is MSB)	Data
-0	0-1	CONNECTION_A_1
-0	2-3	RESET_A_1
-0	4-5	CONNECTION_B_1
-0	6-7	RESET_B_1
-1	0-7	SEQN_A_1
-2	0-7	SEQN_B_1
-3	0-1	CONNECTION_A_2
-3	2-3	RESET_A_2
-3	4-5	CONNECTION_B_2
-3	6-7	RESET_B_2
-4	0-7	SEQN_A_2
-5	0-7	SEQN_B_2
-6	0-7	OUTPUTS (No safety relevant)
-7	0-7	NOT USED
 
-MESSAGE 2
-Byte	Bits (7 is MSB)	Data
-0,1,2,3	0-31	CRC_A
-4,5,6,7	0-31	CRC_B
-
-CRC_A: RESET_A, SEQN_A, CONNECTION_A, OUTPUTS
-CRC_B: RESET_B, SEQN_B, CONNECTION_B
-    
-*/     
-
-    /********************************************************************/
-    /*************************** DBL2 UPPER *****************************/
-    /********************************************************************/
-    /*if( (OmcEscRtData.DBL2SendUpperData[1]) && (OmcEscRtData.DBL2SendUpperData[2]) )*/
-    if( !MB_CRC16(&OmcEscRtData.DBL2SendUpperData[0], 7u ) )
+    if( !MB_CRC16(&SendDataB[0] , 7u ) )
     {
-        if( (OmcEscRtData.DBL2SendUpperData[0] & 0x03u) == CONNECTION_DBL2_UPPER )
+        if(( SendDataB[0] & 0x03u) == Connection )
         {
-            Safety_Send_Data_Process(CONNECTION_DBL2_UPPER, &SEQN_UPPER_A, EscRtData.DBL2SendUpperData, 1u);
-            /*EscRtData.DBL2ValidateResult &= ~DBL2_UPPER_VALIDATE;*/
+            Safety_Send_Data_Process(Connection, SEQN, SendDataA, 1u);
             
-            EscDataToDBL2[0][0] |= (u8)(EscRtData.DBL2SendUpperData[0] & 0x0fu);
-            EscDataToDBL2[0][0] |= (u8)((OmcEscRtData.DBL2SendUpperData[0] << 4u) & 0xf0u);
-            EscDataToDBL2[0][1] = EscRtData.DBL2SendUpperData[1]; 
-            EscDataToDBL2[0][2] = OmcEscRtData.DBL2SendUpperData[1];   
-            EscDataToDBL2[0][3] |= (u8)((EscRtData.DBL2SendUpperData[0] >> 4u) & 0x0fu);
-            EscDataToDBL2[0][3] |= (u8)(OmcEscRtData.DBL2SendUpperData[0] & 0xf0u);
-            EscDataToDBL2[0][4] = EscRtData.DBL2SendUpperData[2]; 
-            EscDataToDBL2[0][5] = OmcEscRtData.DBL2SendUpperData[2];      
-            EscDataToDBL2[0][6] = EscRtData.DBL2SendUpperData[3];   
-            EscDataToDBL2[0][7] = 0x00u; 
+            CANSendData[0] |= (u8)(SendDataA[0] & 0x0fu);
+            CANSendData[0] |= (u8)((SendDataB[0] << 4u) & 0xf0u);
+            CANSendData[1] = SendDataA[1]; 
+            CANSendData[2] = SendDataB[1];   
+            CANSendData[3] |= (u8)((SendDataA[0] >> 4u) & 0x0fu);
+            CANSendData[3] |= (u8)(SendDataB[0] & 0xf0u);
+            CANSendData[4] = SendDataA[2]; 
+            CANSendData[5] = SendDataB[2];      
+            CANSendData[6] = SendDataA[3];   
+            CANSendData[7] = 0x00u; 
             
-            EscDataToDBL2[1][0] = EscRtData.DBL2SendUpperData[4];   
-            EscDataToDBL2[1][1] = EscRtData.DBL2SendUpperData[5]; 
-            EscDataToDBL2[1][2] = EscRtData.DBL2SendUpperData[6];   
-            EscDataToDBL2[1][3] = EscRtData.DBL2SendUpperData[7]; 
-            EscDataToDBL2[1][4] = OmcEscRtData.DBL2SendUpperData[3];   
-            EscDataToDBL2[1][5] = OmcEscRtData.DBL2SendUpperData[4]; 
-            EscDataToDBL2[1][6] = OmcEscRtData.DBL2SendUpperData[5];   
-            EscDataToDBL2[1][7] = OmcEscRtData.DBL2SendUpperData[6];    
+            CANSendData[8] = SendDataA[4];   
+            CANSendData[9] = SendDataA[5]; 
+            CANSendData[10] = SendDataA[6];   
+            CANSendData[11] = SendDataA[7]; 
+            CANSendData[12] = SendDataB[3];   
+            CANSendData[13] = SendDataB[4]; 
+            CANSendData[14] = SendDataB[5];   
+            CANSendData[15] = SendDataB[6];    
             
-            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_UPPER_ID1, &EscDataToDBL2[0][0], CAN_FRAME_LEN ); 
+            result = Can_Send_Msg(CAN2, CANID, &CANSendData[0], CAN_FRAME_LEN ); 
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x01u;
+                g_u16CAN2SendFail |= errornum;
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);               
             }  
-            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_UPPER_ID2, &EscDataToDBL2[1][0], CAN_FRAME_LEN ); 
+            result = Can_Send_Msg(CAN2, CANID + 1u, &CANSendData[8], CAN_FRAME_LEN ); 
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x02u;
+                g_u16CAN2SendFail |= (u16)(errornum << 1u);
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);        
             }   
+            
             /* for debug */
             EscRtData.HeaderCode[0]++;
         }
     }
     
     /* clear data */
-    Safety_Send_Data_Process(CONNECTION_DBL2_UPPER, NULL, EscRtData.DBL2SendUpperData, 0u);
     for( i = 0u; i < 8u; i++ )
     {
-        OmcEscRtData.DBL2SendUpperData[i] = 0u;
+        SendDataA[i] = 0u;
+        SendDataB[i] = 0u;
     }
+}
+
+
+/*******************************************************************************
+* Function Name  : Send_Data_To_DBL2_Process
+* Description    :      
+*
+    MESSAGE 1
+    Byte	Bits (7 is MSB)	Data
+    0	0-1	CONNECTION_A_1
+    0	2-3	RESET_A_1
+    0	4-5	CONNECTION_B_1
+    0	6-7	RESET_B_1
+    1	0-7	SEQN_A_1
+    2	0-7	SEQN_B_1
+    3	0-1	CONNECTION_A_2
+    3	2-3	RESET_A_2
+    3	4-5	CONNECTION_B_2
+    3	6-7	RESET_B_2
+    4	0-7	SEQN_A_2
+    5	0-7	SEQN_B_2
+    6	0-7	OUTPUTS (No safety relevant)
+    7	0-7	NOT USED
+
+    MESSAGE 2
+    Byte	Bits (7 is MSB)	Data
+    0,1,2,3	0-31	CRC_A
+    4,5,6,7	0-31	CRC_B
+
+    CRC_A: RESET_A, SEQN_A, CONNECTION_A, OUTPUTS
+    CRC_B: RESET_B, SEQN_B, CONNECTION_B
+*
+* Input          : None
+* Output         : None
+* Return         : None 
+*******************************************************************************/
+static void Send_Data_To_DBL2_Process(void)
+{	
+    /********************************************************************/
+    /*************************** DBL2 UPPER *****************************/
+    /********************************************************************/
+    Send_Data_To_DBL2(EscRtData.DBL2Upper.Connection, &EscRtData.DBL2Upper.SEQN , 
+                      EscRtData.DBL2Upper.SendData, OmcEscRtData.DBL2Upper.SendData, 
+                      &EscDataToDBL2[0][0], CAN2TX_DBL2_LOWER_ID1, 0x01u );
+
     
     /********************************************************************/
     /*************************** DBL2 LOWER *****************************/
     /********************************************************************/
-    /*if( (OmcEscRtData.DBL2SendLowerData[1]) && (OmcEscRtData.DBL2SendLowerData[2]) )*/
-    if( !MB_CRC16(&OmcEscRtData.DBL2SendLowerData[0], 7u ) )
-    {
-        if( (OmcEscRtData.DBL2SendLowerData[0] & 0x03u) == CONNECTION_DBL2_LOWER )
-        {
-            Safety_Send_Data_Process(CONNECTION_DBL2_LOWER, &SEQN_LOWER_A, EscRtData.DBL2SendLowerData, 1u);
-            /*EscRtData.DBL2ValidateResult &= ~DBL2_LOWER_VALIDATE;*/
-            
-            EscDataToDBL2[2][0] |= (u8)(EscRtData.DBL2SendLowerData[0] & 0x0fu);
-            EscDataToDBL2[2][0] |= (u8)((OmcEscRtData.DBL2SendLowerData[0] << 4u) & 0xf0u);
-            EscDataToDBL2[2][1] = EscRtData.DBL2SendLowerData[1]; 
-            EscDataToDBL2[2][2] = OmcEscRtData.DBL2SendLowerData[1];   
-            EscDataToDBL2[2][3] |= (u8)((EscRtData.DBL2SendLowerData[0] >> 4u) & 0x0fu);
-            EscDataToDBL2[2][3] |= (u8)(OmcEscRtData.DBL2SendLowerData[0] & 0xf0u);
-            EscDataToDBL2[2][4] = EscRtData.DBL2SendLowerData[2]; 
-            EscDataToDBL2[2][5] = OmcEscRtData.DBL2SendLowerData[2];      
-            EscDataToDBL2[2][6] = EscRtData.DBL2SendLowerData[3];   
-            EscDataToDBL2[2][7] = 0x00u; 
-            
-            EscDataToDBL2[3][0] = EscRtData.DBL2SendLowerData[4];   
-            EscDataToDBL2[3][1] = EscRtData.DBL2SendLowerData[5]; 
-            EscDataToDBL2[3][2] = EscRtData.DBL2SendLowerData[6];   
-            EscDataToDBL2[3][3] = EscRtData.DBL2SendLowerData[7]; 
-            EscDataToDBL2[3][4] = OmcEscRtData.DBL2SendLowerData[3];   
-            EscDataToDBL2[3][5] = OmcEscRtData.DBL2SendLowerData[4]; 
-            EscDataToDBL2[3][6] = OmcEscRtData.DBL2SendLowerData[5];   
-            EscDataToDBL2[3][7] = OmcEscRtData.DBL2SendLowerData[6];    
-            
-            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_LOWER_ID1, &EscDataToDBL2[2][0], CAN_FRAME_LEN ); 
-            if( result )
-            {
-                /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x04u;
-                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);
-            }  
-            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_LOWER_ID2, &EscDataToDBL2[3][0], CAN_FRAME_LEN ); 
-            if( result )
-            {
-                /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x08u;
-                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
-            }  
-            /* for debug */
-            EscRtData.HeaderCode[3]++;
-        }         
-    }
-
-    /* clear data */
-    Safety_Send_Data_Process(CONNECTION_DBL2_LOWER, &SEQN_LOWER_A, EscRtData.DBL2SendLowerData, 0u);
-    for( i = 0u; i < 8u; i++ )
-    {
-        OmcEscRtData.DBL2SendLowerData[i] = 0u;
-    }    
+    Send_Data_To_DBL2(EscRtData.DBL2Lower.Connection, &EscRtData.DBL2Lower.SEQN , 
+                      EscRtData.DBL2Lower.SendData, OmcEscRtData.DBL2Lower.SendData, 
+                      &EscDataToDBL2[2][0], CAN2TX_DBL2_UPPER_ID1, 0x04u );
+   
     
 
     /********************************************************************/
     /*************************** DBL2 INTERM1 ***************************/
     /********************************************************************/ 
-    if( !MB_CRC16(&OmcEscRtData.DBL2SendInterm1Data[0], 7u ) )
-    {
-        if( (OmcEscRtData.DBL2SendInterm1Data[0] & 0x03u) == CONNECTION_DBL2_INTERM1 )
-        {
-            Safety_Send_Data_Process(CONNECTION_DBL2_INTERM1, &SEQN_INTERM1_A, EscRtData.DBL2SendInterm1Data, 1u);
-            /*EscRtData.DBL2ValidateResult &= ~DBL2_LOWER_VALIDATE;*/
-            
-            EscDataToDBL2[4][0] |= (u8)(EscRtData.DBL2SendInterm1Data[0] & 0x0fu);
-            EscDataToDBL2[4][0] |= (u8)((OmcEscRtData.DBL2SendInterm1Data[0] << 4u) & 0xf0u);
-            EscDataToDBL2[4][1] = EscRtData.DBL2SendInterm1Data[1]; 
-            EscDataToDBL2[4][2] = OmcEscRtData.DBL2SendInterm1Data[1];   
-            EscDataToDBL2[4][3] |= (u8)((EscRtData.DBL2SendInterm1Data[0] >> 4u) & 0x0fu);
-            EscDataToDBL2[4][3] |= (u8)(OmcEscRtData.DBL2SendInterm1Data[0] & 0xf0u);
-            EscDataToDBL2[4][4] = EscRtData.DBL2SendInterm1Data[2]; 
-            EscDataToDBL2[4][5] = OmcEscRtData.DBL2SendInterm1Data[2];      
-            EscDataToDBL2[4][6] = EscRtData.DBL2SendInterm1Data[3];   
-            EscDataToDBL2[4][7] = 0x00u; 
-            
-            EscDataToDBL2[5][0] = EscRtData.DBL2SendInterm1Data[4];   
-            EscDataToDBL2[5][1] = EscRtData.DBL2SendInterm1Data[5]; 
-            EscDataToDBL2[5][2] = EscRtData.DBL2SendInterm1Data[6];   
-            EscDataToDBL2[5][3] = EscRtData.DBL2SendInterm1Data[7]; 
-            EscDataToDBL2[5][4] = OmcEscRtData.DBL2SendInterm1Data[3];   
-            EscDataToDBL2[5][5] = OmcEscRtData.DBL2SendInterm1Data[4]; 
-            EscDataToDBL2[5][6] = OmcEscRtData.DBL2SendInterm1Data[5];   
-            EscDataToDBL2[5][7] = OmcEscRtData.DBL2SendInterm1Data[6];    
-            
-            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_INTERM1_ID1, &EscDataToDBL2[4][0], CAN_FRAME_LEN ); 
-            if( result )
-            {
-                /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x10u;
-                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);
-            }  
-            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_INTERM1_ID2, &EscDataToDBL2[5][0], CAN_FRAME_LEN ); 
-            if( result )
-            {
-                /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x20u;
-                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
-            }  
-            /* for debug */
-            EscRtData.HeaderCode[6]++;
-        }         
-    }
-
-    /* clear data */
-    Safety_Send_Data_Process(CONNECTION_DBL2_INTERM1, &SEQN_INTERM1_A, EscRtData.DBL2SendInterm1Data, 0u);
-    for( i = 0u; i < 8u; i++ )
-    {
-        OmcEscRtData.DBL2SendInterm1Data[i] = 0u;
-    }      
+    Send_Data_To_DBL2(EscRtData.DBL2Interm1.Connection, &EscRtData.DBL2Interm1.SEQN , 
+                      EscRtData.DBL2Interm1.SendData, OmcEscRtData.DBL2Interm1.SendData, 
+                      &EscDataToDBL2[4][0], CAN2TX_DBL2_INTERM1_ID1, 0x10u );
+       
     
     
     /********************************************************************/
     /*************************** DBL2 INTERM2 ***************************/
     /********************************************************************/ 
-    if( !MB_CRC16(&OmcEscRtData.DBL2SendInterm2Data[0], 7u ) )
-    {
-        if( (OmcEscRtData.DBL2SendInterm2Data[0] & 0x03u) == CONNECTION_DBL2_INTERM2 )
-        {
-            Safety_Send_Data_Process(CONNECTION_DBL2_INTERM2, &SEQN_INTERM2_A, EscRtData.DBL2SendInterm2Data, 1u);
-            /*EscRtData.DBL2ValidateResult &= ~DBL2_LOWER_VALIDATE;*/
-            
-            EscDataToDBL2[6][0] |= (u8)(EscRtData.DBL2SendInterm2Data[0] & 0x0fu);
-            EscDataToDBL2[6][0] |= (u8)((OmcEscRtData.DBL2SendInterm2Data[0] << 4u) & 0xf0u);
-            EscDataToDBL2[6][1] = EscRtData.DBL2SendInterm2Data[1]; 
-            EscDataToDBL2[6][2] = OmcEscRtData.DBL2SendInterm2Data[1];   
-            EscDataToDBL2[6][3] |= (u8)((EscRtData.DBL2SendInterm2Data[0] >> 4u) & 0x0fu);
-            EscDataToDBL2[6][3] |= (u8)(OmcEscRtData.DBL2SendInterm2Data[0] & 0xf0u);
-            EscDataToDBL2[6][4] = EscRtData.DBL2SendInterm2Data[2]; 
-            EscDataToDBL2[6][5] = OmcEscRtData.DBL2SendInterm2Data[2];      
-            EscDataToDBL2[6][6] = EscRtData.DBL2SendInterm2Data[3];   
-            EscDataToDBL2[6][7] = 0x00u; 
-            
-            EscDataToDBL2[7][0] = EscRtData.DBL2SendInterm2Data[4];   
-            EscDataToDBL2[7][1] = EscRtData.DBL2SendInterm2Data[5]; 
-            EscDataToDBL2[7][2] = EscRtData.DBL2SendInterm2Data[6];   
-            EscDataToDBL2[7][3] = EscRtData.DBL2SendInterm2Data[7]; 
-            EscDataToDBL2[7][4] = OmcEscRtData.DBL2SendInterm2Data[3];   
-            EscDataToDBL2[7][5] = OmcEscRtData.DBL2SendInterm2Data[4]; 
-            EscDataToDBL2[7][6] = OmcEscRtData.DBL2SendInterm2Data[5];   
-            EscDataToDBL2[7][7] = OmcEscRtData.DBL2SendInterm2Data[6];    
-            
-            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_INTERM2_ID1, &EscDataToDBL2[6][0], CAN_FRAME_LEN ); 
-            if( result )
-            {
-                /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x40u;
-                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);
-            }  
-            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_INTERM2_ID2, &EscDataToDBL2[7][0], CAN_FRAME_LEN ); 
-            if( result )
-            {
-                /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x80u;
-                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
-            }  
-            /* for debug */
-            EscRtData.HeaderCode[9]++;
-        }         
-    }
-
-    /* clear data */
-    Safety_Send_Data_Process(CONNECTION_DBL2_INTERM2, &SEQN_INTERM2_A, EscRtData.DBL2SendInterm2Data, 0u);
-    for( i = 0u; i < 8u; i++ )
-    {
-        OmcEscRtData.DBL2SendInterm2Data[i] = 0u;
-    } 
+    Send_Data_To_DBL2(EscRtData.DBL2Interm2.Connection, &EscRtData.DBL2Interm2.SEQN , 
+                      EscRtData.DBL2Interm2.SendData, OmcEscRtData.DBL2Interm2.SendData, 
+                      &EscDataToDBL2[6][0], CAN2TX_DBL2_INTERM2_ID1, 0x40u );
+    
 }
 
 

@@ -164,10 +164,10 @@ static void CPU_Comm(void)
         /* clear receive data */
         for( i = 0u; i < 12u; i++ )
         {
-            EscRtData.DBL2ReceiveUpperDataB[i] = 0u;
-            EscRtData.DBL2ReceiveLowerDataB[i] = 0u; 
-            EscRtData.DBL2ReceiveInterm1DataB[i] = 0u;
-            EscRtData.DBL2ReceiveInterm2DataB[i] = 0u;
+            EscRtData.DBL2Upper.ReceiveDataB[i] = 0u;
+            EscRtData.DBL2Lower.ReceiveDataB[i] = 0u; 
+            EscRtData.DBL2Interm1.ReceiveDataB[i] = 0u;
+            EscRtData.DBL2Interm2.ReceiveDataB[i] = 0u;
         }    
     }
 #else  

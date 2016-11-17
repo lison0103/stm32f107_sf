@@ -130,8 +130,18 @@ void StoreFaultInMemory(void)
             buffer[i + 12u] = EscRtData.ErrorBuff[i] | OmcEscRtData.ErrorBuff[i];
             /* for test, only cpu1 */
             /*buffer[i + 12u] = EscRtData.ErrorBuff[i];*/
-        }                     
-        fram_data_write(ESC_BACKUP_ADR + ESC_ERROR_ADR, ESC_ERROR_NUM, buffer);  
+        }      
+        
+        /* record in fram */
+        if( g_u8FaultCodeStore )
+        {
+          fram_data_write(ESC_ERROR_ADR, ESC_ERROR_NUM, buffer);  
+        }
+        else
+        {
+          /* backup */
+          fram_data_write(ESC_BACKUP_ADR + ESC_ERROR_ADR, ESC_ERROR_NUM, buffer);  
+        }
         u8DataStore = 0u;
     }
 }
@@ -258,7 +268,6 @@ void fram_data_write(u16 Adr, u16 len, u8 WriteData[])
     
     eeprom_write(Adr, len, WriteData);
     
-    eeprom_write(ESC_BACKUP_ADR + Adr, len, WriteData); 
 }
 
 
