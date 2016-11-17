@@ -20,7 +20,6 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void Input_Check(void);
-void Input_Check2(void);
 void CrossCommCPUCheck(void);
 void HardwareTEST(void);
 

@@ -46,9 +46,9 @@ void Input_Output_PinInit(void);
 #define SYNC_SYS_OUT_CLR()       GPIO_WriteBit(GPIOB, GPIO_Pin_11, Bit_RESET)
 
 /** FEEDBACK **/
-#define SF_RL_DRV_FB   GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_3)
-#define SF_PWR_FB_CPU   GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8) 
-#define SF_RL_FB       GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2)
+#define SF_RL_DRV_FB            GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_3)
+#define SF_PWR_FB_CPU           GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_8) 
+#define SF_RL_FB                GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_2)
 
 #define SF_RL2_FB_CPU1       GPIO_ReadInputDataBit(GPIOE, GPIO_Pin_6)
 

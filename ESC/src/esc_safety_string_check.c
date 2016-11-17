@@ -1,18 +1,15 @@
 /*******************************************************************************
-* File Name          : esc_main_shaft_speed.c
-* Author             : lison
+* File Name          : esc_safety_string_check.c
+* Author             : Tu
 * Version            : V1.0
-* Date               : 07/07/2016
-* Description        : This file contains esc main shaft speed.
+* Date               : 11/04/2016
+* Last modify date   : 11/07/2016
+* Description        : 
 *                      
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-#include "esc_main_shaft_speed.h"
-#include "delay.h"
-#include "initial_devices.h"
-#include "timer.h"
-#include "esc.h"
+#include "esc_control.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -20,32 +17,19 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-
-
+static void sf_string_check(void);
 
 
 /*******************************************************************************
-* Function Name  : Main_Shaft_Speed
+* Function Name  : sf_string_check
 * Description    : 
 * Input          : None          
 * Output         : None
 * Return         : None
 *******************************************************************************/
-
-
-
-
-
-
-
-
-
-
+static void sf_string_check(void)
+{
+     
+}
 
 /******************************  END OF FILE  *********************************/
-
-
-
-
-
-

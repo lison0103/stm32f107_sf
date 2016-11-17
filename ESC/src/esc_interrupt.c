@@ -79,9 +79,6 @@ void mtr_X2_int(void)
 *******************************************************************************/
 void handrail_X1_int(void)
 {  
-
-    HDL_Left.rising_edge_detected = 1u;
-    
     Handrail_Speed_Right_Left_Shortcircuit_Run();
 }
 
@@ -95,9 +92,6 @@ void handrail_X1_int(void)
 *******************************************************************************/
 void handrail_X2_int(void)
 {  
-
-    HDL_Right.rising_edge_detected = 1u;
-    
     Handrail_Speed_Right_Left_Shortcircuit_Run();
 }
 
@@ -110,10 +104,6 @@ void handrail_X2_int(void)
 *******************************************************************************/
 void missingstep_X1_int(void)
 {    
-    
-    STPMS_UPPER.rising_edge_detected[0] = 1u;
-    STPMS_UPPER.rising_edge_detected[1] = 1u;     
-    
     Missing_Step_UpperLower_Shortcircuit_Run();
 }
 
@@ -126,10 +116,6 @@ void missingstep_X1_int(void)
 *******************************************************************************/
 void missingstep_X2_int(void)
 {     
-    
-    STPMS_LOWER.rising_edge_detected[0] = 1u;
-    STPMS_LOWER.rising_edge_detected[1] = 1u;
-    
     Missing_Step_UpperLower_Shortcircuit_Run();
 }
 

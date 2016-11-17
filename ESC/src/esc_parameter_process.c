@@ -34,28 +34,13 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 static void get_para_from_usb(void);
-#ifdef GEC_SF_MASTER
 static void esc_para_init(void);
-#endif
-
+static void esc_para_check(void);
 
 u8 ParaLoad = 0u;
 
 
-/*******************************************************************************
-* Function Name  : Check_Error_Present_Memory
-* Description    : esc check error in memory.                 
-* Input          : None          
-* Output         : None
-* Return         : return last power off esc state
-*******************************************************************************/
-u16 Check_Error_Present_Memory(void)
-{
 
-    return 2u;
-}
-
-#ifdef GEC_SF_MASTER
 /*******************************************************************************
 * Function Name  : esc_para_init
 * Description    : esc parameter initialization, set the default value.                 
@@ -70,27 +55,62 @@ static void esc_para_init(void)
     {
         
         MOTOR_RPM = 1000u;
+        NOMINAL_SPEED = 50u;
         MOTOR_PLUSE_PER_REV = 10u;
+        STEP_WIDTH = 400u;
+        END_SAFETY_STRING_FAULT_TYPE = 0u;
+        KEY_MINIMUM_TIME = 800u;        
         UNDERSPEED_TIME = 5000u;
-        HANDRAIL_MOTOR_PULSE = 230u;
-        NOMINAL_SPEED = 500u;
-        SSM_SHORTCIRCUIT_TIME = 750u;
-        HR_FAULT_TIME = 10000u;
+        TANDEM_TYPE = 0u;   
         ROLLER_HR_RADIUS = 50u; /*( 0.050 * 1000 );  mm */
         HR_PULSES_PER_REV = 2u;
-        STEP_WIDTH = 400u;
-        TANDEM_TYPE = 0u;       
-        KEY_MINIMUM_TIME = 1500u;
+        HR_FAULT_TIME = 5000u;
+        BRAKE_STATUS_SENSORS = 2u;
         UP_DOWN_ALLOWED = 0u;
-        RESET_MINIMUM_TIME = 1000u;
+
+        RESET_MINIMUM_TIME = 2000u;
+        CONTACTORS_TIMEOUT = 100u;
+        DRIVE_CHAIN_DELAY = 500u;
+        HANDRAIL_MOTOR_PULSE = 205u;
+        
+        DIAGNOSTIC = 2u;
+        DIAGNOSTIC_BOARD_L2_QUANTITY = 2u;
+        DIAGNOSTIC_BOARD_L1_QUANTITY = 2u;
         
         PARA_INIT = 0xff01u;
-   
-        fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, &Modbuff[1100]);
-        
-    }
+#ifdef GEC_SF_MASTER   
+        fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, ParameterData);
+        fram_data_write(ESC_BACKUP_ADR + ESC_PARA_ADR, ESC_PARA_NUM, ParameterData);
+#endif        
+    } 
 }
-#endif
+
+/*******************************************************************************
+* Function Name  : esc_para_check
+* Description    :                 
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+static void esc_para_check(void)
+{
+    if(!(( MOTOR_RPM <= MOTOR_RPM_MIN ) && ( MOTOR_RPM >= MOTOR_RPM_MAX )))
+    {
+        EN_ERROR11 |= 0x02u;
+    }
+    
+    if(!(( NOMINAL_SPEED == NOMINAL_SPEED1 ) || ( NOMINAL_SPEED == NOMINAL_SPEED2 ) 
+         || ( NOMINAL_SPEED == NOMINAL_SPEED3 ) || ( NOMINAL_SPEED == NOMINAL_SPEED4 )))
+    {
+        EN_ERROR11 |= 0x02u;
+    }    
+  
+    if(!(( MOTOR_PLUSE_PER_REV <= MOTOR_PLUSE_PER_REV_MIN ) && ( MOTOR_PLUSE_PER_REV >= MOTOR_PLUSE_PER_REV_MAX )))
+    {
+        EN_ERROR11 |= 0x02u;
+    }    
+}
+
 
 
 /*******************************************************************************
@@ -102,11 +122,11 @@ static void esc_para_init(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/ 
-static u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len)
+static u16 Send_State_Message(u8 board, u8 state, u8 buff[], u16 len)
 {
-    u8 senddata[250],recvdata[250];
-    u8 i;
-    u8 res = 0u;
+    u8 senddata[500],recvdata[500];
+    u16 i;
+    u16 res = 0u;
     
     senddata[0] = board;
     senddata[1] = state;    
@@ -121,12 +141,12 @@ static u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len)
                 senddata[i + 2u] = buff[i];
             } 
             CPU_Exchange_Data(senddata, len + 2u);
-            CPU_Data_Check(recvdata, &len);            
+            CPU_Data_Check(recvdata, &len, 2000000u );            
         }
         else if( state == RECEIVE_PARAMETER )
         {
             CPU_Exchange_Data(senddata, 2u);
-            CPU_Data_Check(recvdata, &len); 
+            CPU_Data_Check(recvdata, &len, 2000000u ); 
             
             for( i = 0u; i < len; i++)
             {
@@ -138,7 +158,7 @@ static u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len)
         else
         {
             CPU_Exchange_Data(senddata, 2u);
-            CPU_Data_Check(recvdata, &len);                         
+            CPU_Data_Check(recvdata, &len, 2000000u);                         
         }
     }
     /* Send the state to the cb board */
@@ -150,11 +170,11 @@ static u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len)
             {
                 senddata[i + 2u] = buff[i];
             } 
-            BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, len + 2u);            
+            /*BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, len + 2u);*/
         }
         else
         {        
-            BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, 2u);
+            /*BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, senddata, 2u);*/
         }
     }
     else
@@ -173,13 +193,13 @@ static u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len)
 static void get_para_from_usb(void)
 {
     
-    u8 len = 0u;   
+    u16 len = 0u;   
     
 #ifdef GEC_SF_MASTER 
     
     u8 recvdata[10];
-    u8 paradata[250];
-    u8 i;
+    u8 paradata[500];
+    u16 i;
     
     USBH_Mass_Storage_Init();
     
@@ -227,8 +247,10 @@ static void get_para_from_usb(void)
                 /* 7. Save parameters into variables */
                 for( i = 0u; i < len - 2u; i++)
                 {
-                    Modbuff[1100u + i] = paradata[i];
+                    ParameterData[i] = paradata[i];
                 } 
+                
+                esc_para_check();
                 
                 delay_ms(5u);
                 /* 8. Parametrization Loading Finished. Send Finish message to CPU2 */
@@ -258,8 +280,8 @@ static void get_para_from_usb(void)
 #else
     
     u8 senddata[5];
-    u8 recvdata[250];
-    u8 i;
+    u8 recvdata[500];
+    u16 i;
     
     /* 1. Waiting for message from CPU1 to start parameter loading process */
     len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u ); 
@@ -299,7 +321,7 @@ static void get_para_from_usb(void)
                         /* 4. Save parameters into variables */
                         for( i = 0u; i < len - 4u; i++)
                         {
-                            Modbuff[1100u + i] = recvdata[i + 2u];
+                            ParameterData[i] = recvdata[i + 2u];
                         }  
                         
                         /* 5. Send confirmation to CPU1 or Send error to CPU1 */  
@@ -310,7 +332,7 @@ static void get_para_from_usb(void)
                         if( (recvdata[0] == MESSAGE_TO_CPU) && (recvdata[1] == PARAMETER_LOADED_FINSH) )
                         {
                             /* SPI Slave Send */
-                            CPU_Exchange_Data(senddata, 2u);
+                            /*CPU_Exchange_Data(senddata, 2u);*/
                         }
                         else
                         {
@@ -398,6 +420,7 @@ int USB_LoadParameter(void)
           {
               /* 5. Store the parameters in the fram */
               fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, parabuffer);
+              fram_data_write(ESC_BACKUP_ADR + ESC_PARA_ADR, ESC_PARA_NUM, parabuffer);
               
               ParaLoad |= SAFETY_PARAMETER_LOADED;
           }
@@ -432,7 +455,7 @@ int USB_LoadParameter(void)
           else
           {         
               /* 5. Send the parameters to the cb board */
-              Send_State_Message( MESSAGE_TO_CONTROL, SEND_PARAMETER, parabuffer, (u8)filelen );
+              Send_State_Message( MESSAGE_TO_CONTROL, SEND_PARAMETER, parabuffer, filelen );
               
               ParaLoad |= CONTROL_PARAMETER_LOADED;
           }
@@ -461,12 +484,10 @@ void ParametersLoading(void)
     if( testmode == 0u )
     {       
         /* for test */
-#ifdef GEC_SF_MASTER 
         esc_para_init();
-#else
 
-#endif
-        get_para_from_usb();
+        /*get_para_from_usb();*/
+        
     }
 }
 

@@ -37,13 +37,14 @@
 static u8 sf_wdt_check_tms = 0u;
 static u8 sf_wdt_check_en = 0u;
 static u8 sf_relay_check_cnt = 0u;
+static u8 g_u8CloseSafetyOutput = 0u;
 /* static u8 test_num = 0;*/
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 void SafetySwitchCheck( u8 pulse_on, u8 test_num );
-static void Safety_String_End(void);
-
+static void SafetyOutputDisable_b(void);
+static void SafetyOutputEnable_b(void);
 
 #ifdef GEC_SF_MASTER
 u8 R_SF_RL2_FB_CPU1;
@@ -365,7 +366,7 @@ void SafetySwitchStatus(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SafetyOutputDisable(void)
+static void SafetyOutputDisable_b(void)
 {
     static u8 sf_output_dis_tms = 0u; 
     
@@ -386,63 +387,14 @@ void SafetyOutputDisable(void)
                     sf_output_dis_tms = 0u;
                 }
             }  
-        }
-        
+        }       
     }
-
 }
 
-/*******************************************************************************
-* Function Name  : SafetyOutputEnable
-* Description    : Safety Relay enable.
-*                  
-* Input          : None
-*                  None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void SafetyOutputEnable(void)
+void SafetyOutputDisable(void)
 {
-
-    static u8 sf_output_en_tms = 0u; 
-    
-    
-    if( SfBase_EscState == ESC_RUN_STATE ) 
-    { 
-        SF_RELAY_ON();    
-        SF_EWDT_TOOGLE();
-        
-        if( sf_relay_check_cnt == 0u )
-        {
-            sf_output_en_tms++;
-            if( sf_output_en_tms * SYSTEMTICK > 50u )
-            {
-                SafetyRelayAuxRelayTest();
-                sf_relay_check_cnt = 1u;
-                sf_output_en_tms = 0u;
-            }
-        }   
-        
-        SafetyCTR_Check();
-    }
-
+  SF_RELAY_OFF();
 }
-
-/*******************************************************************************
-* Function Name  : Safety_String_End
-* Description    :       
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-static void Safety_String_End(void)
-{
-        if( SF_PWR_FB_CPU )
-        {
-            EN_ERROR8 |= 0x01u;
-        }   
-}
-
 
 /*******************************************************************************
 * Function Name  : SafetyRelayAuxRelayTest
@@ -462,11 +414,7 @@ static void SafetyRelayAuxRelayTest(void)
         if( SF_RL_DRV_FB )
         {
             EN_ERROR8 |= 0x01u;
-        }
-        else if( SF_PWR_FB_CPU )
-        {
-            EN_ERROR8 |= 0x01u;
-        }        
+        }      
         else if ( SF_RL_FB )
         {
             EN_ERROR8 |= 0x01u;
@@ -486,11 +434,7 @@ static void SafetyRelayAuxRelayTest(void)
         if( !SF_RL_DRV_FB )
         {
             EN_ERROR8 |= 0x01u;
-        }
-        else if( SF_PWR_FB_CPU )
-        {
-            EN_ERROR8 |= 0x01u;
-        }        
+        }      
         else if ( !SF_RL_FB )
         {
             EN_ERROR8 |= 0x01u;
@@ -583,10 +527,8 @@ void SafetyExtWdt_StartUpCheck(void)
         /*FailSafeTest();*/
         EN_ERROR8 |= 0x02u;
     }
-    else
-    {
-        SF_RELAY_OFF(); 
-    }   
+
+    SF_RELAY_OFF();    
         
     if( EN_ERROR8 & 0x03u )
     {
@@ -609,15 +551,14 @@ void SafetyExtWdt_RunCheck(void)
 
     static u16 escState_old = ESC_READY_STATE; 
     
-    if(( SfBase_EscState == ESC_READY_STATE ) && ( !(escState_old == ESC_READY_STATE)))
+    if(( SfBase_EscState != ESC_STOPPING_PROCESS_STATE ) && ( (escState_old == ESC_STOPPING_PROCESS_STATE)))
     {
         sf_wdt_check_en = 1u;
     }
 
     
     if( sf_wdt_check_en == 1u )
-    {
-    
+    {    
         if( sf_wdt_check_tms == 0u )
         {
             if( !SF_RL_DRV_FB )
@@ -643,8 +584,7 @@ void SafetyExtWdt_RunCheck(void)
         sf_wdt_check_tms++;
         /*  (41 - 1)*45ms = 1800ms */
         if( sf_wdt_check_tms >= 41u)
-        {
-            
+        {            
             sf_wdt_check_tms = 0u;
             sf_wdt_check_en = 0u;
             
@@ -653,16 +593,9 @@ void SafetyExtWdt_RunCheck(void)
                 /*FailSafeTest();*/
                 EN_ERROR8 |= 0x02u;
             }
-            else
-            {
-                SF_RELAY_OFF();
-            }   
-            
+
+            SF_RELAY_OFF();   
         }
-    }
-    else
-    {
-        SF_EWDT_TOOGLE();
     }
     
     escState_old = SfBase_EscState;
@@ -683,6 +616,7 @@ void SafetyExtWdt_RunCheck(void)
 static void SafetyCTR_Check(void)
 {
     static u16 sf_ctr_check_tms = 0u;
+    static u8 stat_u8CheckError = 0u;
     
     if( SfBase_EscState == ESC_RUN_STATE ) 
     {    
@@ -694,8 +628,8 @@ static void SafetyCTR_Check(void)
             delay_us(150u);
             if(!SF_RL_DRV_FB)
             {
-                EN_ERROR_SYS2++;
-                if(EN_ERROR_SYS2 > 2u)
+                stat_u8CheckError++;
+                if(stat_u8CheckError > 2u)
                 {
                     /* SafetyCTR_Check error */
                     /*ESC_SafeRelay_Error_Process();*/
@@ -704,18 +638,126 @@ static void SafetyCTR_Check(void)
             }
             else
             {
-                EN_ERROR_SYS2 = 0u;
+                stat_u8CheckError = 0u;
             }
             SF_RELAY_ON();
         }
     }
-
 }
 
 
+/*******************************************************************************
+* Function Name  : Safety_Relay_Shortcircuit_Check
+* Description    : 
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Safety_Relay_Shortcircuit_Check(void)
+{
+    static u8 stat_u8CheckStage = 0u;
+    static u16 stat_u8TimerCheck = 0u;
+    
+    switch(stat_u8CheckStage)
+    {
+       case 0u:
+        {
+            /* ACIVATE UP CONTACTOR */
+            CMD_ESC_ORDER |= 0x01u;
+            stat_u8TimerCheck = 0u;
+            stat_u8CheckStage = 1u;
+            break;
+        }
+       case 1u:
+        {
+            /* After 500 ms: Check contactors are deactivated */
+            stat_u8TimerCheck++;
+            if( stat_u8TimerCheck * SYSTEMTICK > 500u )
+            {
+                stat_u8TimerCheck = 0u;
+                stat_u8CheckStage = 2u;
+            }
+            break;
+        }
+       case 2u:
+        {
+            /* DEACTIVATE UP CONTACTOR */
+            CMD_ESC_ORDER &= ~0x01u;
+            stat_u8CheckStage = 3u;
+            break;
+        }
+       case 3u:
+        {
+            /* Close safety output */
+            g_u8CloseSafetyOutput = 1u;
+            stat_u8CheckStage = 4u;
+            break;
+        }        
+       case 4u:
+        {
+            /* After 500 ms: Check contactors are deactivated */ 
+            stat_u8TimerCheck++;
+            if( stat_u8TimerCheck * SYSTEMTICK > 500u )
+            {
+                stat_u8TimerCheck = 0u;
+                g_u8CloseSafetyOutput = 0u;
+                g_u8SafetyRelayStartCheck = 1u;
+                stat_u8CheckStage = 0u;
+            }
+            break;
+        }
+       default:
+        break;
+        
+    }
+}
 
+/*******************************************************************************
+* Function Name  : SafetyOutputEnable
+* Description    : Safety Relay enable.
+*                  
+* Input          : None
+*                  None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+static void SafetyOutputEnable_b(void)
+{
+    static u8 sf_output_en_tms = 0u; 
+        
+    if( SfBase_EscState == ESC_RUN_STATE ) 
+    { 
+        SF_RELAY_ON();    
+        SF_EWDT_TOOGLE();
+        
+        if( sf_relay_check_cnt == 0u )
+        {
+            sf_output_en_tms++;
+            if( sf_output_en_tms * SYSTEMTICK > 50u )
+            {
+                SafetyRelayAuxRelayTest();
+                sf_relay_check_cnt = 1u;
+                sf_output_en_tms = 0u;
+            }
+        }   
+        
+        SafetyCTR_Check();
+    }
+    else if( (SfBase_EscState == ESC_STARTING_PROCESS_STATE) && ( g_u8CloseSafetyOutput == 1u ) )
+    {
+      SF_RELAY_ON();    
+      SF_EWDT_TOOGLE();
+    }
+    else
+    {}
+}
 
-
-
+void SafetyOutputEnable(void)
+{
+  SF_RELAY_ON();    
+  SF_EWDT_TOOGLE();     
+}
 
 /******************************  END OF FILE  *********************************/

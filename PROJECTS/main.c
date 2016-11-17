@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
-* Last modify date   : 09/07/2016
+* Last modify date   : 09/27/2016
 * Description        : Main program body.
 *                      
 *******************************************************************************/
@@ -25,6 +25,7 @@
 #include "esc_comm_diagnostic.h"
 #include "comm_display_board.h"
 #include "esc_state.h"
+#include "esc_comm_safety.h"
 #ifdef GEC_SF_S_NEW
 #include "usb_virtual_com_port.h"
 #endif
@@ -43,27 +44,39 @@ static void Task_Loop(void);
 u32 TimingDelay = 0u;
 u32 SysRunTime = 0u; 
 u8 testmode = 0u;
+u8 g_u8CanCommunicationToCotrolID = 0u,g_u8CanCommunicationToCotrolLen = 0u,g_u8CanCommunicationToCotrolOk = 1u;
 
-/* ESC */
-u8 Modbuff[3000];
+/* for test */
 u8 EscRTBuff[200];
-u8 McRxBuff[1000];
-u8 *const Sys_Data = &Modbuff[1100];
-u16 *const pt_SysBuff = (u16*)&Modbuff[1100];
-u8 *const pcOMC_EscRTBuff = &McRxBuff[0]; 
-u8 *const pcOmcErrorBuff = &McRxBuff[70];
-u8 *const pcErrorBuff = &EscRTBuff[70];
-#ifdef GEC_SF_MASTER 
-static u8 *const pcEscErrorCodeBuff = &Modbuff[454];
+u8 McRxBuff[200];
+
+/* ESC -----------------------*/
+u8 ParameterData[200];
+
+/* 5 fault code, 1 alarm code */
+u16 EscErrorCodeBuff[6];
+u8 EscErrorBuff[64];
+
+#ifdef GEC_SF_MASTER
+/* state for display */
+u8 StateDisplay[8];
 #endif
-u8 *const pcEscErrorBuff = &Modbuff[468];
-u8 *const pcSafetyInputToControl = &EscRTBuff[4];
-u8 *const pcEscDataToControl = &EscRTBuff[12];
-u8 *const pcEscDataFromControl = &EscRTBuff[81];
-u16 pcOMC_SfBase_EscState = 0u;
-/* cpu2 motor speed */
-u16 *const g_u16ptCpu2MotorFreqSensor1 = (u16*)&McRxBuff[40];
-u16 *const g_u16ptCpu2MotorFreqSensor2 = (u16*)&McRxBuff[42];
+
+/* ESC rt data */
+SafetyEscData EscRtData;
+SafetyEscData OmcEscRtData;
+
+/* Control board data */
+u8 EscDataToControl[20][8];
+u8 EscDataFromControl[3][8];
+
+/* DBL1 data */
+u8 EscDataToDBL1[3][8];
+u8 EscDataFromDBL1[4][8];
+
+/* DBL2 data */
+u8 EscDataToDBL2[8][8];
+u8 EscDataFromDBL2[16][8];
 
 /*******************************************************************************
 * Function Name  : LED_indicator
@@ -110,38 +123,68 @@ static void Task_Loop(void)
 #endif  
       
 
-      Get_GpioInput(&EscRTBuff[4]);
+      Get_GpioInput(&EscRtData.SafetyInputData[0]);
+      
+      pga_input_decode();
+      
       
       /*  ESC  */
       if( testmode == 0u )
       {
-/*          sfEscStateCheck(); */
           Esc_State_Machine();
+          
           ESC_Tandem_Check();
+          
           ESC_Motor_Check();
+          
           ESC_Handrail_Check();
+          
           ESC_Missingstep_Check();
-          SafetyOutputDisable();
-          SafetyOutputEnable();
+          
+          Esc_Safety_Input_Check();
+          
+          Esc_Control();
+          
 /*          SafetySwitchStatus();*/
       }
-
-
+      
+      
+      
+      if( DIAGNOSTIC == DIAGNOSTIC_BOARD_2 )
+      {
+          Safety_Receive_Data_Process();
+#ifdef GEC_SF_S_NEW           
+          Safety_Request_Data();
+#endif          
+      }
+      
+#ifdef GEC_SF_MASTER 
+      Safety_Comm_Diag();
+      Communication_CPU();
+#else
+      Communication_CPU();
+#endif
+      
+      
+      
       
 #ifdef GEC_SF_MASTER 
       if( Tms10Counter == 0u )
       {
-          fault_code_decode(pcEscErrorCodeBuff);
+          fault_code_decode(EscRtData.ErrorCode);               
+          /*Communication_CPU();*/
+          
+          Communication_To_Control();  
       }      
       if( Tms20Counter == 0u )
-      {                
-          Communication_CPU();
-          Communication_To_Control();  
+      {                       
+          
       }  
 #else
       if( Tms10Counter == 0u )
-      {
-          Communication_CPU();         
+      { 
+          fault_code_decode(EscRtData.ErrorCode);
+
       }
       if( Tms20Counter == 0u )
       {
@@ -153,17 +196,15 @@ static void Task_Loop(void)
       {                                 
           /* Reload EWDT counter */          
           EWDT_TOOGLE();
-          Safety_Comm_Diag();
           
-          SafetyExtWdt_RunCheck();
+          /*SafetyExtWdt_RunCheck();*/
       } 
       
       if( Tms100Counter == 0u )
       {   
 #ifdef GEC_SF_MASTER 
           Comm_DisplayBoard();
-          CAN1_TX_Data[2] = SW_SPDT_KEY;
-          CAN1_TX_Data[3] = Get_Adc_Average();
+          SW_SPDT_KEY;         
 #else
           USB_Receive_Data_Send();
 #endif
@@ -171,7 +212,7 @@ static void Task_Loop(void)
            
       if( Tms500Counter == 0u )
       {             
-          Input_Check2();
+          Input_Check();
       }
       
       if( Tms1000Counter == 0u )
@@ -181,7 +222,6 @@ static void Task_Loop(void)
      
 
 }
-
 
 /*******************************************************************************
 * Function Name  : main
@@ -198,6 +238,7 @@ int main(void)
     /* Power up delay */
     for( i = 0u; i < 10000u; i++ )
     {
+               
     }
     
     /** hardware init **/
@@ -218,7 +259,6 @@ int main(void)
     }          
           
 }
-
 
 #ifdef  USE_FULL_ASSERT
 

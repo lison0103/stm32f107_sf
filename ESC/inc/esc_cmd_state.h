@@ -18,8 +18,10 @@
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void sfEscStateCheck(void);
-
+void Esc_Safety_Input_Check(void);
+void CheckUpDown_Key(UpDownKeyItem *ptKEY);
+void Inspection_UpDown_Button(void);
+void CheckReset(void);
 
 
 #endif  /* __ESC_CMD_STATE_H */

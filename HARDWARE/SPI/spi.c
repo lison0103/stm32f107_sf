@@ -22,7 +22,7 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 static void SPI1_DMA_Configuration( void );
-static void SPI1_Configuration(void);
+
 
 static u8 SPI1_TX_Buff[buffersize] = { 0 };
 static u8 SPI1_RX_Buff[buffersize] = { 0 };
@@ -42,7 +42,7 @@ static u16 waitus = 0u;
 * Output         : None
 * Return         : None
 *******************************************************************************/
-static void SPI1_Configuration(void)
+void SPI1_Configuration(void)
 {       
         SPI_InitTypeDef  SPI_InitStructure;	
         
@@ -66,7 +66,7 @@ static void SPI1_Configuration(void)
         /* NSS signal by hardware (NSS pin) or software (using SSI bit) management: internal NSS-bit control signal has SSI */
 	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;		                
         /* Defines the baud rate prescaler values: Baud Rate Prescaler is 32, speed is about 72M / 32 = 2.25M / s */
-	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_32;	
+	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BaudRatePrescaler_16;	
         /* Specifies the data transmission from the MSB or LSB bit first: data transmission start from the MSB */
 	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;
         /* CRC polynomial value calculation */
@@ -83,7 +83,7 @@ static void SPI1_Configuration(void)
         SPI_I2S_DMACmd(SPI1, SPI_I2S_DMAReq_Rx, ENABLE);
            
         /* CRC */
-        SPI_CalculateCRC(SPI1, ENABLE);
+        /*SPI_CalculateCRC(SPI1, ENABLE);*/
         
         /* SPI enable */
 	SPI_Cmd(SPI1, ENABLE); 
@@ -222,6 +222,7 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
     if( waitus >= 2000u )
     {
         /* TXE timeout!  */
+        waitus = 0u;
     }
       
     DMA_Cmd(DMA1_Channel2, DISABLE);
@@ -250,6 +251,7 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
     if( waitus >= 2000u )
     {
         /* TXE timeout!  */
+        waitus = 0u;
     }
     
     DMA_Cmd(DMA1_Channel2, ENABLE);    
@@ -269,7 +271,7 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
 *******************************************************************************/
 void DMA_Check_Flag(u32 times)
 {         
-
+          static u8 stat_u8CheckError = 0u;
           u16 i;
           
           waitus = 0u;
@@ -285,6 +287,7 @@ void DMA_Check_Flag(u32 times)
           if( waitus >= times )
           {
               /* DMA1_IT_TC2 wait timeout!!! */
+              waitus = 0u;
           }
           waitus = 0u;
           while( ( !DMA_GetFlagStatus(DMA1_IT_TC3) ) && ( waitus < times ) )
@@ -296,6 +299,7 @@ void DMA_Check_Flag(u32 times)
           if( waitus >= times )
           {
               /* DMA1_IT_TC3 wait timeout!!! */
+              waitus = 0u;
           }
           waitus = 0u;
           while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < times ) )
@@ -307,6 +311,7 @@ void DMA_Check_Flag(u32 times)
           if( waitus >= times )
           {              
               /* SPI_I2S_FLAG_TXE wait timeout!!! */
+              waitus = 0u;
           }
           waitus = 0u;
           while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) != RESET ) && ( waitus < times ) )
@@ -318,6 +323,7 @@ void DMA_Check_Flag(u32 times)
           if( waitus >= times )
           {             
               /* SPI_I2S_FLAG_BSY wait timeout!!! */
+              waitus = 0u;
           } 
  
         DMA_ClearFlag(DMA1_FLAG_GL3|DMA1_FLAG_TC3|DMA1_FLAG_HT3|DMA1_FLAG_TE3);
@@ -330,7 +336,7 @@ void DMA_Check_Flag(u32 times)
               SPI_I2S_ClearFlag(SPI1, SPI_FLAG_CRCERR);
               
               /* SPI CRC ERROR */
-              EN_ERROR_SYS4++;
+              stat_u8CheckError++;
 #ifdef GEC_SF_MASTER          
 /*
               SPI1_Configuration();
@@ -339,14 +345,14 @@ void DMA_Check_Flag(u32 times)
 #else
               SPI1_Configuration();
 #endif              
-              if(EN_ERROR_SYS4 > 2u)
+              if(stat_u8CheckError > 2u)
               {
                 ESC_SPI_Error_Process();
               }
           }
           else
           {
-              EN_ERROR_SYS4 = 0u;
+              stat_u8CheckError = 0u;
           }        
         
         /* copy buff to data */

@@ -22,11 +22,22 @@
 
 /* motor speed */
 #define MAX_SPEED       ( ( F1 * 118u ) / 100u )
-#define MIN_SPEED       ( ( F1 * 10u ) / 100u )
+#define MIN_SPEED       ( ( F1 * 15u ) / 100u )
 
 /* stopping distance */
-#define CONVERSION      ( ( NOMINAL_SPEED / MOTOR_RPM ) * MOTOR_PLUSE_PER_REV )
-#define MAX_DISTANCE    ( ( 12u * 2u * F1 ) / 10u )
+#define CONVERSION                      ( ( NOMINAL_SPEED * 10u * 60u ) / MOTOR_RPM / MOTOR_PLUSE_PER_REV ) /* [mm/pulse] */
+#define CONVERSION_MAINSHAFTSPEED       ( ( NOMINAL_SPEED * 10u * 60u ) / MAIN_SHAFT_RPM / MAIN_SHAFT_PULSE_PER_REV )  /* [mm/pulse] */
+
+/*
+If (NOMINAL_SPEED <= 75[cm/s]) then
+	MAX_DISTANCE = 2[s]*NOMINAL_SPEED*10 [mm/s]*1,2;	//[mm]
+*/
+#define MAX_DISTANCE    ( 2u * NOMINAL_SPEED * 12u )  /* [mm] */
+/*
+Else_if (NOMINAL_SPEED <= 90[cm/s]) then
+	MAX_DISTANCE = (4/3[s]*NOMINAL_SPEED*10 [mm/s] +0,5[mm] )*1,2;
+*/
+#define MAX_DISTANCE2    ( 170u * 12u ) /*(((( 4u / 3u ) * NOMINAL_SPEED * 10u + 0.5u ) * 12u ) / 10u )*/  /* [mm] */
 
 /* Exported functions ------------------------------------------------------- */
 void Motor_Speed_1_2_Shortcircuit_Run(void);

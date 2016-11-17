@@ -93,12 +93,15 @@ void Initial_Device(void)
         /** Extenal communication device init **/
         ExtCommDeviceInit();
         
+        /** Fram init **/
+        eep_init();
+        
         /*----------------------------------------------------------------------*/
         /*----------------------------- FRAM Test ------------------------------*/
         /*----------------------------------------------------------------------*/
-        
+#if SELF_TEST        
         DataIntegrityInFRAMCheck();      
-        
+#endif        
         
         /* ADC init, measure the sf_in voltage */
         Adc_Init();       
@@ -117,16 +120,16 @@ void Initial_Device(void)
         /*------------------------- Cross Comm CPU test ------------------------*/
         /*------------------------- Data Integrity Test ------------------------*/
         /*----------------------------------------------------------------------*/   
-        
+#if SELF_TEST        
         CrossCommCPUCheck();
-        
+#endif        
         /*----------------------------------------------------------------------*/
         /*------------------------- Safety ExtWdt Test -------------------------*/
         /*---------------------- SafetyRelay AuxRelay Test ---------------------*/
         /*----------------------------------------------------------------------*/   
-        
+#if SELF_TEST        
         SafetyExtWdt_StartUpCheck();    
-
+#endif
         /* HardwareTest */
 /*        HardwareTEST();        */
         
@@ -156,10 +159,8 @@ void Initial_Device(void)
 *******************************************************************************/
 #ifdef GEC_SF_MASTER
 static void DataIntegrityInFRAMCheck(void)
-{
-    eep_init();
+{   
     esc_data_check();    
-
 }
 #endif
 
@@ -392,19 +393,10 @@ static void Data_init(void)
     
     for( i = 0; i < 200; i++ )
     {
-        EscRTBuff[i] = 0u;
+        ParameterData[i] = 0u;
     }  
     
-    for( i = 0; i < 1000; i++ )
-    {
-        McRxBuff[i] = 0u;
-    }  
-  
-    for( i = 0; i < 3000; i++ )
-        
-    {
-        Modbuff[i] = 0u;
-    } 
+ 
 }
 
 /******************************  END OF FILE  *********************************/

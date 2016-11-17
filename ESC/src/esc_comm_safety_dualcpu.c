@@ -15,10 +15,13 @@
 #include "esc_error_process.h"
 #include "bsp_iocfg.h"
 #include "initial_devices.h"
+#include "esc_comm_safety.h"
+#include "exti.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define CPU_COMM_TIMEOUT  5u
+#define CPU_COMM_TIMEOUT  50u
+#define CAN_COMM_HAND_TIME      8000u
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -32,15 +35,15 @@ static void Receive_IO_status_from_CPU(void);
 static u16 comm_num = 0u;
 
 
-#ifdef GEC_SF_MASTER
+
 static u8 onetime = 0u;
-#else
+#ifndef GEC_SF_MASTER
 static u16 comm_timeout = 100u;
 #endif
 
-static u8 cpu_senddata_buffer[250];
-static u8 cpu_recvdata_buffer[250];
-static u8 recvlen = 0u;
+static u8 *cpu_senddata_buffer;
+static u8 *cpu_recvdata_buffer;
+static u16 recvlen = 0u;
 
 /*******************************************************************************
 * Function Name  : Communication_CPU
@@ -57,13 +60,13 @@ void Communication_CPU(void)
     
     comm_cpu_tms++;
 #ifdef GEC_SF_MASTER
-    if( comm_cpu_tms * ( SYSTEMTICK * 4u ) >= 200u )
+    if( comm_cpu_tms * ( SYSTEMTICK * 2u ) >= 200u )
     {
         comm_cpu_tms = 0u;
         Receive_IO_status_from_CPU();
     }
 #else
-    if( comm_cpu_tms * ( SYSTEMTICK * 2u ) >= 200u )
+    if( comm_cpu_tms * ( SYSTEMTICK ) >= 200u )
     {
         comm_cpu_tms = 0u;
         Receive_IO_status_from_CPU();
@@ -81,27 +84,7 @@ void Communication_CPU(void)
 *******************************************************************************/
 static void Send_state_to_CPU(void)
 {
-    u8 i;
-    
-    /* 1. esc Rtdata --------------------------*/
-    for( i = 0u; i < 100u; i++)
-    {
-        cpu_senddata_buffer[i] = EscRTBuff[i];
-    }    
-    
-    /* 2. esc state --------------------------*/        
-    cpu_senddata_buffer[100] = (u8)SfBase_EscState;
-    cpu_senddata_buffer[101] = (u8)(SfBase_EscState >> 8);
-
-#ifdef GEC_SF_MASTER    
-    /* 3. esc para, just for test */
-/*
-    for( i = 102; i < 162; i++)
-    {
-        cpu_senddata_buffer[i] = Modbuff[1120 + i - 102];
-    }    
-*/    
-#endif
+    cpu_senddata_buffer = (u8*)&EscRtData;
 }
 
 /*******************************************************************************
@@ -112,44 +95,8 @@ static void Send_state_to_CPU(void)
 * Return         : None
 *******************************************************************************/
 static void Receive_state_from_CPU(void)
-{
-    u8 i;
-    
-#ifdef GEC_SF_MASTER 
-    if( recvlen == 102u )       
-    {
-        /* 1. esc Rtdata receive--------------------------*/
-        for( i = 0u; i < 100u; i++)
-        {
-            McRxBuff[i] = cpu_recvdata_buffer[i];
-        }
-        
-        /* 2. esc state */
-        pcOMC_SfBase_EscState = (u16)cpu_recvdata_buffer[101] << 8 ; 
-        pcOMC_SfBase_EscState |= (u16)cpu_recvdata_buffer[100];     
-    }
-#else
-    if( recvlen == 102u )       
-    {
-        /* 1. esc Rtdata receive--------------------------*/
-        for( i = 0u; i < 100u; i++)
-        {
-            McRxBuff[i] = cpu_recvdata_buffer[i];
-        }
-        
-        /* 2. esc state */
-        pcOMC_SfBase_EscState = (u16)cpu_recvdata_buffer[101] << 8 ; 
-        pcOMC_SfBase_EscState |= (u16)cpu_recvdata_buffer[100]; 
-        
-        /* 3. esc para receive, just for test --------------*/
-/*        
-        for( i = 102; i < 162; i++)
-        {
-            Modbuff[1120 + i - 102] = cpu_recvdata_buffer[i];
-        }        
-*/        
-    }
-#endif    
+{    
+    cpu_recvdata_buffer = (u8*)&OmcEscRtData;
 }
 
 /*******************************************************************************
@@ -164,9 +111,9 @@ static void Receive_IO_status_from_CPU(void)
       static u8 receive_io_error = 0u;
       u8 i;
       
-      for( i = 4u; i < 12u; i++ )
+      for( i = 0u; i < 8u; i++ )
       {
-          if( McRxBuff[i] != EscRTBuff[i] )
+          if( OmcEscRtData.SafetyInputData[i] != EscRtData.SafetyInputData[i] )
           {
               receive_io_error++;
               break;
@@ -175,7 +122,7 @@ static void Receive_IO_status_from_CPU(void)
       
       if( receive_io_error > 5u )
       {
-          NVIC_SystemReset();
+          EN_ERROR9 |= 0x02u;
       }
       else
       {
@@ -194,45 +141,106 @@ static void Receive_IO_status_from_CPU(void)
 *******************************************************************************/
 static void CPU_Comm(void)
 {
-
+    static u16 stat_u16TimerCommWait = 0u, stat_u16HandshakeSuccess = 0u;
+    
 #ifdef GEC_SF_MASTER
-    if( onetime == 0u )
-    {
-        onetime++;
+    
+    u8 i;
+    static u8 stat_u8TimerSend = 0u;
 
-        Send_state_to_CPU();
-        CPU_Exchange_Data(cpu_senddata_buffer, 102u);
+    stat_u8TimerSend++;
+    /* CPU2 data prepare or 10ms, send data */
+    if(( g_u8SPISlaveDataPrepare == 1u ) || ( stat_u8TimerSend == 2u ))
+    {
+        g_u8SPISlaveDataPrepare = 0u;
+        stat_u8TimerSend = 0u;
+        
+        Send_state_to_CPU();        
+        CPU_Exchange_Data(cpu_senddata_buffer, ESC_RT_DATA_LEN);
+        
+        Receive_state_from_CPU();
+        CPU_Data_Check(cpu_recvdata_buffer, &recvlen, 500u );    
+        
+        /* clear receive data */
+        for( i = 0u; i < 12u; i++ )
+        {
+            EscRtData.DBL2ReceiveUpperDataB[i] = 0u;
+            EscRtData.DBL2ReceiveLowerDataB[i] = 0u; 
+            EscRtData.DBL2ReceiveInterm1DataB[i] = 0u;
+            EscRtData.DBL2ReceiveInterm2DataB[i] = 0u;
+        }    
+    }
+#else  
+
+    if( stat_u16HandshakeSuccess == 1u )
+    {
+        if( --comm_timeout == 0u )
+        {
+            /* CPU_Comm---comm_timeout */
+            EN_ERROR7 |= 0x01u;
+            ESC_SPI_Error_Process();
+            comm_timeout = CPU_COMM_TIMEOUT;
+            
+        }
     }
     else
     {
-        CPU_Data_Check(cpu_recvdata_buffer, &recvlen);
-        Receive_state_from_CPU();
-               
-        Send_state_to_CPU();        
-        CPU_Exchange_Data(cpu_senddata_buffer, 102u);
+        stat_u16TimerCommWait++;
+        if( ( stat_u16TimerCommWait * SYSTEMTICK ) > CAN_COMM_HAND_TIME )
+        {
+            /*  can communication handshake timeout when power on */ 
+            EN_ERROR7 |= 0x01u;
+        }         
     }
-#else  
-    comm_timeout--;
-
-    if( comm_timeout == 0u )
+    
+    if( onetime == 0u )
     {
-        /* CPU_Comm---comm_timeout */
-        EN_ERROR7 |= 0x01u;
-        ESC_SPI_Error_Process();
-        comm_timeout = CPU_COMM_TIMEOUT;
+        onetime++;
+        
+        Send_state_to_CPU();
+        CPU_Exchange_Data(cpu_senddata_buffer, ESC_RT_DATA_LEN);
     }
+    
     if ( ( DMA_GetFlagStatus(DMA1_IT_TC2) ) != RESET )
     {
-        
+        stat_u16HandshakeSuccess = 1u;
         comm_timeout = CPU_COMM_TIMEOUT;
 
-        CPU_Data_Check(cpu_recvdata_buffer, &recvlen);
         Receive_state_from_CPU();
+        CPU_Data_Check(cpu_recvdata_buffer, &recvlen, 500u );        
                 
         Send_state_to_CPU();
-        CPU_Exchange_Data(cpu_senddata_buffer, 102u);
+        CPU_Exchange_Data(cpu_senddata_buffer, ESC_RT_DATA_LEN);
         
-        EN_ERROR7 &= ~0x01u;
+        /*EN_ERROR7 &= ~0x01u;*/
+        
+        if( DIAGNOSTIC_BOARD_L2_QUANTITY == 2u )
+        {
+            Safety_Send_Data_Process(CONNECTION_DBL2_UPPER,NULL,EscRtData.DBL2SendUpperData, 0u);
+            /*Safety_Send_Data_Process(CONNECTION_DBL2_LOWER,NULL,EscRtData.DBL2SendLowerData, 0u);*/
+            Safety_Send_Data_Process(CONNECTION_DBL2_INTERM2,NULL,EscRtData.DBL2SendInterm2Data, 0u);
+        }
+        else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 3u )
+        {
+            Safety_Send_Data_Process(CONNECTION_DBL2_UPPER,NULL,EscRtData.DBL2SendUpperData, 0u);
+            Safety_Send_Data_Process(CONNECTION_DBL2_LOWER,NULL,EscRtData.DBL2SendLowerData, 0u);
+            Safety_Send_Data_Process(CONNECTION_DBL2_INTERM1,NULL,EscRtData.DBL2SendInterm1Data, 0u);
+        }
+        else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
+        {
+            Safety_Send_Data_Process(CONNECTION_DBL2_UPPER,NULL,EscRtData.DBL2SendUpperData, 0u);
+            Safety_Send_Data_Process(CONNECTION_DBL2_LOWER,NULL,EscRtData.DBL2SendLowerData, 0u);
+            Safety_Send_Data_Process(CONNECTION_DBL2_INTERM1,NULL,EscRtData.DBL2SendInterm1Data, 0u);
+            Safety_Send_Data_Process(CONNECTION_DBL2_INTERM2,NULL,EscRtData.DBL2SendInterm2Data, 0u);
+        }
+        else
+        {
+            Safety_Send_Data_Process(CONNECTION_DBL2_LOWER,NULL,EscRtData.DBL2SendLowerData, 0u);
+        }
+        
+        SYNC_SYS_OUT_SET();
+        delay_us(5u);
+        SYNC_SYS_OUT_CLR();
     }   
 #endif
 }
@@ -246,38 +254,46 @@ static void CPU_Comm(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void CPU_Data_Check( u8 buffer[], u8 *len )
-{ 
-     u8 i;
-     
+void CPU_Data_Check( u8 buffer[], u16 *len, u32 times )
+{      
+     static u8 stat_u8CheckError = 0u;
+     u16 i;
+   
     /* communication buffer */
     comm_num = buffersize;  
-       
-    DMA_Check_Flag(10000000u);    
-        
+
+    DMA_Check_Flag(times);    
+
     if(!MB_CRC16(SPI1_RX_Data, comm_num))
     {
         
-        EN_ERROR_SYS3 = 0u;    
-        EN_ERROR7 &= ~0x02u;
+        stat_u8CheckError = 0u;    
+        /*EN_ERROR7 &= ~0x02u;*/
         
-        *len = SPI1_RX_Data[0];       
+        *len |= SPI1_RX_Data[0];  
+        *len |= (u16)((u16)SPI1_RX_Data[1] << 8u);
         for( i = 0u; i < *len; i++ )
         {
-            buffer[i] = SPI1_RX_Data[ i + 1u ];
+            buffer[i] = SPI1_RX_Data[ i + 2u ];
         }
                   
     }
     else
     {
-        EN_ERROR_SYS3++;     
+        stat_u8CheckError++;     
         /* MB_CRC16 error */
-                       
+#ifdef GEC_SF_S_NEW         
+        SPI1_Configuration();               
+#endif        
+        for(i = 0u; i < comm_num; i++)
+        {
+            SPI1_RX_Data[i] = 0u;
+        }
     }
     
-    if(EN_ERROR_SYS3 > 2u)
+    if(stat_u8CheckError > 3u) /* 2 ? */
     {
-        EN_ERROR_SYS3 = 0u;
+        stat_u8CheckError = 0u;
         ESC_SafeRelay_Error_Process();
         /* CPU_Exchange_Data_Check error */
         EN_ERROR7 |= 0x02u;
@@ -293,7 +309,7 @@ void CPU_Data_Check( u8 buffer[], u8 *len )
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void CPU_Exchange_Data( u8 buffer[], u8 len )
+void CPU_Exchange_Data( u8 buffer[], u16 len )
 {   
     u16 i;
     
@@ -304,10 +320,11 @@ void CPU_Exchange_Data( u8 buffer[], u8 len )
         SPI1_TX_Data[i] = 0u;
     }
     
-    SPI1_TX_Data[0] = len;
+    SPI1_TX_Data[0] = (u8)(len & 0xffu);
+    SPI1_TX_Data[1] = (u8)((len >> 8u)& 0xffu);
     for( i = 0u; i < len; i++ )
     {
-        SPI1_TX_Data[i + 1u] = buffer[i];
+        SPI1_TX_Data[i + 2u] = buffer[i];
     }
     
     i = MB_CRC16( SPI1_TX_Data, comm_num - 2u );

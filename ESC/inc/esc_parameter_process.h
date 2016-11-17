@@ -35,12 +35,11 @@
 
 
 /* Exported functions ------------------------------------------------------- */
-u16 Check_Error_Present_Memory(void);
 #ifdef GEC_SF_MASTER
 int USB_LoadParameter(void);
 #endif
 void ParametersLoading(void);
-static u8 Send_State_Message(u8 board, u8 state, u8 buff[], u8 len);
+static u16 Send_State_Message(u8 board, u8 state, u8 buff[], u16 len);
 
 extern u8 ParaLoad;
 

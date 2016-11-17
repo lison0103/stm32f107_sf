@@ -33,47 +33,11 @@ static u32 sflag1 = 0u,inputnum1 = 0u;
 static u32 sflag2 = 0u,inputnum2 = 0u;
 
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-
-
-
-
-/*******************************************************************************
-* Function Name  : Input_Check
-* Description    : Monitor the input pin status test.
-*                   
-* Input          : None
-*                  None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void Input_Check(void)
-{  
-    
-    u32 *ulPt_Input,*pc_can_tx;
-    u8 i;
-    
-    ulPt_Input = (u32*)&EscRTBuff[4];
-    pc_can_tx = (u32*)&CAN1_TX_Data[0];
-    
-    for( i = 0u; i < 4u; i++ )
-    {
-        CAN1_TX_Data[i]= 0x0u;                 
-    }
-    
-    for( i = 0u; i < 28u; i++ )
-    {
-        if( *ulPt_Input & ( 1u << i ))
-        {
-            *pc_can_tx |= 1u << i;
-        }
-    } 
-
-}        
+/* Private functions ---------------------------------------------------------*/       
         
 
 /*******************************************************************************
-* Function Name  : Input_Check2
+* Function Name  : Input_Check
 * Description    : Monitor the input pin status and test.
 *                  
 * Input          : None
@@ -81,9 +45,9 @@ void Input_Check(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Input_Check2(void)
+void Input_Check(void)
 {
-  
+#if 0  
         u32 *ulPt_Input1,*ulPt_Input2;
         u32 *ulPt_Input3,*ulPt_Input4;
         u32 i;
@@ -91,10 +55,10 @@ void Input_Check2(void)
 
         if( testmode == 1u )
         {
-            ulPt_Input1 = (u32*)&EscRTBuff[4];       
-            ulPt_Input2 = (u32*)&EscRTBuff[8];
-            ulPt_Input3 = (u32*)&McRxBuff[4];       
-            ulPt_Input4 = (u32*)&McRxBuff[8];      
+            ulPt_Input1 = (u32*)&EscRtData.SafetyInputData[0];       
+            ulPt_Input2 = (u32*)&EscRtData.SafetyInputData[4];
+            ulPt_Input3 = (u32*)&OmcEscRtData.SafetyInputData[0];       
+            ulPt_Input4 = (u32*)&OmcEscRtData.SafetyInputData[4];      
             
             sflag1 = 0u;
             inputnum1 = 0u;      
@@ -187,6 +151,7 @@ void Input_Check2(void)
             }
             
         }
+#endif        
 }
 
 
@@ -229,7 +194,7 @@ void CrossCommCPUCheck(void)
 #ifdef GEC_SF_MASTER
     DMA_Check_Flag(100000u);
 #else
-    DMA_Check_Flag(100000000u);
+    DMA_Check_Flag(10000000u);
 #endif
     
         
@@ -323,7 +288,7 @@ void CrossCommCPUCheck(void)
     if( data_error > 2u )
     {
         /* SPI1_DMA_Check error */
-        EN_ERROR7 |= 0x01u;
+        /*EN_ERROR7 |= 0x01u;*/
         g_u32InitTestError = 1u;
 /*        FailSafeTest();*/
     }
@@ -344,6 +309,7 @@ void CrossCommCPUCheck(void)
 *******************************************************************************/
 void HardwareTEST(void)
 {
+#if 0    
     u8 testdata1[10],testdata2[10];
     u8 testerror = 0u;
     u8 len = 0u, len1 = 0u, len2 = 0u;
@@ -526,7 +492,7 @@ void HardwareTEST(void)
         senddata[1] = 0x02u;
     }
     CPU_Exchange_Data(senddata, 2u);
-    CPU_Data_Check(recvdata, &len);
+    CPU_Data_Check(recvdata, &len, 10000000u );
 /*    
     delay_ms(10);
     CPU_Exchange_Data(senddata, 2);
@@ -549,7 +515,8 @@ void HardwareTEST(void)
             }            
         }
     }
-*/    
+*/ 
+#endif    
 }
 #else
 /*******************************************************************************
@@ -563,6 +530,7 @@ void HardwareTEST(void)
 *******************************************************************************/
 void HardwareTEST(void)
 {
+#if 0     
     u8 testdata[10];
     u8 testerror = 0u;
     u8 len = 0u;
@@ -656,7 +624,7 @@ void HardwareTEST(void)
         senddata[1] = 0x02u;
     }
     CPU_Exchange_Data(senddata, 2u);
-    CPU_Data_Check(recvdata, &len);
+    CPU_Data_Check(recvdata, &len, 10000000u );
     
     if( (len == 0x02u) && (recvdata[0] == 0xbcu) )
     {
@@ -681,6 +649,7 @@ void HardwareTEST(void)
     } 
     
 /*    CPU_Exchange_Data(senddata, 2);*/
+#endif    
 }
 
 

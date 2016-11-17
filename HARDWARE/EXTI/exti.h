@@ -19,7 +19,8 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void EXTIX_Init(void);
-	
+
+extern u8 g_u8SPISlaveDataPrepare;
 
 #endif  /* __EXTI_H */
 

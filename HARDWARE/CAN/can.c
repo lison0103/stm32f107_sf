@@ -21,8 +21,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* #define CAN_BAUDRATE  1000 */     /* 1MBps   */
-#define CAN_BAUDRATE  500  /* 500kBps */
-/* #define CAN_BAUDRATE  250 */ /* 250kBps */
+/* #define CAN_BAUDRATE  500 */ /* 500kBps */
+#define CAN_BAUDRATE  250  /* 250kBps */
 /* #define CAN_BAUDRATE  125 */ /* 125kBps */
 /* #define CAN_BAUDRATE  100 */ /* 100kBps */ 
 /* #define CAN_BAUDRATE  50 */  /* 50kBps  */ 
@@ -37,29 +37,15 @@
 #define CAN2_RX0_INT_ENABLE	0
 #endif
 
-
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-static void CAN_RX_Process( CanRxMsg RxMessage, CAN_RX_DATA_PROCESS_TypeDef* CanRx );
 void CAN1_RX0_IRQHandler(void);
 void CAN2_RX0_IRQHandler(void);
 void CAN1_TX_IRQHandler(void);
 void CAN2_TX_IRQHandler(void);
-
-
-/* CAN1 */
-u8 CAN1_TX_Data[canbuffsize] = { 0 };
-u8 CAN1_RX_Data[canbuffsize] = { 0 };
-
-/* CAN2 */
 #ifdef GEC_SF_MASTER
-u8 CAN1_TX2_Data[canbuffsize] = { 0 };
-u8 CAN1_RX2_Data[canbuffsize] = { 0 };
-u8 CAN2_TX_Data[canbuffsize] = { 0 };
-u8 CAN2_RX_Data[canbuffsize] = { 0 };
-u8 CAN2_TX2_Data[canbuffsize] = { 0 };
-u8 CAN2_RX2_Data[canbuffsize] = { 0 };
+static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype);
 #endif
 
 u8 can1_receive = 0u;
@@ -68,17 +54,14 @@ u8 can2_receive = 0u;
 #endif
 
 #ifdef GEC_SF_MASTER
-CAN_TX_DATA_PROCESS_TypeDef  CAN1_TX_Normal;
-CAN_TX_DATA_PROCESS_TypeDef  CAN1_TX_Urge;
-CAN_TX_DATA_PROCESS_TypeDef  CAN2_TX_Up;
-CAN_TX_DATA_PROCESS_TypeDef  CAN2_TX_Down;
+volatile u16 g_u16DBL1NewData = 0u;
+volatile u32 g_u16DBL2NewData = 0u;
+u16 g_u16CAN2SendFail = 0u;
 
-CAN_RX_DATA_PROCESS_TypeDef  CAN1_RX_Normal;
-CAN_RX_DATA_PROCESS_TypeDef  CAN2_RX_Up;
-CAN_RX_DATA_PROCESS_TypeDef  CAN2_RX_Down;
-#else
-CAN_TX_DATA_PROCESS_TypeDef  CAN1_TX_Normal;
-CAN_RX_DATA_PROCESS_TypeDef  CAN1_RX_Normal;
+/* Esc receive data buffer */
+u8 EscDataFromControlBuffer[3][8];
+u8 EscDataFromDBL1Buffer[4][8];
+u8 EscDataFromDBL2Buffer[16][8];
 #endif
 
 /*******************************************************************************
@@ -224,7 +207,9 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
 #if CAN1_RX0_INT_ENABLE 
             /* IT Configuration for CAN1 */ 
             /* FIFO 0 message pending Interrupt ,full Interrupt , overrun Interrupt */
-            CAN_ITConfig(CAN1,CAN_IT_FMP0 | CAN_IT_FF0 | CAN_IT_FOV0, ENABLE); 		    
+            CAN_ITConfig(CAN1,CAN_IT_FMP0 , ENABLE); 		    
+            CAN_ITConfig(CAN1,CAN_IT_FF0, ENABLE); 		    
+            CAN_ITConfig(CAN1,CAN_IT_FOV0, ENABLE); 		    
 #ifdef GEC_SF_MASTER
             NVIC_InitStructure.NVIC_IRQChannel = (u8)CAN1_RX0_IRQn;
 #else
@@ -326,7 +311,9 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             
 #if CAN2_RX0_INT_ENABLE 
             /* IT Configuration for CAN2 */ 
-            CAN_ITConfig(CAN2,CAN_IT_FMP0 | CAN_IT_FF0 | CAN_IT_FOV0, ENABLE); 						    
+            CAN_ITConfig(CAN2,CAN_IT_FMP0, ENABLE); 
+            CAN_ITConfig(CAN2,CAN_IT_FF0, ENABLE); 						    
+            CAN_ITConfig(CAN2,CAN_IT_FOV0, ENABLE); 						    
 
             NVIC_InitStructure.NVIC_IRQChannel = (u8)CAN2_RX0_IRQn;
             NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1u;     
@@ -334,74 +321,19 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
             NVIC_Init(&NVIC_InitStructure);
 #endif             
-            /* Enable CAN2 TX0 interrupt IRQ channel */
-/*            
+            /* Enable CAN2 TX0 interrupt IRQ channel */            
             CAN_ITConfig(CAN2, CAN_IT_TME, DISABLE);                            
-            NVIC_InitStructure.NVIC_IRQChannel = CAN2_TX_IRQn;
-            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+            NVIC_InitStructure.NVIC_IRQChannel = (u8)CAN2_TX_IRQn;
+            NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1u;
+            NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2u;
             NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-            NVIC_Init(&NVIC_InitStructure);             
-*/            
+            NVIC_Init(&NVIC_InitStructure);                         
         }
         else
         {}
 #endif           
 	return 0u;
 }   
-
-
-/*******************************************************************************
-* Function Name  : CAN_RX_Process
-* Description    : process the receive data.
-*                  
-* Input          : RxMessage: receive a CanRxMsg
-*                  CanRx: define a CAN_RX_DATA_PROCESS_TypeDef struct to receive a frame data
-* Output         : None
-* Return         : None
-*******************************************************************************/			    
-static void CAN_RX_Process( CanRxMsg RxMessage, CAN_RX_DATA_PROCESS_TypeDef* CanRx )
-{
-    
-    u8 i;        
-    
-    if( ( CanRx->recving == 0u ) && ( RxMessage.Data[0] == 0xfau ) )
-    {              
-        CanRx->recv_len = RxMessage.Data[1] + 4u;  
-        CanRx->mlen = CanRx->recv_len;
-        CanRx->rxcnt = 0u;
-        
-        CanRx->recving = 1u;
-    }
-    
-    if( CanRx->recving == 1u )
-    {
-        
-        for( i = 0u; i < RxMessage.DLC; i++ )
-        {
-            /* receive data */
-            CanRx->rx_buff[ CanRx->rxcnt++ ] = RxMessage.Data[i];
-            
-        }   
-        
-        if( CanRx->mlen > RxMessage.DLC )
-        {
-            CanRx->mlen -= RxMessage.DLC;    
-        }
-        else if( CanRx->mlen == RxMessage.DLC )
-        {
-            CanRx->recving = 0u;
-            CanRx->data_packet = 1u;
-        }
-        else
-        {
-            CanRx->recving = 0u;
-            CanRx->data_packet = 0u; 
-        }
-            
-    }
-    
-}
 
 
 /*******************************************************************************
@@ -416,7 +348,6 @@ static void CAN_RX_Process( CanRxMsg RxMessage, CAN_RX_DATA_PROCESS_TypeDef* Can
 void CAN1_RX0_IRQHandler(void)
 {
     CanRxMsg RxMessage;
-    u8 num;
     
     if( CAN_GetITStatus(CAN1,CAN_IT_FF0) != RESET)
     {
@@ -430,33 +361,27 @@ void CAN1_RX0_IRQHandler(void)
     {
         
         CAN_Receive(CAN1, CAN_FIFO0, &RxMessage);
-        
-        /** CB control data RECEIVE **/
-        if( ( RxMessage.ExtId == CAN1RX_CONTROL_DATA1_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
+#ifdef GEC_SF_MASTER        
+        /** CB control data RECEIVE **/        
+        if(( RxMessage.ExtId >= CAN1RX_CONTROL_DATA1_ID ) && ( RxMessage.ExtId <= CAN1RX_CONTROL_DATA2_ID ))
         {
-            can1_receive = 1u;        
-
-            for( num = 0u; num < RxMessage.DLC; num++ )
+            if( ( RxMessage.DLC == CAN_FRAME_LEN ) && ( RxMessage.IDE == CAN_ID_EXT ))
             {
-/*                pcEscDataFromControl[num] = RxMessage.Data[num];*/
+                can1_receive = 1u;            
+                Can_Receive_Buffer(RxMessage.Data, (u16)RxMessage.ExtId, DATA_FROM_CONTROL);
             }
-        }  
-        /** CB normal data RECEIVE **/        
-        else if( ( RxMessage.ExtId == CAN1RX_NORMAL_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
-        {
-            can1_receive = 1u;        
-
-            CAN_RX_Process( RxMessage, &CAN1_RX_Normal );
-        }        
+        }                
         /* Test Mode */        
         else if( ( RxMessage.ExtId == CAN1_TEST_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
             can1_receive = 1u;        
             
-            CAN_RX_Process( RxMessage, &CAN1_RX_Normal );
+            Can_Receive_Buffer(RxMessage.Data, (u16)RxMessage.ExtId, DATA_FROM_CONTROL);
         }  
         else
         {}
+#endif        
+        CAN_FIFORelease(CAN1,CAN_FIFO0);
     }
 
     else
@@ -494,144 +419,52 @@ void CAN2_RX0_IRQHandler(void)
     {
         
         CAN_Receive(CAN2, CAN_FIFO0, &RxMessage);
-        /** DBL1 UP data RECEIVE **/
-        if( ( RxMessage.ExtId == CAN2RX_UP_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
+        
+        /** DBL1 data RECEIVE **/ 
+        if( DIAGNOSTIC == DIAGNOSTIC_BOARD_1 )
         {
-            can2_receive = 1u;        
-  
-            CAN_RX_Process( RxMessage, &CAN2_RX_Up );
-            
+            if(( RxMessage.ExtId >= CAN2RX_DBL1_UPPER_ID ) && ( RxMessage.ExtId <= CAN2RX_DBL1_INTERM2_ID ))
+            {
+                if( ( RxMessage.DLC == CAN_FRAME_LEN ) && ( RxMessage.IDE == CAN_ID_EXT ))
+                {
+                    can2_receive = 1u;            
+                    Can_Receive_Buffer(RxMessage.Data, (u16)RxMessage.ExtId, DATA_FROM_DBL1);
+                }
+            } 
         }
-        /** DBL1 DOWN data RECEIVE **/
-        else if( ( RxMessage.ExtId == CAN2RX_DOWN_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
+        /** DBL2 data RECEIVE **/    
+        else if( DIAGNOSTIC == DIAGNOSTIC_BOARD_2 )
         {
-            can2_receive = 1u;        
-
-            CAN_RX_Process( RxMessage, &CAN2_RX_Down );
+            if((( RxMessage.ExtId >= CAN2RX_DBL2_UPPER_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_UPPER_ID3 )) 
+               || (( RxMessage.ExtId >= CAN2RX_DBL2_LOWER_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_LOWER_ID3 )) 
+                   || (( RxMessage.ExtId >= CAN2RX_DBL2_INTERM1_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM1_ID3 ))
+                       || (( RxMessage.ExtId >= CAN2RX_DBL2_INTERM2_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM2_ID3 ))
+                           || (( RxMessage.ExtId >= CAN2RX_DBL2_UPPER_NONSAFETY_ID ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM2_NONSAFETY_ID )))
+            {
+                if( ( RxMessage.DLC == CAN_FRAME_LEN ) && ( RxMessage.IDE == CAN_ID_EXT ))
+                {
+                    can2_receive = 1u;            
+                    Can_Receive_Buffer(RxMessage.Data, (u16)RxMessage.ExtId, DATA_FROM_DBL2);
+                }
+            }         
         }
         /* Test Mode */        
         else if( ( RxMessage.ExtId == CAN1_TEST_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
             can2_receive = 1u;        
             
-            CAN_RX_Process( RxMessage, &CAN2_RX_Up );
+            Can_Receive_Buffer(RxMessage.Data, (u16)RxMessage.ExtId, DATA_FROM_DBL2);
         }  
         else
         {
         }
-    }        
+        
+        CAN_FIFORelease(CAN2,CAN_FIFO0);
+    }
 }
 #endif
 
 
-/*******************************************************************************
-* Function Name  : BSP_CAN_Send
-* Description    : CAN send a frame data.
-*                  
-* Input          : CANx: CAN1 or CAN2
-*                  CanRx: define a CAN_TX_DATA_PROCESS_TypeDef struct to send a frame data
-*                  send_id: Extended identifier ID
-*                  buff: send data address
-*                  len: want to send data len
-* Output         : None
-* Return         : None
-*******************************************************************************/  
-void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_t send_id, uint8_t buff[], uint8_t len)
-{
-
-        u16 i;
-        u8  result = 0u;	
-        u8 j;
-        
-        if( len > canbuffsize ) 
-        {
-            /* error */		
-        }
-        else
-        {
-            /** packet the data pack ------------------------**/
-            if( ( CanTx->sending == 0u ) && ( len > 0u ) )
-            {               
-                CanTx->mlen = len + 4u;
-                
-                CanTx->tx_buff[0] = 0xfau;
-                CanTx->tx_buff[1] = CanTx->mlen - 4u;
-                for( j = 0u; j < CanTx->mlen - 4u; j++ )
-                {
-                    CanTx->tx_buff[j+2u] = buff[j];
-                }
-                i = MB_CRC16( CanTx->tx_buff, (u16)CanTx->mlen - 2u );
-                CanTx->tx_buff[CanTx->mlen - 2u] = (u8)i;
-                CanTx->tx_buff[CanTx->mlen - 1u] = (u8)(i>>8u);    
-                
-                CanTx->p_CanBuff = 0u;
-                CanTx->sending = 1u;
-                
-            } 
-        }
-        
-        
-        /** CAN send data ---------------------------------**/
-        if( CanTx->sending == 1u )
-        {
-            
-            if( CanTx->mlen > CAN_SEND_LEN )
-            {
-                for( i = 0u; i < 3u; i++ )
-                {
-                    result = Can_Send_Msg(CANx, send_id, &CanTx->tx_buff[CanTx->p_CanBuff], CAN_FRAME_LEN ); 
-                    if( result != 1u )
-                    {
-                        CanTx->p_CanBuff += CAN_FRAME_LEN;
-                        CanTx->mlen -= CAN_FRAME_LEN;
-                    }
-                    
-                }
-            }
-            else
-            {
-                if( CanTx->mlen > 2u*CAN_FRAME_LEN )
-                {
-                    for( i = 0u; i < 2u; i++ )
-                    {
-                        result = Can_Send_Msg(CANx, send_id, &CanTx->tx_buff[CanTx->p_CanBuff], CAN_FRAME_LEN ); 
-                        if( result != 1u )
-                        {
-                            CanTx->p_CanBuff += CAN_FRAME_LEN;
-                            CanTx->mlen -= CAN_FRAME_LEN;
-                        }
-                    }   
-                }
-                else if( CanTx->mlen > CAN_FRAME_LEN )
-                {
-                    
-                    result = Can_Send_Msg(CANx, send_id, &CanTx->tx_buff[CanTx->p_CanBuff], CAN_FRAME_LEN ); 
-                    if( result != 1u )
-                    {
-                        CanTx->p_CanBuff += CAN_FRAME_LEN;
-                        CanTx->mlen -= CAN_FRAME_LEN;
-                    }                                      
-                }
-                else
-                {}
-                
-                if( CanTx->mlen <= CAN_FRAME_LEN )
-                {
-                    result = Can_Send_Msg(CANx, send_id, &CanTx->tx_buff[CanTx->p_CanBuff], CanTx->mlen );
-                    if( result != 1u )
-                    {
-                        CanTx->mlen = 0u;
-                        CanTx->sending = 0u;
-                    }
-                }
-                
-            }
-#ifdef GEC_SF_MASTER
-            CAN_ITConfig(CAN1, CAN_IT_TME, ENABLE);
-#endif
-        } 
-    
-}
 
 /*******************************************************************************
 * Function Name  : CAN1_TX_IRQHandler
@@ -642,11 +475,32 @@ void BSP_CAN_Send(CAN_TypeDef* CANx, CAN_TX_DATA_PROCESS_TypeDef* CanTx, uint32_
 *******************************************************************************/  
 void CAN1_TX_IRQHandler(void)
 {
-
+    u8 result;
+    
+    CAN_ClearITPendingBit(CAN1,CAN_IT_RQCP0);
     CAN_ITConfig(CAN1, CAN_IT_TME, DISABLE);
+    
 #ifdef GEC_SF_MASTER    
-/*    BSP_CAN_Send(CAN1, &CAN1_TX_Normal, CAN1TX_NORMAL_ID, CAN1_TX_Data, 0u);*/
-    BSP_CAN_Send(CAN1, &CAN1_TX_Urge, CAN1TX_URGE_ID, CAN1_TX2_Data, 0u);
+    
+    result = Can_Send_Msg(CAN1, CAN1TX_SAFETY_DATA_ID1 + g_u8CanCommunicationToCotrolID, 
+                          &EscDataToControl[g_u8CanCommunicationToCotrolID][0], CAN_FRAME_LEN ); 
+    if( result )
+    {
+        /* No mail box, send fail */
+        CAN_ITConfig(CAN1, CAN_IT_TME, ENABLE);
+    }  
+    else
+    {
+        g_u8CanCommunicationToCotrolID++;
+        if( g_u8CanCommunicationToCotrolID <= g_u8CanCommunicationToCotrolLen )
+        {
+            CAN_ITConfig(CAN1, CAN_IT_TME, ENABLE);
+        }
+        else
+        {
+            g_u8CanCommunicationToCotrolOk = 1u;
+        }
+    }
 #endif   
     
 }
@@ -661,102 +515,155 @@ void CAN1_TX_IRQHandler(void)
 #ifdef GEC_SF_MASTER
 void CAN2_TX_IRQHandler(void)
 {
-
+    u8 result;
+    
     CAN_ClearITPendingBit(CAN2,CAN_IT_RQCP0);
-
+    CAN_ITConfig(CAN2, CAN_IT_TME, DISABLE);
    
-    
-}
-#endif
-
-/*******************************************************************************
-* Function Name  : BSP_CAN_Receive
-* Description    : CAN reveive a frame data.
-*                  
-* Input          : CANx: CAN1 or CAN2
-*                  CanRx: define a CAN_RX_DATA_PROCESS_TypeDef struct to receive a frame data
-*                  buff: receive data address
-*                  mlen: want to receive data len
-* Output         : None
-* Return         : Length of the received data
-*******************************************************************************/   
-uint8_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, uint8_t buff[], uint8_t mlen)
-{
-    uint8_t pstr;
-    uint8_t i = 0u,len = 0u;
-	
-    switch (*(uint32_t*)&CANx)
+    if( DIAGNOSTIC == DIAGNOSTIC_BOARD_1 )
     {
-       case CAN1_BASE:
-                       
-        /** receive a data packet **/
-        if( CanRx->data_packet == 1u )
+        if( g_u16CAN2SendFail & 0x01u )
         {
-            if(!MB_CRC16(CanRx->rx_buff, (u16)CanRx->recv_len))
-            {          
-                /* ok */
-                pstr = 2u;/*&CanRx->rx_buff[2];*/
-                len = CanRx->recv_len - 4u;
-                CanRx->recv_len = 0u;
+            result = Can_Send_Msg(CAN2, CAN2TX_DBL1_ID, &EscDataToDBL1[0][0], CAN_FRAME_LEN ); 
+            if( result )
+            {
+                /* No mail box, send fail */
+                g_u16CAN2SendFail |= 0x01u;
+                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
             }
             else
             {
-                /* fail */
-                for( i = 0u; i < CanRx->recv_len; i++ )
-                {
-                    CanRx->rx_buff[i] = 0u;
-                }
+                g_u16CAN2SendFail &= ~0x01u;
             }
-            CanRx->data_packet = 0u;
-        }                         
-        break;	
-#ifdef GEC_SF_MASTER
-       case CAN2_BASE: 
+        }        
+    }
+    else if( DIAGNOSTIC == DIAGNOSTIC_BOARD_2 )
+    {
+        if( g_u16CAN2SendFail & 0x01u )
+        {
+            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_UPPER_ID1, &EscDataToDBL2[0][0], CAN_FRAME_LEN ); 
+            if( result )
+            {
+                /* No mail box, send fail */
+                g_u16CAN2SendFail |= 0x01u;
+                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);               
+            }
+            else
+            {
+                g_u16CAN2SendFail &= ~0x01u;
+            }
+        }
         
-        /** receive a data packet **/
-        if( CanRx->data_packet == 1u )
+        if( g_u16CAN2SendFail & 0x02u )
         {
-            if(!MB_CRC16(CanRx->rx_buff, (u16)CanRx->recv_len))
-            {          
-                /* ok */
-                pstr = 2u;/*&CanRx->rx_buff[2];*/				
-                len = CanRx->recv_len - 4u;
-                CanRx->recv_len = 0u;
-            }
+            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_UPPER_ID2, &EscDataToDBL2[1][0], CAN_FRAME_LEN ); 
+            if( result )
+            {
+                /* No mail box, send fail */
+                g_u16CAN2SendFail |= 0x02u;
+                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);        
+            } 
             else
             {
-                /* fail */
-                for( i = 0u; i < CanRx->recv_len; i++ )
-                {
-                    CanRx->rx_buff[i] = 0u;
-                }
+                g_u16CAN2SendFail &= ~0x02u;
             }
-            CanRx->data_packet = 0u;
+        }
+        
+        if( g_u16CAN2SendFail & 0x04u )
+        {
+            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_LOWER_ID1, &EscDataToDBL2[2][0], CAN_FRAME_LEN ); 
+            if( result )
+            {
+                /* No mail box, send fail */
+                g_u16CAN2SendFail |= 0x04u;
+                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);
+            } 
+            else
+            {
+                g_u16CAN2SendFail &= ~0x04u;
+            }
+        }
+        
+        if( g_u16CAN2SendFail & 0x08u )
+        {
+            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_LOWER_ID2, &EscDataToDBL2[3][0], CAN_FRAME_LEN ); 
+            if( result )
+            {
+                /* No mail box, send fail */
+                g_u16CAN2SendFail |= 0x08u;
+                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
+            }  
+            else
+            {
+                g_u16CAN2SendFail &= ~0x08u;
+            }
         } 
-        break;	
-#endif
-       default:
-        break;
-    }	
+        
+        if( g_u16CAN2SendFail & 0x10u )
+        {
+            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_INTERM1_ID1, &EscDataToDBL2[4][0], CAN_FRAME_LEN ); 
+            if( result )
+            {
+                /* No mail box, send fail */
+                g_u16CAN2SendFail |= 0x10u;
+                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
+            }  
+            else
+            {
+                g_u16CAN2SendFail &= ~0x10u;
+            }
+        }    
+        
+        if( g_u16CAN2SendFail & 0x20u )
+        {
+            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_INTERM1_ID2, &EscDataToDBL2[5][0], CAN_FRAME_LEN ); 
+            if( result )
+            {
+                /* No mail box, send fail */
+                g_u16CAN2SendFail |= 0x20u;
+                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
+            }  
+            else
+            {
+                g_u16CAN2SendFail &= ~0x20u;
+            }
+        } 
 
-    
-    if(mlen && (mlen<len))
-    {
-        len = mlen;
+        if( g_u16CAN2SendFail & 0x40u )
+        {
+            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_INTERM2_ID1, &EscDataToDBL2[6][0], CAN_FRAME_LEN ); 
+            if( result )
+            {
+                /* No mail box, send fail */
+                g_u16CAN2SendFail |= 0x40u;
+                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
+            }  
+            else
+            {
+                g_u16CAN2SendFail &= ~0x40u;
+            }
+        } 
+
+        if( g_u16CAN2SendFail & 0x80u )
+        {
+            result = Can_Send_Msg(CAN2, CAN2TX_DBL2_INTERM2_ID2, &EscDataToDBL2[7][0], CAN_FRAME_LEN ); 
+            if( result )
+            {
+                /* No mail box, send fail */
+                g_u16CAN2SendFail |= 0x80u;
+                CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
+            }  
+            else
+            {
+                g_u16CAN2SendFail &= ~0x80u;
+            }
+        }         
     }
-    
-    if(len > canbuffsize) 
-    {
-        len = 0u;
-    }
-    
-    for(i = 0u; i < len; i++)
-    {
-        buff[i] = CanRx->rx_buff[pstr + i];
-    }		
-			
-    return(len);
+    else
+    {}
 }
+#endif
+
 
 /*******************************************************************************
 * Function Name  : Can_Send_Msg
@@ -770,7 +677,7 @@ uint8_t BSP_CAN_Receive(CAN_TypeDef* CANx,CAN_RX_DATA_PROCESS_TypeDef* CanRx, ui
 * Return         : 0: success
 *                  1: fail, no send mailbox 
 *******************************************************************************/		 
-static u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8 msg[],u8 len)
+u8 Can_Send_Msg(CAN_TypeDef* CANx,u32 exid,u8 msg[],u8 len)
 {	
 	u16 i = 0u;
         u8 result = 0u;        
@@ -831,7 +738,375 @@ u8 Can_Receive_Msg(CAN_TypeDef* CANx,u8 buf[])
       return result;	
 }
 
+#ifdef GEC_SF_MASTER
+/*******************************************************************************
+* Function Name  : Can_Clean_Buffer
+* Description    :                  
+* Input          : None
+* Output         : None
+* Return         : None 
+*******************************************************************************/
+void Can_Clean_Buffer(u16 canid, u8 datatype)
+{	  
+    u8 i;
 
+    switch( datatype )
+    {
+       case DATA_FROM_CONTROL:
+        {
+            for( i = 0u; i < 8u; i++ )
+            {
+                EscDataFromControlBuffer[canid - CAN1RX_CONTROL_DATA1_ID][i] = 0u;
+            }
+            break;
+        }
+       case DATA_FROM_DBL1:
+        {
+            for( i = 0u; i < 8u; i++ )
+            {
+                EscDataFromDBL1Buffer[canid - CAN2RX_DBL1_UPPER_ID][i] = 0u;
+            }
+            break;
+        }
+       case DATA_FROM_DBL2:
+        {   
+            if(( canid >= CAN2RX_DBL2_UPPER_ID1 ) && ( canid <= CAN2RX_DBL2_UPPER_ID3 )) 
+            {
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_UPPER_ID1][i] = 0u;
+                }
+            }
+            else if(( canid >= CAN2RX_DBL2_LOWER_ID1 ) && ( canid <= CAN2RX_DBL2_LOWER_ID3 )) 
+            {
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_LOWER_ID1 + 3u][i] = 0u;
+                }
+            }
+            else if(( canid >= CAN2RX_DBL2_INTERM1_ID1 ) && ( canid <= CAN2RX_DBL2_INTERM1_ID3 )) 
+            {
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM1_ID1 + 6u][i] = 0u;
+                }
+            }
+            else if(( canid >= CAN2RX_DBL2_INTERM2_ID1 ) && ( canid <= CAN2RX_DBL2_INTERM2_ID3 )) 
+            {
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM2_ID1 + 9u][i] = 0u;
+                }
+            }
+            else if(( canid >= CAN2RX_DBL2_UPPER_NONSAFETY_ID ) && ( canid <= CAN2RX_DBL2_INTERM2_NONSAFETY_ID )) 
+            {
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_UPPER_NONSAFETY_ID + 12u][i] = 0u;
+                }
+            }  
+            else
+            {}    
+            break;
+        }  
+       default:
+        break;
+    }
+}
+
+/*******************************************************************************
+* Function Name  : Can_Receive_Buffer
+* Description    :                  
+* Input          : None
+* Output         : None
+* Return         : None 
+*******************************************************************************/
+static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
+{	  
+    u8 i;
+
+    switch( datatype )
+    {
+       case DATA_FROM_CONTROL:
+        {
+            for( i = 0u; i < 8u; i++ )
+            {
+                EscDataFromControlBuffer[canid - CAN1RX_CONTROL_DATA1_ID][i] = rxmsg[i];
+            }
+            break;
+        }
+       case DATA_FROM_DBL1:
+        {
+            if( canid == CAN2RX_DBL1_UPPER_ID )
+            {
+                g_u16DBL1NewData |= 0x0001u;
+            }
+            else if( canid == CAN2RX_DBL1_LOWER_ID )
+            {
+                g_u16DBL1NewData |= 0x0002u;
+            }
+            else if( canid == CAN2RX_DBL1_INTERM1_ID )
+            {
+                g_u16DBL1NewData |= 0x0004u;
+            }
+            else if( canid == CAN2RX_DBL1_INTERM2_ID )
+            {
+                g_u16DBL1NewData |= 0x0008u;
+            }            
+            else
+            {
+                g_u16DBL1NewData |= 0x0000u;
+            }            
+            
+            for( i = 0u; i < 8u; i++ )
+            {
+                EscDataFromDBL1Buffer[canid - CAN2RX_DBL1_UPPER_ID][i] = rxmsg[i];
+            }
+            break;
+        }
+       case DATA_FROM_DBL2:
+        {   
+            if(( canid >= CAN2RX_DBL2_UPPER_ID1 ) && ( canid <= CAN2RX_DBL2_UPPER_ID3 )) 
+            {
+                if( canid == CAN2RX_DBL2_UPPER_ID1 )
+                {
+                    g_u16DBL2NewData |= 0x0001u;
+                }
+                else if( canid == CAN2RX_DBL2_UPPER_ID2 )
+                {
+                    g_u16DBL2NewData |= 0x0002u;
+                }
+                else if( canid == CAN2RX_DBL2_UPPER_ID3 )
+                {
+                    g_u16DBL2NewData |= 0x0004u;
+                }
+                else
+                {
+                    g_u16DBL2NewData |= 0x0000u;
+                }
+                
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_UPPER_ID1][i] = rxmsg[i];
+                }
+            }
+            else if(( canid >= CAN2RX_DBL2_LOWER_ID1 ) && ( canid <= CAN2RX_DBL2_LOWER_ID3 )) 
+            {                
+                if( canid == CAN2RX_DBL2_LOWER_ID1 )
+                {
+                    g_u16DBL2NewData |= 0x0008u;
+                }
+                else if( canid == CAN2RX_DBL2_LOWER_ID2 )
+                {
+                    g_u16DBL2NewData |= 0x0010u;
+                }
+                else if( canid == CAN2RX_DBL2_LOWER_ID3 )
+                {
+                    g_u16DBL2NewData |= 0x0020u;
+                }
+                else
+                {
+                    g_u16DBL2NewData |= 0x0000u;
+                }                
+                
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_LOWER_ID1 + 3u][i] = rxmsg[i];
+                }
+            }
+            else if(( canid >= CAN2RX_DBL2_INTERM1_ID1 ) && ( canid <= CAN2RX_DBL2_INTERM1_ID3 )) 
+            {
+                if( canid == CAN2RX_DBL2_INTERM1_ID1 )
+                {
+                    g_u16DBL2NewData |= 0x0040u;
+                }
+                else if( canid == CAN2RX_DBL2_INTERM1_ID2 )
+                {
+                    g_u16DBL2NewData |= 0x0080u;
+                }
+                else if( canid == CAN2RX_DBL2_INTERM1_ID3 )
+                {
+                    g_u16DBL2NewData |= 0x0100u;
+                }
+                else
+                {}                  
+                
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM1_ID1 + 6u][i] = rxmsg[i];
+                }
+            }
+            else if(( canid >= CAN2RX_DBL2_INTERM2_ID1 ) && ( canid <= CAN2RX_DBL2_INTERM2_ID3 )) 
+            {
+                if( canid == CAN2RX_DBL2_INTERM2_ID1 )
+                {
+                    g_u16DBL2NewData |= 0x0200u;
+                }
+                else if( canid == CAN2RX_DBL2_INTERM2_ID2 )
+                {
+                    g_u16DBL2NewData |= 0x0400u;
+                }
+                else if( canid == CAN2RX_DBL2_INTERM2_ID3 )
+                {
+                    g_u16DBL2NewData |= 0x0800u;
+                }
+                else
+                {}                  
+                
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM2_ID1 + 9u][i] = rxmsg[i];
+                }
+            }
+            else if(( canid >= CAN2RX_DBL2_UPPER_NONSAFETY_ID ) && ( canid <= CAN2RX_DBL2_INTERM2_NONSAFETY_ID )) 
+            {
+                g_u16DBL2NewData |= 0xf000u;
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_UPPER_NONSAFETY_ID + 12u][i] = rxmsg[i];
+                }
+            }  
+            else
+            {}    
+            break;
+        }  
+       default:
+        break;
+    }
+}
+
+/*******************************************************************************
+* Function Name  : Can_Receive_Data
+* Description    :                 
+* Input          : datatype: receive data type. 
+* Output         : None
+* Return         : None 
+*******************************************************************************/
+void Can_Receive_Data(u8 datatype)
+{	  
+    u8 i,j;
+    
+    switch( datatype )
+    {
+       case DATA_FROM_CONTROL:
+        {
+            for( j = 0u; j < 3u; j++ )
+            {
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromControl[j][i] = EscDataFromControlBuffer[j][i];
+                }  
+            }
+            break;
+        }
+       case DATA_FROM_DBL1:
+        {
+            /* receive data */
+            if( g_u16DBL1NewData & 0x0001u )
+            {
+                g_u16DBL1NewData &= ~0x0001u;
+
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL1[0][i] = EscDataFromDBL1Buffer[0][i];
+                }  
+            }
+            
+            if( g_u16DBL1NewData & 0x0002u )
+            {
+                g_u16DBL1NewData &= ~0x0002u;
+
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL1[1][i] = EscDataFromDBL1Buffer[1][i];
+                }  
+            }
+            
+            if( g_u16DBL1NewData & 0x0004u )
+            {
+                g_u16DBL1NewData &= ~0x0004u;
+
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL1[2][i] = EscDataFromDBL1Buffer[2][i];
+                }  
+            } 
+            
+            if( g_u16DBL1NewData & 0x0008u )
+            {
+                g_u16DBL1NewData &= ~0x0008u;
+
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscDataFromDBL1[3][i] = EscDataFromDBL1Buffer[3][i];
+                }  
+            }          
+            break;
+        }
+       case DATA_FROM_DBL2:
+        {  
+            if( ( g_u16DBL2NewData & 0x0007u ) == 0x0007u )
+            {
+                g_u16DBL2NewData &= (u16)(~0x0007u);
+                for( j = 0u; j < 3u; j++ )
+                {
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
+                    }  
+                } 
+            }
+            if( ( g_u16DBL2NewData & 0x0038u ) == 0x0038u )
+            {
+                g_u16DBL2NewData &= (u16)(~0x0038u);
+                for( j = 3u; j < 6u; j++ )
+                {
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
+                    }  
+                } 
+            }
+            if( ( g_u16DBL2NewData & 0x01c0u ) == 0x01c0u )
+            {
+                g_u16DBL2NewData &= (u16)(~0x01c0u);
+                for( j = 6u; j < 9u; j++ )
+                {
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
+                    }  
+                } 
+            }
+            if( ( g_u16DBL2NewData & 0x0e00u ) == 0x0e00u )
+            {
+                g_u16DBL2NewData &= (u16)(~0x0e00u);
+                for( j = 9u; j < 12u; j++ )
+                {
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
+                    }  
+                } 
+            }            
+            if( ( g_u16DBL2NewData & 0xf000u ) == 0xf000u )
+            {
+                g_u16DBL2NewData &= (u16)(~0xf000u);
+                for( j = 12u; j < 16u; j++ )
+                {
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
+                    }  
+                } 
+            }            
+            break;
+        }  
+       default:
+        break;
+    }
+}
+#endif
 /******************************  END OF FILE  *********************************/
 
 

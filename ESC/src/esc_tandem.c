@@ -3,6 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/31/2016
+* Last modify date   : 09/23/2016
 * Description        : This file contains esc tandem.
 *                      
 *******************************************************************************/
@@ -17,6 +18,9 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
+u8 TandemRunEnable = 0u;
+u8 TandemMessageRunAllowed = 0u;
+u8 Tandemoutput = 0u;
 
 /*******************************************************************************
 * Function Name  : CheckTandemReady
@@ -31,7 +35,7 @@ static void CheckTandemReady(void)
     if( TANDEM_TYPE == 1u )
     {
         /* Need CheckUpDown_Key() */
-        if( CMD_FLAG1 & 0x04u )
+        if( CMD_ESC_RUN & 0x04u )
         {
             /* need allow by other escalator */
             if( TandemMessageRunAllowed == 1u )
@@ -39,7 +43,7 @@ static void CheckTandemReady(void)
                 TandemRunEnable = 1u;
             }
         }
-        else if( CMD_FLAG1 & 0x08u )
+        else if( CMD_ESC_RUN & 0x08u )
         {
             TandemRunEnable = 1u;
             /* send TandemMessageRunAllowed = 1 */
@@ -53,14 +57,14 @@ static void CheckTandemReady(void)
     }
     else if( TANDEM_TYPE == 2u )
     {
-        if( CMD_FLAG1 & 0x08u )
+        if( CMD_ESC_RUN & 0x08u )
         {
             if( TandemMessageRunAllowed == 1u )
             {
                 TandemRunEnable = 1u;
             }
         }
-        else if( CMD_FLAG1 & 0x04u )
+        else if( CMD_ESC_RUN & 0x04u )
         {
             TandemRunEnable = 1u;
             /* send TandemMessageRunAllowed = 1 */
@@ -90,7 +94,7 @@ static void CheckTandemRun(void)
 {
     if( TANDEM_TYPE == 1u )
     {
-        if( SfBase_EscState & ESC_STATE_UP )
+        if( CMD_ESC_RUN & ESC_UP )
         {
             if( TandemMessageRunAllowed == 0u )
             {
@@ -102,7 +106,7 @@ static void CheckTandemRun(void)
     }
     else if( TANDEM_TYPE == 2u )
     {
-        if( SfBase_EscState & ESC_STATE_DOWN )
+        if( CMD_ESC_RUN & ESC_DOWN )
         {
             if( TandemMessageRunAllowed == 0u )
             {
@@ -127,15 +131,15 @@ static void CheckTandemRun(void)
 *******************************************************************************/
 static void TandemOutput(void)
 {
-    if( SfBase_EscState & ESC_STATE_INSP )
+    if( CMD_ESC_RUN_MODE & ESC_INSPECT )
     {
         Tandemoutput = 0u;
     }
-    else if( SfBase_EscState & ESC_STATE_NORMAL )
+    else if( ( CMD_ESC_RUN_MODE & ESC_INSPECT ) == ESC_NORMAL )
     {
         if( TANDEM_TYPE == 1u )
         {
-            if( SfBase_EscState & ESC_STATE_DOWN )
+            if( CMD_ESC_RUN & ESC_DOWN )
             {
                 Tandemoutput = 1u;
             }
@@ -146,7 +150,7 @@ static void TandemOutput(void)
         }
         else if( TANDEM_TYPE == 2u )
         {
-            if( SfBase_EscState & ESC_STATE_UP )
+            if( CMD_ESC_RUN & ESC_UP )
             {
                 Tandemoutput = 1u;
             }
@@ -188,6 +192,10 @@ void ESC_Tandem_Check(void)
     else if(SfBase_EscState == ESC_RUN_STATE)
     {
         CheckTandemRun();
+        TandemOutput();
+    }    
+    else if(( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ) || ( SfBase_EscState == ESC_FAULT_STATE ))
+    {
         TandemOutput();
     }
     else

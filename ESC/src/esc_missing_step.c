@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/10/2016
-* Last modify date   : 09/20/2016
+* Last modify date   : 09/23/2016
 * Description        : This file contains esc missing step check.
 *                      
 *******************************************************************************/
@@ -19,7 +19,12 @@
 #define    F2      (( NOMINAL_SPEED ) / ( STEP_WIDTH ))
 #define    R       (( F1 ) * ( STEP_WIDTH ) / ( NOMINAL_SPEED ))
 
+#define MISSINGSTEP_LOWER_INPUT   (INPUT_PORT1_8 & INPUT_PORT5_MASK)
+#define MISSINGSTEP_UPPER_INPUT   (INPUT_PORT1_8 & INPUT_PORT6_MASK)
+
 /* Private macro -------------------------------------------------------------*/
+#define MISSINGSTEP_SSM_SHORTCIRCUIT_TIME     7u
+
 /* Private variables ---------------------------------------------------------*/
 static u8 g_u8FirstMissingStepSyncEntry = 0u;
 static u8 g_u8FirstMissingStepEdgeDetected = 0u;
@@ -31,14 +36,13 @@ static u16 Pulse_counter_sensor_speed(STEPMISSINGITEM* psSTPMS);
 static void Missing_StepRun(STEPMISSINGITEM* psSTPMS);
 static void Missing_Step_UpperLower_SyncRun(void);
 static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS);
-
+static void MissingStep_RisingEdge_check(void);
 
 STEPMISSINGITEM STPMS_UPPER=
 {
-    &EscRTBuff[64],
     0u,
     {0u,0u},
-    (u16*)&EscRTBuff[60],
+    (u16*)&MISSINGSTEP_MTR_PULSE1,
     200u,
     0u,
     0u,
@@ -47,10 +51,9 @@ STEPMISSINGITEM STPMS_UPPER=
 
 STEPMISSINGITEM STPMS_LOWER=
 {
-    &EscRTBuff[65],
     0u,          
     {0u,0u},
-    (u16*)&EscRTBuff[62],
+    (u16*)&MISSINGSTEP_MTR_PULSE2,
     200u,
     0u,
     0u,
@@ -77,9 +80,15 @@ static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
         /* Missing Step pulse detected with freq > 1 Hz? */
         if( psSTPMS->ms_ready_delay * SYSTEMTICK < 1000u )
         {
-            /* fault */ 
-            *(psSTPMS->pcErrorCodeBuff) |= 0x01u;
-            EN_ERROR3 |= 0x01u;
+            if( CMD_ESC_RUN_MODE & ESC_INSPECT )
+            {     
+                ALARM2 |= 0x01u;
+            }
+            else
+            {
+                /* fault */ 
+                EN_ERROR3 |= 0x01u;
+            }
         }
         else
         {
@@ -112,15 +121,14 @@ static void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
     /* Motor_speed_pulse_ counter > R*1.1? */
     if( psSTPMS->Motor_speed_pulse_counter > (( R * 11u ) / 10u ) )
     {
-        if( SfBase_EscState & ESC_STATE_INSP )
+        if( CMD_ESC_RUN_MODE & ESC_INSPECT )
         {     
             /* Missing step warning */
-            
+            ALARM2 |= 0x02u;
         }
         else
         {
             /* Missing step fault */
-            *(psSTPMS->pcErrorCodeBuff) |= 0x02u;
             EN_ERROR3 |= 0x02u;
         }
     }
@@ -181,9 +189,16 @@ static void Missing_Step_UpperLower_SyncRun(void)
         stat_u8LowerMissingStepCounter = 0u;
         
         if( stat_u8UpperMissingStepCounter >= 2u )
-        {
-            /* Fault */
-            EN_ERROR5 |= 0x01u;         
+        {            
+            if( CMD_ESC_RUN_MODE & ESC_INSPECT )
+            {     
+                ALARM2 |= 0x04u;
+            }
+            else
+            {
+                /* Fault */
+                EN_ERROR5 |= 0x01u;  
+            }
         }
     }
     
@@ -197,8 +212,15 @@ static void Missing_Step_UpperLower_SyncRun(void)
         
         if( stat_u8LowerMissingStepCounter >= 2u )
         {
-            /* Fault */
-            EN_ERROR5 |= 0x02u;
+            if( CMD_ESC_RUN_MODE & ESC_INSPECT )
+            {     
+                ALARM2 |= 0x08u;
+            }
+            else
+            {
+                /* Fault */
+                EN_ERROR5 |= 0x02u;  
+            }
         }
     }
 }
@@ -218,25 +240,27 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
     
     /* System in run state */
     if( SfBase_EscState == ESC_RUN_STATE )
-    {  
+    {
+
         if( g_u8FirstMissingStepEdgeDetected == 0u )
         {
             g_u8FirstMissingStepEdgeDetected = 1u;
             stat_u32TimerMissingStepShortcircuit = 0u;
             stat_u32MissingStepSCOkCounter = 0u;
             stat_u32MissingStepSCNotOkCounter = 0u;  
-            /* Timer init, counter is 1us */
-            TIM_Cmd(TIM7, DISABLE); 
-            TIM7_Int_Init(65535u,71u);           
+            
+            /* Timer init, counter is 100us */
+            TIM_Cmd(TIM6, DISABLE); 
+            TIM6_Int_Init(65535u,7199u);           
         }    
         else
         {
             /* Get the time between the two signals */
-            stat_u32TimerMissingStepShortcircuit = TIM_GetCounter(TIM7);
+            stat_u32TimerMissingStepShortcircuit = TIM_GetCounter(TIM6);
             /* Reset the timer */
-            TIM_SetCounter(TIM7,0u);            
+            TIM_SetCounter(TIM6,0u);            
             
-            if( stat_u32TimerMissingStepShortcircuit < SSM_SHORTCIRCUIT_TIME )
+            if( stat_u32TimerMissingStepShortcircuit < MISSINGSTEP_SSM_SHORTCIRCUIT_TIME )
             {
                 stat_u32TimerMissingStepShortcircuit = 0u;               
                 stat_u32MissingStepSCNotOkCounter++;
@@ -245,8 +269,15 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
                 /* 100 consecutive pulses with less than SSM_SHORTCIRCUIT_TIME, go to fault */
                 if( stat_u32MissingStepSCNotOkCounter >= 100u )
                 {                
-                    /* Fault ¨C Motorspeed Sensor shortcircuited */
-                    EN_ERROR4 |= 0x04u;
+                    if( CMD_ESC_RUN_MODE & ESC_INSPECT )
+                    {     
+                        ALARM2 |= 0x10u;
+                    }
+                    else
+                    {
+                        /* Fault ¨C Motorspeed Sensor shortcircuited */
+                        EN_ERROR4 |= 0x04u; 
+                    }
                 }
             }
             else
@@ -261,9 +292,60 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
                 }
             }
         }
-    }    
+    }
 }
 
+
+/*******************************************************************************
+* Function Name  : MissingStep_RisingEdge_check
+* Description    : Missing step rising edge check.
+* Input          : None               
+* Output         : None
+* Return         : None
+*******************************************************************************/
+static void MissingStep_RisingEdge_check(void)
+{
+    static u8 stat_u8MissingStepLowerInputPre = 1u,stat_u8MissingStepUpperInputPre = 1u;
+        
+    if( stat_u8MissingStepLowerInputPre == 0u )
+    {
+        if( MISSINGSTEP_LOWER_INPUT )
+        {
+            stat_u8MissingStepLowerInputPre = 1u;     
+            STPMS_LOWER.rising_edge_detected[0] = 1u;
+            STPMS_LOWER.rising_edge_detected[1] = 1u;
+            
+        }
+    }
+    else if( stat_u8MissingStepLowerInputPre == 1u )
+    {
+        if( !MISSINGSTEP_LOWER_INPUT )
+        {
+            stat_u8MissingStepLowerInputPre = 0u;
+        }
+    }
+    else
+    {}
+    
+    if( stat_u8MissingStepUpperInputPre == 0u )
+    {
+        if( MISSINGSTEP_UPPER_INPUT )
+        {
+            stat_u8MissingStepUpperInputPre = 1u;
+            STPMS_UPPER.rising_edge_detected[0] = 1u;
+            STPMS_UPPER.rising_edge_detected[1] = 1u; 
+        }
+    }
+    else if( stat_u8MissingStepUpperInputPre == 1u )
+    {
+        if( !MISSINGSTEP_UPPER_INPUT )
+        {
+            stat_u8MissingStepUpperInputPre = 0u;
+        }
+    }
+    else
+    {}    
+}
 
 /*******************************************************************************
 * Function Name  : ESC_Missingstep_Check
@@ -276,15 +358,24 @@ void ESC_Missingstep_Check(void)
 {
     static u16 stat_u16EscStateOld = 0u; 
     
+    MissingStep_RisingEdge_check();
+    
     /* esc turn to run state, init */
     if((SfBase_EscState == ESC_RUN_STATE) && (!(stat_u16EscStateOld == ESC_RUN_STATE))) 
     { 
+        /* Reset the value when escalator run */
+        STPMS_UPPER.rising_edge_detected[0] = 0u;
+        STPMS_UPPER.rising_edge_detected[1] = 0u;        
+        STPMS_UPPER.ms_ready_delay = 200u;
         STPMS_UPPER.First_entry_missing_step_detection = 0u;
+
+        STPMS_LOWER.rising_edge_detected[0] = 0u;
+        STPMS_LOWER.rising_edge_detected[1] = 0u;        
+        STPMS_LOWER.ms_ready_delay = 200u;
         STPMS_LOWER.First_entry_missing_step_detection = 0u;
+        
         g_u8FirstMissingStepSyncEntry = 0u;
         g_u8FirstMissingStepEdgeDetected = 0u;
-        STPMS_UPPER.ms_ready_delay = 200u;
-        STPMS_LOWER.ms_ready_delay = 200u;
     } 
     
     /* System in run or stopping process state */
