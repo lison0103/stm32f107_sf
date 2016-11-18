@@ -30,7 +30,17 @@ enum EscState
     ESC_INTERM_STATE = 6u
 };
 
-typedef struct safetycommdata
+typedef struct dbl1esc
+{
+    /* input data */
+    u8 InputData[4];
+
+    /* Output data */
+    u8 OutputData;
+      
+}DBL1Esc;
+
+typedef struct dbl2esc
 {
     /* type */
     u8 BoardType;
@@ -40,6 +50,15 @@ typedef struct safetycommdata
       
     /* SEQN */
     u8 SEQN;
+    
+    /* input data */
+    u8 InputData[4];
+
+    /* Output data */
+    u8 OutputData;
+    
+    /* ANALOG/PT100 */
+    u16 AnalogData[3];
   
     /* safety comm send data */
     u8 SendData[8];
@@ -48,36 +67,17 @@ typedef struct safetycommdata
     u8 ReceiveDataA[14];
     u8 ReceiveDataB[14];   
   
-}SafetyCommData;
+}DBL2Esc;
 
 typedef struct sfescdata 
 {
     /* Header code and comm times */
-    u8 HeaderCode[12];
+    u8 HeaderCode[6];
     
     /* Input and Feedback */
     u8 SafetyInputData[8];
     u8 ControlInputData[2];
-    
-    u8 DBL1UpperInputData[4];
-    u8 DBL1LowerInputData[4];
-    u8 DBL1Interm1InputData[4];
-    u8 DBL1Interm2InputData[4];
-
-    u8 DBL2UpperInputData[4];
-    u8 DBL2LowerInputData[4];
-    u8 DBL2Interm1InputData[4];
-    u8 DBL2Interm2InputData[4];
-
-    /* ANALOG/PT100 */
-    u16 DBL2UpperAnalogData[3];
-    u16 DBL2LowerAnalogData[3];
-    u16 DBL2Interm1AnalogData[3];
-    u16 DBL2Interm2AnalogData[3];
-    
-    /* Output */
-    u8 DBL2OutputData;
-    
+  
     /* Command data*/
     u8 CommandData[8];
     
@@ -97,14 +97,20 @@ typedef struct sfescdata
     u8 ParaCRC[4];
     
     /* Configurable input buff */
-    u8 Cfg_Input_Mask[20]; 
-    u8 Cfg_Input_Level[20]; 
+    u8 Cfg_Input_Mask[25]; 
+    u8 Cfg_Input_Level[25]; 
+
+    /* DBL1 */
+    DBL1Esc DBL1Upper;
+    DBL1Esc DBL1Lower;
+    DBL1Esc DBL1Interm1;
+    DBL1Esc DBL1Interm2;
     
-    /* Safety comm to DBL2 */
-    SafetyCommData DBL2Upper;
-    SafetyCommData DBL2Lower;
-    SafetyCommData DBL2Interm1;
-    SafetyCommData DBL2Interm2;
+    /* DBL2 */
+    DBL2Esc DBL2Upper;
+    DBL2Esc DBL2Lower;
+    DBL2Esc DBL2Interm1;
+    DBL2Esc DBL2Interm2;
     
     /* DBL2 comm validate result */
     u8 DBL2ValidateResult;
@@ -547,6 +553,8 @@ typedef struct updownkey
 #define DIAGNOSTIC_BOARD_2      2u
 
 
+/* for debug */
+#define ESC_TEST
 
 /* Exported functions ------------------------------------------------------- */
 void Esc_Control(void);
@@ -568,7 +576,7 @@ extern u8 TandemRunEnable;
 extern u8 TandemMessageRunAllowed;
 extern u8 Tandemoutput;
 extern volatile u16 g_u16DBL1NewData;
-extern volatile u32 g_u16DBL2NewData;
+extern volatile u16 g_u16DBL2NewData;
 extern u16 g_u16CAN2SendFail;
 
 extern u8 EscRTBuff[200];

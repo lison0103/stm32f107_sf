@@ -254,7 +254,7 @@ void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
                 stat_u32HandrailShortcircuitOkCounter = 0u; 
 
                 /* 100 consecutive pulses with less than SSM_SHORTCIRCUIT_TIME, go to fault */
-                if( stat_u32HandrailShortcircuitNotOkCounter >= 5u )
+                if( stat_u32HandrailShortcircuitNotOkCounter >= 100u )
                 {                
                     if( CMD_ESC_RUN_MODE & ESC_INSPECT ) 
                     {         

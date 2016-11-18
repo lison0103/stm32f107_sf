@@ -142,10 +142,11 @@ static void Receive_IO_status_from_CPU(void)
 static void CPU_Comm(void)
 {
     static u16 stat_u16TimerCommWait = 0u, stat_u16HandshakeSuccess = 0u;
+    u8 i;
     
 #ifdef GEC_SF_MASTER
     
-    u8 i;
+    
     static u8 stat_u8TimerSend = 0u;
 
     stat_u8TimerSend++;
@@ -214,30 +215,14 @@ static void CPU_Comm(void)
         
         /*EN_ERROR7 &= ~0x01u;*/
         
-        if( DIAGNOSTIC_BOARD_L2_QUANTITY == 2u )
-        {
-            Safety_Send_Data_Process(CONNECTION_DBL2_UPPER,NULL,EscRtData.DBL2SendUpperData, 0u);
-            /*Safety_Send_Data_Process(CONNECTION_DBL2_LOWER,NULL,EscRtData.DBL2SendLowerData, 0u);*/
-            Safety_Send_Data_Process(CONNECTION_DBL2_INTERM2,NULL,EscRtData.DBL2SendInterm2Data, 0u);
-        }
-        else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 3u )
-        {
-            Safety_Send_Data_Process(CONNECTION_DBL2_UPPER,NULL,EscRtData.DBL2SendUpperData, 0u);
-            Safety_Send_Data_Process(CONNECTION_DBL2_LOWER,NULL,EscRtData.DBL2SendLowerData, 0u);
-            Safety_Send_Data_Process(CONNECTION_DBL2_INTERM1,NULL,EscRtData.DBL2SendInterm1Data, 0u);
-        }
-        else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
-        {
-            Safety_Send_Data_Process(CONNECTION_DBL2_UPPER,NULL,EscRtData.DBL2SendUpperData, 0u);
-            Safety_Send_Data_Process(CONNECTION_DBL2_LOWER,NULL,EscRtData.DBL2SendLowerData, 0u);
-            Safety_Send_Data_Process(CONNECTION_DBL2_INTERM1,NULL,EscRtData.DBL2SendInterm1Data, 0u);
-            Safety_Send_Data_Process(CONNECTION_DBL2_INTERM2,NULL,EscRtData.DBL2SendInterm2Data, 0u);
-        }
-        else
-        {
-            Safety_Send_Data_Process(CONNECTION_DBL2_LOWER,NULL,EscRtData.DBL2SendLowerData, 0u);
-        }
+        /* clear send data */
+        Safety_Send_Data_Process(&EscRtData.DBL2Upper, 0u);
+        Safety_Send_Data_Process(&EscRtData.DBL2Lower, 0u);
+        Safety_Send_Data_Process(&EscRtData.DBL2Interm1, 0u);
+        Safety_Send_Data_Process(&EscRtData.DBL2Interm2, 0u);
+
         
+        /* interrupt to CPU1 */
         SYNC_SYS_OUT_SET();
         delay_us(5u);
         SYNC_SYS_OUT_CLR();

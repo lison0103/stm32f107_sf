@@ -100,31 +100,53 @@ static void Send_Data_To_Control_Process(void)
     *pEscFault3CHB = OmcEscRtData.ErrorCode[2];
     *pEscFault4CHB = OmcEscRtData.ErrorCode[3];
     *pEscFault5CHB = OmcEscRtData.ErrorCode[4];
-    
+       
+#ifdef ESC_TEST   
     /* SAFETY INPUT CHA */
     /* for debug */
     EscDataToControl[4][0] = OmcEscRtData.HeaderCode[0]; /*EscRtData.SafetyInputData[0];*/
     EscDataToControl[4][1] = EscRtData.HeaderCode[0];/*EscRtData.SafetyInputData[1];*/
     EscDataToControl[4][2] = EscRtData.HeaderCode[1];/*EscRtData.SafetyInputData[2];*/
     EscDataToControl[4][3] = EscRtData.HeaderCode[2];/*EscRtData.SafetyInputData[3];*/
-    EscDataToControl[4][4] = SEQN_UPPER_A;/*EscRtData.SafetyInputData[4];*/
-    EscDataToControl[4][5] = SEQN_LOWER_A;/*EscRtData.SafetyInputData[5]; */
+    EscDataToControl[4][4] = EscRtData.DBL2Upper.SEQN;/*EscRtData.SafetyInputData[4];*/
+    EscDataToControl[4][5] = EscRtData.DBL2Lower.SEQN;/*EscRtData.SafetyInputData[5]; */
+
     
     /* SAFETY INPUT CHB */
     /* for debug */
-    EscDataToControl[5][0] = EscRtData.HeaderCode[3];/*OmcEscRtData.SafetyInputData[0];*/
-    EscDataToControl[5][1] = EscRtData.HeaderCode[4];/*OmcEscRtData.SafetyInputData[1];*/
-    EscDataToControl[5][2] = EscRtData.HeaderCode[5];/*OmcEscRtData.SafetyInputData[2];*/
-    EscDataToControl[5][3] = EscRtData.HeaderCode[6];/*OmcEscRtData.SafetyInputData[3];*/
-    EscDataToControl[5][4] = EscRtData.HeaderCode[7];/*OmcEscRtData.SafetyInputData[4];*/
-    EscDataToControl[5][5] = EscRtData.HeaderCode[8];/*OmcEscRtData.SafetyInputData[5];*/  
+    EscDataToControl[5][0] = EscRtData.DBL2Interm1.SEQN;/*OmcEscRtData.SafetyInputData[0];*/
+    EscDataToControl[5][1] = EscRtData.DBL2Interm2.SEQN;/*OmcEscRtData.SafetyInputData[1];*/
+    EscDataToControl[5][2] = OmcEscRtData.DBL2Upper.SEQN;/*OmcEscRtData.SafetyInputData[2];*/
+    EscDataToControl[5][3] = OmcEscRtData.DBL2Lower.SEQN;/*OmcEscRtData.SafetyInputData[3];*/
+    EscDataToControl[5][4] = OmcEscRtData.DBL2Interm1.SEQN;/*OmcEscRtData.SafetyInputData[4];*/
+    EscDataToControl[5][5] = OmcEscRtData.DBL2Interm2.SEQN;/*OmcEscRtData.SafetyInputData[5];*/  
+    
+#else
+    /* SAFETY INPUT CHA */
+    EscDataToControl[4][0] = EscRtData.SafetyInputData[0];
+    EscDataToControl[4][1] = EscRtData.SafetyInputData[1];
+    EscDataToControl[4][2] = EscRtData.SafetyInputData[2];
+    EscDataToControl[4][3] = EscRtData.SafetyInputData[3];
+    EscDataToControl[4][4] = EscRtData.SafetyInputData[4];
+    EscDataToControl[4][5] = EscRtData.SafetyInputData[5];
+
+    
+    /* SAFETY INPUT CHB */
+    EscDataToControl[5][0] = OmcEscRtData.SafetyInputData[0];
+    EscDataToControl[5][1] = OmcEscRtData.SafetyInputData[1];
+    EscDataToControl[5][2] = OmcEscRtData.SafetyInputData[2];
+    EscDataToControl[5][3] = OmcEscRtData.SafetyInputData[3];
+    EscDataToControl[5][4] = OmcEscRtData.SafetyInputData[4];
+    EscDataToControl[5][5] = OmcEscRtData.SafetyInputData[5];  
+#endif 
     
     /* MOTOR SPEED */
-    *pMotorSpeed1CHA = EscRtData.HeaderCode[9];/*MTRITEM[0].ptFreqBuff;*/
-    *pMotorSpeed2CHA = EscRtData.HeaderCode[10];/*MTRITEM[1].ptFreqBuff;*/
-    *pMotorSpeed1CHB = EscRtData.HeaderCode[11];/*OmcEscRtData.SensorData[0];*/
+    *pMotorSpeed1CHA = *MTRITEM[0].ptFreqBuff;
+    *pMotorSpeed2CHA = *MTRITEM[1].ptFreqBuff;
+    *pMotorSpeed1CHB = OmcEscRtData.SensorData[0];
     *pMotorSpeed2CHB = OmcEscRtData.SensorData[2];
-
+   
+    
     /* MAIN SHAFT SPEED */
     *pMainShaftSpeed1CHA = EscRtData.SensorData[4];
     *pMainShaftSpeed2CHA = EscRtData.SensorData[6];
@@ -150,104 +172,104 @@ static void Send_Data_To_Control_Process(void)
     *pMissingStepLowerCHB = OmcEscRtData.SensorData[18];     
 
     /* DBL2 UPPER INPUT CHA */
-    EscDataToControl[11][0] = EscRtData.DBL2UpperInputData[0];
-    EscDataToControl[11][1] = EscRtData.DBL2UpperInputData[1];
-    EscDataToControl[11][2] = EscRtData.DBL2UpperInputData[2];
-    EscDataToControl[11][3] = EscRtData.DBL2UpperInputData[3];
+    EscDataToControl[11][0] = EscRtData.DBL2Upper.InputData[0];
+    EscDataToControl[11][1] = EscRtData.DBL2Upper.InputData[1];
+    EscDataToControl[11][2] = EscRtData.DBL2Upper.InputData[2];
+    EscDataToControl[11][3] = EscRtData.DBL2Upper.InputData[3];
     
     /* DBL2 UPPER INPUT CHB */
-    EscDataToControl[11][4] = OmcEscRtData.DBL2UpperInputData[0];
-    EscDataToControl[11][5] = OmcEscRtData.DBL2UpperInputData[1]; 
-    EscDataToControl[11][6] = OmcEscRtData.DBL2UpperInputData[2];
-    EscDataToControl[11][7] = OmcEscRtData.DBL2UpperInputData[3];     
+    EscDataToControl[11][4] = OmcEscRtData.DBL2Upper.InputData[0];
+    EscDataToControl[11][5] = OmcEscRtData.DBL2Upper.InputData[1]; 
+    EscDataToControl[11][6] = OmcEscRtData.DBL2Upper.InputData[2];
+    EscDataToControl[11][7] = OmcEscRtData.DBL2Upper.InputData[3];     
     
     /* DBL2 LOWER INPUT CHA */
-    EscDataToControl[12][0] = EscRtData.DBL2LowerInputData[0];
-    EscDataToControl[12][1] = EscRtData.DBL2LowerInputData[1];
-    EscDataToControl[12][2] = EscRtData.DBL2LowerInputData[2];
-    EscDataToControl[12][3] = EscRtData.DBL2LowerInputData[3];
+    EscDataToControl[12][0] = EscRtData.DBL2Lower.InputData[0];
+    EscDataToControl[12][1] = EscRtData.DBL2Lower.InputData[1];
+    EscDataToControl[12][2] = EscRtData.DBL2Lower.InputData[2];
+    EscDataToControl[12][3] = EscRtData.DBL2Lower.InputData[3];
     
     /* DBL2 LOWER INPUT CHB */
-    EscDataToControl[12][4] = OmcEscRtData.DBL2LowerInputData[0];
-    EscDataToControl[12][5] = OmcEscRtData.DBL2LowerInputData[1]; 
-    EscDataToControl[12][6] = OmcEscRtData.DBL2LowerInputData[2];
-    EscDataToControl[12][7] = OmcEscRtData.DBL2LowerInputData[3];  
+    EscDataToControl[12][4] = OmcEscRtData.DBL2Lower.InputData[0];
+    EscDataToControl[12][5] = OmcEscRtData.DBL2Lower.InputData[1]; 
+    EscDataToControl[12][6] = OmcEscRtData.DBL2Lower.InputData[2];
+    EscDataToControl[12][7] = OmcEscRtData.DBL2Lower.InputData[3];  
     
     /* DBL2 INTERM 1 INPUT CHA */
-    EscDataToControl[13][0] = EscRtData.DBL2Interm1InputData[0];
-    EscDataToControl[13][1] = EscRtData.DBL2Interm1InputData[1];
-    EscDataToControl[13][2] = EscRtData.DBL2Interm1InputData[2];
-    EscDataToControl[13][3] = EscRtData.DBL2Interm1InputData[3];
+    EscDataToControl[13][0] = EscRtData.DBL2Interm1.InputData[0];
+    EscDataToControl[13][1] = EscRtData.DBL2Interm1.InputData[1];
+    EscDataToControl[13][2] = EscRtData.DBL2Interm1.InputData[2];
+    EscDataToControl[13][3] = EscRtData.DBL2Interm1.InputData[3];
     
     /* DBL2 INTERM 1 INPUT CHB */
-    EscDataToControl[13][4] = OmcEscRtData.DBL2Interm1InputData[0];
-    EscDataToControl[13][5] = OmcEscRtData.DBL2Interm1InputData[1]; 
-    EscDataToControl[13][6] = OmcEscRtData.DBL2Interm1InputData[2];
-    EscDataToControl[13][7] = OmcEscRtData.DBL2Interm1InputData[3];     
+    EscDataToControl[13][4] = OmcEscRtData.DBL2Interm1.InputData[0];
+    EscDataToControl[13][5] = OmcEscRtData.DBL2Interm1.InputData[1]; 
+    EscDataToControl[13][6] = OmcEscRtData.DBL2Interm1.InputData[2];
+    EscDataToControl[13][7] = OmcEscRtData.DBL2Interm1.InputData[3];     
     
     /* DBL2 INTERM 2 INPUT CHA */
-    EscDataToControl[14][0] = EscRtData.DBL2Interm2InputData[0];
-    EscDataToControl[14][1] = EscRtData.DBL2Interm2InputData[1];
-    EscDataToControl[14][2] = EscRtData.DBL2Interm2InputData[2];
-    EscDataToControl[14][3] = EscRtData.DBL2Interm2InputData[3];
+    EscDataToControl[14][0] = EscRtData.DBL2Interm2.InputData[0];
+    EscDataToControl[14][1] = EscRtData.DBL2Interm2.InputData[1];
+    EscDataToControl[14][2] = EscRtData.DBL2Interm2.InputData[2];
+    EscDataToControl[14][3] = EscRtData.DBL2Interm2.InputData[3];
     
     /* DBL2 INTERM 2 INPUT CHB */
-    EscDataToControl[14][4] = OmcEscRtData.DBL2Interm2InputData[0];
-    EscDataToControl[14][5] = OmcEscRtData.DBL2Interm2InputData[1]; 
-    EscDataToControl[14][6] = OmcEscRtData.DBL2Interm2InputData[2];
-    EscDataToControl[14][7] = OmcEscRtData.DBL2Interm2InputData[3];    
+    EscDataToControl[14][4] = OmcEscRtData.DBL2Interm2.InputData[0];
+    EscDataToControl[14][5] = OmcEscRtData.DBL2Interm2.InputData[1]; 
+    EscDataToControl[14][6] = OmcEscRtData.DBL2Interm2.InputData[2];
+    EscDataToControl[14][7] = OmcEscRtData.DBL2Interm2.InputData[3];    
     
     /* ANALOG/PT100 UPPER */
-    EscDataToControl[15][0] = (u8)EscRtData.DBL2UpperAnalogData[0];
-    EscDataToControl[15][1] |= (u8)((EscRtData.DBL2UpperAnalogData[0] >> 8u) & 0x0fu);
-    EscDataToControl[15][1] |= (u8)((u16)(EscRtData.DBL2UpperAnalogData[1] << 4u) & 0xf0u);
-    EscDataToControl[15][2] = (u8)((EscRtData.DBL2UpperAnalogData[1] >> 4u) & 0xffu);
-    EscDataToControl[15][3] = (u8)EscRtData.DBL2UpperAnalogData[2];
+    EscDataToControl[15][0] = (u8)EscRtData.DBL2Upper.AnalogData[0];
+    EscDataToControl[15][1] |= (u8)((EscRtData.DBL2Upper.AnalogData[0] >> 8u) & 0x0fu);
+    EscDataToControl[15][1] |= (u8)((u16)(EscRtData.DBL2Upper.AnalogData[1] << 4u) & 0xf0u);
+    EscDataToControl[15][2] = (u8)((EscRtData.DBL2Upper.AnalogData[1] >> 4u) & 0xffu);
+    EscDataToControl[15][3] = (u8)EscRtData.DBL2Upper.AnalogData[2];
     
     /* ANALOG/PT100 LOWER */
-    EscDataToControl[15][4] = (u8)EscRtData.DBL2LowerAnalogData[0];
-    EscDataToControl[15][5] |= (u8)((EscRtData.DBL2LowerAnalogData[0] >> 8u) & 0x0fu);
-    EscDataToControl[15][5] |= (u8)((u16)(EscRtData.DBL2LowerAnalogData[1] << 4u) & 0xf0u);
-    EscDataToControl[15][6] = (u8)((EscRtData.DBL2LowerAnalogData[1] >> 4u) & 0xffu);
-    EscDataToControl[15][7] = (u8)EscRtData.DBL2LowerAnalogData[2];     
+    EscDataToControl[15][4] = (u8)EscRtData.DBL2Lower.AnalogData[0];
+    EscDataToControl[15][5] |= (u8)((EscRtData.DBL2Lower.AnalogData[0] >> 8u) & 0x0fu);
+    EscDataToControl[15][5] |= (u8)((u16)(EscRtData.DBL2Lower.AnalogData[1] << 4u) & 0xf0u);
+    EscDataToControl[15][6] = (u8)((EscRtData.DBL2Lower.AnalogData[1] >> 4u) & 0xffu);
+    EscDataToControl[15][7] = (u8)EscRtData.DBL2Lower.AnalogData[2];     
     
     /* ANALOG/PT100 INTERM 1 */
-    EscDataToControl[16][0] = (u8)EscRtData.DBL2Interm1AnalogData[0];
-    EscDataToControl[16][1] |= (u8)((EscRtData.DBL2Interm1AnalogData[0] >> 8u) & 0x0fu);
-    EscDataToControl[16][1] |= (u8)((u16)(EscRtData.DBL2Interm1AnalogData[1] << 4u) & 0xf0u);
-    EscDataToControl[16][2] = (u8)((EscRtData.DBL2Interm1AnalogData[1] >> 4u) & 0xffu);
-    EscDataToControl[16][3] = (u8)EscRtData.DBL2Interm1AnalogData[2];
+    EscDataToControl[16][0] = (u8)EscRtData.DBL2Interm1.AnalogData[0];
+    EscDataToControl[16][1] |= (u8)((EscRtData.DBL2Interm1.AnalogData[0] >> 8u) & 0x0fu);
+    EscDataToControl[16][1] |= (u8)((u16)(EscRtData.DBL2Interm1.AnalogData[1] << 4u) & 0xf0u);
+    EscDataToControl[16][2] = (u8)((EscRtData.DBL2Interm1.AnalogData[1] >> 4u) & 0xffu);
+    EscDataToControl[16][3] = (u8)EscRtData.DBL2Interm1.AnalogData[2];
     
     /* ANALOG/PT100 INTERM 2 */
-    EscDataToControl[16][4] = (u8)EscRtData.DBL2Interm2AnalogData[0];
-    EscDataToControl[16][5] |= (u8)((EscRtData.DBL2Interm2AnalogData[0] >> 8u) & 0x0fu);
-    EscDataToControl[16][5] |= (u8)((u16)(EscRtData.DBL2Interm2AnalogData[1] << 4u) & 0xf0u);
-    EscDataToControl[16][6] = (u8)((EscRtData.DBL2Interm2AnalogData[1] >> 4u) & 0xffu);
-    EscDataToControl[16][7] = (u8)EscRtData.DBL2Interm2AnalogData[2];    
+    EscDataToControl[16][4] = (u8)EscRtData.DBL2Interm2.AnalogData[0];
+    EscDataToControl[16][5] |= (u8)((EscRtData.DBL2Interm2.AnalogData[0] >> 8u) & 0x0fu);
+    EscDataToControl[16][5] |= (u8)((u16)(EscRtData.DBL2Interm2.AnalogData[1] << 4u) & 0xf0u);
+    EscDataToControl[16][6] = (u8)((EscRtData.DBL2Interm2.AnalogData[1] >> 4u) & 0xffu);
+    EscDataToControl[16][7] = (u8)EscRtData.DBL2Interm2.AnalogData[2];    
     
     /* DBL1 UPPER INPUT */
-    EscDataToControl[17][0] = EscRtData.DBL1UpperInputData[0];
-    EscDataToControl[17][1] = EscRtData.DBL1UpperInputData[1];
-    EscDataToControl[17][2] = EscRtData.DBL1UpperInputData[2];
-    EscDataToControl[17][3] = EscRtData.DBL1UpperInputData[3];
+    EscDataToControl[17][0] = EscRtData.DBL1Upper.InputData[0];
+    EscDataToControl[17][1] = EscRtData.DBL1Upper.InputData[1];
+    EscDataToControl[17][2] = EscRtData.DBL1Upper.InputData[2];
+    EscDataToControl[17][3] = EscRtData.DBL1Upper.InputData[3];
     
     /* DBL1 LOWER INPUT */
-    EscDataToControl[17][4] = EscRtData.DBL1LowerInputData[0];
-    EscDataToControl[17][5] = EscRtData.DBL1LowerInputData[1]; 
-    EscDataToControl[17][6] = EscRtData.DBL1LowerInputData[2];
-    EscDataToControl[17][7] = EscRtData.DBL1LowerInputData[3];  
+    EscDataToControl[17][4] = EscRtData.DBL2Lower.InputData[0];
+    EscDataToControl[17][5] = EscRtData.DBL2Lower.InputData[1]; 
+    EscDataToControl[17][6] = EscRtData.DBL2Lower.InputData[2];
+    EscDataToControl[17][7] = EscRtData.DBL2Lower.InputData[3];  
 
     /* DBL1 INTERM 1 INPUT */
-    EscDataToControl[18][0] = EscRtData.DBL1UpperInputData[0];
-    EscDataToControl[18][1] = EscRtData.DBL1UpperInputData[1];
-    EscDataToControl[18][2] = EscRtData.DBL1UpperInputData[2];
-    EscDataToControl[18][3] = EscRtData.DBL1UpperInputData[3];
+    EscDataToControl[18][0] = EscRtData.DBL2Interm1.InputData[0];
+    EscDataToControl[18][1] = EscRtData.DBL2Interm1.InputData[1];
+    EscDataToControl[18][2] = EscRtData.DBL2Interm1.InputData[2];
+    EscDataToControl[18][3] = EscRtData.DBL2Interm1.InputData[3];
     
     /* DBL1 INTERM 2 INPUT */
-    EscDataToControl[18][4] = EscRtData.DBL1LowerInputData[0];
-    EscDataToControl[18][5] = EscRtData.DBL1LowerInputData[1]; 
-    EscDataToControl[18][6] = EscRtData.DBL1LowerInputData[2];
-    EscDataToControl[18][7] = EscRtData.DBL1LowerInputData[3];     
+    EscDataToControl[18][4] = EscRtData.DBL2Interm2.InputData[0];
+    EscDataToControl[18][5] = EscRtData.DBL2Interm2.InputData[1]; 
+    EscDataToControl[18][6] = EscRtData.DBL2Interm2.InputData[2];
+    EscDataToControl[18][7] = EscRtData.DBL2Interm2.InputData[3];     
 }
 
 /*******************************************************************************

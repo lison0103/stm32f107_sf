@@ -69,7 +69,7 @@ void Esc_State_Machine(void)
                 
                 /* everything is OK, the system goes to the previous state (before the power off)*/
 #ifdef GEC_SF_MASTER
-                /*SfBase_EscState = Check_Error_Present_Memory();*/
+                SfBase_EscState = Check_Error_Present_Memory();
 #else
                 SfBase_EscState = OmcSfBase_EscState;
 #endif
@@ -92,7 +92,7 @@ void Esc_State_Machine(void)
             
 #ifdef GEC_SF_MASTER   
             error_change_check();
-            /*StoreFaultInMemory();*/
+            StoreFaultInMemory();
 #endif            
             
             if ( !((CMD_FLAG5 & ESC_FAULT) || (CMD_OMC_FLAG5 & ESC_FAULT)) ) 

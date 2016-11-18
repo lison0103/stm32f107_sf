@@ -55,7 +55,7 @@ u8 can2_receive = 0u;
 
 #ifdef GEC_SF_MASTER
 volatile u16 g_u16DBL1NewData = 0u;
-volatile u32 g_u16DBL2NewData = 0u;
+volatile u16 g_u16DBL2NewData = 0u;
 u16 g_u16CAN2SendFail = 0u;
 
 /* Esc receive data buffer */
@@ -376,7 +376,6 @@ void CAN1_RX0_IRQHandler(void)
         {
             can1_receive = 1u;        
             
-            Can_Receive_Buffer(RxMessage.Data, (u16)RxMessage.ExtId, DATA_FROM_CONTROL);
         }  
         else
         {}
@@ -435,11 +434,16 @@ void CAN2_RX0_IRQHandler(void)
         /** DBL2 data RECEIVE **/    
         else if( DIAGNOSTIC == DIAGNOSTIC_BOARD_2 )
         {
+#ifdef ESC_TEST            
+            if((( RxMessage.ExtId >= CAN2RX_DBL2_UPPER_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_UPPER_ID3 ))              
+               || (( RxMessage.ExtId >= CAN2RX_DBL2_INTERM2_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM2_ID3 )))            
+#else
             if((( RxMessage.ExtId >= CAN2RX_DBL2_UPPER_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_UPPER_ID3 )) 
                || (( RxMessage.ExtId >= CAN2RX_DBL2_LOWER_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_LOWER_ID3 )) 
                    || (( RxMessage.ExtId >= CAN2RX_DBL2_INTERM1_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM1_ID3 ))
                        || (( RxMessage.ExtId >= CAN2RX_DBL2_INTERM2_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM2_ID3 ))
                            || (( RxMessage.ExtId >= CAN2RX_DBL2_UPPER_NONSAFETY_ID ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM2_NONSAFETY_ID )))
+#endif                
             {
                 if( ( RxMessage.DLC == CAN_FRAME_LEN ) && ( RxMessage.IDE == CAN_ID_EXT ))
                 {
@@ -453,7 +457,6 @@ void CAN2_RX0_IRQHandler(void)
         {
             can2_receive = 1u;        
             
-            Can_Receive_Buffer(RxMessage.Data, (u16)RxMessage.ExtId, DATA_FROM_DBL2);
         }  
         else
         {
@@ -781,28 +784,28 @@ void Can_Clean_Buffer(u16 canid, u8 datatype)
             {
                 for( i = 0u; i < 8u; i++ )
                 {
-                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_LOWER_ID1 + 3u][i] = 0u;
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_LOWER_ID1 + 4u][i] = 0u;
                 }
             }
             else if(( canid >= CAN2RX_DBL2_INTERM1_ID1 ) && ( canid <= CAN2RX_DBL2_INTERM1_ID3 )) 
             {
                 for( i = 0u; i < 8u; i++ )
                 {
-                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM1_ID1 + 6u][i] = 0u;
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM1_ID1 + 8u][i] = 0u;
                 }
             }
             else if(( canid >= CAN2RX_DBL2_INTERM2_ID1 ) && ( canid <= CAN2RX_DBL2_INTERM2_ID3 )) 
             {
                 for( i = 0u; i < 8u; i++ )
                 {
-                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM2_ID1 + 9u][i] = 0u;
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM2_ID1 + 12u][i] = 0u;
                 }
             }
             else if(( canid >= CAN2RX_DBL2_UPPER_NONSAFETY_ID ) && ( canid <= CAN2RX_DBL2_INTERM2_NONSAFETY_ID )) 
             {
                 for( i = 0u; i < 8u; i++ )
                 {
-                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_UPPER_NONSAFETY_ID + 12u][i] = 0u;
+                    EscDataFromDBL2Buffer[(canid - CAN2RX_DBL2_UPPER_NONSAFETY_ID) * 4u + 3u][i] = 0u;
                 }
             }  
             else
@@ -855,7 +858,6 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
             }            
             else
             {
-                g_u16DBL1NewData |= 0x0000u;
             }            
             
             for( i = 0u; i < 8u; i++ )
@@ -882,7 +884,6 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                 }
                 else
                 {
-                    g_u16DBL2NewData |= 0x0000u;
                 }
                 
                 for( i = 0u; i < 8u; i++ )
@@ -906,12 +907,11 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                 }
                 else
                 {
-                    g_u16DBL2NewData |= 0x0000u;
                 }                
                 
                 for( i = 0u; i < 8u; i++ )
                 {
-                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_LOWER_ID1 + 3u][i] = rxmsg[i];
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_LOWER_ID1 + 4u][i] = rxmsg[i];
                 }
             }
             else if(( canid >= CAN2RX_DBL2_INTERM1_ID1 ) && ( canid <= CAN2RX_DBL2_INTERM1_ID3 )) 
@@ -933,7 +933,7 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                 
                 for( i = 0u; i < 8u; i++ )
                 {
-                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM1_ID1 + 6u][i] = rxmsg[i];
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM1_ID1 + 8u][i] = rxmsg[i];
                 }
             }
             else if(( canid >= CAN2RX_DBL2_INTERM2_ID1 ) && ( canid <= CAN2RX_DBL2_INTERM2_ID3 )) 
@@ -955,7 +955,7 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                 
                 for( i = 0u; i < 8u; i++ )
                 {
-                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM2_ID1 + 9u][i] = rxmsg[i];
+                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM2_ID1 + 12u][i] = rxmsg[i];
                 }
             }
             else if(( canid >= CAN2RX_DBL2_UPPER_NONSAFETY_ID ) && ( canid <= CAN2RX_DBL2_INTERM2_NONSAFETY_ID )) 
@@ -963,7 +963,7 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                 g_u16DBL2NewData |= 0xf000u;
                 for( i = 0u; i < 8u; i++ )
                 {
-                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_UPPER_NONSAFETY_ID + 12u][i] = rxmsg[i];
+                    EscDataFromDBL2Buffer[(canid - CAN2RX_DBL2_UPPER_NONSAFETY_ID) * 4u + 3u][i] = rxmsg[i];
                 }
             }  
             else
@@ -995,6 +995,7 @@ void Can_Receive_Data(u8 datatype)
                 for( i = 0u; i < 8u; i++ )
                 {
                     EscDataFromControl[j][i] = EscDataFromControlBuffer[j][i];
+                    EscDataFromControlBuffer[j][i] = 0u;
                 }  
             }
             break;
@@ -1009,6 +1010,7 @@ void Can_Receive_Data(u8 datatype)
                 for( i = 0u; i < 8u; i++ )
                 {
                     EscDataFromDBL1[0][i] = EscDataFromDBL1Buffer[0][i];
+                    EscDataFromDBL1Buffer[0][i] = 0u;
                 }  
             }
             
@@ -1019,6 +1021,7 @@ void Can_Receive_Data(u8 datatype)
                 for( i = 0u; i < 8u; i++ )
                 {
                     EscDataFromDBL1[1][i] = EscDataFromDBL1Buffer[1][i];
+                    EscDataFromDBL1Buffer[1][i] = 0u;
                 }  
             }
             
@@ -1029,6 +1032,7 @@ void Can_Receive_Data(u8 datatype)
                 for( i = 0u; i < 8u; i++ )
                 {
                     EscDataFromDBL1[2][i] = EscDataFromDBL1Buffer[2][i];
+                    EscDataFromDBL1Buffer[2][i] = 0u;
                 }  
             } 
             
@@ -1039,6 +1043,7 @@ void Can_Receive_Data(u8 datatype)
                 for( i = 0u; i < 8u; i++ )
                 {
                     EscDataFromDBL1[3][i] = EscDataFromDBL1Buffer[3][i];
+                    EscDataFromDBL1Buffer[3][i] = 0u;
                 }  
             }          
             break;
@@ -1047,58 +1052,63 @@ void Can_Receive_Data(u8 datatype)
         {  
             if( ( g_u16DBL2NewData & 0x0007u ) == 0x0007u )
             {
-                g_u16DBL2NewData &= (u16)(~0x0007u);
+                g_u16DBL2NewData -= 0x0007u;
                 for( j = 0u; j < 3u; j++ )
                 {
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
+                        EscDataFromDBL2Buffer[j][i] = 0u;
                     }  
                 } 
             }
             if( ( g_u16DBL2NewData & 0x0038u ) == 0x0038u )
             {
                 g_u16DBL2NewData &= (u16)(~0x0038u);
-                for( j = 3u; j < 6u; j++ )
+                for( j = 4u; j < 7u; j++ )
                 {
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
+                        EscDataFromDBL2Buffer[j][i] = 0u;
                     }  
                 } 
             }
             if( ( g_u16DBL2NewData & 0x01c0u ) == 0x01c0u )
             {
                 g_u16DBL2NewData &= (u16)(~0x01c0u);
-                for( j = 6u; j < 9u; j++ )
+                for( j = 8u; j < 11u; j++ )
                 {
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
+                        EscDataFromDBL2Buffer[j][i] = 0u;
                     }  
                 } 
             }
             if( ( g_u16DBL2NewData & 0x0e00u ) == 0x0e00u )
             {
-                g_u16DBL2NewData &= (u16)(~0x0e00u);
-                for( j = 9u; j < 12u; j++ )
+                g_u16DBL2NewData -= 0x0e00u;
+                for( j = 12u; j < 15u; j++ )
                 {
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
+                        EscDataFromDBL2Buffer[j][i] = 0u;
                     }  
                 } 
             }            
             if( ( g_u16DBL2NewData & 0xf000u ) == 0xf000u )
             {
                 g_u16DBL2NewData &= (u16)(~0xf000u);
-                for( j = 12u; j < 16u; j++ )
+
+                for( i = 0u; i < 8u; i++ )
                 {
-                    for( i = 0u; i < 8u; i++ )
-                    {
-                        EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
-                    }  
-                } 
+                    EscDataFromDBL2[3][i] = EscDataFromDBL2Buffer[3][i];
+                    EscDataFromDBL2[7][i] = EscDataFromDBL2Buffer[7][i];
+                    EscDataFromDBL2[11][i] = EscDataFromDBL2Buffer[11][i];
+                    EscDataFromDBL2[15][i] = EscDataFromDBL2Buffer[15][i];
+                }  
             }            
             break;
         }  
