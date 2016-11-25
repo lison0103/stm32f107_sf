@@ -112,7 +112,8 @@ void SafetySwitchCheck( u8 pulse_on, u8 test_num )
         else
         {
             FAULT = FEEDBACK_PULSE_OUTPUT;
-            EN_ERROR8 |= 0x10u;
+            /* Feedback fault pulse output safety switch F364 */
+            EN_ERROR46 |= 0x10u;
         }    
     }
     else
@@ -157,7 +158,8 @@ void SafetySwitchCheck( u8 pulse_on, u8 test_num )
         else
         {
             FAULT = FEEDBACK_PULSE_OUTPUT;
-            EN_ERROR8 |= 0x10u;
+            /* Feedback fault pulse output safety switch F364 */
+            EN_ERROR46 |= 0x10u;
         }   
     }
 }
@@ -217,7 +219,6 @@ void SafetySwitchStatus(void)
                 if( SYNC_SYS_IN != 0u )
                 {
                     FAULT = SYNCLINE;
-                    EN_ERROR8 |= 0x08u;
                     SwitchState = 6u;
                 }
             }
@@ -226,7 +227,6 @@ void SafetySwitchStatus(void)
                 if( Timeout_SYNC_Line > 10u )
                 {
                     FAULT = SYNCLINE;
-                    EN_ERROR8 |= 0x08u;
                     SwitchState = 6u;            
                 }
                 else
@@ -413,15 +413,15 @@ static void SafetyRelayAuxRelayTest(void)
         /* safety circuit is connected */
         if( SF_RL_DRV_FB )
         {
-            EN_ERROR8 |= 0x01u;
+            EN_ERROR49 |= 0x04u;
         }      
         else if ( SF_RL_FB )
         {
-            EN_ERROR8 |= 0x01u;
+            EN_ERROR49 |= 0x04u;
         }
         else if( !AUX_FB )
         {
-            EN_ERROR8 |= 0x01u;
+            EN_ERROR49 |= 0x04u;
         }
         else
         {
@@ -433,11 +433,11 @@ static void SafetyRelayAuxRelayTest(void)
         /* safety circuit is disconnected */
         if( !SF_RL_DRV_FB )
         {
-            EN_ERROR8 |= 0x01u;
+            EN_ERROR49 |= 0x04u;
         }      
         else if ( !SF_RL_FB )
         {
-            EN_ERROR8 |= 0x01u;
+            EN_ERROR49 |= 0x04u;
         }
         else
         {
@@ -499,19 +499,19 @@ void SafetyExtWdt_StartUpCheck(void)
     /** Safety Relay and AuxRelay Test **/
     if( SF_RL_DRV_FB )
     {
-        EN_ERROR8 |= 0x01u;
+        EN_ERROR49 |= 0x04u;
     }
     else if( SF_PWR_FB_CPU )
     {
-        EN_ERROR8 |= 0x01u;
+        EN_ERROR49 |= 0x04u;
     }
     else if ( SF_RL_FB )
     {
-        EN_ERROR8 |= 0x01u;
+        EN_ERROR49 |= 0x04u;
     }
     else if( !AUX_FB )
     {
-        EN_ERROR8 |= 0x01u;
+        EN_ERROR49 |= 0x04u;
     }
     else
     {
@@ -525,12 +525,13 @@ void SafetyExtWdt_StartUpCheck(void)
     if( !SF_RL_FB )
     {
         /*FailSafeTest();*/
-        EN_ERROR8 |= 0x02u;
+        /* Safety relay outp_Ext. watchd error F386 */
+        EN_ERROR49 |= 0x04u;
     }
 
     SF_RELAY_OFF();    
         
-    if( EN_ERROR8 & 0x03u )
+    if( EN_ERROR49 & 0x04u )
     {
         g_u32InitTestError = 1u;
     }
@@ -591,7 +592,8 @@ void SafetyExtWdt_RunCheck(void)
             if( !SF_RL_FB )
             {
                 /*FailSafeTest();*/
-                EN_ERROR8 |= 0x02u;
+                /* Safety relay outp_Ext. watchd error F386 */
+                EN_ERROR49 |= 0x04u;
             }
 
             SF_RELAY_OFF();   
@@ -633,7 +635,8 @@ static void SafetyCTR_Check(void)
                 {
                     /* SafetyCTR_Check error */
                     /*ESC_SafeRelay_Error_Process();*/
-                    EN_ERROR8 |= 0x04u;
+                    /* Safety relay outp_Ext. watchd error F386 */
+                    EN_ERROR49 |= 0x04u;
                 }
             }
             else

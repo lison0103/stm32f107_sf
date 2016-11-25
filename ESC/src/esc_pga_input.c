@@ -21,7 +21,7 @@
 static void pga_input_decode_item(u8 ucPgaNum, u8 ucLevel);  /* pga iput decode sub */
 
 
-u8 Cfg_ParaBuff[200];
+static u8 Cfg_ParaBuff[200];
 
 
 /*******************************************************************************
@@ -40,11 +40,11 @@ static void pga_input_decode_item(u8 ucPgaNum, u8 ucLevel)
   ucByte = temp1>>3u;    /* byte address */
   ucBit = temp1%8u;      /* bit */
   
-  EscRtData. Cfg_Input_Mask[ucByte] |= (1u<<ucBit); /* 功能点使能  */
+  EscRtData. Cfg_Input_Mask[ucByte] |= (1u<<ucBit); /* Function enable  */
             
   if(ucLevel) 
   {
-    EscRtData. Cfg_Input_Level[ucByte] |= (1u<<ucBit); /* 功能点高电平 */
+    EscRtData. Cfg_Input_Level[ucByte] |= (1u<<ucBit); /* input 1 */
   }
 }
 

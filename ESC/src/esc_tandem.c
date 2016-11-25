@@ -18,9 +18,9 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-u8 TandemRunEnable = 0u;
-u8 TandemMessageRunAllowed = 0u;
-u8 Tandemoutput = 0u;
+static u8 TandemRunEnable = 0u;
+static u8 TandemMessageRunAllowed = 0u;
+static u8 Tandemoutput = 0u;
 
 /*******************************************************************************
 * Function Name  : CheckTandemReady
@@ -32,7 +32,7 @@ u8 Tandemoutput = 0u;
 static void CheckTandemReady(void)
 {
        
-    if( TANDEM_TYPE == 1u )
+    if( TANDEM == 1u )
     {
         /* Need CheckUpDown_Key() */
         if( CMD_ESC_RUN & 0x04u )
@@ -55,7 +55,7 @@ static void CheckTandemReady(void)
         }
             
     }
-    else if( TANDEM_TYPE == 2u )
+    else if( TANDEM == 2u )
     {
         if( CMD_ESC_RUN & 0x08u )
         {
@@ -92,27 +92,25 @@ static void CheckTandemReady(void)
 *******************************************************************************/
 static void CheckTandemRun(void)
 {
-    if( TANDEM_TYPE == 1u )
+    if( TANDEM == 1u )
     {
         if( CMD_ESC_RUN & ESC_UP )
         {
             if( TandemMessageRunAllowed == 0u )
             {
-                /* Tandem fault */
-                /* stop escalator */
-                EN_ERROR6 |= 0x01u;
+                /* Stop escalator Tandem Fault (F343) */
+                EN_ERROR43 |= 0x80u;
             }
         }           
     }
-    else if( TANDEM_TYPE == 2u )
+    else if( TANDEM == 2u )
     {
         if( CMD_ESC_RUN & ESC_DOWN )
         {
             if( TandemMessageRunAllowed == 0u )
             {
-                /* Tandem fault */
-                /* stop escalator */
-                EN_ERROR6 |= 0x01u;
+                /* Stop escalator Tandem Fault (F344) */
+                EN_ERROR44 |= 0x01u;
             }
         }      
     }
@@ -137,7 +135,7 @@ static void TandemOutput(void)
     }
     else if( ( CMD_ESC_RUN_MODE & ESC_INSPECT ) == ESC_NORMAL )
     {
-        if( TANDEM_TYPE == 1u )
+        if( TANDEM == 1u )
         {
             if( CMD_ESC_RUN & ESC_DOWN )
             {
@@ -148,7 +146,7 @@ static void TandemOutput(void)
                 Tandemoutput = 0u;
             }            
         }
-        else if( TANDEM_TYPE == 2u )
+        else if( TANDEM == 2u )
         {
             if( CMD_ESC_RUN & ESC_UP )
             {

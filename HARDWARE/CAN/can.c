@@ -55,13 +55,18 @@ u8 can2_receive = 0u;
 
 #ifdef GEC_SF_MASTER
 volatile u16 g_u16DBL1NewData = 0u;
+#ifdef DIAGNOSTIC_LEVEL2
 volatile u16 g_u16DBL2NewData = 0u;
+#endif
 u16 g_u16CAN2SendFail = 0u;
 
+
 /* Esc receive data buffer */
-u8 EscDataFromControlBuffer[3][8];
-u8 EscDataFromDBL1Buffer[4][8];
-u8 EscDataFromDBL2Buffer[16][8];
+static u8 EscDataFromControlBuffer[3][8];
+static u8 EscDataFromDBL1Buffer[4][8];
+#ifdef DIAGNOSTIC_LEVEL2
+static u8 EscDataFromDBL2Buffer[16][8];
+#endif
 #endif
 
 /*******************************************************************************
@@ -431,19 +436,16 @@ void CAN2_RX0_IRQHandler(void)
                 }
             } 
         }
+#ifdef DIAGNOSTIC_LEVEL2        
         /** DBL2 data RECEIVE **/    
         else if( DIAGNOSTIC == DIAGNOSTIC_BOARD_2 )
         {
-#ifdef ESC_TEST            
-            if((( RxMessage.ExtId >= CAN2RX_DBL2_UPPER_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_UPPER_ID3 ))              
-               || (( RxMessage.ExtId >= CAN2RX_DBL2_INTERM2_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM2_ID3 )))            
-#else
+
             if((( RxMessage.ExtId >= CAN2RX_DBL2_UPPER_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_UPPER_ID3 )) 
                || (( RxMessage.ExtId >= CAN2RX_DBL2_LOWER_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_LOWER_ID3 )) 
                    || (( RxMessage.ExtId >= CAN2RX_DBL2_INTERM1_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM1_ID3 ))
                        || (( RxMessage.ExtId >= CAN2RX_DBL2_INTERM2_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM2_ID3 ))
-                           || (( RxMessage.ExtId >= CAN2RX_DBL2_UPPER_NONSAFETY_ID ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM2_NONSAFETY_ID )))
-#endif                
+                           || (( RxMessage.ExtId >= CAN2RX_DBL2_UPPER_NONSAFETY_ID ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM2_NONSAFETY_ID )))               
             {
                 if( ( RxMessage.DLC == CAN_FRAME_LEN ) && ( RxMessage.IDE == CAN_ID_EXT ))
                 {
@@ -452,6 +454,7 @@ void CAN2_RX0_IRQHandler(void)
                 }
             }         
         }
+#endif        
         /* Test Mode */        
         else if( ( RxMessage.ExtId == CAN1_TEST_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
@@ -540,6 +543,7 @@ void CAN2_TX_IRQHandler(void)
             }
         }        
     }
+#ifdef DIAGNOSTIC_LEVEL2    
     else if( DIAGNOSTIC == DIAGNOSTIC_BOARD_2 )
     {
         if( g_u16CAN2SendFail & 0x01u )
@@ -664,6 +668,7 @@ void CAN2_TX_IRQHandler(void)
     }
     else
     {}
+#endif    
 }
 #endif
 
@@ -771,6 +776,7 @@ void Can_Clean_Buffer(u16 canid, u8 datatype)
             }
             break;
         }
+#ifdef DIAGNOSTIC_LEVEL2        
        case DATA_FROM_DBL2:
         {   
             if(( canid >= CAN2RX_DBL2_UPPER_ID1 ) && ( canid <= CAN2RX_DBL2_UPPER_ID3 )) 
@@ -812,6 +818,7 @@ void Can_Clean_Buffer(u16 canid, u8 datatype)
             {}    
             break;
         }  
+#endif        
        default:
         break;
     }
@@ -866,6 +873,7 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
             }
             break;
         }
+#ifdef DIAGNOSTIC_LEVEL2        
        case DATA_FROM_DBL2:
         {   
             if(( canid >= CAN2RX_DBL2_UPPER_ID1 ) && ( canid <= CAN2RX_DBL2_UPPER_ID3 )) 
@@ -970,6 +978,7 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
             {}    
             break;
         }  
+#endif        
        default:
         break;
     }
@@ -1048,6 +1057,7 @@ void Can_Receive_Data(u8 datatype)
             }          
             break;
         }
+#ifdef DIAGNOSTIC_LEVEL2        
        case DATA_FROM_DBL2:
         {  
             if( ( g_u16DBL2NewData & 0x0007u ) == 0x0007u )
@@ -1111,7 +1121,8 @@ void Can_Receive_Data(u8 datatype)
                 }  
             }            
             break;
-        }  
+        } 
+#endif        
        default:
         break;
     }

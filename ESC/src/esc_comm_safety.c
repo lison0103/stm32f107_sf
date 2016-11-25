@@ -15,8 +15,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define CAN_COMM_HAND_TIME      8000u
-#define SMVT_TIMEOUT            70u
-#define SMCT_TIME               70u
+#define SMVT_TIMEOUT            80u
+#define SMCT_TIME               80u
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -24,9 +24,12 @@
 /* Private functions ---------------------------------------------------------*/
 #ifdef GEC_SF_MASTER
 static void Safety_ReceiveA_Diagnostic( DBL2Esc *SFData );
+#else
+static void Safety_Comm_Data_Init(DBL2Esc *SFData, u8 connection, u8 boardtype, u8 SEQN);
+static void Safety_Receive_Diagnostic_Validate( DBL2Esc *SFData, u8 DBL2ReceiveData[] );
 #endif
 
-u8 g_u8DBL2Respone = 0u;
+static u8 g_u8DBL2Respone = 0u;
 
 
 /*******************************************************************************
@@ -36,7 +39,11 @@ u8 g_u8DBL2Respone = 0u;
 * Output         : None
 * Return         : None 
 *******************************************************************************/
+#ifdef GEC_SF_MASTER
 void Safety_Comm_Data_Init(DBL2Esc *SFData, u8 connection, u8 boardtype, u8 SEQN)
+#else
+static void Safety_Comm_Data_Init(DBL2Esc *SFData, u8 connection, u8 boardtype, u8 SEQN)
+#endif
 {	
     u8 i;
     
@@ -82,7 +89,7 @@ void Safety_Request_Data(void)
     
     
     /* SMCT cycle send data */
-    if( (stat_u16TimerSMCT == 0u) && (!(EN_ERROR7 & 0x40u)) )
+    if( (stat_u16TimerSMCT == 0u) && (!(EN_ERROR48 & 0x02u)) )
     {
         stat_u16TimerSMVT = 0u;
         stat_u16TimerSMCT++;
@@ -140,7 +147,8 @@ void Safety_Request_Data(void)
             {
                 if( ( stat_u16TimerSMVT * SYSTEMTICK ) > SMVT_TIMEOUT )
                 {
-                    EN_ERROR7 |= 0x40u;
+                    /* Communication error diag DBL2 F377 */
+                    EN_ERROR48 |= 0x02u;
                 }
             }
         }
@@ -159,7 +167,8 @@ void Safety_Request_Data(void)
             {
                 if( ( stat_u16TimerSMVT * SYSTEMTICK ) > SMVT_TIMEOUT )
                 {
-                    EN_ERROR7 |= 0x40u;
+                    /* Communication error diag DBL2 F377 */
+                    EN_ERROR48 |= 0x02u;
                 }
             }
         }
@@ -178,7 +187,8 @@ void Safety_Request_Data(void)
             {
                 if( ( stat_u16TimerSMVT * SYSTEMTICK ) > SMVT_TIMEOUT )
                 {
-                    EN_ERROR7 |= 0x40u;
+                    /* Communication error diag DBL2 F377 */
+                    EN_ERROR48 |= 0x02u;
                 }
             }
         }
@@ -197,7 +207,8 @@ void Safety_Request_Data(void)
             {
                 if( ( stat_u16TimerSMVT * SYSTEMTICK ) > SMVT_TIMEOUT )
                 {
-                    EN_ERROR7 |= 0x40u;
+                    /* Communication error diag DBL2 F377 */
+                    EN_ERROR48 |= 0x02u;
                 }
             }
         }
@@ -210,7 +221,8 @@ void Safety_Request_Data(void)
         if(( stat_u16TimerCommWait * SYSTEMTICK ) > CAN_COMM_HAND_TIME )
         {
             /*  can communication handshake timeout when power on */ 
-            EN_ERROR7 |= 0x40u;
+            /* Communication error diag DBL2 F377 */
+            EN_ERROR48 |= 0x02u;
         } 
     }
 }
@@ -252,7 +264,11 @@ static void Safety_ReceiveA_Diagnostic( DBL2Esc *SFData )
 * Output         : None
 * Return         : None 
 *******************************************************************************/
+#ifdef GEC_SF_MASTER
 void Safety_Receive_Diagnostic_Validate( DBL2Esc *SFData, u8 DBL2ReceiveData[] )
+#else
+static void Safety_Receive_Diagnostic_Validate( DBL2Esc *SFData, u8 DBL2ReceiveData[] )
+#endif
 {
     u8 i;
     u8 u8_ValidateError = 0u;

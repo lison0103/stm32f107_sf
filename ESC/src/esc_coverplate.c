@@ -87,7 +87,6 @@ void Floorplate_Open(void)
   {}
   
   /* 
-  
   * OPEN/ CLOSE check 
   *
   *
@@ -106,13 +105,13 @@ void Floorplate_Open(void)
     }  
   } 
   
-  if(CMD_FLAG3 & 0x10u)  /* Inspection running */
+  if( ISP_NORMAL_INPUT )  /* (CMD_FLAG3 & 0x10u) Inspection running */
   {
     /* No plate opened */
     
     if((cp_open_counter[0]>200u) || (cp_open_counter[1]>200u))
     {
-       EN_ERROR30 &= ~0x10u; 
+       EN_ERROR30 &= ~0x10u;  
     }  
     else if((cp_close_counter[0]>200u) && (cp_close_counter[1]>200u))
     {
@@ -123,7 +122,7 @@ void Floorplate_Open(void)
     
     EN_ERROR30 &= ~0x0cu;  
   }  
-  else /* Normal running */
+  else  /* Normal running */
   {
     if(cp_close_counter[0]>200u)  /* Upper plate sensor no fault */
     {
@@ -132,7 +131,7 @@ void Floorplate_Open(void)
     else if(cp_open_counter[0]>200u) /* Upper plate sensor fault */
     {
        EN_ERROR30 |= 0x04u;
-    }  
+    }        
     else
     {}
       

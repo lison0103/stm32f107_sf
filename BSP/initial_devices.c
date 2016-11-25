@@ -17,6 +17,8 @@
 #include "config_test.h"
 #include "esc_parameter_process.h"
 #include "esc_safety_check.h"
+#include "bsp_input.h"
+#include "crc16.h"
 #ifdef GEC_SF_S_NEW
 #include "usb_virtual_com_port.h"
 #endif
@@ -29,14 +31,11 @@
 /* Private functions ---------------------------------------------------------*/
 static void PVD_Configuration(void);
 static void SysTickTimerInit(void);
+static void Data_init(void);
+static void Check_IO_Input(void);
 #ifdef GEC_SF_MASTER
 static void ExtCommDeviceInit(void);
-#endif
-static void Data_init(void);
-
-#ifdef GEC_SF_MASTER
 static void DataIntegrityInFRAMCheck(void);
-
 #endif
 
 
@@ -139,6 +138,9 @@ void Initial_Device(void)
         
         /* safety output disable */
         SafetyOutputDisable();
+        
+        /* check IO input befor enter main */
+        Check_IO_Input();
         
         
 #if SELF_TEST
@@ -388,15 +390,27 @@ static void PVD_Configuration(void)
 * Return         : None
 *******************************************************************************/
 static void Data_init(void)
+{        
+    memset(&EscRtData, 0, ESC_RT_DATA_LEN); 
+    memset(&OmcEscRtData, 0, ESC_RT_DATA_LEN); 
+}
+
+/*******************************************************************************
+* Function Name  : Check_IO_Input
+* Description    :        
+* Input          : None                
+* Output         : None
+* Return         : None
+*******************************************************************************/
+static void Check_IO_Input(void)
 {
-    int i;
+    u8 i;
     
-    for( i = 0; i < 200; i++ )
+    for( i = 0u; i < 5u; i++ )
     {
-        ParameterData[i] = 0u;
-    }  
-    
- 
+        Get_GpioInput(&EscRtData.SafetyInputData[0]);
+        delay_ms(5u);
+    }    
 }
 
 /******************************  END OF FILE  *********************************/

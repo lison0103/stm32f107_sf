@@ -20,7 +20,7 @@
 #define ESC_ERROR_ADR 0u
 #define ESC_ERROR_NUM 80u
 #define ESC_PARA_ADR 200u
-#define ESC_PARA_NUM 200u
+#define ESC_PARA_NUM (ESC_SF_PARAMETER_DATA_LEN + 4u)
 #define ESC_BACKUP_ADR 1024u
 
 /* Exported functions ------------------------------------------------------- */

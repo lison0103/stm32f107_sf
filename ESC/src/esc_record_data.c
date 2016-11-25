@@ -3,6 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
+* Last modify date   : 11/22/2016
 * Description        : This file contains esc record and store data.
 *                      
 *******************************************************************************/
@@ -37,10 +38,11 @@ u8 g_u8FaultCodeStore = 0u;
 *******************************************************************************/
 u8 Check_Error_Present_Memory(void)
 {
-    u8 readbuffer[100];
+    u8 readbuffer[ESC_ERROR_NUM];
     u8 result = 0u;
     u8 i;
     u16 temp;
+    u8 state = 0u;
     
     result = fram_data_read(ESC_ERROR_ADR, ESC_ERROR_NUM, readbuffer);
     if( !result )
@@ -60,6 +62,10 @@ u8 Check_Error_Present_Memory(void)
             for( i = 0u; i < 64u; i++ )
             {
                 EscRtData.ErrorBuff[i] = readbuffer[i + 12u];
+                if( EscRtData.ErrorBuff[i] )
+                {
+                    result = 1u;
+                }
             }     
         }
     }
@@ -69,7 +75,16 @@ u8 Check_Error_Present_Memory(void)
         EN_ERROR11 |= 0x01u;
     }
     
-    return ESC_READY_STATE;
+    if(( EscRtData.ErrorCode[0] ) || ( result ))
+    {
+        state = ESC_FAULT_STATE;
+    }
+    else
+    {
+        state = ESC_READY_STATE;
+    }
+    
+    return state;
 }
 
 /*******************************************************************************
@@ -83,7 +98,7 @@ void StoreFaultInMemory(void)
 {
     static u16 stat_u16TimerStoreFault = 0u;
     u8 u8DataStore = 0u;
-    u8 buffer[100];
+    u8 buffer[ESC_ERROR_NUM];
     u8 i;
 
     if( g_u8FaultCodeStore == 1u )
@@ -108,7 +123,7 @@ void StoreFaultInMemory(void)
     if( u8DataStore == 1u )
     {
         /* first, clear buffer */
-        for( i = 0u; i < 100u; i++ )
+        for( i = 0u; i < ESC_ERROR_NUM; i++ )
         {
             buffer[i] = 0u;
         }
@@ -189,15 +204,14 @@ u8 fram_data_read(u16 Adr, u16 len, u8 ReadData[])
     {
         if(!eeprom_read(Adr, len, Fram_Data))
         {
-            if(!MB_CRC16(Fram_Data, len))
+            if(!MB_CRC32(Fram_Data, len, PARAMETER_POLYNOMIALS))
             {
                 delay_ms(10u);
                 
                 if(!eeprom_read(ESC_BACKUP_ADR + Adr, len, Fram_Data_Backup))
                 {
-                    if(!MB_CRC16(Fram_Data_Backup, len))
-                    {
-                        
+                    if(!MB_CRC32(Fram_Data_Backup, len, PARAMETER_POLYNOMIALS))
+                    {                       
                         for( i = 0u; i < len; i++ )
                         {
                             result = Fram_Data[i]^Fram_Data_Backup[i];
@@ -283,7 +297,8 @@ void fram_data_write(u16 Adr, u16 len, u8 WriteData[])
 *******************************************************************************/
 void esc_data_check(void)
 {
-    u16 i,j = 0u;
+    u32 i;
+    u16 j = 0u;
     u8 result = 0u;
     u8 errorflag = 0u;
     u8 Fram_Data[ESC_RECORD_NUM] = {0};
@@ -294,13 +309,13 @@ void esc_data_check(void)
         j = (u16)Fram_Data[1] << 8;
         j |= (u16)Fram_Data[0];
         
-        if(!MB_CRC16(Fram_Data, ESC_PARA_NUM))
+        if(!MB_CRC32(Fram_Data, ESC_PARA_NUM, PARAMETER_POLYNOMIALS))
         {
             delay_ms(10u);
             
             if(!eeprom_read(ESC_BACKUP_ADR, ESC_PARA_NUM, Fram_Data_Backup))
             {
-                if(!MB_CRC16(Fram_Data_Backup, ESC_PARA_NUM))
+                if(!MB_CRC32(Fram_Data_Backup, ESC_PARA_NUM, PARAMETER_POLYNOMIALS))
                 {
                     
                     for(i = 0u; i < ESC_PARA_NUM; i++)
@@ -345,9 +360,11 @@ void esc_data_check(void)
             Fram_Data[i] = 0u;
         }  
 
-        i = MB_CRC16( Fram_Data, ESC_PARA_NUM - 2u );
-        Fram_Data[ESC_PARA_NUM - 2u] = (u8)i;
-        Fram_Data[ESC_PARA_NUM - 1u] = (u8)(i >> 8u);
+        i = MB_CRC32( Fram_Data, (ESC_PARA_NUM - 4u) , PARAMETER_POLYNOMIALS);
+        Fram_Data[ESC_PARA_NUM - 4u] = (u8)(i >> 24u);
+        Fram_Data[ESC_PARA_NUM - 3u] = (u8)(i >> 16u);     
+        Fram_Data[ESC_PARA_NUM - 2u] = (u8)(i >> 8u);
+        Fram_Data[ESC_PARA_NUM - 1u] = (u8)i;        
         
         eeprom_write(ESC_PARA_ADR, ESC_PARA_NUM, Fram_Data);
         

@@ -26,80 +26,163 @@ static void MainShaftBrakePawlSupervision(void);
 
 #define AUX_BRAKE_FEEDBACK_INPUT   (EscRtData. Cfg_Input_Level[0] &(0x01u))
 
+static void AuxBrakeSupervision(void);
+static void AuxBrakeLock(void);
+static void AuxBrakeUnlock(void);
+ 
 /*******************************************************************************
-* Function Name  : MainShaftBrakePawlSupervision
-* Description    : Check main shaft feedbcak,comparing main shaft driver             
+* Function Name  : AuxBrakeSupervision
+* Description    : Check Aux output,comparing with aux brake/relay feedback         
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-static void MainShaftBrakePawlSupervision(void)
+static void AuxBrakeSupervision(void)
 {
   static u16 PawlSupervsionTime=0u,RunStatePawlTime=0u;
-
-  if(SfBase_EscState == ESC_RUN_STATE) 
+  
+  /*check  AUX feedback in run state*/  
+#if 0  
+  if((SfBase_EscState == ESC_RUN_STATE))  
+#else    
+  if((SfBase_EscState == ESC_RUN_STATE) && (!(CMD_FLAG3 & 0x20u)))  /* not in inspection mode */
+#endif  
+  {
+    if( AUX_BRAKE_FEEDBACK_INPUT ) 
+    {
+      RunStatePawlTime = 0u;        
+    }                           
+    else                                /* Aux Brake Sensor signal == False */
+    {
+      if(RunStatePawlTime > 20u)        /* SYSTEMTICK=5, 5*20=100ms */
+      {
+        EN_ERROR38 |= 0x10u;            /* F300                     */       
+      }
+      else
+      {  
+        RunStatePawlTime++;             
+      }  
+    }    
+  } 
+  else
+  {
+    RunStatePawlTime = 0u;      
+  }
+  
+  if((SfBase_EscState!=ESC_RUN_STATE) && (!(CMD_FLAG3 & 0x20u)))  /* not run state, not Inspection mode */ 
+  {
+    /* K4.0 & K 4.3 closed, but not AUX feedback */
+    if((CMD_FLAG7&0X01u) && (CMD_OMC_FLAG7&0X01u) && (!(AUX_BRAKE_FEEDBACK_INPUT)))         
+    {
+      if(PawlSupervsionTime<10000u) 
+      {
+        PawlSupervsionTime++;      
+      }  
+    } 
+    else if( ((!(CMD_FLAG7&0X01u)) || (!(CMD_OMC_FLAG7&0X01u))) && (AUX_BRAKE_FEEDBACK_INPUT) ) 
+    {
+      if(PawlSupervsionTime<10000u) 
+      {
+        PawlSupervsionTime++;         
+      }  
+    } 
+    else
+    {
+      PawlSupervsionTime = 0u; 
+    }  
+  }
+  else
   {
     PawlSupervsionTime = 0u;
-    
-    if( AUX_BRAKE_FEEDBACK_INPUT ) /* Aux brake feedback actived */
-    {
-      RunStatePawlTime  = 0u;
-    }    
-    else 
-    {  
-      /* No feedback, Fault counter increased by one, 5ms */
-      RunStatePawlTime ++;
-      
-      /*if fault time > 100ms, go fault*/
-      if(RunStatePawlTime >20u) /* fault time: 100ms */
-      {
-        EN_ERROR28 |= 0x01u;       
-      }  
-    }  
-  }  
-  else 
-  {
-    RunStatePawlTime  = 0u;
+  }   
+}
 
-    if( ( CMD_FLAG5 & 0x04u ) )   /* Aux relay unlock flag   */
+/*******************************************************************************
+* Function Name  : AuxBrakeUnlock
+* Description    :        
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+static void AuxBrakeUnlock(void)
+{
+  CMD_FLAG7 &= ~0x0Cu;   
+  
+  if( (SfBase_EscState == ESC_READY_STATE) )
+  {
+    if((CMD_FLAG3 & 0x20u) || (!(AUX_BRAKE_FEEDBACK_INPUT))) /* Inspection mode or AUX brake locked  */ 
     {
-      if( AUX_BRAKE_FEEDBACK_INPUT ) /* Aux feedback active */
-      {
-        PawlSupervsionTime = 0u;
-      }  
-      else
-      {
-        if(PawlSupervsionTime>1000u) /* Fault time > 5s*/
-        {
-          EN_ERROR28 |= 0x01u; 
-        }
-        else
-        {
-          PawlSupervsionTime++;
-        }  
-      }  
+      CMD_FLAG7 |= 0x04u;  /* Straing process Enable */  
     }  
-    else   /* Aux relay lock flag */
-    {
-      if( AUX_BRAKE_FEEDBACK_INPUT ) /* Aux feedback active */
-      {
-        if(PawlSupervsionTime>1000u) /* Fault time > 5s*/
-        {
-          EN_ERROR28 |= 0x02u; 
-        }
-        else 
-        { 
-          PawlSupervsionTime++; 
-        }  
-      }  
-      else
-      { 
-        PawlSupervsionTime = 0u; 
-      }   
-    }   
   }  
-}  
- 
+  else if( (SfBase_EscState == ESC_STARTING_PROCESS_STATE) )
+  {
+    AUX_RELAY_ON();   	
+    CMD_FLAG7 |= 0x10u;  /* K4.2 = ture */    
+    
+    if( (CMD_FLAG3 & 0x20u) && (CMD_FLAG6 & 0x01u) ) /* Inspection mode and upwards */ 
+    {  
+       CMD_FLAG7 |= 0x08u;  /* Aux RUN Enable */                                 
+    } 
+    else if( (AUX_BRAKE_FEEDBACK_INPUT) )
+    {
+       CMD_FLAG7 |= 0x08u;  /* Aux RUN Enable */         
+    }  
+    else
+    {
+    }  
+  }
+  else
+  {  
+  }      
+}
+
+/*******************************************************************************
+* Function Name  : AuxBrakeLock
+* Description    :        
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+static void AuxBrakeLock(void)
+{
+  static u16 TimeLockDelay=0u, CapacitatorDurationTimer=0u;
+  
+  if( (EN_ERROR33 & 0x63u) )    /* any other condiction ? */
+  {
+    AUX_RELAY_OFF();   	
+    CMD_FLAG7 |= 0x10u;         /* K4.2 = ture */  
+  }  
+  else if((SfBase_EscState == ESC_INIT_STATE) || (SfBase_EscState == ESC_READY_STATE) || (SfBase_EscState == ESC_INTERM_STATE) || (SfBase_EscState == ESC_FAULT_STATE) || (SfBase_EscState == ESC_STOPPING_PROCESS_STATE))
+  {  
+    if( TimeLockDelay++ > 2000u ) /* 2000*5= 10s */
+    {  
+      AUX_RELAY_OFF();                        
+      if( CAPACITOR_TIME_MEASUREMENT ) /* capacitator supervise enable */
+      {
+        CMD_FLAG7 &= ~0x10u;      /* K4.2 = false */
+        
+        if( AUX_BRAKE_FEEDBACK_INPUT )   
+        {
+          if(CapacitatorDurationTimer++>300u)   /* 300*5= 1.5s */
+          {
+            EN_ERROR3 |= 0x04u;                           
+          }  
+        }  
+      } 
+      else    
+      {
+        CMD_FLAG7 |= 0x10u;      /* K4.2 = ture */   
+      }  
+    }           
+  } 
+  else
+  {
+    TimeLockDelay = 0u; 
+    CapacitatorDurationTimer = 0u;
+  }  
+}
+
 /*******************************************************************************
 * Function Name  : Aux_Brake_CS
 * Description    :              
@@ -109,37 +192,17 @@ static void MainShaftBrakePawlSupervision(void)
 *******************************************************************************/
 void Aux_Brake_CS(void)
 {
-  static u16 AR_on_counter=0u,AR_stop_counter=0u;
- 
-  CMD_FLAG5 |= 0x10u;
   
-  if( (SfBase_EscState == ESC_RUN_STATE) || (SfBase_EscState == ESC_STARTING_PROCESS_STATE) ) 
+  if( (AUX_BRAKE_ENABLE) ) 
   {
-    AR_stop_counter = 0u;
-    AUX_RELAY_ON();   	
-    
-    CMD_FLAG5 |= 0x04u;
-  } 
-  else
-  {
-    if(AR_stop_counter++>1000u)
-    {  
-       AUX_RELAY_OFF();
-       
-       CMD_FLAG5 &= ~0x04u;
-    }
-  }   
+   
+    AuxBrakeLock();
   
-  if( AUX_BRAKE_FEEDBACK_INPUT )
-  {  
-    CMD_FLAG5 |= 0x20u;  
+    AuxBrakeUnlock();
+  
+    AuxBrakeSupervision();
   }
-  else
-  {
-    CMD_FLAG5 &= ~0x20u;  
-  } 
   
-  MainShaftBrakePawlSupervision();
 }
 
 /******************************  END OF FILE  *********************************/

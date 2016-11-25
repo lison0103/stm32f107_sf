@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
-* Last modify date   : 11/15/2016
+* Last modify date   : 11/22/2016
 * Description        : This file contains esc motor speed and brake distance.
 *                      
 *******************************************************************************/
@@ -26,9 +26,8 @@ static u8 g_u8FirstMotorSpeedSensorCheck = 0u;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 static u16 Measure_motor_speed(MotorSpeedItem* ptMTR);
-static void Motor_Speed_Ready(MotorSpeedItem* ptMTR);
 static void Motor_Speed_Run_EN115(MotorSpeedItem* ptMTR);
-static void Check_Stopping_Distance(MotorSpeedItem* ptMTR);
+static void Check_Stopping_Distance(MotorSpeedItem* ptMTR, u16 EscStateOld);
 static void Motor_Speed_Senor_Check(void);
 static void Motor_Speed_Direction_Check(void);
 
@@ -40,6 +39,7 @@ MotorSpeedItem MTRITEM[2]=
 {
     {
         /* motor speed 1 */
+        1u,
         0u,
         0u,
         0u,    
@@ -61,6 +61,7 @@ MotorSpeedItem MTRITEM[2]=
     },
     {
         /* motor speed 2 */
+        2u,
         0u,
         0u,
         0u,    
@@ -83,24 +84,6 @@ MotorSpeedItem MTRITEM[2]=
 };
 
 
-
-/*******************************************************************************
-* Function Name  : Motor_Speed_Ready
-* Description    : Pulse detection when escalator is stopped.
-* Input          : ptMTR: motor speed sensor id          
-* Output         : None
-* Return         : None
-*******************************************************************************/
-static void Motor_Speed_Ready(MotorSpeedItem* ptMTR)
-{
-    *ptMTR->ptFreqBuff = Measure_motor_speed(ptMTR);
-    
-    if( *ptMTR->ptFreqBuff > 1u )
-    {
-        /* fault */
-        EN_ERROR1 |= 0x01u;
-    }             
-}
 
 
 /*******************************************************************************
@@ -129,7 +112,7 @@ static void Motor_Speed_Run_EN115(MotorSpeedItem* ptMTR)
             if( *ptMTR->ptFreqBuff > 1u )
             {
                 /* Fault: SPEED SENSOR TIMEOUT STOPPING PROCESS (F340) */
-                EN_ERROR43 |= 0x08u;
+                EN_ERROR43 |= 0x10u;
             }         
         } 
     }
@@ -155,8 +138,8 @@ static void Motor_Speed_Run_EN115(MotorSpeedItem* ptMTR)
                     ptMTR->OkCounter = 0u;
                     if( ptMTR->NotOkCounter >= 5u )
                     {
-                        /* Fault: OVERSPEED (F241) */
-                        EN_ERROR1 |= 0x01u;
+                        /* Fault: OVERSPEED (F264) */
+                        EN_ERROR34 |= 0x01u;
                         /* reset timer */
                         ptMTR->TimerRuningTms = 0u;
                     }
@@ -183,8 +166,8 @@ static void Motor_Speed_Run_EN115(MotorSpeedItem* ptMTR)
                             
                             if( ptMTR->TimerMotorSpeedBetweenPulse[i] > ( 100000u / MIN_SPEED ))
                             {
-                                /* Fault: LOW SPEED (F242) */
-                                EN_ERROR1 |= 0x02u;
+                                /* Fault: LOW SPEED (F265) */
+                                EN_ERROR34 |= 0x02u;
                                 /* reset timer */
                                 ptMTR->TimerRuningTms = 0u;
                             }
@@ -211,8 +194,8 @@ static void Motor_Speed_Run_EN115(MotorSpeedItem* ptMTR)
                     if(( TIM_GetCounter(ptMTR->TimerNum) > ( 100000u / MIN_SPEED ))  /* 10us */
                        || (( ptMTR->TimerNoPulse * SYSTEMTICK ) > ( 1000u / MIN_SPEED ))) /* ms */ 
                     {
-                        /* Fault: LOW SPEED (F242) */
-                        EN_ERROR1 |= 0x02u;
+                        /* Fault: LOW SPEED (F265) */
+                        EN_ERROR34 |= 0x02u;
                         /* reset timer */
                         ptMTR->TimerRuningTms = 0u;
                     }
@@ -330,8 +313,8 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
                 /* 100 consecutive pulses with less than SSM_SHORTCIRCUIT_TIME, go to fault */
                 if( stat_u32MotorSpeedShortCircuitNotOkCounter >= 100u )
                 {
-                    /* Fault ¨C Motorspeed Sensor shortcircuited */
-                    EN_ERROR4 |= 0x01u;
+                    /* Fault ¨C Motorspeed Sensor shortcircuited (F267) */
+                    EN_ERROR34 |= 0x08u;
                 }
             }
             else
@@ -396,7 +379,8 @@ static void Motor_Speed_Senor_Check(void)
             if(( stat_u16TimerMotorSpeedSensor * SYSTEMTICK ) > 1000u )
             {
                 /* Fault: DISCRESPANCE_SPEED_SENSOR */
-                EN_ERROR1 |= 0x10u;
+                /* Discrepance motor speed sensor F407 */
+                EN_ERROR51 |= 0x80u;
             }
         }
         
@@ -427,7 +411,8 @@ static void Motor_Speed_Senor_Check(void)
                 if(( stat_u16Timer1Cpu2MotorSpeedSensor * SYSTEMTICK ) > 1000u )
                 {
                     /* Fault: DISCREPANCE_SPEED_CPU */
-                    EN_ERROR1 |= 0x20u;
+                    /* Discrepance motor speed CPU F408 */
+                    EN_ERROR52 |= 0x01u;
                 }
             }            
             
@@ -451,7 +436,8 @@ static void Motor_Speed_Senor_Check(void)
                 if(( stat_u16Timer2Cpu2MotorSpeedSensor * SYSTEMTICK ) > 1000u )
                 {
                     /* Fault: DISCREPANCE_SPEED_CPU */
-                    EN_ERROR1 |= 0x40u;
+                    /* Discrepance motor speed CPU F408 */
+                    EN_ERROR51 |= 0x80u;
                 }
             }
         }       
@@ -479,31 +465,39 @@ static void Motor_Speed_Direction_Check(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-static void Check_Stopping_Distance(MotorSpeedItem* ptMTR)
+static void Check_Stopping_Distance(MotorSpeedItem* ptMTR, u16 EscStateOld)
 {       
-    static u16 stat_u16EscStateOld = 0u; 
     
     if( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ) 
-    {
-        /* Stopping_distance = Motor_speed_counter * CONVERSION */
-        stat_u16ShoppingDistance = (ptMTR->rt_brake_pulse) * CONVERSION;
-
+    {        
+        if(( SPEED_SENSOR_INSTALLATION == 0u ) || ( SPEED_SENSOR_INSTALLATION == 3u ))
+        {
+            /* Stopping_distance = Motor_speed_counter * CONVERSION_MOTORSPEED */
+            stat_u16ShoppingDistance = (ptMTR->rt_brake_pulse) * CONVERSION_MOTORSPEED;
+        }
+        else
+        {
+            /* Stopping_distance = Mainshaft_speed_counter * CONVERSION_MAINSHAFTSPEED */
+            /*stat_u16ShoppingDistance = Mainshaft_speed_counter * CONVERSION_MAINSHAFTSPEED; */           
+        }
+        
         if( stat_u16ShoppingDistance > stat_u16MaxDistace )
         {
             /* if no Fault: OVERSPEED  or Fault: LOW SPEED, Excessive distance FAULT */
-            if( !( EN_ERROR1 & 0x03u ) )
+            if( (!( EN_ERROR34 & 0x01u )) && (!( EN_ERROR34 & 0x02u )))
             {
                 /* Excessive distance FAULT (F275) */  
-                EN_ERROR35 |= 0x04u;
+                EN_ERROR35 |= 0x08u;
             }
         } 
     } 
     else
     {
         ptMTR->rt_brake_pulse = 0u;
+        /* Mainshaft_speed_counter =0; */
     }        
     
-    if(( stat_u16EscStateOld == ESC_STOPPING_PROCESS_STATE ) && ( !(SfBase_EscState == ESC_STOPPING_PROCESS_STATE))) 
+    if(( EscStateOld == ESC_STOPPING_PROCESS_STATE ) && ( !(SfBase_EscState == ESC_STOPPING_PROCESS_STATE))) 
     {
         /* Stopping process finished */
         if( ptMTR->rt_brake_stop == 1u )  
@@ -512,8 +506,6 @@ static void Check_Stopping_Distance(MotorSpeedItem* ptMTR)
             *(ptMTR->ptBrakeDistanceBuff) = stat_u16ShoppingDistance;
         } 
     }
-    
-    stat_u16EscStateOld = SfBase_EscState; 
 }
 
 
@@ -585,8 +577,8 @@ void ESC_Motor_Check(void)
     
     Motor_Speed_Senor_Check();          
     
-    Check_Stopping_Distance(&MTRITEM[0]);
-    Check_Stopping_Distance(&MTRITEM[1]);
+    Check_Stopping_Distance(&MTRITEM[0],stat_u16EscStateOld);
+    Check_Stopping_Distance(&MTRITEM[1],stat_u16EscStateOld);
     
     
     stat_u16EscStateOld = SfBase_EscState; 

@@ -27,7 +27,7 @@ static void Esc_Control_Starting_Prpcess(void);
 static void Esc_Control_Run(void);
 static void Esc_Control_Stop(void);
 
-u8 Start_Process_State=0u;
+static u8 Start_Process_State=0u;
 
 /*******************************************************************************
 * Function Name  : En_Check

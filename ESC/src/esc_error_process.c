@@ -3,6 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 03/22/2016
+* Last modify date   : 11/22/2016
 * Description        : This file contains esc error process functions.
 *                      
 *******************************************************************************/
@@ -17,11 +18,59 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/* failure lock */
+#define EF       2u
+/* standard fault */
+#define ES       1u
+/* recovery fault */
+#define ER       3u
+/* Undefined */
+#define EU       0x0u
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
+
+/* fault type: Failure lock / standard fault / recovery fault */
+static u8 EscFaultType[512] = 
+{
+    /* 1~30,F00~F29 */                      
+    EF,EU,EU,EU,EU,EU,EU,EF,EF,ES,  EU,EF,EF,ES,ES,ES,EU,EU,ES,EU,  EU,ES,ES,ES,ES,EU,ER,ER,ER,ER,
+    /* 31~60,F30~F59 */                      
+    EU,EU,ES,ES,EU,ES,ES,EU,ES,ES,  ES,ES,ER,ER,EF,EF,EF,EF,ES,EU,  EF,EF,EU,EU,EU,EU,EU,EU,ES,EU,  
+    /* 61~90 */                      
+    EU,EU,ES,EU,EU,EU,EU,ES,EU,EU,  EU,EU,EU,ES,ES,EU,EU,EU,ES,EU,  EU,EU,EU,EU,EU,ES,EU,EU,ES,EU, 
+    /* 91~120 */                      
+    EU,EU,ES,EU,EU,ES,ES,ES,ES,EU,  EU,EU,EU,EU,EU,EU,EU,EU,ES,EU,  EU,EU,EU,EU,EU,EU,EU,EU,ES,ES, 
+    /* 121~150 */                      
+    ES,ES,ES,ES,EF,ES,ES,ES,ES,EF,  EF,ES,ES,ES,ES,EU,EU,ES,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, 
+    /* 151~180 */                      
+    EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EF, 
+    /* 181~210 */                      
+    EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,ES,  ES,ES,ES,EU,EU,EU,EU,EU,ES,ES, 
+    /* 211~240 */                      
+    EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, 
+    /* 241~270 */                      
+    EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EF,EF,EF,EF,EF,EF,ES,EF,EF,ES, 
+    /* 271~300 */                      
+    ES,ES,ES,ES,ES,EF,ES,ES,ES,ES,  ES,ES,EF,EF,ES,ES,ES,ES,ES,ES,  ES,ES,EU,EU,EU,EU,EU,ES,ES,EU,  
+    /* 301~330 */                      
+    ES,ES,ES,EF,EF,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,EU, 
+    /* 331~360 */                      
+    EU,ES,ES,ES,ES,ES,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EF,ES,EU,EU,EU,EU,EU,EU, 
+    /* 361~390 */                      
+    EU,EU,EU,EU,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES, 
+    /* 391~420 */                      
+    ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,EF,EF,EF, 
+    /* 421~450 */                      
+    ES,ES,ES,ES,ES,ES,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, 
+    /* 451~480 */                      
+    EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, 
+    /* 481~512 */                      
+    EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, EU,EU   
+};
 
 
 /*******************************************************************************
@@ -45,20 +94,24 @@ void fault_code_auto_reset(void)
         
         if( EscErrorCodeBuff[k] )
         {
-            i = (EscErrorCodeBuff[k]-1u)/8u;
-            j = (EscErrorCodeBuff[k]-1u)%8u;
+            /* recovery fault type */
+            /*if( EscFaultType[EscErrorCodeBuff[k]] == ER )*/
             
-            if(!(EscRtData.ErrorBuff[i] & ( 1u << j )))
-            {
-                EscErrorCodeBuff[k] = 0u;
-                EscRtData.ErrorCode[k] = 0u;
-                for( i = 0u; i < 5u; i++ )
+                i = (EscErrorCodeBuff[k]-1u)/8u;
+                j = (EscErrorCodeBuff[k]-1u)%8u;
+                
+                if(!(EscRtData.ErrorBuff[i] & ( 1u << j )))
                 {
-                    EscErrorCodeBuff[i] = EscErrorCodeBuff[i + 1u];
-                    EscRtData.ErrorCode[i] = EscErrorCodeBuff[i + 1u];
-                } 
-                resetflag = 1u;
-            }
+                    EscErrorCodeBuff[k] = 0u;
+                    EscRtData.ErrorCode[k] = 0u;
+                    for( i = 0u; i < 5u; i++ )
+                    {
+                        EscErrorCodeBuff[i] = EscErrorCodeBuff[i + 1u];
+                        EscRtData.ErrorCode[i] = EscErrorCodeBuff[i + 1u];
+                    } 
+                    resetflag = 1u;
+                }
+            
         }
         else
         {
@@ -70,15 +123,15 @@ void fault_code_auto_reset(void)
 /*******************************************************************************
 * Function Name  : fault_code_manual_reset
 * Description    : 
-* Input          : None            
+* Input          : ResetType: 1: statand fault reset, 2: failure lock reset            
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void fault_code_manual_reset(void)
+void fault_code_manual_reset(u8 ResetType)
 {  
     u16 i,j;
     
-    if( EscErrorCodeBuff[0] ) 
+    if(( EscErrorCodeBuff[0] ) && ( EscFaultType[EscErrorCodeBuff[0]] <= ResetType ))
     {
         i = (EscErrorCodeBuff[0]-1u)/8u;
         j = (EscErrorCodeBuff[0]-1u)%8u;

@@ -15,7 +15,7 @@
 #include "esc_error_process.h"
 #include "bsp_iocfg.h"
 #include "initial_devices.h"
-#include "esc_comm_safety.h"
+#include "esc_comm_diagnostic2.h"
 #include "exti.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,6 +31,8 @@ static void CPU_Comm(void);
 static void Send_state_to_CPU(void);
 static void Receive_state_from_CPU(void);
 static void Receive_IO_status_from_CPU(void);
+
+
 
 static u16 comm_num = 0u;
 
@@ -122,7 +124,8 @@ static void Receive_IO_status_from_CPU(void)
       
       if( receive_io_error > 5u )
       {
-          EN_ERROR9 |= 0x02u;
+          /* Crosscomp. CPU-CPU-input discrep. F375 */
+          EN_ERROR47 |= 0x80u;
       }
       else
       {
@@ -161,7 +164,8 @@ static void CPU_Comm(void)
         
         Receive_state_from_CPU();
         CPU_Data_Check(cpu_recvdata_buffer, &recvlen, 500u );    
-        
+
+#ifdef DIAGNOSTIC_LEVEL2        
         /* clear receive data */
         for( i = 0u; i < 12u; i++ )
         {
@@ -170,6 +174,7 @@ static void CPU_Comm(void)
             EscRtData.DBL2Interm1.ReceiveDataB[i] = 0u;
             EscRtData.DBL2Interm2.ReceiveDataB[i] = 0u;
         }    
+#endif        
     }
 #else  
 
@@ -178,7 +183,8 @@ static void CPU_Comm(void)
         if( --comm_timeout == 0u )
         {
             /* CPU_Comm---comm_timeout */
-            EN_ERROR7 |= 0x01u;
+            /* Timeout CPU1 F371 */
+            EN_ERROR47 |= 0x08u;
             ESC_SPI_Error_Process();
             comm_timeout = CPU_COMM_TIMEOUT;
             
@@ -190,7 +196,8 @@ static void CPU_Comm(void)
         if( ( stat_u16TimerCommWait * SYSTEMTICK ) > CAN_COMM_HAND_TIME )
         {
             /*  can communication handshake timeout when power on */ 
-            EN_ERROR7 |= 0x01u;
+            /* Timeout CPU1 F371 */
+            EN_ERROR47 |= 0x08u;
         }         
     }
     
@@ -213,14 +220,13 @@ static void CPU_Comm(void)
         Send_state_to_CPU();
         CPU_Exchange_Data(cpu_senddata_buffer, ESC_RT_DATA_LEN);
         
-        /*EN_ERROR7 &= ~0x01u;*/
-        
+#ifdef DIAGNOSTIC_LEVEL2        
         /* clear send data */
         Safety_Send_Data_Process(&EscRtData.DBL2Upper, 0u);
         Safety_Send_Data_Process(&EscRtData.DBL2Lower, 0u);
         Safety_Send_Data_Process(&EscRtData.DBL2Interm1, 0u);
         Safety_Send_Data_Process(&EscRtData.DBL2Interm2, 0u);
-
+#endif
         
         /* interrupt to CPU1 */
         SYNC_SYS_OUT_SET();
@@ -253,7 +259,6 @@ void CPU_Data_Check( u8 buffer[], u16 *len, u32 times )
     {
         
         stat_u8CheckError = 0u;    
-        /*EN_ERROR7 &= ~0x02u;*/
         
         *len |= SPI1_RX_Data[0];  
         *len |= (u16)((u16)SPI1_RX_Data[1] << 8u);
@@ -281,7 +286,8 @@ void CPU_Data_Check( u8 buffer[], u16 *len, u32 times )
         stat_u8CheckError = 0u;
         ESC_SafeRelay_Error_Process();
         /* CPU_Exchange_Data_Check error */
-        EN_ERROR7 |= 0x02u;
+        /* Timeout CPU2 F372 */
+        EN_ERROR47 |= 0x10u;
     }          
 }
 

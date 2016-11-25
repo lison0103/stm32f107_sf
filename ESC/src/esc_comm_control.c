@@ -13,7 +13,7 @@
 #include "esc_comm_control.h"
 #include "can.h"
 #include "hw_test.h"
-#include "esc_comm_safety.h"
+#include "esc_comm_diagnostic2.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -26,43 +26,43 @@
 static void Receive_Data_From_Control_Process(void);
 static void Send_Data_To_Control_Process(void);
 
-u16 *const pEscFault1CHA = (u16*)&EscDataToControl[1][0];
-u16 *const pEscFault2CHA = (u16*)&EscDataToControl[1][2];
-u16 *const pEscFault1CHB = (u16*)&EscDataToControl[1][4];
-u16 *const pEscFault2CHB = (u16*)&EscDataToControl[1][6];
+static u16 *const pEscFault1CHA = (u16*)&EscDataToControl[1][0];
+static u16 *const pEscFault2CHA = (u16*)&EscDataToControl[1][2];
+static u16 *const pEscFault1CHB = (u16*)&EscDataToControl[1][4];
+static u16 *const pEscFault2CHB = (u16*)&EscDataToControl[1][6];
 
-u16 *const pEscFault3CHA = (u16*)&EscDataToControl[2][0];
-u16 *const pEscFault4CHA = (u16*)&EscDataToControl[2][2];
-u16 *const pEscFault3CHB = (u16*)&EscDataToControl[2][4];
-u16 *const pEscFault4CHB = (u16*)&EscDataToControl[2][6];
+static u16 *const pEscFault3CHA = (u16*)&EscDataToControl[2][0];
+static u16 *const pEscFault4CHA = (u16*)&EscDataToControl[2][2];
+static u16 *const pEscFault3CHB = (u16*)&EscDataToControl[2][4];
+static u16 *const pEscFault4CHB = (u16*)&EscDataToControl[2][6];
 
-u16 *const pEscFault5CHA = (u16*)&EscDataToControl[3][0];
-u16 *const pEscFault5CHB = (u16*)&EscDataToControl[3][2];
+static u16 *const pEscFault5CHA = (u16*)&EscDataToControl[3][0];
+static u16 *const pEscFault5CHB = (u16*)&EscDataToControl[3][2];
 
-u16 *const pMotorSpeed1CHA = (u16*)&EscDataToControl[6][0];
-u16 *const pMotorSpeed2CHA = (u16*)&EscDataToControl[6][2];
-u16 *const pMotorSpeed1CHB = (u16*)&EscDataToControl[6][4];
-u16 *const pMotorSpeed2CHB = (u16*)&EscDataToControl[6][6];
+static u16 *const pMotorSpeed1CHA = (u16*)&EscDataToControl[6][0];
+static u16 *const pMotorSpeed2CHA = (u16*)&EscDataToControl[6][2];
+static u16 *const pMotorSpeed1CHB = (u16*)&EscDataToControl[6][4];
+static u16 *const pMotorSpeed2CHB = (u16*)&EscDataToControl[6][6];
 
-u16 *const pMainShaftSpeed1CHA = (u16*)&EscDataToControl[7][0];
-u16 *const pMainShaftSpeed2CHA = (u16*)&EscDataToControl[7][2];
-u16 *const pMainShaftSpeed1CHB = (u16*)&EscDataToControl[7][4];
-u16 *const pMainShaftSpeed2CHB = (u16*)&EscDataToControl[7][6];
+static u16 *const pMainShaftSpeed1CHA = (u16*)&EscDataToControl[7][0];
+static u16 *const pMainShaftSpeed2CHA = (u16*)&EscDataToControl[7][2];
+static u16 *const pMainShaftSpeed1CHB = (u16*)&EscDataToControl[7][4];
+static u16 *const pMainShaftSpeed2CHB = (u16*)&EscDataToControl[7][6];
 
-u16 *const pLeftHandrailSpeedCHA = (u16*)&EscDataToControl[8][0];
-u16 *const pRightHandrailSpeedCHA = (u16*)&EscDataToControl[8][2];
-u16 *const pLeftHandrailSpeedCHB = (u16*)&EscDataToControl[8][4];
-u16 *const pRightHandrailSpeedCHB = (u16*)&EscDataToControl[8][6];
+static u16 *const pLeftHandrailSpeedCHA = (u16*)&EscDataToControl[8][0];
+static u16 *const pRightHandrailSpeedCHA = (u16*)&EscDataToControl[8][2];
+static u16 *const pLeftHandrailSpeedCHB = (u16*)&EscDataToControl[8][4];
+static u16 *const pRightHandrailSpeedCHB = (u16*)&EscDataToControl[8][6];
 
-u16 *const pLeftHandrailCHA = (u16*)&EscDataToControl[9][0];
-u16 *const pRightHandrailCHA = (u16*)&EscDataToControl[9][2];
-u16 *const pLeftHandrailCHB = (u16*)&EscDataToControl[9][4];
-u16 *const pRightHandrailCHB = (u16*)&EscDataToControl[9][6];
+static u16 *const pLeftHandrailCHA = (u16*)&EscDataToControl[9][0];
+static u16 *const pRightHandrailCHA = (u16*)&EscDataToControl[9][2];
+static u16 *const pLeftHandrailCHB = (u16*)&EscDataToControl[9][4];
+static u16 *const pRightHandrailCHB = (u16*)&EscDataToControl[9][6];
 
-u16 *const pMissingStepUpperCHA = (u16*)&EscDataToControl[10][0];
-u16 *const pMissingStepLowerCHA = (u16*)&EscDataToControl[10][2];
-u16 *const pMissingStepUpperCHB = (u16*)&EscDataToControl[10][4];
-u16 *const pMissingStepLowerCHB = (u16*)&EscDataToControl[10][6];
+static u16 *const pMissingStepUpperCHA = (u16*)&EscDataToControl[10][0];
+static u16 *const pMissingStepLowerCHA = (u16*)&EscDataToControl[10][2];
+static u16 *const pMissingStepUpperCHB = (u16*)&EscDataToControl[10][4];
+static u16 *const pMissingStepLowerCHB = (u16*)&EscDataToControl[10][6];
 
 
 /*******************************************************************************
@@ -101,7 +101,8 @@ static void Send_Data_To_Control_Process(void)
     *pEscFault4CHB = OmcEscRtData.ErrorCode[3];
     *pEscFault5CHB = OmcEscRtData.ErrorCode[4];
        
-#ifdef ESC_TEST   
+#ifdef ESC_TEST  
+#ifdef DIAGNOSTIC_LEVEL2    
     /* SAFETY INPUT CHA */
     /* for debug */
     EscDataToControl[4][0] = OmcEscRtData.HeaderCode[0]; /*EscRtData.SafetyInputData[0];*/
@@ -120,7 +121,7 @@ static void Send_Data_To_Control_Process(void)
     EscDataToControl[5][3] = OmcEscRtData.DBL2Lower.SEQN;/*OmcEscRtData.SafetyInputData[3];*/
     EscDataToControl[5][4] = OmcEscRtData.DBL2Interm1.SEQN;/*OmcEscRtData.SafetyInputData[4];*/
     EscDataToControl[5][5] = OmcEscRtData.DBL2Interm2.SEQN;/*OmcEscRtData.SafetyInputData[5];*/  
-    
+#endif    
 #else
     /* SAFETY INPUT CHA */
     EscDataToControl[4][0] = EscRtData.SafetyInputData[0];
@@ -171,6 +172,7 @@ static void Send_Data_To_Control_Process(void)
     *pMissingStepUpperCHB = OmcEscRtData.SensorData[16];
     *pMissingStepLowerCHB = OmcEscRtData.SensorData[18];     
 
+#ifdef DIAGNOSTIC_LEVEL2
     /* DBL2 UPPER INPUT CHA */
     EscDataToControl[11][0] = EscRtData.DBL2Upper.InputData[0];
     EscDataToControl[11][1] = EscRtData.DBL2Upper.InputData[1];
@@ -246,6 +248,7 @@ static void Send_Data_To_Control_Process(void)
     EscDataToControl[16][5] |= (u8)((u16)(EscRtData.DBL2Interm2.AnalogData[1] << 4u) & 0xf0u);
     EscDataToControl[16][6] = (u8)((EscRtData.DBL2Interm2.AnalogData[1] >> 4u) & 0xffu);
     EscDataToControl[16][7] = (u8)EscRtData.DBL2Interm2.AnalogData[2];    
+#endif
     
     /* DBL1 UPPER INPUT */
     EscDataToControl[17][0] = EscRtData.DBL1Upper.InputData[0];
@@ -254,22 +257,22 @@ static void Send_Data_To_Control_Process(void)
     EscDataToControl[17][3] = EscRtData.DBL1Upper.InputData[3];
     
     /* DBL1 LOWER INPUT */
-    EscDataToControl[17][4] = EscRtData.DBL2Lower.InputData[0];
-    EscDataToControl[17][5] = EscRtData.DBL2Lower.InputData[1]; 
-    EscDataToControl[17][6] = EscRtData.DBL2Lower.InputData[2];
-    EscDataToControl[17][7] = EscRtData.DBL2Lower.InputData[3];  
+    EscDataToControl[17][4] = EscRtData.DBL1Lower.InputData[0];
+    EscDataToControl[17][5] = EscRtData.DBL1Lower.InputData[1]; 
+    EscDataToControl[17][6] = EscRtData.DBL1Lower.InputData[2];
+    EscDataToControl[17][7] = EscRtData.DBL1Lower.InputData[3];  
 
     /* DBL1 INTERM 1 INPUT */
-    EscDataToControl[18][0] = EscRtData.DBL2Interm1.InputData[0];
-    EscDataToControl[18][1] = EscRtData.DBL2Interm1.InputData[1];
-    EscDataToControl[18][2] = EscRtData.DBL2Interm1.InputData[2];
-    EscDataToControl[18][3] = EscRtData.DBL2Interm1.InputData[3];
+    EscDataToControl[18][0] = EscRtData.DBL1Interm1.InputData[0];
+    EscDataToControl[18][1] = EscRtData.DBL1Interm1.InputData[1];
+    EscDataToControl[18][2] = EscRtData.DBL1Interm1.InputData[2];
+    EscDataToControl[18][3] = EscRtData.DBL1Interm1.InputData[3];
     
     /* DBL1 INTERM 2 INPUT */
-    EscDataToControl[18][4] = EscRtData.DBL2Interm2.InputData[0];
-    EscDataToControl[18][5] = EscRtData.DBL2Interm2.InputData[1]; 
-    EscDataToControl[18][6] = EscRtData.DBL2Interm2.InputData[2];
-    EscDataToControl[18][7] = EscRtData.DBL2Interm2.InputData[3];     
+    EscDataToControl[18][4] = EscRtData.DBL1Interm2.InputData[0];
+    EscDataToControl[18][5] = EscRtData.DBL1Interm2.InputData[1]; 
+    EscDataToControl[18][6] = EscRtData.DBL1Interm2.InputData[2];
+    EscDataToControl[18][7] = EscRtData.DBL1Interm2.InputData[3];     
 }
 
 /*******************************************************************************
@@ -291,14 +294,13 @@ void Communication_To_Control(void)
         can1_receive = 0u;
         can1_comm_timeout = 0u;
         stat_u16Can1HandshakeSuccess = 1u;
-        /*EN_ERROR7 &= ~0x04u;*/
     }
     else if( stat_u16Can1HandshakeSuccess )
     {
         if( ++can1_comm_timeout >= 10u )
         {
-            /*  can communication timeout process */
-            EN_ERROR7 |= 0x04u;
+            /*  Communication error Control F378 */
+            EN_ERROR48 |= 0x04u;
         }
     }
     else
@@ -307,7 +309,8 @@ void Communication_To_Control(void)
         if( stat_u16TimerCan1CommWait * 10u > CAN_COMM_HAND_TIME )
         {
             /*  can communication handshake timeout when power on */ 
-            EN_ERROR7 |= 0x04u;
+            /*  Communication error Control F378 */
+            EN_ERROR48 |= 0x04u;
         }            
     }    
     
@@ -353,15 +356,13 @@ Message ID: 112h.
 Message cycle time: 20ms.
 */    
 
-    if( !g_u8CanCommunicationToCotrolOk )
+    if( stat_u16Can1HandshakeSuccess && (!g_u8CanCommunicationToCotrolOk ))
     {
-        /* not send finish,54 */
-        EN_ERROR7 |= 0x20u;
+        /* not send finish */
+        /*  Communication error Control F378 */
+        EN_ERROR48 |= 0x04u;
     }
-    else
-    {
-        EN_ERROR7 &= ~0x20u;
-    }
+
 
     if(( stat_u8TimerSend % 2u ) == 0u )
     {

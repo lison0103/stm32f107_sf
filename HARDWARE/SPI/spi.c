@@ -22,7 +22,9 @@
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 static void SPI1_DMA_Configuration( void );
-
+#ifdef GEC_SF_MASTER
+static void SPI1_Configuration(void);
+#endif
 
 static u8 SPI1_TX_Buff[buffersize] = { 0 };
 static u8 SPI1_RX_Buff[buffersize] = { 0 };
@@ -42,7 +44,11 @@ static u16 waitus = 0u;
 * Output         : None
 * Return         : None
 *******************************************************************************/
+#ifdef GEC_SF_MASTER
+static void SPI1_Configuration(void)
+#else
 void SPI1_Configuration(void)
+#endif
 {       
         SPI_InitTypeDef  SPI_InitStructure;	
         

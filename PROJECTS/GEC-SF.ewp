@@ -2027,7 +2027,7 @@
         </excluded>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\ESC\src\esc_comm_safety.c</name>
+        <name>$PROJ_DIR$\..\ESC\src\esc_comm_diagnostic2.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\ESC\src\esc_comm_safety_dualcpu.c</name>

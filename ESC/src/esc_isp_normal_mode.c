@@ -13,7 +13,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define ISP_NRM_INPUT   (EscRtData. SafetyInputData[3] & 0x10u)
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -85,7 +84,7 @@ void Inspection_Normal_Key_Check(void)
 {
   static u16 INE_tms=0u;
   
-  if(ISP_NRM_INPUT)
+  if(ISP_NORMAL_INPUT)
   {
     IspNormal_Input_Low_Counter = 0u;
      

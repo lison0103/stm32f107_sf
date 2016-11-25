@@ -25,7 +25,7 @@
 #include "esc_comm_diagnostic.h"
 #include "comm_display_board.h"
 #include "esc_state.h"
-#include "esc_comm_safety.h"
+#include "esc_comm_diagnostic2.h"
 #ifdef GEC_SF_S_NEW
 #include "usb_virtual_com_port.h"
 #endif
@@ -46,13 +46,8 @@ u32 SysRunTime = 0u;
 u8 testmode = 0u;
 u8 g_u8CanCommunicationToCotrolID = 0u,g_u8CanCommunicationToCotrolLen = 0u,g_u8CanCommunicationToCotrolOk = 1u;
 
-/* for test */
-u8 EscRTBuff[200];
-u8 McRxBuff[200];
 
 /* ESC -----------------------*/
-u8 ParameterData[200];
-
 /* 5 fault code, 1 alarm code */
 u16 EscErrorCodeBuff[6];
 u8 EscErrorBuff[64];
@@ -149,19 +144,21 @@ static void Task_Loop(void)
       }
       
       
-      
+#ifdef DIAGNOSTIC_LEVEL2      
       if( DIAGNOSTIC == DIAGNOSTIC_BOARD_2 )
       {
           Safety_Receive_Data_Process();
 #ifdef GEC_SF_S_NEW           
-          Safety_Request_Data();
+          Safety_Request_DBL2();
 #endif          
       }
+#endif      
+
       
 #ifdef GEC_SF_MASTER 
-      Safety_Comm_Diag();
       Communication_CPU();
-#else
+      Safety_Comm_Diag();
+#else     
       Communication_CPU();
 #endif
       

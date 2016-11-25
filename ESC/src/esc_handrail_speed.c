@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
-* Last modify date   : 11/15/2016
+* Last modify date   : 11/22/2016
 * Description        : This file contains esc handrail speed.
 *                      
 *******************************************************************************/
@@ -16,14 +16,17 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define Handrail_speed_Max_pulse     ( ( HANDRAIL_MOTOR_PULSE * 1149u ) / 1000u )
-#define Handrail_speed_Min_pulse     ( ( HANDRAIL_MOTOR_PULSE * 885u ) / 1000u )
+#define Handrail_speed_Max_pulse     ( ( Handrail_speed_Rate_pulse * 1149u ) / 1000u )
+#define Handrail_speed_Min_pulse     ( ( Handrail_speed_Rate_pulse * 885u ) / 1000u )
+
+#define HandrailFreq                (( (u16)NOMINAL_SPEED * 10u * HR_PULSES_PER_REV ) / (( 2u * 314u * ROLLER_HR_RADIUS ) / 100u )) 	/* [1/s] */
+#define Handrail_speed_Rate_pulse   (( HDL_CAL_PULSE_NUMBER * F1 ) / HandrailFreq )	/*  motor pulse amounts for 4 handrail pulses. */
 
 #define HANDRAIL_LEFT_INPUT   (INPUT_PORT1_8 & INPUT_PORT3_MASK)
 #define HANDRAIL_RIGHT_INPUT   (INPUT_PORT1_8 & INPUT_PORT4_MASK)
 
 /* Private macro -------------------------------------------------------------*/
-#define HANDRAIL_PULSE_NUMBER   4u
+#define HDL_CAL_PULSE_NUMBER   4u
 #define HANDRAIL_SSM_SHORTCIRCUIT_TIME     7u
 
 /* Private variables ---------------------------------------------------------*/
@@ -38,6 +41,7 @@ static void Handrail_RisingEdge_check(void);
 
 HandrailSpeedItem HDL_Left = 
 { 
+    1u,
     200u,
     0u,
     0u,
@@ -49,6 +53,7 @@ HandrailSpeedItem HDL_Left =
 
 HandrailSpeedItem HDL_Right = 
 {    
+    2u,
     200u,
     0u,
     0u,
@@ -80,12 +85,23 @@ static void HR_Speed_Ready(HandrailSpeedItem* psHDL)
         {
             if( CMD_ESC_RUN_MODE & ESC_INSPECT ) 
             {         
-                ALARM1 |= 0x01u;
+                /* HR speed Warning (W63) */
+                EN_WARN8 |= 0x80u;
             }
             else
-            {
-                /* fault */
-                EN_ERROR2 |= 0x01u;
+            {               
+                if( psHDL->SensorX == 1u )
+                {
+                    /* Handrail left pulse detected while stop F354 */
+                    EN_ERROR45 |= 0x04u;
+                }
+                else if( psHDL->SensorX == 2u )
+                {
+                    /* Handrail right pulse detected while stop F355 */
+                    EN_ERROR45 |= 0x08u;
+                }
+                else
+                {}
             }
         }
         else
@@ -116,16 +132,16 @@ static void HR_Speed_Run_EN115(HandrailSpeedItem* psHDL)
     {
         psHDL->rising_edge_detected = 0u;
         
-        if( psHDL->hdl_pulse_counter > HANDRAIL_PULSE_NUMBER )
+        if( psHDL->hdl_pulse_counter > HDL_CAL_PULSE_NUMBER )
         { 
-            for( i = (HANDRAIL_PULSE_NUMBER - 1u); i > 0u; i-- )
+            for( i = (HDL_CAL_PULSE_NUMBER - 1u); i > 0u; i-- )
             {
                 psHDL->hdl_mp_array[i] = psHDL->hdl_mp_array[i - 1u];
             }
             psHDL->hdl_mp_array[0] = psHDL->handrail_speed_rt_pulse;
             psHDL->handrail_speed_rt_pulse = 0u;
             
-            for( i = 0u; i < HANDRAIL_PULSE_NUMBER; i++ )
+            for( i = 0u; i < HDL_CAL_PULSE_NUMBER; i++ )
             {
                 u16HDL_Pulse_Value += psHDL->hdl_mp_array[i];
             }
@@ -137,14 +153,14 @@ static void HR_Speed_Run_EN115(HandrailSpeedItem* psHDL)
     }
     else
     {      
-        for( i = 0u; i < (HANDRAIL_PULSE_NUMBER - 1u); i++ )
+        for( i = 0u; i < (HDL_CAL_PULSE_NUMBER - 1u); i++ )
         {
             u16PulseSum += psHDL->hdl_mp_array[i];
         }
         u16PulseSum += psHDL->handrail_speed_rt_pulse;
     }
 
-    if( psHDL->hdl_pulse_counter > HANDRAIL_PULSE_NUMBER )
+    if( psHDL->hdl_pulse_counter > HDL_CAL_PULSE_NUMBER )
     {       
         if( u16HDL_Pulse_Value < Handrail_speed_Min_pulse )
         {
@@ -178,35 +194,34 @@ static void HR_Speed_Run_EN115(HandrailSpeedItem* psHDL)
         {
             if( CMD_ESC_RUN_MODE & ESC_INSPECT ) 
             {         
-                /* handrail speed warning */
-                if( u8fault_flag == 1u )
-                {
-                    ALARM1 |= 0x02u;
-                }
-                else if( u8fault_flag == 2u )
-                {
-                    ALARM1 |= 0x04u;
-                }
-                else
-                {
-                    ALARM1 |= 0x08u;
-                }                
+                /* HR speed Warning (W63) */
+                EN_WARN8 |= 0x80u;
             }
             else
             {
-                /* handrail speed fault */
-                if( u8fault_flag == 1u )
+                /* Speed supervision: handrail left F73 */
+                if( psHDL->SensorX == 1u )
                 {
-                    EN_ERROR2 |= 0x02u;
+                    if( u8fault_flag == 1u )
+                    {
+                        EN_ERROR10 |= 0x02u;
+                    }
+                    else if( u8fault_flag == 2u )
+                    {
+                        EN_ERROR10 |= 0x02u;
+                    }
+                    else
+                    {
+                        EN_ERROR10 |= 0x02u;
+                    }
                 }
-                else if( u8fault_flag == 2u )
+                else if( psHDL->SensorX == 2u )
                 {
-                    EN_ERROR2 |= 0x04u;
+                    /* Speed supervision: handrail right F74 */
+                    EN_ERROR10 |= 0x04u;
                 }
                 else
-                {
-                    EN_ERROR2 |= 0x08u;
-                }
+                {}
             }
         }            
     }  
@@ -258,13 +273,13 @@ void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
                 {                
                     if( CMD_ESC_RUN_MODE & ESC_INSPECT ) 
                     {         
-                        /* handrail speed warning */
-                        ALARM1 |= 0x10u;
+                        /* HR speed Warning (W63) */
+                        EN_WARN8 |= 0x80u;
                     }
                     else
                     {
-                        /* Fault ¨C Motorspeed Sensor shortcircuited */
-                        EN_ERROR4 |= 0x02u;
+                        /* Fault ¨C HS Sensor shortcircuited (F282) */
+                        EN_ERROR36 |= 0x04u;
                     }
                 }
             }
@@ -362,7 +377,7 @@ void ESC_Handrail_Check(void)
         HDL_Right.rising_edge_detected = 0u;
         HDL_Right.hdl_pulse_counter = 0u;
         
-        for( i = 0u; i < HANDRAIL_PULSE_NUMBER; i ++ )
+        for( i = 0u; i < HDL_CAL_PULSE_NUMBER; i ++ )
         {
             HDL_Left.hdl_mp_array[i] = 0u;
             HDL_Right.hdl_mp_array[i] = 0u;

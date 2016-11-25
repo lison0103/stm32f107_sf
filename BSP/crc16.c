@@ -100,4 +100,41 @@ uint16_t MB_CRC16( uint8_t pucFrame[], uint16_t usLen )
     return returnCRC;
 }
 
+
+/*******************************************************************************
+* Function Name  : MB_CRC32
+* Description    : Computes the 32-bit CRC
+*                  
+* Input          : pucFrame: The first address data to be checked
+*                  usLen:    The length of the data to be checked
+                   Polynomials: Polynomials
+* Output         : None
+* Return         : Check result
+*******************************************************************************/
+u32 MB_CRC32(u8 pucFrame[], u16 usLen, u32 Polynomials)           
+{
+    u16 i,j;
+    u32 crc = 0xffffffffu,flag;
+    
+    for( i = 0u; i < usLen; i++ )
+    {
+        crc ^= ((u32)pucFrame[i])<<24u;
+        
+        for(j = 0u;j < 8u; j++)  
+        {
+            flag = crc & 0x80000000u;
+            crc <<= 1u;
+            
+            if(flag)
+            {        
+                crc  ^=  Polynomials;
+                /*crc  ^=  0xfa567d89u;*/
+            }
+        }
+    }
+    
+    /* Note: CRC32 return value after the call need to be reversed high and low, high in the former, low after the */
+    return (crc);
+}
+
 /******************************  END OF FILE  *********************************/

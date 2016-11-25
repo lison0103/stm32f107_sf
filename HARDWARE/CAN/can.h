@@ -13,6 +13,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "sys.h"
+#include "esc.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -56,6 +57,7 @@
 #define CAN2RX_DBL1_INTERM1_ID  0xD3u
 #define CAN2RX_DBL1_INTERM2_ID  0xD4u
 
+#ifdef DIAGNOSTIC_LEVEL2
 /* SF <---> DBL2 */
 #define CAN2TX_DBL2_UPPER_ID1  0x20u
 #define CAN2TX_DBL2_UPPER_ID2  0x21u
@@ -83,10 +85,13 @@
 #define CAN2RX_DBL2_LOWER_NONSAFETY_ID  0xC2u
 #define CAN2RX_DBL2_INTERM1_NONSAFETY_ID  0xC3u
 #define CAN2RX_DBL2_INTERM2_NONSAFETY_ID  0xC4u
+#endif
 
 #define DATA_FROM_CONTROL       1u
 #define DATA_FROM_DBL1          2u
+#ifdef DIAGNOSTIC_LEVEL2
 #define DATA_FROM_DBL2          3u
+#endif
 
 /* Exported functions ------------------------------------------------------- */
 u8 CAN_Int_Init(CAN_TypeDef* CANx); 

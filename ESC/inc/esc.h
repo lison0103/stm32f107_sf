@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/12/2016
-* Last modify date   : 10/25/2016
+* Last modify date   : 11/22/2016
 * Description        : This file contains esc parameters.
 *			          
 *******************************************************************************/
@@ -14,8 +14,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "sys.h"
-
+#include "esc_parameter_process.h"
 #include "esc_cfg_io.h"
+#include <string.h>
 
 /* Exported types ------------------------------------------------------------*/
 /* ESC STATE */
@@ -40,6 +41,9 @@ typedef struct dbl1esc
       
 }DBL1Esc;
 
+/* Enable Diagnostic level 2 board */
+#define DIAGNOSTIC_LEVEL2
+#ifdef DIAGNOSTIC_LEVEL2
 typedef struct dbl2esc
 {
     /* type */
@@ -68,6 +72,7 @@ typedef struct dbl2esc
     u8 ReceiveDataB[14];   
   
 }DBL2Esc;
+#endif
 
 typedef struct sfescdata 
 {
@@ -77,12 +82,12 @@ typedef struct sfescdata
     /* Input and Feedback */
     u8 SafetyInputData[8];
     u8 ControlInputData[2];
-  
+    
     /* Command data*/
     u8 CommandData[8];
     
-    /* Alarm data */
-    u8 Alarm[4];
+    /* Warning data */
+    u8 Warn[8];
     
     /* Fault data */
     u8 ErrorBuff[64];
@@ -105,7 +110,8 @@ typedef struct sfescdata
     DBL1Esc DBL1Lower;
     DBL1Esc DBL1Interm1;
     DBL1Esc DBL1Interm2;
-    
+
+#ifdef DIAGNOSTIC_LEVEL2    
     /* DBL2 */
     DBL2Esc DBL2Upper;
     DBL2Esc DBL2Lower;
@@ -114,12 +120,17 @@ typedef struct sfescdata
     
     /* DBL2 comm validate result */
     u8 DBL2ValidateResult;
+#endif
     
 }SafetyEscData;    
 
 
 typedef struct motorspeeditem 
 {    
+    
+    /* Sensor NO. */
+    u8 SensorX;
+    
     /* A timer, Running time */
     u32 TimerRuningTms;
     
@@ -174,6 +185,9 @@ typedef struct motorspeeditem
 
 typedef struct handrailspeeditem 
 {
+    /* Sensor NO. */
+    u8 SensorX;
+    
     /* handrail speed in ready state time counter */
     u32 hdl_pulse_tms;   
     
@@ -199,6 +213,8 @@ typedef struct handrailspeeditem
 
 typedef struct stepmissingitem 
 {
+    /* Sensor NO. */
+    u8 SensorX;
     
     /* motor speed real time pulse */
     volatile u16 MtrPulse;	
@@ -233,6 +249,7 @@ typedef struct updownkey
     u16 TimerKeyOn;
 	
 }UpDownKeyItem;
+
 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
@@ -335,6 +352,12 @@ typedef struct updownkey
 #define INPUT_PORT_AUX_FB_MASK                  (u8)( 1 << 4 )
 #define INPUT_PORT_PLUSE_OUTPUT_FB_MASK         (u8)( 1 << 5 )
 
+
+/*define function input*/
+#define ISP_NORMAL_INPUT   (EscRtData. SafetyInputData[3] & 0x10u)
+
+
+
 /* Command data */
 #define CMD_ESC_RUN_MODE        EscRtData.CommandData[2]
 
@@ -353,6 +376,7 @@ typedef struct updownkey
 #define CMD_FLAG6 	        EscRtData.CommandData[5]
 
 
+
 #define OmcSfBase_EscState 	OmcEscRtData.CommandData[0]
 #define CMD_OMC_FLAG2    	OmcEscRtData.CommandData[1]
 #define CMD_OMC_ESC_KEY 	OmcEscRtData.CommandData[2]
@@ -363,11 +387,14 @@ typedef struct updownkey
 #define CMD_OMC_FLAG8 	        OmcEscRtData.CommandData[7]
 
 /* Alarm data */
-#define         ALARM1   	EscRtData.Alarm[0]
-#define         ALARM2   	EscRtData.Alarm[1]
-#define         ALARM3   	EscRtData.Alarm[2]
-#define         ALARM4   	EscRtData.Alarm[3]
-
+#define         EN_WARN1   	EscRtData.Warn[0]
+#define         EN_WARN2   	EscRtData.Warn[1]
+#define         EN_WARN3   	EscRtData.Warn[2]
+#define         EN_WARN4   	EscRtData.Warn[3]
+#define         EN_WARN5   	EscRtData.Warn[4]
+#define         EN_WARN6   	EscRtData.Warn[5]
+#define         EN_WARN7   	EscRtData.Warn[6]
+#define         EN_WARN8   	EscRtData.Warn[7]
 
 /* Fault data, 64*8 = 512 */
 #define         EN_ERROR1   	EscRtData.ErrorBuff[0]
@@ -470,89 +497,6 @@ typedef struct updownkey
 
 
 
-
-#define PARA_INIT                       *(u16*)&ParameterData[0]
-/* parameters */
-#define MOTOR_RPM                       *(u16*)&ParameterData[2]
-#define NOMINAL_SPEED                   *(u16*)&ParameterData[4]
-#define MOTOR_PLUSE_PER_REV             *(u16*)&ParameterData[6]
-#define STEP_WIDTH                      *(u16*)&ParameterData[8]
-#define END_SAFETY_STRING_FAULT_TYPE    *(u16*)&ParameterData[10]
-#define KEY_MINIMUM_TIME                *(u16*)&ParameterData[12]
-#define UNDERSPEED_TIME                 *(u16*)&ParameterData[14]
-#define TANDEM_TYPE                     *(u16*)&ParameterData[16]
-#define ROLLER_HR_RADIUS                *(u16*)&ParameterData[18]
-#define HR_PULSES_PER_REV               *(u16*)&ParameterData[20]
-#define HR_FAULT_TIME                   *(u16*)&ParameterData[22]
-#define BRAKE_STATUS_SENSORS            *(u16*)&ParameterData[24]
-#define UP_DOWN_ALLOWED                 *(u16*)&ParameterData[26]
-
-#define RESET_MINIMUM_TIME              *(u16*)&ParameterData[28]
-#define CONTACTORS_TIMEOUT              *(u16*)&ParameterData[30]
-#define DRIVE_CHAIN_DELAY               *(u16*)&ParameterData[32]
-#define HANDRAIL_MOTOR_PULSE            *(u16*)&ParameterData[34]
-
-#define DIAGNOSTIC                      *(u16*)&ParameterData[36]
-#define DIAGNOSTIC_BOARD_L2_QUANTITY    *(u16*)&ParameterData[38]
-#define DIAGNOSTIC_BOARD_L1_QUANTITY    *(u16*)&ParameterData[40]
-/*
-#define KEY_MINIMUM_TIME                *(u16*)&ParameterData[42]
-#define UP_DOWN_ALLOWED                 *(u16*)&ParameterData[44]
-#define RESET_MINIMUM_TIME              *(u16*)&ParameterData[46]
-#define END_SAFETY_STRING_FAULT_TYPE    *(u16*)&ParameterData[48]
-#define CONTACTORS_TIMEOUT              *(u16*)&ParameterData[50]
-#define BRAKE_STATUS_SENSORS            *(u16*)&ParameterData[52]
-#define DRIVE_CHAIN_DELAY               *(u16*)&ParameterData[54]
-*/
-
-
-/* parameter range */
-#define MOTOR_RPM_MIN                   500u
-#define MOTOR_RPM_MAX                   2500u
-
-#define NOMINAL_SPEED1                   500u
-#define NOMINAL_SPEED2                  650u
-#define NOMINAL_SPEED3                   750u
-#define NOMINAL_SPEED4                   900u
-
-#define MOTOR_PLUSE_PER_REV_MIN           1u
-#define MOTOR_PLUSE_PER_REV_MAX           20u
-
-#define STEP_WIDTH_MIN                  1u
-#define STEP_WIDTH_MAX                  1000u
-
-#define END_SAFETY_STRING_FAULT_TYPE_MIN                  0u
-#define END_SAFETY_STRING_FAULT_TYPE_MAX                  1u
-
-#define KEY_MINIMUM_TIME_MIN                  100u
-#define KEY_MINIMUM_TIME_MAX                  4000u
-
-#define UNDERSPEED_TIME_MIN                  0u
-#define UNDERSPEED_TIME_MAX                  10000u
-
-#define TANDEM_TYPE_MIN                  0u
-#define TANDEM_TYPE_MAX                  2u
-
-#define ROLLER_HR_RADIUS_MIN                  10u
-#define ROLLER_HR_RADIUS_MAX                  120u
-
-#define HR_PULSES_PER_REV_MIN                  1u
-#define HR_PULSES_PER_REV_MAX                  8u
-
-#define HR_FAULT_TIME_MIN                  2u
-#define HR_FAULT_TIME_MAX                  20u
-
-#define BRAKE_STATUS_SENSORS_MIN                  1u
-#define BRAKE_STATUS_SENSORS_MAX                  8u
-
-#define UP_DOWN_ALLOWED_MIN                  0u
-#define UP_DOWN_ALLOWED_MAX                  2u
-
-#define NO_DIAGNOSTIC_BOARD     0u
-#define DIAGNOSTIC_BOARD_1      1u
-#define DIAGNOSTIC_BOARD_2      2u
-
-
 /* for debug */
 #define ESC_TEST
 
@@ -570,24 +514,23 @@ extern STEPMISSINGITEM STPMS_LOWER;
 extern UpDownKeyItem UpKey;
 extern UpDownKeyItem DownKey;
 extern u8 SAFETY_SWITCH_STATUS[4];
-extern u8 g_u8ResetButton;
+extern u8 g_u8ResetType;
 extern u8 g_u8SafetyRelayStartCheck;
-extern u8 TandemRunEnable;
-extern u8 TandemMessageRunAllowed;
-extern u8 Tandemoutput;
 extern volatile u16 g_u16DBL1NewData;
+#ifdef DIAGNOSTIC_LEVEL2
 extern volatile u16 g_u16DBL2NewData;
+#endif
 extern u16 g_u16CAN2SendFail;
+extern u8 DIAGNOSTIC;
 
-extern u8 EscRTBuff[200];
-extern u8 McRxBuff[200];
 
 extern u8 g_u8CanCommunicationToCotrolID;
 extern u8 g_u8CanCommunicationToCotrolLen;
 extern u8 g_u8CanCommunicationToCotrolOk;
 
 /* ESC */
-extern u8 ParameterData[200];
+extern SFPara SFParameterData;
+extern CBParaInSF CBParameterInSafety;
 
 /* 5 fault code, 1 alarm code */
 extern u16 EscErrorCodeBuff[6];
@@ -610,9 +553,11 @@ extern u8 EscDataFromControl[3][8];
 extern u8 EscDataToDBL1[3][8];
 extern u8 EscDataFromDBL1[4][8];
 
+#ifdef DIAGNOSTIC_LEVEL2
 /* DBL2 data */
 extern u8 EscDataToDBL2[8][8];
 extern u8 EscDataFromDBL2[16][8];
+#endif
 
 #define ESC_RT_DATA_LEN    sizeof(SafetyEscData)
 

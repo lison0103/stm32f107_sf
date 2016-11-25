@@ -25,7 +25,7 @@ void ESC_SPI_Error_Process(void);
 void ESC_SafeRelay_Error_Process(void);
 void ESC_Init_Fault(void);
 void fault_code_decode(u16 code_buff[]);
-void fault_code_manual_reset(void);
+void fault_code_manual_reset(u8 ResetType);
 void fault_code_auto_reset(void);
 void error_change_check(void);
 

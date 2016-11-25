@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 06/12/2016
-* Last modify date   : 09/07/2016
+* Last modify date   : 11/22/2016
 * Description        : This file contains esc parameter process.
 *                      
 *******************************************************************************/
@@ -38,8 +38,10 @@ static void esc_para_init(void);
 static void esc_para_check(void);
 
 u8 ParaLoad = 0u;
+u8 DIAGNOSTIC = 0u;
 
-
+SFPara SFParameterData;
+CBParaInSF CBParameterInSafety;
 
 /*******************************************************************************
 * Function Name  : esc_para_init
@@ -50,39 +52,50 @@ u8 ParaLoad = 0u;
 *******************************************************************************/
 static void esc_para_init(void)
 {
-
-    if(PARA_INIT != 0xff01u)
+    MOTOR_RPM = 1000u;
+    NOMINAL_SPEED = 50u;
+    MOTOR_PULSE_PER_REV = 10u;
+    STEP_WIDTH = 405u;
+    END_SAFETY_STRING_FAULT_TYPE = 0u;
+    KEY_MINIMUM_TIME = 800u;        
+    UNDERSPEED_TIME = 5000u;
+    TANDEM = 0u;   
+    ROLLER_HR_RADIUS = 49u; 
+    HR_PULSES_PER_REV = 2u;
+    HR_FAULT_TIME = 20u;
+    UP_DOWN_ALLOWED = 0u;
+    SPEED_SENSOR_INSTALLATION = 0u;
+    
+    CONTACTORS_TIMEOUT = 100u;
+    DRIVE_CHAIN_DELAY = 500u;
+    
+    AUX_BRAKE_ENABLE = 1u;
+    CAPACITOR_TIME_MEASUREMENT = 1u;    
+    
+    DIAGNOSTIC_BOARD_L2_QUANTITY = 2u;
+    DIAGNOSTIC_BOARD_L1_QUANTITY = 0u;
+    
+    if(( DIAGNOSTIC_BOARD_L1_QUANTITY != 0u ) && ( DIAGNOSTIC_BOARD_L2_QUANTITY == 0u ))
     {
-        
-        MOTOR_RPM = 1000u;
-        NOMINAL_SPEED = 50u;
-        MOTOR_PLUSE_PER_REV = 10u;
-        STEP_WIDTH = 400u;
-        END_SAFETY_STRING_FAULT_TYPE = 0u;
-        KEY_MINIMUM_TIME = 800u;        
-        UNDERSPEED_TIME = 5000u;
-        TANDEM_TYPE = 0u;   
-        ROLLER_HR_RADIUS = 50u; /*( 0.050 * 1000 );  mm */
-        HR_PULSES_PER_REV = 2u;
-        HR_FAULT_TIME = 5000u;
-        BRAKE_STATUS_SENSORS = 2u;
-        UP_DOWN_ALLOWED = 0u;
-
-        RESET_MINIMUM_TIME = 2000u;
-        CONTACTORS_TIMEOUT = 100u;
-        DRIVE_CHAIN_DELAY = 500u;
-        HANDRAIL_MOTOR_PULSE = 205u;
-        
-        DIAGNOSTIC = 2u;
-        DIAGNOSTIC_BOARD_L2_QUANTITY = 2u;
-        DIAGNOSTIC_BOARD_L1_QUANTITY = 2u;
-        
-        PARA_INIT = 0xff01u;
+        DIAGNOSTIC = DIAGNOSTIC_BOARD_1;
+    }
+    else if(( DIAGNOSTIC_BOARD_L1_QUANTITY == 0u ) && ( DIAGNOSTIC_BOARD_L2_QUANTITY != 0u ))
+    {
+        DIAGNOSTIC = DIAGNOSTIC_BOARD_2;
+    }    
+    else
+    {
+        DIAGNOSTIC = NO_DIAGNOSTIC_BOARD;
+    }        
+    
+    
 #ifdef GEC_SF_MASTER   
-        fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, ParameterData);
-        fram_data_write(ESC_BACKUP_ADR + ESC_PARA_ADR, ESC_PARA_NUM, ParameterData);
+    /*
+    fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, (u8*)&SFParameterData);
+    fram_data_write(ESC_BACKUP_ADR + ESC_PARA_ADR, ESC_PARA_NUM, (u8*)&SFParameterData);
+    */
 #endif        
-    } 
+        
 }
 
 /*******************************************************************************
@@ -96,18 +109,20 @@ static void esc_para_check(void)
 {
     if(!(( MOTOR_RPM <= MOTOR_RPM_MIN ) && ( MOTOR_RPM >= MOTOR_RPM_MAX )))
     {
-        EN_ERROR11 |= 0x02u;
+        /* Parameter error F385 */
+        EN_ERROR49 |= 0x02u;
     }
     
-    if(!(( NOMINAL_SPEED == NOMINAL_SPEED1 ) || ( NOMINAL_SPEED == NOMINAL_SPEED2 ) 
-         || ( NOMINAL_SPEED == NOMINAL_SPEED3 ) || ( NOMINAL_SPEED == NOMINAL_SPEED4 )))
+    if(!(( NOMINAL_SPEED <= NOMINAL_SPEED_MIN ) && ( NOMINAL_SPEED >= NOMINAL_SPEED_MAX ))) 
     {
-        EN_ERROR11 |= 0x02u;
+        /* Parameter error F385 */
+        EN_ERROR49 |= 0x02u;
     }    
-  
-    if(!(( MOTOR_PLUSE_PER_REV <= MOTOR_PLUSE_PER_REV_MIN ) && ( MOTOR_PLUSE_PER_REV >= MOTOR_PLUSE_PER_REV_MAX )))
+    
+    if(!((MOTOR_PULSE_PER_REV <= MOTOR_PLUSE_PER_REV_MIN ) && ( MOTOR_PULSE_PER_REV >= MOTOR_PLUSE_PER_REV_MAX )))
     {
-        EN_ERROR11 |= 0x02u;
+        /* Parameter error F385 */
+        EN_ERROR49 |= 0x02u;
     }    
 }
 
@@ -191,14 +206,14 @@ static u16 Send_State_Message(u8 board, u8 state, u8 buff[], u16 len)
 * Return         : None
 *******************************************************************************/
 static void get_para_from_usb(void)
-{
-    
+{   
     u16 len = 0u;   
+    u8 *sfpara = (u8*)&SFParameterData;
     
 #ifdef GEC_SF_MASTER 
     
     u8 recvdata[10];
-    u8 paradata[500];
+    u8 paradata[500];   
     u16 i;
     
     USBH_Mass_Storage_Init();
@@ -213,11 +228,12 @@ static void get_para_from_usb(void)
     /* 3. cpu1 read parameters and check in power on */
     if(!fram_data_read(ESC_PARA_ADR, ESC_PARA_NUM, paradata))
     {
-        /* 4. Check crc16 is it ok */
-        if( MB_CRC16( paradata, ESC_PARA_NUM ))
+        /* 4. Check crc32 is it ok */
+        if( MB_CRC32( paradata, ESC_PARA_NUM, PARAMETER_POLYNOMIALS ))
         {
             /* Error message. Abort parameter loading. System remains in Init Fault. */
-            EN_ERROR9 |= 0x01u;
+            /* Parameter error F385 */
+            EN_ERROR49 |= 0x02u;
             g_u16ParameterLoadingError = 1u;
         }
         else
@@ -228,7 +244,8 @@ static void get_para_from_usb(void)
     }
     else
     {
-        EN_ERROR9 |= 0x01u;
+        /* Parameter error F385 */
+        EN_ERROR49 |= 0x02u;
         g_u16ParameterLoadingError = 1u;   
     }
           
@@ -247,8 +264,9 @@ static void get_para_from_usb(void)
                 /* 7. Save parameters into variables */
                 for( i = 0u; i < len - 2u; i++)
                 {
-                    ParameterData[i] = paradata[i];
+                    /*sfpara[i] = paradata[i];*/
                 } 
+                memcpy(sfpara,&paradata,ESC_PARA_NUM);
                 
                 esc_para_check();
                 
@@ -260,7 +278,7 @@ static void get_para_from_usb(void)
             {        
                 /* Error message. Abort parameter loading due to CRC fault in CPU2. 
                 System remains in Init Fault. */
-                EN_ERROR9 |= 0x01u;
+                EN_ERROR49 |= 0x02u;
                 
                 g_u16ParameterLoadingError = 1u;   
             }
@@ -271,7 +289,7 @@ static void get_para_from_usb(void)
         {
             /* Message received timeout. Send error to CPU2. Restart required. 
             System remains in Init Fault. */
-            EN_ERROR9 |= 0x01u;
+            EN_ERROR49 |= 0x02u;
             
             g_u16ParameterLoadingError = 1u;   
         }
@@ -306,10 +324,10 @@ static void get_para_from_usb(void)
                 /* 2. Message received with parameters from CPU1 */
                 len = Send_State_Message( MESSAGE_TO_CPU, RECEIVE_PARAMETER, recvdata, 0u ); 
                 
-                /* 3. Check paremeters received, CRC16 is ok */
+                /* 3. Check paremeters received, CRC32 is ok */
                 if( (recvdata[0] == MESSAGE_TO_CPU) && (recvdata[1] == SEND_PARAMETER) )
                 {
-                    if( MB_CRC16( &recvdata[2], ((u16)len - 2u) ))
+                    if( MB_CRC32( &recvdata[2], ((u16)len - 2u), PARAMETER_POLYNOMIALS ))
                     {
                         /* Send error to CPU1. ¡°CPU2 parameters error¡± System remains in Init Fault. */
                         Send_State_Message( MESSAGE_TO_CPU, PARAMETER_ERROR, NULL, 0u );
@@ -321,8 +339,9 @@ static void get_para_from_usb(void)
                         /* 4. Save parameters into variables */
                         for( i = 0u; i < len - 4u; i++)
                         {
-                            ParameterData[i] = recvdata[i + 2u];
-                        }  
+                            /*ParameterData[i] = recvdata[i + 2u];*/
+                        }
+                        memcpy(sfpara,&recvdata,ESC_SF_PARAMETER_DATA_LEN);
                         
                         /* 5. Send confirmation to CPU1 or Send error to CPU1 */  
                         Send_State_Message( MESSAGE_TO_CPU, PARAMETER_CORRECT, NULL, 0u );
@@ -336,7 +355,7 @@ static void get_para_from_usb(void)
                         }
                         else
                         {
-                            EN_ERROR9 |= 0x01u;
+                            EN_ERROR49 |= 0x02u;
                             
                             g_u16ParameterLoadingError = 1u;    
                         }
@@ -346,7 +365,7 @@ static void get_para_from_usb(void)
                 {
                     /* Message received timeout. Send error to CPU1. ¡°CPU2 parameters 
                     communication error. Timeout message from CPU1¡± */
-                    EN_ERROR9 |= 0x01u;
+                    EN_ERROR49 |= 0x02u;
                     
                     g_u16ParameterLoadingError = 1u;                
                 }
@@ -356,7 +375,7 @@ static void get_para_from_usb(void)
     else
     {
         /* para init error */
-        EN_ERROR9 |= 0x01u;
+        EN_ERROR49 |= 0x02u;
         
         g_u16ParameterLoadingError = 1u;  
     }
@@ -380,7 +399,7 @@ int USB_LoadParameter(void)
 { 
 
       int res = 0;
-      u8 parabuffer[100];
+      u8 parabuffer[500];
       u16 filelen = 0u;
             
       
@@ -406,11 +425,11 @@ int USB_LoadParameter(void)
           
           /* 3. decrypt */
           
-          /* 4. Check crc16 is it ok */
-          if( MB_CRC16( parabuffer, filelen ))
+          /* 4. Check crc32 is it ok */
+          if( MB_CRC32( parabuffer, filelen, PARAMETER_POLYNOMIALS ))
           {
               /* Error message. Abort parameter loading. System remains in Init Fault. */
-              EN_ERROR9 |= 0x01u;
+              EN_ERROR49 |= 0x02u;
               
               Send_State_Message( MESSAGE_TO_CONTROL, PARAMETER_ERROR, NULL, 0u );
               
@@ -418,9 +437,11 @@ int USB_LoadParameter(void)
           }
           else
           {
+              /*if(( filelen - 4u ) == ESC_PARA_NUM )*/
+              
               /* 5. Store the parameters in the fram */
-              fram_data_write(ESC_PARA_ADR, ESC_PARA_NUM, parabuffer);
-              fram_data_write(ESC_BACKUP_ADR + ESC_PARA_ADR, ESC_PARA_NUM, parabuffer);
+              fram_data_write(ESC_PARA_ADR, filelen, parabuffer);
+              fram_data_write(ESC_BACKUP_ADR + ESC_PARA_ADR, filelen, parabuffer);
               
               ParaLoad |= SAFETY_PARAMETER_LOADED;
           }
@@ -443,10 +464,10 @@ int USB_LoadParameter(void)
           /* 3. decrypt */
           
           /* 4. Check crc16 is it ok */
-          if( MB_CRC16( parabuffer, filelen ))
+          if( MB_CRC32( parabuffer, filelen, PARAMETER_POLYNOMIALS ))
           {
               /* Error message. Abort parameter loading. System remains in Init Fault. */
-              EN_ERROR9 |= 0x01u;   
+              EN_ERROR49 |= 0x02u;   
               
               Send_State_Message( MESSAGE_TO_CONTROL, PARAMETER_ERROR, NULL, 0u );
               
@@ -488,6 +509,10 @@ void ParametersLoading(void)
 
         /*get_para_from_usb();*/
         
+    }
+    else
+    {
+        get_para_from_usb();
     }
 }
 

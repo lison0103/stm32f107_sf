@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/10/2016
-* Last modify date   : 09/23/2016
+* Last modify date   : 11/21/2016
 * Description        : This file contains esc missing step check.
 *                      
 *******************************************************************************/
@@ -16,8 +16,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define    F2      (( NOMINAL_SPEED ) / ( STEP_WIDTH ))
-#define    R       (( F1 ) * ( STEP_WIDTH ) / ( NOMINAL_SPEED ))
+#define    F2      (( (u16)NOMINAL_SPEED * 10u ) / ( STEP_WIDTH ))
+#define    R       (( F1 ) / ( F2 ))
 
 #define MISSINGSTEP_LOWER_INPUT   (INPUT_PORT1_8 & INPUT_PORT5_MASK)
 #define MISSINGSTEP_UPPER_INPUT   (INPUT_PORT1_8 & INPUT_PORT6_MASK)
@@ -28,6 +28,7 @@
 /* Private variables ---------------------------------------------------------*/
 static u8 g_u8FirstMissingStepSyncEntry = 0u;
 static u8 g_u8FirstMissingStepEdgeDetected = 0u;
+
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -40,6 +41,7 @@ static void MissingStep_RisingEdge_check(void);
 
 STEPMISSINGITEM STPMS_UPPER=
 {
+    1u,
     0u,
     {0u,0u},
     (u16*)&MISSINGSTEP_MTR_PULSE1,
@@ -51,6 +53,7 @@ STEPMISSINGITEM STPMS_UPPER=
 
 STEPMISSINGITEM STPMS_LOWER=
 {
+    2u,
     0u,          
     {0u,0u},
     (u16*)&MISSINGSTEP_MTR_PULSE2,
@@ -82,12 +85,24 @@ static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
         {
             if( CMD_ESC_RUN_MODE & ESC_INSPECT )
             {     
-                ALARM2 |= 0x01u;
+                /* Missing Step Warning (W60) */
+                EN_WARN8 |= 0x10u;
             }
             else
             {
-                /* fault */ 
-                EN_ERROR3 |= 0x01u;
+                /* Missing Step Fault (F352, F353) */
+                if( psSTPMS->SensorX == 1u )
+                {
+                    /* Missing step top pulse detected while stop F352 */
+                    EN_ERROR45 |= 0x01u;  
+                }
+                else if( psSTPMS->SensorX == 2u )
+                {
+                    /* Missing step bottom pulse detected while stop F353 */
+                    EN_ERROR45 |= 0x02u; 
+                }
+                else
+                {}
             }
         }
         else
@@ -123,13 +138,24 @@ static void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
     {
         if( CMD_ESC_RUN_MODE & ESC_INSPECT )
         {     
-            /* Missing step warning */
-            ALARM2 |= 0x02u;
+            /* Missing Step Warning (W60) */
+            EN_WARN8 |= 0x10u;
         }
         else
         {
-            /* Missing step fault */
-            EN_ERROR3 |= 0x02u;
+            /* Missing Step Fault (F50, F51) */
+            if( psSTPMS->SensorX == 1u )
+            {
+                /* Missing step supervision top F50 */
+                EN_ERROR7 |= 0x04u;  
+            }
+            else if( psSTPMS->SensorX == 2u )
+            {
+                /* Missing step supervision bottom F51 */
+                EN_ERROR7 |= 0x08u; 
+            }
+            else
+            {}
         }
     }
     else
@@ -192,18 +218,19 @@ static void Missing_Step_UpperLower_SyncRun(void)
         {            
             if( CMD_ESC_RUN_MODE & ESC_INSPECT )
             {     
-                ALARM2 |= 0x04u;
+                /* Missingstep Sync Warning top W58 */
+                EN_WARN8 |= 0x04u;
             }
             else
             {
-                /* Fault */
-                EN_ERROR5 |= 0x01u;  
+                /* Missing step supervision top F50 */
+                EN_ERROR7 |= 0x04u;  
             }
         }
     }
     
     /* Upper Missing step no fault and Lower Missing step signal: rising edge detected ? */
-    if( ( (u8)(EN_ERROR5 & 0x01u)  == 0u ) && ( STPMS_LOWER.rising_edge_detected[1] == 1u ) )
+    if( ( (u8)(EN_ERROR33 & 0x04u)  == 0u ) && ( STPMS_LOWER.rising_edge_detected[1] == 1u ) )
     {
         STPMS_LOWER.rising_edge_detected[1] = 0u;
         
@@ -214,12 +241,13 @@ static void Missing_Step_UpperLower_SyncRun(void)
         {
             if( CMD_ESC_RUN_MODE & ESC_INSPECT )
             {     
-                ALARM2 |= 0x08u;
+                /* Missingstep sync warning bottom W59 */
+                EN_WARN8 |= 0x08u;
             }
             else
             {
-                /* Fault */
-                EN_ERROR5 |= 0x02u;  
+                /* Missing step supervision bottom F51 */
+                EN_ERROR7 |= 0x08u; 
             }
         }
     }
@@ -271,12 +299,12 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
                 {                
                     if( CMD_ESC_RUN_MODE & ESC_INSPECT )
                     {     
-                        ALARM2 |= 0x10u;
+                        EN_WARN8 |= 0x10u;
                     }
                     else
                     {
-                        /* Fault ¨C Motorspeed Sensor shortcircuited */
-                        EN_ERROR4 |= 0x04u; 
+                        /* Fault ¨C MS Sensor shortcircuited (F260) */
+                        EN_ERROR33 |= 0x10u;  
                     }
                 }
             }
@@ -376,6 +404,7 @@ void ESC_Missingstep_Check(void)
         
         g_u8FirstMissingStepSyncEntry = 0u;
         g_u8FirstMissingStepEdgeDetected = 0u;
+
     } 
     
     /* System in run or stopping process state */

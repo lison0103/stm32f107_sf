@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 06/16/2016
-* Last modify date   : 09/28/2016
+* Last modify date   : 11/21/2016
 * Description        : This file contains esc command and state.
 *                      
 *******************************************************************************/
@@ -16,6 +16,13 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+/* Drive chain 1, function id 36 */
+#define DRIVE_CHAIN1_ENABLE   (EscRtData. Cfg_Input_Mask[4] & (0x08u))
+#define DRIVE_CHAIN1_INPUT    (EscRtData.Cfg_Input_Level[4] & (0x08u))
+/* Drive chain 1, function id 37 */
+#define DRIVE_CHAIN2_ENABLE   (EscRtData. Cfg_Input_Mask[4] & (0x10u))
+#define DRIVE_CHAIN2_INPUT    (EscRtData.Cfg_Input_Level[4] & (0x10u))
+
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -24,9 +31,8 @@ void en_key_check(void);
 static void check_key_input(void);
 static void Safety_String_End(void);
 static void Safety_String_Begin(void);
-static void Drive_Chain1(void);
-void Inspection_Normal_Key_Ready_b(void);
-void Inspection_Normal_Key_Run_b(void);
+static void Drive_Chain(void);
+
 
 UpDownKeyItem UpKey = 
 { 
@@ -67,9 +73,9 @@ void CheckUpDown_Key(UpDownKeyItem *ptKEY)
                 }
                 else
                 {
-                    /* Key up-down fault */
+                    /* FAULT: UP DOWN KEYS ACTIVATE (F377) */
                     ptKEY->InputPreviousState = 0u;
-                    EN_ERROR10 |= 0x01u;
+                    EN_ERROR48 |= 0x02u;
                 }
             }
             else
@@ -86,16 +92,16 @@ void CheckUpDown_Key(UpDownKeyItem *ptKEY)
                 {
                     if( (ptKEY->TimerKeyOn * SYSTEMTICK) > 5000u )
                     {
-                        /* Key up-down fault */
+                        /* FAULT: UP KEY ACTIVATE (F378) */
                         ptKEY->InputPreviousState = 0u;
-                        EN_ERROR10 |= 0x01u;
+                        EN_ERROR48 |= 0x04u;
                     }
                 }
                 else
                 {
-                    /* Key up-down fault */
+                    /* Key Up-Down FAULT (F377) */
                     ptKEY->InputPreviousState = 0u;
-                    EN_ERROR10 |= 0x01u;
+                    EN_ERROR48 |= 0x02u;
                 }
             }
             else
@@ -108,9 +114,9 @@ void CheckUpDown_Key(UpDownKeyItem *ptKEY)
                     /* In fault state, reset standard fault */
                     if( SfBase_EscState == ESC_FAULT_STATE )
                     {
-                        g_u8ResetButton = 1u;
-                        /* for test */
-                        fault_code_manual_reset();
+                        g_u8ResetType = 1u;
+
+                        fault_code_manual_reset(g_u8ResetType);
                     }
                     else
                     {
@@ -178,54 +184,6 @@ void Inspection_UpDown_Button(void)
 }
 
 
-/*******************************************************************************
-* Function Name  : Inspection_Normal_Key_Ready
-* Description    : 
-* Input          : None          
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void Inspection_Normal_Key_Ready_b(void)
-{
-    if( SfBase_EscState != ESC_RUN_STATE )
-    {
-        if( CMD_ESC_KEY & ESC_INSPECT_NORMAL_KEY )
-        {
-            /* normal mode */
-            CMD_ESC_RUN_MODE &= ~ESC_INSPECT;
-        }
-        else
-        {
-            /* inspection mode */
-            CMD_ESC_RUN_MODE |= ESC_INSPECT;
-        }
-    }
-}
-
-/*******************************************************************************
-* Function Name  : Inspection_Normal_Key_Run
-* Description    : 
-* Input          : None          
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void Inspection_Normal_Key_Run_b(void)
-{
-    /* Check the conditions to go to inspection like the inspection run orders are deactived */
-    if( SfBase_EscState == ESC_RUN_STATE )
-    {
-        if( CMD_ESC_KEY & ESC_INSPECT_NORMAL_KEY )
-        {
-            /* normal mode */
-            CMD_ESC_RUN_MODE &= ~ESC_INSPECT;
-        }
-        else
-        {
-            /* inspection mode */
-            CMD_ESC_RUN_MODE |= ESC_INSPECT;
-        }
-    }
-}
     
 /*******************************************************************************
 * Function Name  : CheckReset
@@ -237,7 +195,6 @@ void Inspection_Normal_Key_Run_b(void)
 void CheckReset(void)
 {
     static u16 stat_u16TimerResetPress = 0u;
-    u8 i;
    
     /* reset Button */
     if( CMD_ESC_KEY & ESC_RESET_BUTTON )
@@ -246,24 +203,15 @@ void CheckReset(void)
     }
     else
     {       
-        if(((stat_u16TimerResetPress * SYSTEMTICK) > RESET_MINIMUM_TIME ) && ((stat_u16TimerResetPress * SYSTEMTICK) < 5000u ))
+        if(((stat_u16TimerResetPress * SYSTEMTICK) > KEY_MINIMUM_TIME ) && ((stat_u16TimerResetPress * SYSTEMTICK) < 5000u ))
         {            
             /* Reset a fault */
             if( SfBase_EscState == ESC_FAULT_STATE )
             {
-                g_u8ResetButton = 1u;                
-            }
-            
-            /* for test */
-            for( i = 0u; i < 64u; i++ )
-            {
-                EscRtData.ErrorBuff[i] = 0u;
-            }
-            for( i = 0u; i < 5u; i++ )
-            {
-                EscRtData.ErrorCode[i] = 0u;
-                EscErrorCodeBuff[i] = 0u;
-            }
+                g_u8ResetType = 2u;                
+                
+                fault_code_manual_reset(g_u8ResetType);                
+            }                    
         }
         stat_u16TimerResetPress = 0u;
     }  
@@ -281,11 +229,11 @@ static void Safety_String_Begin(void)
     /* Begin safety string is open */
     if( INPUT_PORT9_16 & INPUT_PORT10_MASK ) /* LOW active*/
     {
-        EN_ERROR8 &= ~0x20u;
+        EN_ERROR50 &= ~0x40u;
     }
     else
     {
-        EN_ERROR8 |= 0x20u;      
+        EN_ERROR50 |= 0x40u;      
     }  
 }
 
@@ -340,29 +288,53 @@ static void Safety_String_End(void)
 
 
 /*******************************************************************************
-* Function Name  : Drive_Chain1
+* Function Name  : Drive_Chain
 * Description    : 
 * Input          : None          
 * Output         : None
 * Return         : None
 *******************************************************************************/
-static void Drive_Chain1(void)
+static void Drive_Chain(void)
 {
-    static u16 stat_u16TimerDriverChain = 0u;
+    static u16 stat_u16TimerDriverChain1 = 0u;
+    static u16 stat_u16TimerDriverChain2 = 0u;
     
-    /* The safety board goes to fault if a drive chain signal is deactivated during a fixed time */
-    if( INPUT_PORT9_16 & INPUT_PORT9_MASK )
+    /* configure Drive chain 1 function enable */
+    if( DRIVE_CHAIN1_ENABLE )
     {
-        stat_u16TimerDriverChain++;
-        if( (stat_u16TimerDriverChain * SYSTEMTICK) > DRIVE_CHAIN_DELAY )
+        /* The safety board goes to fault if a drive chain signal is deactivated during a fixed time */
+        if( !DRIVE_CHAIN1_INPUT )
         {
-            /* fault: DRIVE CHAIN 1 or 2 */
-            
+            stat_u16TimerDriverChain1++;
+            if(( stat_u16TimerDriverChain1 * SYSTEMTICK ) > DRIVE_CHAIN_DELAY )
+            {
+                /* Drive chain (Du-, Triplex) F09 */
+                EN_ERROR2 |= 0x04u; 
+            }
+        }    
+        else
+        {
+            stat_u16TimerDriverChain1 = 0u;
         }
-    }    
-    else
+    }
+    
+    /* configure Drive chain 2 function enable */
+    if( DRIVE_CHAIN2_ENABLE )
     {
-        stat_u16TimerDriverChain = 0u;
+        /* The safety board goes to fault if a drive chain signal is deactivated during a fixed time */
+        if( !DRIVE_CHAIN2_INPUT )
+        {
+            stat_u16TimerDriverChain2++;
+            if(( stat_u16TimerDriverChain2 * SYSTEMTICK ) > DRIVE_CHAIN_DELAY )
+            {
+                /* Drive chain-2 (Du-, Triplex) F137 */
+                EN_ERROR18 |= 0x02u; 
+            }
+        }    
+        else
+        {
+            stat_u16TimerDriverChain2 = 0u;
+        }    
     }
 }
 
@@ -454,7 +426,7 @@ static void check_key_input(void)
     }  
 */
     /* reset button */
-    if((INPUT_PORT9_16 & INPUT_PORT10_MASK)) 
+    if((INPUT_PORT9_16 & INPUT_PORT9_MASK)) 
     {
         CMD_ESC_KEY |= ESC_RESET_BUTTON;
     }
@@ -476,7 +448,7 @@ void Esc_Safety_Input_Check(void)
 {
     Safety_String_Begin();
     Safety_String_End();
-    Drive_Chain1();
+    Drive_Chain();
     check_key_input();
 }
 

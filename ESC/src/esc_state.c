@@ -31,7 +31,7 @@
 u32 g_u32InitTestError = 0u;
 u16 g_u16RunTestError = 0u;
 u16 g_u16ParameterLoadingError = 0u;
-u8 g_u8ResetButton = 0u;
+u8 g_u8ResetType = 0u;
 u8 g_u8SafetyRelayStartCheck = 0u;
 
 /*******************************************************************************
@@ -139,7 +139,10 @@ void Esc_State_Machine(void)
            
             if(( CMD_ESC_RUN & ESC_UP ) || ( CMD_ESC_RUN & ESC_DOWN ))
             {
-              SfBase_EscState = ESC_STARTING_PROCESS_STATE;  /*  ESC_STARTING_PROCESS_STATE;*/
+              if( CMD_FLAG7 & 0x04u ) 
+              {  
+                SfBase_EscState = ESC_STARTING_PROCESS_STATE;                           /*  ESC_STARTING_PROCESS_STATE;*/
+              }  
             }
 
             break;      
@@ -185,7 +188,10 @@ void Esc_State_Machine(void)
 
            if( g_u8SafetyRelayStartCheck == 1u )
            {
-               SfBase_EscState = ESC_RUN_STATE;
+              if( CMD_FLAG7 & 0x08u ) 
+              {    
+                SfBase_EscState = ESC_RUN_STATE;
+              }    
            }
             
            break;

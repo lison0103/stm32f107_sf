@@ -1,21 +1,42 @@
 /*******************************************************************************
-* File Name          : esc_comm_safety.h
+* File Name          : esc_comm_diagnostic2.h
 * Author             : lison
 * Version            : V1.0
 * Date               : 10/26/2016
-* Description        : This file contains prototype of esc safety communication protocol process.                       
+* Description        : This file contains prototype of esc safety board communication  with
+*                      diagnostic level 2 board.                       
 *			          
 *******************************************************************************/
 
+
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __ESC_COMM_SAFETY_H
-#define __ESC_COMM_SAFETY_H
+#ifndef __ESC_COMM_DIAGNOSTIC2_H
+#define __ESC_COMM_DIAGNOSTIC2_H
 
 /* Includes ------------------------------------------------------------------*/
 #include "esc.h"
 #include "initial_devices.h"
+#include "can.h"
+#include "crc16.h"
 
+#ifdef DIAGNOSTIC_LEVEL2
 /* Exported types ------------------------------------------------------------*/
+typedef struct dbl2comm
+{
+    /* Comm time wait*/
+    u16 TimerCommWait; 
+    
+    /* hand shake */ 
+    u16 HandshakeSuccess;
+    
+    /* SMCT Timer */
+    u16 TimerSMCT;
+    
+    /* SMVT Timer */
+    u16 TimerSMVT;
+      
+}DBL2Comm;
+
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 #define CONNECTION_DBL2_UPPER   0x00u  
@@ -31,13 +52,14 @@
 /* Exported functions ------------------------------------------------------- */
 void Safety_Send_Data_Process(DBL2Esc *SFData, u8 request);
 void Safety_Receive_Data_Process(void);
-void Safety_Request_Data(void);
+void Safety_Request_DBL2(void);
 #ifdef GEC_SF_MASTER
-void Safety_Comm_Data_Init(DBL2Esc *SFData, u8 connection, u8 boardtype, u8 SEQN);
-void Safety_Receive_Diagnostic_Validate( DBL2Esc *SFData, u8 DBL2ReceiveData[] );
+void Send_Data_To_DBL2(void);
+void Receive_Data_From_DBL2(void);
 #endif
 
-#endif  /* __ESC_COMM_SAFETY_H */
+#endif /* DIAGNOSTIC_LEVEL2 */
+#endif  /* __ESC_COMM_DIAGNOSTIC2_H */
 
 
 /******************************  END OF FILE  *********************************/

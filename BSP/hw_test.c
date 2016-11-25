@@ -167,7 +167,7 @@ void Input_Check(void)
 void CrossCommCPUCheck(void)
 {    
 
-    u16 i = 0u;  
+    u32 i = 0u;  
     u8 number = 0u;
     u8 data_error = 0u;
     u32 test_cnt = 100u;  
@@ -184,9 +184,11 @@ void CrossCommCPUCheck(void)
         SPI1_TX_Data[i] = number;
     }
     
-    i = MB_CRC16( SPI1_TX_Data, comm_num - 2u );
-    SPI1_TX_Data[comm_num - 2u] = (u8)i;
-    SPI1_TX_Data[comm_num - 1u] = (u8)(i>>8u);
+    i = MB_CRC32( SPI1_TX_Data, comm_num - 4u, MAIN_POLYNOMIALS );
+    SPI1_TX_Data[comm_num - 4u] = (u8)(i >> 24u);
+    SPI1_TX_Data[comm_num - 3u] = (u8)(i >> 16u);     
+    SPI1_TX_Data[comm_num - 2u] = (u8)(i >> 8u);
+    SPI1_TX_Data[comm_num - 1u] = (u8)i;     
     
     
     SPI1_DMA_ReceiveSendByte(comm_num);
@@ -213,23 +215,25 @@ void CrossCommCPUCheck(void)
               {
                   number = 0u;
               }
-              for( i = 0u; i < comm_num - 2u; i++ )
+              for( i = 0u; i < comm_num - 4u; i++ )
               {
                     SPI1_TX_Data[i] = number;
               }
               
-              i = MB_CRC16( SPI1_TX_Data, comm_num - 2u );
-              SPI1_TX_Data[comm_num - 2u] = (u8)i;
-              SPI1_TX_Data[comm_num - 1u] = (u8)(i>>8u);
+              i = MB_CRC32( SPI1_TX_Data, comm_num - 4u, MAIN_POLYNOMIALS );
+              SPI1_TX_Data[comm_num - 4u] = (u8)(i >> 24u);
+              SPI1_TX_Data[comm_num - 3u] = (u8)(i >> 16u);     
+              SPI1_TX_Data[comm_num - 2u] = (u8)(i >> 8u);
+              SPI1_TX_Data[comm_num - 1u] = (u8)i;     
               
               SPI1_DMA_ReceiveSendByte(comm_num);
                         
               DMA_Check_Flag(40000u);
               
-              if(!MB_CRC16(SPI1_RX_Data, comm_num))
+              if(!MB_CRC32(SPI1_RX_Data, comm_num, MAIN_POLYNOMIALS))
               {
 
-                  for( i = 0u; i < comm_num - 2u; i++ )
+                  for( i = 0u; i < comm_num - 4u; i++ )
                   {
                       testresult = SPI1_RX_Data[i]^(SPI1_TX_Data[i] - 1u);
                       if( testresult )
@@ -254,16 +258,18 @@ void CrossCommCPUCheck(void)
               
               
 #else
-              if(!MB_CRC16(SPI1_RX_Data, comm_num))
+              if(!MB_CRC32(SPI1_RX_Data, comm_num, MAIN_POLYNOMIALS))
               {                 
-                  for( i = 0u; i < comm_num - 2u; i++ )
+                  for( i = 0u; i < comm_num - 4u; i++ )
                   {
                       SPI1_TX_Data[i] = SPI1_RX_Data[i];
                   }   
                   
-                  i = MB_CRC16( SPI1_TX_Data, comm_num - 2u );
-                  SPI1_TX_Data[comm_num - 2u] = (u8)i;
-                  SPI1_TX_Data[comm_num - 1u] = (u8)(i>>8u);
+                  i = MB_CRC32( SPI1_TX_Data, comm_num - 4u, MAIN_POLYNOMIALS );
+                  SPI1_TX_Data[comm_num - 4u] = (u8)(i >> 24u);
+                  SPI1_TX_Data[comm_num - 3u] = (u8)(i >> 16u);     
+                  SPI1_TX_Data[comm_num - 2u] = (u8)(i >> 8u);
+                  SPI1_TX_Data[comm_num - 1u] = (u8)i; 
               } 
               else
               {
@@ -287,8 +293,8 @@ void CrossCommCPUCheck(void)
 #endif
     if( data_error > 2u )
     {
-        /* SPI1_DMA_Check error */
-        /*EN_ERROR7 |= 0x01u;*/
+        /* CrossComm.-DataIntergrity error F387 */ 
+        EN_ERROR49 |= 0x08u;
         g_u32InitTestError = 1u;
 /*        FailSafeTest();*/
     }

@@ -14,14 +14,32 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "esc.h"
+#include "initial_devices.h"
 
 /* Exported types ------------------------------------------------------------*/
+typedef struct dbl1comm
+{
+    /* DBL1 type */
+    u8 Type;
+    
+    /* Comm time wait*/
+    u16 TimerCommWait; 
+    
+    /* hand shake */ 
+    u16 HandshakeSuccess;
+    
+    /* Comm Timeout */
+    u16 CommTimeout;
+    
+      
+}DBL1Comm;
+
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-#define DBL1_UPPER_VALIDATE   0x01u  
-#define DBL1_LOWER_VALIDATE   0x02u
-#define DBL1_INTERM1_VALIDATE   0x04u    
-#define DBL1_INTERM2_VALIDATE   0x08u
+#define DBL1_TYPE_UPPER   0x01u  
+#define DBL1_TYPE_LOWER   0x02u
+#define DBL1_TYPE_INTERM1   0x04u    
+#define DBL1_TYPE_INTERM2   0x08u
 
 /* Exported functions ------------------------------------------------------- */
 void Safety_Comm_Diag(void);

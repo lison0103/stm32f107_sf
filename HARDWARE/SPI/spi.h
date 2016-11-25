@@ -23,7 +23,9 @@
 void SPI1_Init(void);			 
 void SPI1_DMA_ReceiveSendByte( u16 num );
 void DMA_Check_Flag(u32 times);
+#ifdef GEC_SF_S_NEW 
 void SPI1_Configuration(void);
+#endif
 
 extern u8 SPI1_TX_Data[buffersize] ;
 extern u8 SPI1_RX_Data[buffersize] ;

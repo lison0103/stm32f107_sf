@@ -31,8 +31,9 @@ void EXTI4_IRQHandler(void);
 void EXTI9_5_IRQHandler(void);
 void EXTI15_10_IRQHandler(void);
 
+#ifdef GEC_SF_MASTER
 u8 g_u8SPISlaveDataPrepare = 0u;
-
+#endif
 
 /*******************************************************************************
 * Function Name  : EXTIX_Init
@@ -543,12 +544,15 @@ void EXTI15_10_IRQHandler(void)
   }
 */
     
+
   if(EXTI_GetITStatus(EXTI_Line15) != RESET)
   {
       EXTI_ClearFlag(EXTI_Line15);
       EXTI_ClearITPendingBit(EXTI_Line15);
 
+#ifdef GEC_SF_MASTER
       g_u8SPISlaveDataPrepare = 1u;
+#endif
   }  
   
 }
