@@ -244,6 +244,7 @@ static void IWDTCheck(void)
 *******************************************************************************/
 static void DataIntegrityInFlash_StartupCheck(void)
 {
+    /* Regular 32-bit crc computation */
     CtrlFlowCnt += CRC32_TEST_CALLER;
     {
         u32 TmpCRC;
@@ -253,13 +254,21 @@ static void DataIntegrityInFlash_StartupCheck(void)
         TmpCRC = CRC_CalcBlockCrc((uc32 *)ROM_START, (u32)ROM_SIZEinWORDS);
         /* Store the inverted least significant byte of the CRC in the peripheral */
         SetIDRegister(~((u8)TmpCRC));
-        CtrlFlowCntInv -= CRC32_TEST_CALLER;
+        if( TmpCRC != REF_CRC16 )
+        {
+            FailSafePOR();
+        }
+        else
+        {
+            CtrlFlowCntInv -= CRC32_TEST_CALLER;
+        }
     }
     
     /* Reload IWDG / EWDT counter */
     IWDG_ReloadCounter();
     EWDT_TOOGLE();
     
+#if 0     
     /* Regular 16-bit crc computation */
     CtrlFlowCnt += CRC16_TEST_CALLER;
     if(STL_crc16((u16)CRC_INIT,(u8 *)ROM_START, ROM_SIZE) != REF_CRC16)
@@ -277,6 +286,7 @@ static void DataIntegrityInFlash_StartupCheck(void)
         printf(" Start-up FLASH 16-bit CRC OK\n\r");
 #endif  /* STL_VERBOSE_POR */
     }
+#endif
     
     /* Reload IWDG / EWDT counter */
     IWDG_ReloadCounter();

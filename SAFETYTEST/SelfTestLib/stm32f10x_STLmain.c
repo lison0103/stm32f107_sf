@@ -76,7 +76,7 @@ void Safety_InitRunTimeChecks(void)
   STL_SysTickRTCSync();
 
   /* Initialize variables for invariable memory check */
-  STL_FlashCrc16Init();
+  /*STL_FlashCrc16Init();*/
   STL_FlashCrc32Init();
 
   /* Initialize variables for main routine control flow monitoring */
@@ -190,7 +190,8 @@ static void ClockFrequency_RunCheck(void)
 static void DataIntegrityInFlash_RunCheck(u32* RomTest)
 {
     CtrlFlowCnt += FLASH_TEST_CALLER;
-    *RomTest = STL_crc16Run();
+    /* *RomTest = STL_crc16Run();*/
+    *RomTest = STL_crc32Run();
     switch ( *RomTest )
     {
        case TEST_RUNNING:
