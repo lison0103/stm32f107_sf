@@ -29,7 +29,7 @@
 #ifdef GEC_SF_S_NEW
 #include "usb_virtual_com_port.h"
 #endif
-
+#include "mb85rcxx.h"
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
@@ -38,14 +38,14 @@ static u16 Tms10Counter = 0u,Tms20Counter = 0u,Tms50Counter = 0u,Tms100Counter =
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-static void LED_indicator(void);
+static void LED_indicator(u8 freq);
 static void Task_Loop(void);
 
 u32 TimingDelay = 0u;
 u32 SysRunTime = 0u; 
 u8 testmode = 0u;
 u8 g_u8CanCommunicationToCotrolID = 0u,g_u8CanCommunicationToCotrolLen = 0u,g_u8CanCommunicationToCotrolOk = 1u;
-
+u8 g_u8LedFreq = FREQ_0_5HZ;
 
 /* ESC -----------------------*/
 /* 5 fault code, 1 alarm code */
@@ -73,6 +73,7 @@ u8 EscDataFromDBL1[4][8];
 u8 EscDataToDBL2[8][8];
 u8 EscDataFromDBL2[16][8];
 
+
 /*******************************************************************************
 * Function Name  : LED_indicator
 * Description    : LED indicator flashes Timing                 
@@ -80,13 +81,13 @@ u8 EscDataFromDBL2[16][8];
 * Output         : None
 * Return         : None
 *******************************************************************************/
-static void LED_indicator(void)
+static void LED_indicator(u8 freq)
 {
 	static u32 led_idr_cnt = 0u;	 
 	
 	led_idr_cnt++;
 	 
-	if(led_idr_cnt >= 100u)   
+	if(led_idr_cnt >= freq)   
 	{
             led_idr_cnt = 0u;
             LED_FLASH();       
@@ -220,6 +221,81 @@ static void Task_Loop(void)
 
 }
 
+u8 testinput[5] = {1u,2u,3u,4u};
+typedef struct rty
+{
+    /* input data */
+    u8 (*InputData)[5];
+
+
+      
+}RTY;
+
+RTY rrrtt = {&testinput};
+
+
+void STM_CRC_Init(void)
+{
+  /* Enable CRC module clock */
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_CRC ,ENABLE);
+
+  /* Reset CRC generator */
+  CRC->CR = CRC_RESET;
+}
+
+uint32_t STM_CRC32(uint32_t pBuffer[], uint32_t BufferLength)
+{
+  uint32_t index = 0;
+  
+  for(index = 0; index < BufferLength; index++)
+  {
+    CRC->DR = pBuffer[index];
+  }
+  return (CRC->DR);
+}
+
+
+u32 revbit(u32 data)  
+{  
+  asm("rbit r0,r0");  
+  return data;  
+};  
+#define CRC32_POLYNOMIAL                        ((uint32_t)0xEDB88320)
+/*================================================================== 
+* Function  : CRC32_ForBytes 
+* Description   : CRC32输入为8bits buffer的指针及长度 
+* Input Para    :  
+* Output Para   :  
+* Return Value:  
+==================================================================*/  
+u32 CRC32_ForBytes(u8 *pData,u32 uLen)  
+{  
+    u32 uIndex= 0,uData = 0,i;  
+    uIndex = uLen >> 2;  
+      
+    STM_CRC_Init(); 
+        
+    while(uIndex--)  
+    {    
+        memcpy((u8*)&uData,pData,4);  
+        
+        pData += 4;  
+        uData = revbit(uData);  
+        CRC->DR = uData;  
+    }  
+    uData = revbit(CRC->DR);  
+    uIndex = uLen & 0x03;  
+    while(uIndex--)  
+    {  
+        uData ^= (u32)*pData++;  
+        for(i = 0;i < 8;i++)  
+          if (uData & 0x1)  
+            uData = (uData >> 1) ^ CRC32_POLYNOMIAL;  
+          else  
+            uData >>= 1;  
+    }  
+    return uData^0xFFFFFFFF;  
+} 
 /*******************************************************************************
 * Function Name  : main
 * Description    : Main program.             
@@ -231,13 +307,28 @@ int main(void)
 {        
 
     u16 i; 
+    u32 crc,len;
     
+    u8 testlen[100] = {0u};
+    
+    len = 100u;
+    crc = MB_CRC32( testlen, len - 4u, 0x04C11DB7 );
+    crc = CRC32_ForBytes( testlen, len - 4u );
+    testlen[len - 4u] = (u8)(crc >> 24u);
+    testlen[len - 3u] = (u8)(crc >> 16u);     
+    testlen[len - 2u] = (u8)(crc >> 8u);
+    testlen[len - 1u] = (u8)crc;
+    
+    crc = CRC32_ForBytes( testlen, len );
+    
+    
+    *rrrtt.InputData[0u] = 5u;
     /* Power up delay */
     for( i = 0u; i < 10000u; i++ )
     {
                
     }
-    
+    eep_write(0x03u);
     /** hardware init **/
     Initial_Device();    
     
@@ -251,7 +342,7 @@ int main(void)
         TimingDelay = 0u;
 
         Task_Loop();
-        LED_indicator();
+        LED_indicator(g_u8LedFreq);
    
     }          
           

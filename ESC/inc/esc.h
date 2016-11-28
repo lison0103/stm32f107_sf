@@ -110,6 +110,7 @@ typedef struct sfescdata
     DBL1Esc DBL1Lower;
     DBL1Esc DBL1Interm1;
     DBL1Esc DBL1Interm2;
+    
 
 #ifdef DIAGNOSTIC_LEVEL2    
     /* DBL2 */
@@ -281,6 +282,10 @@ typedef struct updownkey
 #define ESC_SAFETY_END_ENABLE           0x02u
 #define ESC_FAULT           0x80u
 #define ESC_STOPPING_PROCESS_FINISH     0x80u
+
+/* led flash freq */
+#define FREQ_0_5HZ      200u
+#define FREQ_2HZ        50u
 
 /* Input and Feedback */
 #define INPUT_PORT1_8       EscRtData.SafetyInputData[0]
@@ -522,7 +527,7 @@ extern volatile u16 g_u16DBL2NewData;
 #endif
 extern u16 g_u16CAN2SendFail;
 extern u8 DIAGNOSTIC;
-
+extern u8 g_u8LedFreq;
 
 extern u8 g_u8CanCommunicationToCotrolID;
 extern u8 g_u8CanCommunicationToCotrolLen;

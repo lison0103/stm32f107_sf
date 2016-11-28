@@ -223,6 +223,7 @@ void fault_code_decode(u16 code_buff[])
             } 
             
             CMD_FLAG5 |= ESC_FAULT;
+            g_u8LedFreq = FREQ_2HZ;
         } 
         
         if(error_counter >= 5u) 
@@ -260,6 +261,7 @@ void fault_code_decode(u16 code_buff[])
         code_buff[4] = 0u;
 
         CMD_FLAG5 &= ~ESC_FAULT;
+        g_u8LedFreq = FREQ_0_5HZ;
     }  
     
     
