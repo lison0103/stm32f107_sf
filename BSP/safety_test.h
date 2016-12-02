@@ -19,8 +19,7 @@
 /* Exported macro ------------------------------------------------------------*/
 #define CONFIGURATION_REG_TEST_CALLER         ((u32)2)
 #define FLAG_TEST_CALLER         ((u32)3) /* Do not modify: hard coded in assembly file */
-#define PC_TEST_CALLER         ((u32)5)
-#define PEI_TEST_CALLER       ((u32)7)
+#define PEI_TEST_CALLER       ((u32)5)
 
 
 #define CHECKCNT ((u32)CONFIGURATION_REG_TEST_CALLER + \
@@ -29,7 +28,6 @@
 
 #define CHECKCNTRUN ((u32)CONFIGURATION_REG_TEST_CALLER + \
                           FLAG_TEST_CALLER + \
-                          PC_TEST_CALLER + \
                           PEI_TEST_CALLER)
 
 

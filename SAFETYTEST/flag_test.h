@@ -4,7 +4,7 @@
 * Version            : V1.0
 * Date               : 05/13/2014
 * Description        : header for c based Register flag bit test POST configure test
-*                      IEC61508 verification on ETC-01 mainboard.
+*                      IEC61508 verification.
 *			          
 *******************************************************************************/
 

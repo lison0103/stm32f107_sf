@@ -78,7 +78,7 @@ void write_bkp(u32 adr,u32 dat)
 #else
   BKP_WriteBackupRegister((u16)adr, (u16)dat);
 #endif   
-  PWR_BackupAccessCmd(DISABLE);
+  /*PWR_BackupAccessCmd(DISABLE);*/
 }
 
 /*******************************************************************************

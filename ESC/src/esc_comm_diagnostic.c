@@ -259,7 +259,7 @@ static void Send_Data_To_DBL1_Process(void)
     if( result )
     {
         /* No mail box, send fail */
-        g_u16CAN2SendFail |= 0x01u;
+        g_u8CAN2SendFail |= 0x01u;
         CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
     } 
 }

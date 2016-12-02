@@ -17,15 +17,15 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define CAN_COMM_HAND_TIME      8000u
-#define SMVT_TIMEOUT            80u
-#define SMCT_TIME               80u
+#define SMVT_TIMEOUT            50u
+#define SMCT_TIME               50u
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 static void Safety_Comm_Data_Init(DBL2Esc *SFData, u8 connection, u8 boardtype, u8 SEQN);
-static void Safety_Receive_Diagnostic_Validate( DBL2Esc *SFData, u8 DBL2ReceiveData[] );
+static u8 Safety_Receive_Diagnostic_Validate( DBL2Esc *SFData, u8 DBL2ReceiveData[] );
 #ifdef GEC_SF_MASTER
 static void Safety_ReceiveA_Diagnostic( DBL2Esc *SFData );
 static void Send_Data_To_DBL2_Process(DBL2Esc *SFData, u8 SendDataB[], u8 CANSendData[], u8 CANID);
@@ -84,39 +84,40 @@ void Safety_Request_DBL2(void)
 {	
     static u8 stat_u8FirstEnter = 0u;
     
-    if( stat_u8FirstEnter == 0u )
+    if( DIAGNOSTIC == DIAGNOSTIC_BOARD_2 )
     {
-        stat_u8FirstEnter = 1u;
-        Safety_Comm_Data_Init(&EscRtData.DBL2Upper, CONNECTION_DBL2_UPPER, DBL2_TYPE_UPPER, 250u);
-        Safety_Comm_Data_Init(&EscRtData.DBL2Lower, CONNECTION_DBL2_LOWER, DBL2_TYPE_LOWER, 250u);
-        Safety_Comm_Data_Init(&EscRtData.DBL2Interm1, CONNECTION_DBL2_INTERM1, DBL2_TYPE_INTERM1, 250u);
-        Safety_Comm_Data_Init(&EscRtData.DBL2Interm2, CONNECTION_DBL2_INTERM2, DBL2_TYPE_INTERM2, 250u);
+        if( stat_u8FirstEnter == 0u )
+        {
+            stat_u8FirstEnter = 1u;
+            Safety_Comm_Data_Init(&EscRtData.DBL2Upper, CONNECTION_DBL2_UPPER, DBL2_TYPE_UPPER, 250u);
+            Safety_Comm_Data_Init(&EscRtData.DBL2Lower, CONNECTION_DBL2_LOWER, DBL2_TYPE_LOWER, 250u);
+            Safety_Comm_Data_Init(&EscRtData.DBL2Interm1, CONNECTION_DBL2_INTERM1, DBL2_TYPE_INTERM1, 250u);
+            Safety_Comm_Data_Init(&EscRtData.DBL2Interm2, CONNECTION_DBL2_INTERM2, DBL2_TYPE_INTERM2, 250u);
+        }
+                
+        if( DIAGNOSTIC_BOARD_L2_QUANTITY == 2u )
+        {
+            Safety_Request_Data(&DBL2CommUpper,&EscRtData.DBL2Upper);
+            Safety_Request_Data(&DBL2CommLower,&EscRtData.DBL2Lower);
+        }
+        else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 3u )
+        {
+            Safety_Request_Data(&DBL2CommUpper,&EscRtData.DBL2Upper);
+            Safety_Request_Data(&DBL2CommLower,&EscRtData.DBL2Lower);
+            Safety_Request_Data(&DBL2CommInterm1,&EscRtData.DBL2Interm1);
+        }
+        else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
+        {
+            Safety_Request_Data(&DBL2CommUpper,&EscRtData.DBL2Upper);
+            Safety_Request_Data(&DBL2CommLower,&EscRtData.DBL2Lower);
+            Safety_Request_Data(&DBL2CommInterm1,&EscRtData.DBL2Interm1);
+            Safety_Request_Data(&DBL2CommInterm2,&EscRtData.DBL2Interm2);
+        }
+        else
+        {
+            Safety_Request_Data(&DBL2CommLower,&EscRtData.DBL2Lower);
+        }    
     }
-    
-    
-    if( DIAGNOSTIC_BOARD_L2_QUANTITY == 2u )
-    {
-        Safety_Request_Data(&DBL2CommUpper,&EscRtData.DBL2Upper);
-        Safety_Request_Data(&DBL2CommLower,&EscRtData.DBL2Lower);
-    }
-    else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 3u )
-    {
-        Safety_Request_Data(&DBL2CommUpper,&EscRtData.DBL2Upper);
-        Safety_Request_Data(&DBL2CommLower,&EscRtData.DBL2Lower);
-        Safety_Request_Data(&DBL2CommInterm1,&EscRtData.DBL2Interm1);
-    }
-    else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
-    {
-        Safety_Request_Data(&DBL2CommUpper,&EscRtData.DBL2Upper);
-        Safety_Request_Data(&DBL2CommLower,&EscRtData.DBL2Lower);
-        Safety_Request_Data(&DBL2CommInterm1,&EscRtData.DBL2Interm1);
-        Safety_Request_Data(&DBL2CommInterm2,&EscRtData.DBL2Interm2);
-    }
-    else
-    {
-        Safety_Request_Data(&DBL2CommLower,&EscRtData.DBL2Lower);
-    }    
-    
 }
 
 
@@ -216,7 +217,7 @@ static void Safety_Request_Data(DBL2Comm *DBL2, DBL2Esc *Esc)
 * Output         : None
 * Return         : None 
 *******************************************************************************/
-static void Safety_Receive_Diagnostic_Validate( DBL2Esc *SFData, u8 DBL2ReceiveData[] )
+static u8 Safety_Receive_Diagnostic_Validate( DBL2Esc *SFData, u8 DBL2ReceiveData[] )
 {
     u8 i;
     u8 u8_ValidateError = 0u;
@@ -278,6 +279,10 @@ static void Safety_Receive_Diagnostic_Validate( DBL2Esc *SFData, u8 DBL2ReceiveD
             }
         }
     }
+    else
+    {
+        u8_ValidateError = 1u;
+    }
 #ifdef GEC_SF_S_NEW   
     /* clear data */
     for( i = 0u; i < 12u; i++ )
@@ -285,6 +290,8 @@ static void Safety_Receive_Diagnostic_Validate( DBL2Esc *SFData, u8 DBL2ReceiveD
         DBL2ReceiveData[i] = 0u;
     }
 #endif
+    
+    return u8_ValidateError;
 }
  
 
@@ -340,36 +347,39 @@ static void Safety_Receive_Diagnostic_Validate( DBL2Esc *SFData, u8 DBL2ReceiveD
 *******************************************************************************/
 void Safety_Receive_Data_Process(void)
 {	 
-
-#ifdef GEC_SF_MASTER
-
-    Safety_ReceiveA_Diagnostic( &EscRtData.DBL2Upper );
-    Safety_ReceiveA_Diagnostic( &EscRtData.DBL2Lower );
-
-    if(( DIAGNOSTIC_BOARD_L2_QUANTITY == 3u ) || ( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u ))
-    {    
-        Safety_ReceiveA_Diagnostic( &EscRtData.DBL2Interm1 );
-    }
-    else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
-    {    
-        Safety_ReceiveA_Diagnostic( &EscRtData.DBL2Interm2 );
-    }
-    else
-    {}
-#else
-    Safety_Receive_Diagnostic_Validate(&EscRtData.DBL2Upper, OmcEscRtData.DBL2Upper.ReceiveDataB );
-    Safety_Receive_Diagnostic_Validate(&EscRtData.DBL2Lower, OmcEscRtData.DBL2Lower.ReceiveDataB );
-    if(( DIAGNOSTIC_BOARD_L2_QUANTITY == 3u ) || ( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u ))
-    {       
-        Safety_Receive_Diagnostic_Validate(&EscRtData.DBL2Interm1, OmcEscRtData.DBL2Interm1.ReceiveDataB );
-    }
-    else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
+    if( DIAGNOSTIC == DIAGNOSTIC_BOARD_2 )
     {
-        Safety_Receive_Diagnostic_Validate(&EscRtData.DBL2Interm2, OmcEscRtData.DBL2Interm2.ReceiveDataB );
-    }
-    else
-    {}
+#ifdef GEC_SF_MASTER
+        
+        Safety_ReceiveA_Diagnostic( &EscRtData.DBL2Upper );
+        Safety_ReceiveA_Diagnostic( &EscRtData.DBL2Lower );
+        
+        if(( DIAGNOSTIC_BOARD_L2_QUANTITY == 3u ) || ( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u ))
+        {    
+            Safety_ReceiveA_Diagnostic( &EscRtData.DBL2Interm1 );
+        }
+        else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
+        {    
+            Safety_ReceiveA_Diagnostic( &EscRtData.DBL2Interm2 );
+        }
+        else
+        {}
+#else
+        Safety_Receive_Diagnostic_Validate(&EscRtData.DBL2Upper, OmcEscRtData.DBL2Upper.ReceiveDataB );
+        Safety_Receive_Diagnostic_Validate(&EscRtData.DBL2Lower, OmcEscRtData.DBL2Lower.ReceiveDataB );
+        
+        if(( DIAGNOSTIC_BOARD_L2_QUANTITY == 3u ) || ( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u ))
+        {       
+            Safety_Receive_Diagnostic_Validate(&EscRtData.DBL2Interm1, OmcEscRtData.DBL2Interm1.ReceiveDataB );
+        }
+        else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
+        {
+            Safety_Receive_Diagnostic_Validate(&EscRtData.DBL2Interm2, OmcEscRtData.DBL2Interm2.ReceiveDataB );
+        }
+        else
+        {}
 #endif
+    }
 }
 
 
@@ -593,15 +603,23 @@ static void Receive_Data_From_DBL2_Process(DBL2Esc *SFData, u8 CANReceiveData[],
         for( i = 0u; i < 8u; i++ )
         {
             SFData->ReceiveDataA[i] = CANReceiveData[i];
-            SFData->ReceiveDataB[i] = CANReceiveData[i + 8u];
         }
         for( i = 0u; i < 4u; i++ )
         {
             SFData->ReceiveDataA[i+8u] = CANReceiveData[i + 16u];
-            SFData->ReceiveDataB[i+8u] = CANReceiveData[i + 20u];
         }
 
-        Safety_Receive_Diagnostic_Validate(SFData, SFData->ReceiveDataA );
+        if( !Safety_Receive_Diagnostic_Validate(SFData, SFData->ReceiveDataA ))
+        {
+            for( i = 0u; i < 8u; i++ )
+            {
+                SFData->ReceiveDataB[i] = CANReceiveData[i + 8u];
+            }
+            for( i = 0u; i < 4u; i++ )
+            {
+                SFData->ReceiveDataB[i+8u] = CANReceiveData[i + 20u];
+            }            
+        }
         
         /* receive finish, clear the data */
         for( i = 0u; i < 24u; i++ )
@@ -729,14 +747,14 @@ static void Send_Data_To_DBL2_Process(DBL2Esc *SFData, u8 SendDataB[], u8 CANSen
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= SFData->BoardType;
+                g_u8CAN2SendFail |= SFData->BoardType;
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);               
             }  
             result = Can_Send_Msg(CAN2, (u32)CANID + 1u, &CANSendData[8], CAN_FRAME_LEN ); 
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= (u16)((u16)SFData->BoardType << 1u);
+                g_u8CAN2SendFail |= (u8)((u8)SFData->BoardType << 1u);
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);        
             }       
         }

@@ -3,7 +3,7 @@
 * Author             : Paul
 * Version            : V1.0
 * Date               : 03/26/2014
-* Description        : main code for applications for IEC61508 verification on ETC-01 mainboard.
+* Description        : main code for applications for IEC61508 verification.
 *                      
 *******************************************************************************/
 

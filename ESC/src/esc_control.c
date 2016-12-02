@@ -191,7 +191,7 @@ void Esc_Control(void)
    
   Feedback_Contactors_Check();
   
-  Floorplate_Open();
+  Floorplate_Check();
   
   Brake_Status_Check();
   

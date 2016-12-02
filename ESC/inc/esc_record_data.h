@@ -26,9 +26,16 @@
 /* Exported functions ------------------------------------------------------- */
 void esc_data_check(void);
 u8 fram_data_read(u16 Adr, u16 len, u8 ReadData[]);
-void fram_data_write(u16 Adr, u16 len, u8 WriteData[]);
+void fram_data_write(u16 Adr, u16 len, u8 WriteData[], u32 Polynomials);
 u8 Check_Error_Present_Memory(void);
 void StoreFaultInMemory(void);
+void DataIntegrityInFRAMCheck(void);
+void fram_store_data(void);
+
+extern u16 g_u16FramWriteAdr;
+extern u16 g_u16FramWriteLen;
+extern u8 *FramWriteData;
+extern u8 FramNeedStore;
 
 #endif  /* __ESC_RECORD_DATA_H */
 

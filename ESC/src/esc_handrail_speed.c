@@ -262,7 +262,7 @@ void Handrail_Speed_Right_Left_Shortcircuit_Run(void)
             /* Reset the timer */
             TIM_SetCounter(TIM7,0u);
             
-            if( stat_u32TimerHandrailSpeedShortcircuit < HANDRAIL_SSM_SHORTCIRCUIT_TIME )
+            if(( stat_u32TimerHandrailSpeedShortcircuit * 100u ) < PULSE_SIGNALS_MINIMUM_LAG )
             {
                 stat_u32TimerHandrailSpeedShortcircuit = 0u;               
                 stat_u32HandrailShortcircuitNotOkCounter++;

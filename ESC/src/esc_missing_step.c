@@ -229,8 +229,8 @@ static void Missing_Step_UpperLower_SyncRun(void)
         }
     }
     
-    /* Upper Missing step no fault and Lower Missing step signal: rising edge detected ? */
-    if( ( (u8)(EN_ERROR33 & 0x04u)  == 0u ) && ( STPMS_LOWER.rising_edge_detected[1] == 1u ) )
+    /* Lower Missing step signal: rising edge detected ? */
+    if( STPMS_LOWER.rising_edge_detected[1] == 1u )
     {
         STPMS_LOWER.rising_edge_detected[1] = 0u;
         
@@ -288,7 +288,7 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
             /* Reset the timer */
             TIM_SetCounter(TIM6,0u);            
             
-            if( stat_u32TimerMissingStepShortcircuit < MISSINGSTEP_SSM_SHORTCIRCUIT_TIME )
+            if(( stat_u32TimerMissingStepShortcircuit * 100u ) < PULSE_SIGNALS_MINIMUM_LAG )
             {
                 stat_u32TimerMissingStepShortcircuit = 0u;               
                 stat_u32MissingStepSCNotOkCounter++;

@@ -29,6 +29,7 @@
 /* Exported functions ------------------------------------------------------- */
 uint16_t MB_CRC16( uint8_t pucFrame[], uint16_t usLen );
 u32 MB_CRC32(u8 pucFrame[], u16 usLen, u32 Polynomials);
+u32 STM_CRC32(uint32_t pBuffer[], uint32_t BufferLength);
 
 #endif /* __CRC16_H */
 

@@ -4,7 +4,7 @@
 * Version            : V1.0
 * Date               : 05/13/2014
 * Description        : c based Register flag bit test POST configure test 
-*                       IEC61508 verification on ETC-01 mainboard.
+*                       IEC61508 verification.
 *                      
 *******************************************************************************/
 
@@ -146,6 +146,7 @@ type_testResult_t flag_test(void)
     {
         FlagCheck.Flag_Err_Cnt++;
     } 
+#if 0     
     /* RCC_FLAG_PINRST: Pin reset */
     if (RCC_GetFlagStatus(RCC_FLAG_PINRST) != RESET)
     {  
@@ -155,7 +156,7 @@ type_testResult_t flag_test(void)
     {
         FlagCheck.Flag_Err_Cnt++;
     }    
-#if 0    
+   
     /* RCC_FLAG_IWDGRST:  IWDG RESET */
     if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)
     {

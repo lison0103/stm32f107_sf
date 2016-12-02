@@ -2174,6 +2174,9 @@
         <name>$PROJ_DIR$\..\ESC\src\esc_en_contactor.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\ESC\src\esc_fault_check.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\ESC\src\esc_safety_string_check.c</name>
       </file>
     </group>
@@ -2503,9 +2506,6 @@
     </file>
     <file>
       <name>$PROJ_DIR$\..\SAFETYTEST\flag_test.c</name>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\SAFETYTEST\pc_test.c</name>
     </file>
   </group>
   <group>

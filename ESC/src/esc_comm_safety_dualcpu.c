@@ -255,7 +255,11 @@ void CPU_Data_Check( u8 buffer[], u16 *len, u32 times )
 
     DMA_Check_Flag(times);    
 
+#if 0    
     if(!MB_CRC16(SPI1_RX_Data, comm_num))
+#else
+    if(!STM_CRC32( (u32*)&SPI1_RX_Data, ( (u32)comm_num >> 2u )))
+#endif        
     {
         
         stat_u8CheckError = 0u;    
@@ -302,7 +306,7 @@ void CPU_Data_Check( u8 buffer[], u16 *len, u32 times )
 *******************************************************************************/
 void CPU_Exchange_Data( u8 buffer[], u16 len )
 {   
-    u16 i;
+    u32 i;
     
     /* communication buffer */
     comm_num = buffersize;  
@@ -318,12 +322,20 @@ void CPU_Exchange_Data( u8 buffer[], u16 len )
         SPI1_TX_Data[i + 2u] = buffer[i];
     }
     
+#if 0    
     i = MB_CRC16( SPI1_TX_Data, comm_num - 2u );
     SPI1_TX_Data[comm_num - 2u] = (u8)i;
-    SPI1_TX_Data[comm_num - 1u] = (u8)(i >> 8u); 
+    SPI1_TX_Data[comm_num - 1u] = (u8)(i >> 8u);       
+#else
+    i = STM_CRC32( (u32*)&SPI1_TX_Data, (( comm_num - 4u ) >> 2u ) );
+    SPI1_TX_Data[comm_num - 1u] = (u8)(i >> 24u);
+    SPI1_TX_Data[comm_num - 2u] = (u8)(i >> 16u);
+    SPI1_TX_Data[comm_num - 3u] = (u8)(i >> 8u);
+    SPI1_TX_Data[comm_num - 4u] = (u8)i;
+
+#endif
     
     SPI1_DMA_ReceiveSendByte(comm_num);
-           
 }
 
 

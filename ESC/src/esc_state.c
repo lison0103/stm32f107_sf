@@ -60,7 +60,9 @@ void Esc_State_Machine(void)
                 
                 /* goes to init fault state */       
                 /*ESC_Init_Fault();*/
-            }
+                
+                EN_ERROR49 |= 0x08u;
+            }           
             else 
 #endif                
             {
@@ -90,10 +92,7 @@ void Esc_State_Machine(void)
             
                 
             
-#ifdef GEC_SF_MASTER   
-            error_change_check();
-            StoreFaultInMemory();
-#endif            
+           
             
             if ( !((CMD_FLAG5 & ESC_FAULT) || (CMD_OMC_FLAG5 & ESC_FAULT)) ) 
             {  
@@ -139,7 +138,12 @@ void Esc_State_Machine(void)
            
             if(( CMD_ESC_RUN & ESC_UP ) || ( CMD_ESC_RUN & ESC_DOWN ))
             {
-              if( CMD_FLAG7 & 0x04u ) 
+              /*
+              ** No Aux 
+              **  or
+              **  Aux Straing process Enable flag
+              */
+              if((!(AUX_BRAKE_ENABLE)) || (CMD_FLAG7 & 0x04u) ) 
               {  
                 SfBase_EscState = ESC_STARTING_PROCESS_STATE;                           /*  ESC_STARTING_PROCESS_STATE;*/
               }  

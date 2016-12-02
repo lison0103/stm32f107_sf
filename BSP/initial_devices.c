@@ -12,7 +12,6 @@
 #include "stm32f10x_STLlib.h"
 #include "check_instruction.h"
 #include "check_instruction_2.h"
-#include "pc_test.h"
 #include "flag_test.h"
 #include "config_test.h"
 #include "esc_parameter_process.h"
@@ -35,7 +34,6 @@ static void Data_init(void);
 static void Check_IO_Input(void);
 #ifdef GEC_SF_MASTER
 static void ExtCommDeviceInit(void);
-static void DataIntegrityInFRAMCheck(void);
 #endif
 
 
@@ -151,20 +149,6 @@ void Initial_Device(void)
         SysTickTimerInit();
 }
 
-
-/*******************************************************************************
-* Function Name  : DataIntegrityInFRAMCheck
-* Description    : FRAM initialization and test data integrity.
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-#ifdef GEC_SF_MASTER
-static void DataIntegrityInFRAMCheck(void)
-{   
-    esc_data_check();    
-}
-#endif
 
 /*******************************************************************************
 * Function Name  : ExtCommDeviceInit

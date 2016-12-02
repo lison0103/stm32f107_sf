@@ -10,6 +10,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "crc16.h"
+#include "stm32f10x_STLcrc32.h"
+#include <string.h>
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -17,7 +19,9 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-
+static void STM_CRC_Init(void);
+static u32 revbit(u32 data);
+static u32 CRC32_ForBytes(u8 pData[],u32 uLen);
 
 static const unsigned char aucCRCHi[] = {
     0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,
@@ -136,5 +140,97 @@ u32 MB_CRC32(u8 pucFrame[], u16 usLen, u32 Polynomials)
     /* Note: CRC32 return value after the call need to be reversed high and low, high in the former, low after the */
     return (crc);
 }
+
+
+static void STM_CRC_Init(void)
+{
+    /* Enable CRC module clock */
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_CRC ,ENABLE);
+    
+    /* Reset CRC generator */
+    CRC->CR = CRC_RESET;
+}
+
+/*******************************************************************************
+* Function Name  : MB_CRC32
+* Description    : Computes the 32-bit CRC
+*                  
+* Input          : pBuffer: The first address data to be checked
+*                  BufferLength:    The length of the data to be checked
+* Output         : None
+* Return         : Check result
+*******************************************************************************/
+u32 STM_CRC32(uint32_t pBuffer[], uint32_t BufferLength)
+{
+    uint32_t index = 0u;
+    
+    STM_CRC_Init();
+    
+    for(index = 0u; index < BufferLength; index++)
+    {
+        CRC->DR = pBuffer[index];
+    }
+  
+    return (CRC->DR);  
+}
+
+
+static u32 revbit(u32 data)
+{
+    asm("rbit r0,r0");
+    return data;
+};
+
+#define CRC32_POLYNOMIAL                        (0xEDB88320u)
+/*******************************************************************************
+* Function Name  : MB_CRC32
+* Description    : Computes the 32-bit CRC
+*                  
+* Input          : pucFrame: The first address data to be checked
+*                  usLen:    The length of the data to be checked
+* Output         : None
+* Return         : Check result
+*******************************************************************************/
+static u32 CRC32_ForBytes(u8 pData[],u32 uLen)
+{
+    u32 uIndex = 0u,*uData = 0u,i;
+    uIndex = uLen >> 2;
+    
+    
+    STM_CRC_Init();
+    
+    while(uIndex--)
+    {
+        uData = (u32*)pData[uIndex*4u];
+        *uData = revbit(*uData);
+        CRC->DR = *uData;
+    }
+    *uData = revbit(CRC->DR);
+    uIndex = uLen & 0x03u;
+    while(uIndex--)
+    {
+        *uData ^= (u32)*pData;
+        for(i = 0u;i < 8u;i++)
+        {
+            if (*uData & 0x1u)
+            {
+                *uData = (*uData >> 1u) ^ CRC32_POLYNOMIAL;
+            }
+            else
+            {
+                *uData >>= 1u;
+            }
+        }
+    }
+    return *uData^0xFFFFFFFFu;
+}
+
+
+
+
+
+
+
+
 
 /******************************  END OF FILE  *********************************/

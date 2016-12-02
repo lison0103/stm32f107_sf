@@ -2,7 +2,7 @@
  * Company	: ThyssenKrupp PDC
  * @file	: check_instruction_post.s
  * @purpose     :
- * @brief	: Instruction POST test for IEC61508 verification on ETC-01 mainboard.
+ * @brief	: Instruction POST test for IEC61508 verification.
  * @version	: 1.0
  * @date	: 26-March-2014
  * @author	: Paul

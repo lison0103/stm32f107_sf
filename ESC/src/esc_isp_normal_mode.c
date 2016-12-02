@@ -21,58 +21,69 @@ static u16 IspNormal_Input_High_Counter=0u,IspNormal_Input_Low_Counter=0u;
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-static void Inspection_Normal_Key_Ready(void);
-static void Inspection_Normal_Key_Run(void);
-
+static void Inspection_Normal_Key(void);
 
 /*******************************************************************************
-* Function Name  : Inspection_Normal_Key_Ready
+* Function Name  : Inspection_Normal_Key
 * Description    : 
-* Input          : None
+* Input          : ISP_NORMAL_INPUT, inspection/normal key input
 * Output         : None
 * Return         : None
 *******************************************************************************/
-static void Inspection_Normal_Key_Ready(void)
+static void Inspection_Normal_Key(void)
 {
-  if(IspNormal_Input_High_Counter > 250u)    /* Normal running */
+  static u8 isp_nrm_key_on_tms=0u,isp_nrm_key_off_tms=0u;
+
+  if((!(ISP_NORMAL_INPUT)) && ( CMD_FLAG3 & 0x10u )) /* Normal/isp key input low level, current mode is normal mode */
   {
-    CMD_FLAG3 &= ~0x10u;             
-  }   
-  else if(IspNormal_Input_Low_Counter > 250u)  /* Inspection running */
-  {
-    CMD_FLAG3 |= 0x10u;                             
+    isp_nrm_key_on_tms =0u; /* Reset */
+    
+    if(isp_nrm_key_off_tms<20u) /* 20*5ms 100ms */
+    {
+      isp_nrm_key_off_tms++;
+    }
+    else
+    {  
+      if((SfBase_EscState == ESC_STARTING_PROCESS_STATE) ||  (SfBase_EscState == ESC_RUN_STATE) || \
+         (SfBase_EscState == ESC_STOPPING_PROCESS_STATE) || (SfBase_EscState == ESC_INTERM_STATE))       /* Fault */
+      {
+        EN_ERROR50 |= 0x02u;   /* F393 */
+      }  
+      else if( CMD_FLAG2 & 0x0Cu )  /* if UP/DOWN maintenance button press, go Fault */
+      {
+        EN_ERROR50 |= 0x10u;  /* F396 */
+      }
+      else
+      {
+        CMD_FLAG3 &= ~0x10u;  /* Inspection mode */
+      }  
+    }  
   }  
+  else if((ISP_NORMAL_INPUT) && (!(CMD_FLAG3 & 0x10u)) )/* Normal/isp key input high level, current mode is inspection mode */
+  {
+    isp_nrm_key_off_tms =0u;
+
+    if(isp_nrm_key_on_tms<20u)  /* 20*5ms 100ms */
+    {
+      isp_nrm_key_on_tms++; 
+    }
+    else
+    {  
+      if((SfBase_EscState == ESC_STARTING_PROCESS_STATE) ||  (SfBase_EscState == ESC_RUN_STATE) || (SfBase_EscState == ESC_STOPPING_PROCESS_STATE))       /* Fault */
+      {
+        EN_ERROR50 |= 0x02u;/* F393 */
+      }  
+      else
+      {
+        CMD_FLAG3 |= 0x10u; /* Normal mode */
+      }  
+    }  
+  } 
   else
-  {}
+  {
+  }  
 }
 
-/*******************************************************************************
-* Function Name  : Inspection_Normal_Key_Run
-* Description    : 
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-static void Inspection_Normal_Key_Run(void)
-{
-   if( CMD_FLAG3 & 0x10u )  /* Inspection running */
-   {
-     if( IspNormal_Input_High_Counter > 100u )
-     {
-       EN_ERROR31 |= 0x01u;
-     }  
-   } 
-   else if((CMD_FLAG3 & 0x10u) != 0x10u) /* Normal running */
-   {
-     if( IspNormal_Input_Low_Counter > 100u )
-     {
-       EN_ERROR31 |= 0x01u;
-     }  
-   }  
-   else
-   {}
-}
-   
 /*******************************************************************************
 * Function Name  : Inspection_Normal_Key_Check
 * Description    : 
@@ -84,42 +95,8 @@ void Inspection_Normal_Key_Check(void)
 {
   static u16 INE_tms=0u;
   
-  if(ISP_NORMAL_INPUT)
-  {
-    IspNormal_Input_Low_Counter = 0u;
-     
-    if(IspNormal_Input_High_Counter < 255u)
-    {
-      IspNormal_Input_High_Counter++;
-    } 
-  }  
-  else
-  {
-    IspNormal_Input_High_Counter = 0u;
-     
-    if(IspNormal_Input_Low_Counter < 255u)
-    {
-      IspNormal_Input_Low_Counter++;
-    } 
-  } 
+  Inspection_Normal_Key();
   
-  if( SfBase_EscState == ESC_RUN_STATE ) 
-  {
-    Inspection_Normal_Key_Run();
-  }  
-  else
-  {
-    Inspection_Normal_Key_Ready();
-  }  
-  
-  if(EN_ERROR31 & 0x01u)
-  {
-      if(INE_tms++>500u) { EN_ERROR31 &= ~0x01u;}
-  }  
-  else
-  {
-    INE_tms=0u;
-  }  
 }
 
 /******************************  END OF FILE  *********************************/

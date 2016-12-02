@@ -36,6 +36,7 @@ static void GeneralRegister_RunCheck(void);
 static void Stack_RunCheck(void);
 static void ClockFrequency_RunCheck(void);
 static void DataIntegrityInFlash_RunCheck(u32* RomTest);
+static void ProgramCounterCheck(void);
 
 /*******************************************************************************
 * Function Name  : Safety_InitRunTimeChecks
@@ -76,9 +77,34 @@ void Safety_InitRunTimeChecks(void)
   STL_SysTickRTCSync();
 
   /* Initialize variables for invariable memory check */
-  /*STL_FlashCrc16Init();*/
+  STL_FlashCrc16Init();
   STL_FlashCrc32Init();
-
+  
+  /*----------------------------------------------------------------------------*/
+  /*------------------------ For program counter check -------------------------*/  
+  /*----------------------------------------------------------------------------*/
+  /* WWDG configuration --------------------------------------------------------*/
+  /* Enable WWDG clock */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_WWDG, ENABLE);
+#if 0  
+  /* WWDG clock counter = (PCLK1/4096)/1 = 8798 Hz (113.77us)  */
+  WWDG_SetPrescaler(WWDG_Prescaler_1);
+  /* Set Window value to 87 */
+  WWDG_SetWindowValue(87u);
+  /* Enable WWDG and set counter value to 127, WWDG timeout = 113.77 us * 64 = 7.28 ms 
+    In this case the refresh window is: 113.77 us * (127-87) = 4.55 ms < refresh window < 113.77 us * 64 = 7.28ms */
+  WWDG_Enable(0x7Fu);
+#else
+  
+  /* WWDG clock counter = (PCLK1/4096)/8 = 1098 Hz (910.22us)  */
+  WWDG_SetPrescaler(WWDG_Prescaler_8);
+  /* Set Window value to 122 */
+  WWDG_SetWindowValue(125u);
+  /* Enable WWDG and set counter value to 127, WWDG timeout = 910.22 us * 64 = 58.25 ms 
+  In this case the refresh window is: 910.22 us * (127-122) = 4.55 ms < refresh window < 910.22 us * 64 = 58.25ms */
+  WWDG_Enable(0x7Fu);
+#endif
+  
   /* Initialize variables for main routine control flow monitoring */
   CtrlFlowCnt = 0u;
   CtrlFlowCntInv = 0xFFFFFFFFuL;
@@ -217,6 +243,22 @@ static void DataIntegrityInFlash_RunCheck(u32* RomTest)
 
 }
 
+
+/*******************************************************************************
+* Function Name  : ProgramCounterCheck
+* Description    : Update WWDG counter.
+* Input          : None
+* Output         : None
+* Return         : None
+*******************************************************************************/
+static void ProgramCounterCheck(void)
+{
+    /* Update WWDG counter */
+    WWDG_SetCounter(127u); 
+    /* Reload IWDG counter */
+    IWDG_ReloadCounter();
+}
+
 /*******************************************************************************
 * Function Name  : Safety_RunCheck1
 * Description    : Provide a short description of the function
@@ -228,12 +270,21 @@ void Safety_RunCheck1(void)
 {
     static u32 stat_u32CheckTimePeriod = 0u;
     
+    /* safety run check period */
     stat_u32CheckTimePeriod++;
     if( ( stat_u32CheckTimePeriod * 5u ) >= RUNCHECK_TIME_PERIOD )
     {
         stat_u32CheckTimePeriod = 0u;
         Safety_InitRunTimeChecks();
     }
+    
+    
+    
+    /*----------------------------------------------------------------------------*/
+    /*-------------------------  program counter check ---------------------------*/ 
+    /*----------------- Refresh Window and independent watchdogs -----------------*/
+    /*----------------------------------------------------------------------------*/
+    ProgramCounterCheck();
     
     
   /* Is the time base duration elapsed? */
@@ -275,11 +326,8 @@ void Safety_RunCheck1(void)
       DataIntegrityInFlash_RunCheck(&RomTest);
 
       /*----------------------------------------------------------------------*/
-      /*---------------- Check Safety routines Control flow  -----------------*/
-      /*------------- Refresh Window and independent watchdogs ---------------*/
+      /*---------------- Check Safety routines Control flow  -----------------*/      
       /*----------------------------------------------------------------------*/
-      /* Reload IWDG counter */
-      IWDG_ReloadCounter();
 
       if (((CtrlFlowCnt ^ CtrlFlowCntInv) == 0xFFFFFFFFuL)
         &&((LastCtrlFlowCnt ^ LastCtrlFlowCntInv) == 0xFFFFFFFFuL))

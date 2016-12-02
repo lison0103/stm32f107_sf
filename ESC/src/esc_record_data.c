@@ -27,7 +27,11 @@
 /* Private functions ---------------------------------------------------------*/
 
 u8 g_u8FaultCodeStore = 0u;
-
+u16 g_u16FramWriteAdr = 0u;
+u16 g_u16FramWriteLen = 0u;
+u8 *FramWriteData;
+u8 FramWriteBuffer[ESC_ERROR_NUM];
+u8 FramNeedStore = 0u;
 
 /*******************************************************************************
 * Function Name  : Check_Error_Present_Memory
@@ -98,8 +102,7 @@ void StoreFaultInMemory(void)
 {
     static u16 stat_u16TimerStoreFault = 0u;
     u8 u8DataStore = 0u;
-    u8 buffer[ESC_ERROR_NUM];
-    u8 i;
+    u16 i;
 
     if( g_u8FaultCodeStore == 1u )
     {
@@ -125,39 +128,73 @@ void StoreFaultInMemory(void)
         /* first, clear buffer */
         for( i = 0u; i < ESC_ERROR_NUM; i++ )
         {
-            buffer[i] = 0u;
+            FramWriteBuffer[i] = 0u;
         }
         
         /* Header */
-        buffer[0] = 0xfau;
-        buffer[1] = 0xedu;
+        FramWriteBuffer[0] = 0xfau;
+        FramWriteBuffer[1] = 0xedu;
         
         /* 5 Error Code */
         for( i = 0u; i < 5u; i++ )
         {
-            buffer[i*2u + 2u] = (u8)(EscRtData.ErrorCode[i] & 0xffu);
-            buffer[i*2u + 3u] = (u8)((EscRtData.ErrorCode[i] >> 8u) & 0xffu);
+            FramWriteBuffer[i*2u + 2u] = (u8)(EscRtData.ErrorCode[i] & 0xffu);
+            FramWriteBuffer[i*2u + 3u] = (u8)((EscRtData.ErrorCode[i] >> 8u) & 0xffu);
         }
         
-        /* Error Buffer */
+        /* Error FramWriteBuffer */
         for( i = 0u; i < 64u; i++ )
         {
-            buffer[i + 12u] = EscRtData.ErrorBuff[i] | OmcEscRtData.ErrorBuff[i];
+            FramWriteBuffer[i + 12u] = EscRtData.ErrorBuff[i] | OmcEscRtData.ErrorBuff[i];
             /* for test, only cpu1 */
-            /*buffer[i + 12u] = EscRtData.ErrorBuff[i];*/
-        }      
+            /*FramWriteBuffer[i + 12u] = EscRtData.ErrorBuff[i];*/
+        }
+        
+        /* CRC16 */
+        i = MB_CRC16( FramWriteBuffer, ESC_ERROR_NUM - 2u );
+        FramWriteBuffer[ESC_ERROR_NUM - 2u] = (u8)i;
+        FramWriteBuffer[ESC_ERROR_NUM - 1u] = (u8)(i >> 8u);
         
         /* record in fram */
         if( g_u8FaultCodeStore )
         {
-          fram_data_write(ESC_ERROR_ADR, ESC_ERROR_NUM, buffer);  
+            /*fram_data_write(ESC_ERROR_ADR, ESC_ERROR_NUM, FramWriteBuffer, 0u);  */
+            g_u16FramWriteAdr = ESC_ERROR_ADR;
+            g_u16FramWriteLen = ESC_ERROR_NUM;
+            FramWriteData = FramWriteBuffer;       
+            FramNeedStore = 1u;
         }
         else
         {
-          /* backup */
-          fram_data_write(ESC_BACKUP_ADR + ESC_ERROR_ADR, ESC_ERROR_NUM, buffer);  
+            /* backup */
+            /*fram_data_write(ESC_BACKUP_ADR + ESC_ERROR_ADR, ESC_ERROR_NUM, FramWriteBuffer, 0u);  */
+            g_u16FramWriteAdr = ESC_BACKUP_ADR + ESC_ERROR_ADR;
+            g_u16FramWriteLen = ESC_ERROR_NUM;
+            FramWriteData = FramWriteBuffer;        
+            FramNeedStore = 1u;
         }
+        
         u8DataStore = 0u;
+    } 
+}
+
+/*******************************************************************************
+* Function Name  : fram_store_data
+* Description    : Store the data to Fram.                  
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void fram_store_data(void)
+{
+    if( FramNeedStore == 1u )
+    {
+        FramNeedStore = 0u;
+        if( eeprom_write(g_u16FramWriteAdr, g_u16FramWriteLen, FramWriteData))
+        {
+            /* FAULT: eeprom write error */
+            
+        }  
     }
 }
 
@@ -258,8 +295,8 @@ u8 fram_data_read(u16 Adr, u16 len, u8 ReadData[])
         {
             Fram_Data[i] = 0u;
         } 
-        fram_data_write(Adr, len, Fram_Data);
-        fram_data_write(ESC_BACKUP_ADR + Adr, len, Fram_Data);
+        fram_data_write(Adr, len, Fram_Data, PARAMETER_POLYNOMIALS);
+        fram_data_write(ESC_BACKUP_ADR + Adr, len, Fram_Data, PARAMETER_POLYNOMIALS);
     }
     
     return errorflag;
@@ -272,22 +309,35 @@ u8 fram_data_read(u16 Adr, u16 len, u8 ReadData[])
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void fram_data_write(u16 Adr, u16 len, u8 WriteData[])
+void fram_data_write(u16 Adr, u16 len, u8 WriteData[], u32 Polynomials)
 {
-    u16 i;
+    u32 i;
         
-    i = MB_CRC16( WriteData, len - 2u );
-    WriteData[len - 2u] = (u8)i;
-    WriteData[len - 1u] = (u8)(i >> 8u);
+    if( Polynomials )
+    {
+        /* CRC32 */
+        i = MB_CRC32( WriteData, (len - 4u) , Polynomials);
+        WriteData[len - 4u] = (u8)(i >> 24u);
+        WriteData[len - 3u] = (u8)(i >> 16u);     
+        WriteData[len - 2u] = (u8)(i >> 8u);
+        WriteData[len - 1u] = (u8)i;         
+    }
+    else
+    {
+        /* CRC16 */
+        i = MB_CRC16( WriteData, len - 2u );
+        WriteData[len - 2u] = (u8)i;
+        WriteData[len - 1u] = (u8)(i >> 8u);
+    }
     
-    eeprom_write(Adr, len, WriteData);
-    
+    eeprom_write(Adr, len, WriteData);    
 }
 
 
 /*******************************************************************************
-* Function Name  : esc_data_check
-* Description    : Respectively on two parameters CRC check memory area, such as CRC check is passed,
+* Function Name  : DataIntegrityInFRAMCheck
+* Description    : FRAM initialization and test data integrity.
+*                  Respectively on two parameters CRC check memory area, such as CRC check is passed,
 *                  And then one by one using zone parameters (original code) and backup zone parameters (complement) XOR,
 *                  Two storage areas to ensure that the correct parameters, such as parameter error occurs, 
 *                  the process proceeds to the error handling routine                   
@@ -295,90 +345,19 @@ void fram_data_write(u16 Adr, u16 len, u8 WriteData[])
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void esc_data_check(void)
+void DataIntegrityInFRAMCheck(void)
 {
-    u32 i;
-    u16 j = 0u;
     u8 result = 0u;
-    u8 errorflag = 0u;
     u8 Fram_Data[ESC_RECORD_NUM] = {0};
-    u8 Fram_Data_Backup[ESC_RECORD_NUM] = {0};
-    
-    if(!eeprom_read(ESC_PARA_ADR, ESC_PARA_NUM, Fram_Data))
-    {
-        j = (u16)Fram_Data[1] << 8;
-        j |= (u16)Fram_Data[0];
-        
-        if(!MB_CRC32(Fram_Data, ESC_PARA_NUM, PARAMETER_POLYNOMIALS))
-        {
-            delay_ms(10u);
-            
-            if(!eeprom_read(ESC_BACKUP_ADR, ESC_PARA_NUM, Fram_Data_Backup))
-            {
-                if(!MB_CRC32(Fram_Data_Backup, ESC_PARA_NUM, PARAMETER_POLYNOMIALS))
-                {
-                    
-                    for(i = 0u; i < ESC_PARA_NUM; i++)
-                    {
-                        result = Fram_Data[i]^Fram_Data_Backup[i];
-                        if( result )
-                        {
-                            errorflag = 1u;
-                            break;
-                        }
-                        
-                    }
-                } 
-                else
-                {
-                    errorflag = 1u;
-                }
-            }
-            else
-            {
-                errorflag = 1u;
-            }
-        }  
-        else
-        {
-            errorflag = 1u;
-        }  
-    }
-    else
-    {
-        errorflag = 1u;
-    }
-    
-    if(errorflag)
-    {
-        /* eeprom init first time */
-        Fram_Data[0] = 0xf1u;
-        Fram_Data[1] = 0xf1u;
-        
-        for(i = 2u; i < ESC_RECORD_NUM * 2u; i++)
-        {
-            Fram_Data[i] = 0u;
-        }  
 
-        i = MB_CRC32( Fram_Data, (ESC_PARA_NUM - 4u) , PARAMETER_POLYNOMIALS);
-        Fram_Data[ESC_PARA_NUM - 4u] = (u8)(i >> 24u);
-        Fram_Data[ESC_PARA_NUM - 3u] = (u8)(i >> 16u);     
-        Fram_Data[ESC_PARA_NUM - 2u] = (u8)(i >> 8u);
-        Fram_Data[ESC_PARA_NUM - 1u] = (u8)i;        
-        
-        eeprom_write(ESC_PARA_ADR, ESC_PARA_NUM, Fram_Data);
-        
-        eeprom_write(ESC_BACKUP_ADR, ESC_PARA_NUM, Fram_Data); 
-        
-        if( j == 0xf1f1u )
-        {
-            ESC_Fram_Error_Process();
-            g_u32InitTestError = 1u;
-        }
-
+    result = fram_data_read(ESC_PARA_ADR, ESC_PARA_NUM, Fram_Data);
+    if(result)
+    {
+        ESC_Fram_Error_Process();
+        g_u32InitTestError = 1u;
     }
-  
 }
+
 
 /******************************  END OF FILE  *********************************/
 

@@ -123,9 +123,9 @@ allow to react more quickly */
                           IWDG_TEST_CALLER + \
                           CRC32_INIT_CALLEE + \
                           CRC32_TEST_CALLER + \
-                          CRC32_TEST_CALLEE)/* + \
+                          CRC32_TEST_CALLEE + \
                           CRC16_TEST_CALLER + \
-                          CRC16_TEST_CALLEE)*/
+                          CRC16_TEST_CALLEE)
 
 #define CHECKPOINT2 ((u32)CLOCK_TEST_CALLER + \
                           CLOCK_TEST_CALLEE + \
@@ -136,7 +136,7 @@ allow to react more quickly */
                           CLOCK_SWITCH_CALLEE + \
                           STACK_OVERFLOW_TEST)
 
-/* This is for run-time tests with 32-bit CRC */
+/* This is for run-time tests with 16-bit CRC */
 #define DELTA_MAIN  ((u32)CPU_TEST_CALLER + \
                           CPU_TEST_CALLEE + \
                           STACK_OVERFLOW_TEST + \
@@ -146,9 +146,7 @@ allow to react more quickly */
                           CLOCKPERIOD_TEST_CALLEE + \
                           FLASH_TEST_CALLER + \
                           CRC32_RUN_TEST_CALLEE + \
-                          CRC32_TEST_CALLEE)/*                            
-                          CRC16_RUN_TEST_CALLEE + \
-                          CRC16_TEST_CALLEE)*/
+                          CRC32_TEST_CALLEE)
 #define LAST_DELTA_MAIN ((u32) DELTA_MAIN)
 #define FULL_FLASH_CHECKED ((u32)DELTA_MAIN * STEPS_NUMBER)
 

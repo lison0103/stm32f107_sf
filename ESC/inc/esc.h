@@ -110,7 +110,6 @@ typedef struct sfescdata
     DBL1Esc DBL1Lower;
     DBL1Esc DBL1Interm1;
     DBL1Esc DBL1Interm2;
-    
 
 #ifdef DIAGNOSTIC_LEVEL2    
     /* DBL2 */
@@ -285,7 +284,9 @@ typedef struct updownkey
 
 /* led flash freq */
 #define FREQ_0_5HZ      200u
+#define FREQ_1HZ        100u
 #define FREQ_2HZ        50u
+#define FREQ_3HZ        33u
 
 /* Input and Feedback */
 #define INPUT_PORT1_8       EscRtData.SafetyInputData[0]
@@ -359,7 +360,7 @@ typedef struct updownkey
 
 
 /*define function input*/
-#define ISP_NORMAL_INPUT   (EscRtData. SafetyInputData[3] & 0x10u)
+#define ISP_NORMAL_INPUT        (EscRtData. SafetyInputData[3] & 0x10u)
 
 
 
@@ -523,9 +524,9 @@ extern u8 g_u8ResetType;
 extern u8 g_u8SafetyRelayStartCheck;
 extern volatile u16 g_u16DBL1NewData;
 #ifdef DIAGNOSTIC_LEVEL2
-extern volatile u16 g_u16DBL2NewData;
+extern u16 g_u16DBL2NewData;
 #endif
-extern u16 g_u16CAN2SendFail;
+extern u8 g_u8CAN2SendFail;
 extern u8 DIAGNOSTIC;
 extern u8 g_u8LedFreq;
 

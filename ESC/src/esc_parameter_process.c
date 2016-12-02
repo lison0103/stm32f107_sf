@@ -72,6 +72,8 @@ static void esc_para_init(void)
     AUX_BRAKE_ENABLE = 1u;
     CAPACITOR_TIME_MEASUREMENT = 1u;    
     
+    PULSE_SIGNALS_MINIMUM_LAG = 300u;
+    
     DIAGNOSTIC_BOARD_L2_QUANTITY = 2u;
     DIAGNOSTIC_BOARD_L1_QUANTITY = 0u;
     
@@ -213,7 +215,7 @@ static void get_para_from_usb(void)
 #ifdef GEC_SF_MASTER 
     
     u8 recvdata[10];
-    u8 paradata[500];   
+    u8 paradata[ESC_PARA_NUM];   
     u16 i;
     
     USBH_Mass_Storage_Init();
@@ -399,7 +401,7 @@ int USB_LoadParameter(void)
 { 
 
       int res = 0;
-      u8 parabuffer[500];
+      u8 parabuffer[ESC_PARA_NUM];
       u16 filelen = 0u;
             
       
@@ -440,8 +442,8 @@ int USB_LoadParameter(void)
               /*if(( filelen - 4u ) == ESC_PARA_NUM )*/
               
               /* 5. Store the parameters in the fram */
-              fram_data_write(ESC_PARA_ADR, filelen, parabuffer);
-              fram_data_write(ESC_BACKUP_ADR + ESC_PARA_ADR, filelen, parabuffer);
+              fram_data_write(ESC_PARA_ADR, filelen, parabuffer, PARAMETER_POLYNOMIALS);
+              fram_data_write(ESC_BACKUP_ADR + ESC_PARA_ADR, filelen, parabuffer, PARAMETER_POLYNOMIALS);
               
               ParaLoad |= SAFETY_PARAMETER_LOADED;
           }

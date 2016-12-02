@@ -13,16 +13,16 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define FLOOR_PLATE_U_INPUT1   (EscRtData. SafetyInputData[2] & 0x40u)
-#define FLOOR_PLATE_U_INPUT2   (EscRtData. SafetyInputData[2] & 0x80u)
+#define FLOOR_PLATE_U_INPUT1   (EscRtData. Cfg_Input_Level[0] &(0x80u))
+#define FLOOR_PLATE_U_INPUT2   (EscRtData. Cfg_Input_Level[1] &(0x01u))
 
-#define FLOOR_PLATE_L_INPUT1   (EscRtData. SafetyInputData[3] & 0x01u)
-#define FLOOR_PLATE_L_INPUT2   (EscRtData. SafetyInputData[3] & 0x02u)
+#define FLOOR_PLATE_L_INPUT1   (EscRtData. Cfg_Input_Level[1] &(0x02u))
+#define FLOOR_PLATE_L_INPUT2   (EscRtData. Cfg_Input_Level[1] &(0x04u))
 
-#define CP_INPUT_OPEN           0x02u
-#define CP_INPUT_CLOSE          0x01u
-#define CP_INPUT_FAULT1         0x00u
-#define CP_INPUT_FAULT2         0x03u
+#define CP_INPUT_OPEN           0x00u
+#define CP_INPUT_CLOSE          0x03u
+#define CP_INPUT_FAULT1         0x01u
+#define CP_INPUT_FAULT2         0x02u
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -32,119 +32,66 @@
 
 
 /*******************************************************************************
-* Function Name  : Floorplate_Open
+* Function Name  : Floorplate_Check
 * Description    : 
 * Input          : None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Floorplate_Open(void)
+void Floorplate_Check(void)
 {
   u8 i=0u,cp_input[2]={0,0};
-  static u16 input_sensor_fault_counter[2]={0,0},input_sensor_ok_counter[2]={0,0};
-  static u16 cp_close_counter[2]={0,0},cp_open_counter[2]={0,0};
+  static u16 input_sensor_fault_counter[2]={0,0};
   
+  /*
+  *  cp_input[0].0 Upper coverplate input1
+  *  cp_input[0].1 Upper coverplate input2
+  *  cp_input[1].0 Lower coverplate input1
+  *  cp_input[1].1 Lower coverplate input2
+  */
   if(FLOOR_PLATE_U_INPUT1) { cp_input[0] |= 0x01u; }
-  if(FLOOR_PLATE_U_INPUT2) {cp_input[0] |= 0x02u;}
+  if(FLOOR_PLATE_U_INPUT2) { cp_input[0] |= 0x02u; }
   
-  if(FLOOR_PLATE_L_INPUT1) {cp_input[1] |= 0x01u;}
-  if(FLOOR_PLATE_L_INPUT2) {cp_input[1] |= 0x02u;}
+  if(FLOOR_PLATE_L_INPUT1) { cp_input[1] |= 0x01u; }
+  if(FLOOR_PLATE_L_INPUT2) { cp_input[1] |= 0x02u; }
   
   for(i=0u;i<2u;i++)
   {
     if( (cp_input[i] == CP_INPUT_FAULT1)   ||   (cp_input[i] == CP_INPUT_FAULT2) )
     {
-      input_sensor_ok_counter[i] = 0u;
-      if(input_sensor_fault_counter[i]<1000u) { input_sensor_fault_counter[i]++; }
+      if(input_sensor_fault_counter[i]>100u) /* 500ms delay*/
+      {
+        EN_ERROR5 |= (1u<<i);
+      } 
+      else  
+      { 
+        input_sensor_fault_counter[i]++; 
+      }
     }  
     else
     {
       input_sensor_fault_counter[i] = 0u;
-      if(input_sensor_ok_counter[i]<1000u) { input_sensor_ok_counter[i]++; }
-    }  
+    }   
   }  
-   
-  if(input_sensor_ok_counter[0]>200u)  /* Upper plate sensor no fault */
-  {
-     EN_ERROR30 &= ~0x01u; 
-  }  
-  else if(input_sensor_fault_counter[0]>200u) /* Upper plate sensor fault */
-  {
-    EN_ERROR30 |= 0x01u; 
-  }  
-  else
-  {}
-    
-  if(input_sensor_ok_counter[1]>200u)  /* Lower plate sensor no fault */
-  {
-     EN_ERROR30 &= ~0x02u; 
-  }  
-  else if(input_sensor_fault_counter[1]>200u)  /* Lower plate sensor fault */
-  {
-    EN_ERROR30 |= 0x02u; 
-  }    
-  else       
-  {}
   
-  /* 
-  * OPEN/ CLOSE check 
-  *
-  *
-  */
-  for(i=0u;i<2u;i++)
+  if( ISP_NORMAL_INPUT )  /* ISP_NORMAL input pin is high( to be in normal mode) */
   {
-    if(cp_input[i] == CP_INPUT_CLOSE)
+    if((cp_input[0] != CP_INPUT_CLOSE))
     {
-      cp_open_counter[i] = 0u;
-      if(cp_close_counter[i]<1000u) {cp_close_counter[i]++; }
+      EN_ERROR5 |= 0x01u;   /* Upper floorplate open */
     }  
-    else /* if(cp_input[i] == CP_INPUT_OPEN) */
-    {
-      cp_close_counter[i] = 0u;
-      if(cp_open_counter[i]<1000u) {cp_open_counter[i]++; }
-    }  
-  } 
-  
-  if( ISP_NORMAL_INPUT )  /* (CMD_FLAG3 & 0x10u) Inspection running */
-  {
-    /* No plate opened */
     
-    if((cp_open_counter[0]>200u) || (cp_open_counter[1]>200u))
+    if((cp_input[1] != CP_INPUT_CLOSE))
     {
-       EN_ERROR30 &= ~0x10u;  
+      EN_ERROR5 |= 0x02u;  /* Lower floorplate open */
     }  
-    else if((cp_close_counter[0]>200u) && (cp_close_counter[1]>200u))
-    {
-      EN_ERROR30 |= 0x10u; 
-    }  
-    else
-    {}
-    
-    EN_ERROR30 &= ~0x0cu;  
   }  
-  else  /* Normal running */
+  else  /* to be inspection mode */
   {
-    if(cp_close_counter[0]>200u)  /* Upper plate sensor no fault */
+    if((cp_input[0] == CP_INPUT_CLOSE) && (cp_input[1] == CP_INPUT_CLOSE))
     {
-     EN_ERROR30 &= ~0x04u;  
+      EN_ERROR50 |= 0x08u;   /* At least should be open one floorplate */
     }  
-    else if(cp_open_counter[0]>200u) /* Upper plate sensor fault */
-    {
-       EN_ERROR30 |= 0x04u;
-    }        
-    else
-    {}
-      
-    if(cp_close_counter[1]>200u)  /* Lower plate sensor no fault */
-    {
-      EN_ERROR30 &= ~0x08u;
-    }  
-    else if(cp_open_counter[1]>200u)  /* Lower plate sensor fault */
-    {
-      EN_ERROR30 |= 0x08u;  
-    }
-    else
-    {}
   }
 }
 

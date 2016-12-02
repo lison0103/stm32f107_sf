@@ -16,7 +16,6 @@
 
 #include "check_instruction.h"
 #include "check_instruction_2.h"
-#include "pc_test.h"
 #include "flag_test.h"
 #include "config_test.h"
 
@@ -29,7 +28,6 @@
 static void ConfigurationRegister_StartupCheck(void);
 static void ConfigurationRegister_RunCheck(void);
 static void FlagRegisterCheck(void);
-static void ProgramCounterCheck(void);
 static void ProgramExecutionInstructionCheck(void);
 
 /* variable is located in the stack */
@@ -148,26 +146,6 @@ static void FlagRegisterCheck(void)
     }
 }
 
-/*******************************************************************************
-* Function Name  : ProgramCounterCheck
-* Description    : Check the program counter.
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-static void ProgramCounterCheck(void)
-{
-    SafetyTestFlowCnt += PC_TEST_CALLER;
-    result = IEC61508_PCTest_POST();
-    if (result != IEC61508_testPassed)
-    {
-        FailSafeTest();                                    
-    }   
-    else
-    {
-        SafetyTestFlowCntInv -= PC_TEST_CALLER;
-    }
-}
 
 /*******************************************************************************
 * Function Name  : ProgramExecutionInstructionCheck
@@ -259,10 +237,6 @@ void Safety_RunCheck2(void)
     if( ( stat_u32CheckTimePeriod * 5u ) >= RUNCHECK_TIME_PERIOD )
     {
         stat_u32CheckTimePeriod = 0u;
-        Safety_InitRunTimeChecks();
-    }
-    else
-    {
         
         /*----------------------------------------------------------------------*/
         /*---------------------- Configuration registers -----------------------*/
@@ -272,12 +246,7 @@ void Safety_RunCheck2(void)
         /*----------------------------------------------------------------------*/
         /*--------------------------- FLAG registers ---------------------------*/
         /*----------------------------------------------------------------------*/
-        FlagRegisterCheck();
-        
-        /*----------------------------------------------------------------------*/
-        /*------------------------------- PC Test ------------------------------*/
-        /*----------------------------------------------------------------------*/ 
-        ProgramCounterCheck();
+        FlagRegisterCheck();        
         
         /*----------------------------------------------------------------------*/
         /*------------------- program execution instruction --------------------*/

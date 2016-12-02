@@ -56,9 +56,9 @@ u8 can2_receive = 0u;
 #ifdef GEC_SF_MASTER
 volatile u16 g_u16DBL1NewData = 0u;
 #ifdef DIAGNOSTIC_LEVEL2
-volatile u16 g_u16DBL2NewData = 0u;
+u16 g_u16DBL2NewData = 0u;
 #endif
-u16 g_u16CAN2SendFail = 0u;
+u8 g_u8CAN2SendFail = 0u;
 
 
 /* Esc receive data buffer */
@@ -142,7 +142,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             /*  non-time-triggered communication mode */
             CAN_InitStructure.CAN_TTCM=DISABLE;			
             /* automatic offline management software */
-            CAN_InitStructure.CAN_ABOM=DISABLE;				 
+            CAN_InitStructure.CAN_ABOM=ENABLE;
             /* wake-sleep mode via software (Clear CAN-> MCR's SLEEP bit) */
             CAN_InitStructure.CAN_AWUM=DISABLE;			
             /* message is automatically transferred, in accordance with the CAN standard, */
@@ -151,7 +151,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             /* message is not locked, the new over the old one */
             CAN_InitStructure.CAN_RFLM=DISABLE;		 	
             /* priority is determined by the packet identifier */
-            CAN_InitStructure.CAN_TXFP=DISABLE;			
+            CAN_InitStructure.CAN_TXFP=ENABLE;			
             CAN_InitStructure.CAN_Mode= CAN_Mode_Normal;	 
             
             /* set baud rate */
@@ -254,11 +254,11 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             CAN_StructInit(&CAN_InitStructure);
             
             CAN_InitStructure.CAN_TTCM=DISABLE;		  
-            CAN_InitStructure.CAN_ABOM=DISABLE;				 
+            CAN_InitStructure.CAN_ABOM=ENABLE;				 
             CAN_InitStructure.CAN_AWUM=DISABLE;			
             CAN_InitStructure.CAN_NART=DISABLE;			 
             CAN_InitStructure.CAN_RFLM=DISABLE;		 	  
-            CAN_InitStructure.CAN_TXFP=DISABLE;			 
+            CAN_InitStructure.CAN_TXFP=ENABLE;			 
             CAN_InitStructure.CAN_Mode= CAN_Mode_Normal;	         
             
             CAN_InitStructure.CAN_SJW = CAN_SJW_1tq;  
@@ -440,7 +440,6 @@ void CAN2_RX0_IRQHandler(void)
         /** DBL2 data RECEIVE **/    
         else if( DIAGNOSTIC == DIAGNOSTIC_BOARD_2 )
         {
-
             if((( RxMessage.ExtId >= CAN2RX_DBL2_UPPER_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_UPPER_ID3 )) 
                || (( RxMessage.ExtId >= CAN2RX_DBL2_LOWER_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_LOWER_ID3 )) 
                    || (( RxMessage.ExtId >= CAN2RX_DBL2_INTERM1_ID1 ) && ( RxMessage.ExtId <= CAN2RX_DBL2_INTERM1_ID3 ))
@@ -458,8 +457,7 @@ void CAN2_RX0_IRQHandler(void)
         /* Test Mode */        
         else if( ( RxMessage.ExtId == CAN1_TEST_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
-            can2_receive = 1u;        
-            
+            can2_receive = 1u;                    
         }  
         else
         {
@@ -528,141 +526,141 @@ void CAN2_TX_IRQHandler(void)
    
     if( DIAGNOSTIC == DIAGNOSTIC_BOARD_1 )
     {
-        if( g_u16CAN2SendFail & 0x01u )
+        if( g_u8CAN2SendFail & 0x01u )
         {
             result = Can_Send_Msg(CAN2, CAN2TX_DBL1_ID, &EscDataToDBL1[0][0], CAN_FRAME_LEN ); 
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x01u;
+                g_u8CAN2SendFail |= 0x01u;
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
             }
             else
             {
-                g_u16CAN2SendFail &= ~0x01u;
+                g_u8CAN2SendFail &= ~0x01u;
             }
         }        
     }
 #ifdef DIAGNOSTIC_LEVEL2    
     else if( DIAGNOSTIC == DIAGNOSTIC_BOARD_2 )
     {
-        if( g_u16CAN2SendFail & 0x01u )
+        if( g_u8CAN2SendFail & 0x01u )
         {
             result = Can_Send_Msg(CAN2, CAN2TX_DBL2_UPPER_ID1, &EscDataToDBL2[0][0], CAN_FRAME_LEN ); 
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x01u;
+                g_u8CAN2SendFail |= 0x01u;
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);               
             }
             else
             {
-                g_u16CAN2SendFail &= ~0x01u;
+                g_u8CAN2SendFail &= ~0x01u;
             }
         }
         
-        if( g_u16CAN2SendFail & 0x02u )
+        if( g_u8CAN2SendFail & 0x02u )
         {
             result = Can_Send_Msg(CAN2, CAN2TX_DBL2_UPPER_ID2, &EscDataToDBL2[1][0], CAN_FRAME_LEN ); 
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x02u;
+                g_u8CAN2SendFail |= 0x02u;
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);        
             } 
             else
             {
-                g_u16CAN2SendFail &= ~0x02u;
+                g_u8CAN2SendFail &= ~0x02u;
             }
         }
         
-        if( g_u16CAN2SendFail & 0x04u )
+        if( g_u8CAN2SendFail & 0x04u )
         {
             result = Can_Send_Msg(CAN2, CAN2TX_DBL2_LOWER_ID1, &EscDataToDBL2[2][0], CAN_FRAME_LEN ); 
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x04u;
+                g_u8CAN2SendFail |= 0x04u;
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE);
             } 
             else
             {
-                g_u16CAN2SendFail &= ~0x04u;
+                g_u8CAN2SendFail &= ~0x04u;
             }
         }
         
-        if( g_u16CAN2SendFail & 0x08u )
+        if( g_u8CAN2SendFail & 0x08u )
         {
             result = Can_Send_Msg(CAN2, CAN2TX_DBL2_LOWER_ID2, &EscDataToDBL2[3][0], CAN_FRAME_LEN ); 
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x08u;
+                g_u8CAN2SendFail |= 0x08u;
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
             }  
             else
             {
-                g_u16CAN2SendFail &= ~0x08u;
+                g_u8CAN2SendFail &= ~0x08u;
             }
         } 
         
-        if( g_u16CAN2SendFail & 0x10u )
+        if( g_u8CAN2SendFail & 0x10u )
         {
             result = Can_Send_Msg(CAN2, CAN2TX_DBL2_INTERM1_ID1, &EscDataToDBL2[4][0], CAN_FRAME_LEN ); 
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x10u;
+                g_u8CAN2SendFail |= 0x10u;
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
             }  
             else
             {
-                g_u16CAN2SendFail &= ~0x10u;
+                g_u8CAN2SendFail &= ~0x10u;
             }
         }    
         
-        if( g_u16CAN2SendFail & 0x20u )
+        if( g_u8CAN2SendFail & 0x20u )
         {
             result = Can_Send_Msg(CAN2, CAN2TX_DBL2_INTERM1_ID2, &EscDataToDBL2[5][0], CAN_FRAME_LEN ); 
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x20u;
+                g_u8CAN2SendFail |= 0x20u;
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
             }  
             else
             {
-                g_u16CAN2SendFail &= ~0x20u;
+                g_u8CAN2SendFail &= ~0x20u;
             }
         } 
 
-        if( g_u16CAN2SendFail & 0x40u )
+        if( g_u8CAN2SendFail & 0x40u )
         {
             result = Can_Send_Msg(CAN2, CAN2TX_DBL2_INTERM2_ID1, &EscDataToDBL2[6][0], CAN_FRAME_LEN ); 
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x40u;
+                g_u8CAN2SendFail |= 0x40u;
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
             }  
             else
             {
-                g_u16CAN2SendFail &= ~0x40u;
+                g_u8CAN2SendFail &= ~0x40u;
             }
         } 
 
-        if( g_u16CAN2SendFail & 0x80u )
+        if( g_u8CAN2SendFail & 0x80u )
         {
             result = Can_Send_Msg(CAN2, CAN2TX_DBL2_INTERM2_ID2, &EscDataToDBL2[7][0], CAN_FRAME_LEN ); 
             if( result )
             {
                 /* No mail box, send fail */
-                g_u16CAN2SendFail |= 0x80u;
+                g_u8CAN2SendFail |= 0x80u;
                 CAN_ITConfig(CAN2, CAN_IT_TME, ENABLE); 
             }  
             else
             {
-                g_u16CAN2SendFail &= ~0x80u;
+                g_u8CAN2SendFail &= ~0x80u;
             }
         }         
     }
@@ -876,104 +874,192 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
 #ifdef DIAGNOSTIC_LEVEL2        
        case DATA_FROM_DBL2:
         {   
-            if(( canid >= CAN2RX_DBL2_UPPER_ID1 ) && ( canid <= CAN2RX_DBL2_UPPER_ID3 )) 
+            if(( canid == CAN2RX_DBL2_UPPER_ID1 ) || ( canid == CAN2RX_DBL2_UPPER_ID2 ) 
+               || ( canid == CAN2RX_DBL2_UPPER_ID3 ) || ( canid == CAN2RX_DBL2_UPPER_NONSAFETY_ID )) 
             {
                 if( canid == CAN2RX_DBL2_UPPER_ID1 )
                 {
                     g_u16DBL2NewData |= 0x0001u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[0][i] = rxmsg[i];
+                    } 
+                    if(( g_u16DBL2NewData & 0x0001u ) != 0x0001u )
+                    {
+                        i = 0u;
+                    }
                 }
                 else if( canid == CAN2RX_DBL2_UPPER_ID2 )
                 {
                     g_u16DBL2NewData |= 0x0002u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[1][i] = rxmsg[i];
+                    }
+                    if(( g_u16DBL2NewData & 0x0002u ) != 0x0002u)
+                    {
+                        i = 0u;
+                    }                    
                 }
                 else if( canid == CAN2RX_DBL2_UPPER_ID3 )
                 {
                     g_u16DBL2NewData |= 0x0004u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[2][i] = rxmsg[i];
+                    }
+                    if(( g_u16DBL2NewData & 0x0004u ) != 0x0004u)
+                    {
+                        i = 0u;
+                    }                     
                 }
+                else if( canid == CAN2RX_DBL2_UPPER_NONSAFETY_ID )
+                {
+                    g_u16DBL2NewData |= 0x0008u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[3][i] = rxmsg[i];
+                    }
+                    if(( g_u16DBL2NewData & 0x0008u ) != 0x0008u)
+                    {
+                        i = 0u;
+                    }                     
+                }                
                 else
                 {
                 }
-                
-                for( i = 0u; i < 8u; i++ )
-                {
-                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_UPPER_ID1][i] = rxmsg[i];
-                }
             }
-            else if(( canid >= CAN2RX_DBL2_LOWER_ID1 ) && ( canid <= CAN2RX_DBL2_LOWER_ID3 )) 
+            else if(( canid == CAN2RX_DBL2_LOWER_ID1 ) || ( canid == CAN2RX_DBL2_LOWER_ID2 ) 
+                    || ( canid == CAN2RX_DBL2_LOWER_ID3 ) || ( canid == CAN2RX_DBL2_LOWER_NONSAFETY_ID )) 
             {                
                 if( canid == CAN2RX_DBL2_LOWER_ID1 )
                 {
-                    g_u16DBL2NewData |= 0x0008u;
+                    g_u16DBL2NewData |= 0x0010u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[4][i] = rxmsg[i];
+                    }
+                    if(( g_u16DBL2NewData & 0x0010u ) != 0x0010u)
+                    {
+                        i = 0u;
+                    }                      
                 }
                 else if( canid == CAN2RX_DBL2_LOWER_ID2 )
                 {
-                    g_u16DBL2NewData |= 0x0010u;
+                    g_u16DBL2NewData |= 0x0020u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[5][i] = rxmsg[i];
+                    }  
+                    if(( g_u16DBL2NewData & 0x0020u ) != 0x0020u)
+                    {
+                        i = 0u;
+                    }                      
                 }
                 else if( canid == CAN2RX_DBL2_LOWER_ID3 )
                 {
-                    g_u16DBL2NewData |= 0x0020u;
+                    g_u16DBL2NewData |= 0x0040u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[6][i] = rxmsg[i];
+                    }
+                    if(( g_u16DBL2NewData & 0x0040u ) != 0x0040u)
+                    {
+                        i = 0u;
+                    }                      
                 }
+                else if( canid == CAN2RX_DBL2_LOWER_NONSAFETY_ID )
+                {
+                    g_u16DBL2NewData |= 0x0080u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[7][i] = rxmsg[i];
+                    }
+                    if(( g_u16DBL2NewData & 0x0080u ) != 0x0080u )
+                    {
+                        i = 0u;
+                    }                     
+                }                
                 else
                 {
                 }                
-                
-                for( i = 0u; i < 8u; i++ )
-                {
-                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_LOWER_ID1 + 4u][i] = rxmsg[i];
-                }
             }
-            else if(( canid >= CAN2RX_DBL2_INTERM1_ID1 ) && ( canid <= CAN2RX_DBL2_INTERM1_ID3 )) 
+            else if(( canid == CAN2RX_DBL2_INTERM1_ID1 ) || ( canid == CAN2RX_DBL2_INTERM1_ID2 )
+                    || ( canid == CAN2RX_DBL2_INTERM1_ID3 ) || ( canid == CAN2RX_DBL2_INTERM1_NONSAFETY_ID )) 
             {
                 if( canid == CAN2RX_DBL2_INTERM1_ID1 )
                 {
-                    g_u16DBL2NewData |= 0x0040u;
+                    g_u16DBL2NewData |= 0x0100u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[8][i] = rxmsg[i];
+                    }                    
                 }
                 else if( canid == CAN2RX_DBL2_INTERM1_ID2 )
                 {
-                    g_u16DBL2NewData |= 0x0080u;
+                    g_u16DBL2NewData |= 0x0200u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[9][i] = rxmsg[i];
+                    }                    
                 }
                 else if( canid == CAN2RX_DBL2_INTERM1_ID3 )
                 {
-                    g_u16DBL2NewData |= 0x0100u;
+                    g_u16DBL2NewData |= 0x0400u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[10][i] = rxmsg[i];
+                    }                    
                 }
+                else if( canid == CAN2RX_DBL2_INTERM1_NONSAFETY_ID )
+                {
+                    g_u16DBL2NewData |= 0x0800u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[11][i] = rxmsg[i];
+                    }                    
+                }                
                 else
                 {}                  
-                
-                for( i = 0u; i < 8u; i++ )
-                {
-                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM1_ID1 + 8u][i] = rxmsg[i];
-                }
             }
-            else if(( canid >= CAN2RX_DBL2_INTERM2_ID1 ) && ( canid <= CAN2RX_DBL2_INTERM2_ID3 )) 
+            else if(( canid == CAN2RX_DBL2_INTERM2_ID1 ) || ( canid == CAN2RX_DBL2_INTERM2_ID2 )
+                    || ( canid == CAN2RX_DBL2_INTERM2_ID3 ) || ( canid == CAN2RX_DBL2_INTERM2_NONSAFETY_ID )) 
             {
                 if( canid == CAN2RX_DBL2_INTERM2_ID1 )
                 {
-                    g_u16DBL2NewData |= 0x0200u;
+                    g_u16DBL2NewData |= 0x1000u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[12][i] = rxmsg[i];
+                    }                     
                 }
                 else if( canid == CAN2RX_DBL2_INTERM2_ID2 )
                 {
-                    g_u16DBL2NewData |= 0x0400u;
+                    g_u16DBL2NewData |= 0x2000u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[13][i] = rxmsg[i];
+                    }                     
                 }
                 else if( canid == CAN2RX_DBL2_INTERM2_ID3 )
                 {
-                    g_u16DBL2NewData |= 0x0800u;
+                    g_u16DBL2NewData |= 0x4000u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[14][i] = rxmsg[i];
+                    }                     
                 }
+                else if( canid == CAN2RX_DBL2_INTERM2_NONSAFETY_ID )
+                {
+                    g_u16DBL2NewData |= 0x8000u;
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2Buffer[15][i] = rxmsg[i];
+                    }                     
+                }                
                 else
-                {}                  
-                
-                for( i = 0u; i < 8u; i++ )
-                {
-                    EscDataFromDBL2Buffer[canid - CAN2RX_DBL2_INTERM2_ID1 + 12u][i] = rxmsg[i];
-                }
+                {}                                 
             }
-            else if(( canid >= CAN2RX_DBL2_UPPER_NONSAFETY_ID ) && ( canid <= CAN2RX_DBL2_INTERM2_NONSAFETY_ID )) 
-            {
-                g_u16DBL2NewData |= 0xf000u;
-                for( i = 0u; i < 8u; i++ )
-                {
-                    EscDataFromDBL2Buffer[(canid - CAN2RX_DBL2_UPPER_NONSAFETY_ID) * 4u + 3u][i] = rxmsg[i];
-                }
-            }  
             else
             {}    
             break;
@@ -1062,31 +1148,31 @@ void Can_Receive_Data(u8 datatype)
         {  
             if( ( g_u16DBL2NewData & 0x0007u ) == 0x0007u )
             {
-                g_u16DBL2NewData -= 0x0007u;
+                g_u16DBL2NewData &= (u16)(~0x0007u);
                 for( j = 0u; j < 3u; j++ )
                 {
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
-                        EscDataFromDBL2Buffer[j][i] = 0u;
+                        /*EscDataFromDBL2Buffer[j][i] = 0u;*/
                     }  
                 } 
             }
-            if( ( g_u16DBL2NewData & 0x0038u ) == 0x0038u )
+            if( ( g_u16DBL2NewData & 0x0070u ) == 0x0070u )
             {
-                g_u16DBL2NewData &= (u16)(~0x0038u);
+                g_u16DBL2NewData &= (u16)(~0x0070u);
                 for( j = 4u; j < 7u; j++ )
                 {
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
-                        EscDataFromDBL2Buffer[j][i] = 0u;
+                        /*EscDataFromDBL2Buffer[j][i] = 0u;*/
                     }  
                 } 
             }
-            if( ( g_u16DBL2NewData & 0x01c0u ) == 0x01c0u )
+            if( ( g_u16DBL2NewData & 0x0700u ) == 0x0700u )
             {
-                g_u16DBL2NewData &= (u16)(~0x01c0u);
+                g_u16DBL2NewData &= (u16)(~0x0700u);
                 for( j = 8u; j < 11u; j++ )
                 {
                     for( i = 0u; i < 8u; i++ )
@@ -1096,9 +1182,9 @@ void Can_Receive_Data(u8 datatype)
                     }  
                 } 
             }
-            if( ( g_u16DBL2NewData & 0x0e00u ) == 0x0e00u )
+            if( ( g_u16DBL2NewData & 0x7000u ) == 0x7000u )
             {
-                g_u16DBL2NewData -= 0x0e00u;
+                g_u16DBL2NewData &= (u16)(~0x7000u);
                 for( j = 12u; j < 15u; j++ )
                 {
                     for( i = 0u; i < 8u; i++ )
@@ -1108,17 +1194,40 @@ void Can_Receive_Data(u8 datatype)
                     }  
                 } 
             }            
-            if( ( g_u16DBL2NewData & 0xf000u ) == 0xf000u )
+            if( g_u16DBL2NewData & 0x8888u )
             {
-                g_u16DBL2NewData &= (u16)(~0xf000u);
-
-                for( i = 0u; i < 8u; i++ )
+                if( g_u16DBL2NewData & 0x0008u )
                 {
-                    EscDataFromDBL2[3][i] = EscDataFromDBL2Buffer[3][i];
-                    EscDataFromDBL2[7][i] = EscDataFromDBL2Buffer[7][i];
-                    EscDataFromDBL2[11][i] = EscDataFromDBL2Buffer[11][i];
-                    EscDataFromDBL2[15][i] = EscDataFromDBL2Buffer[15][i];
-                }  
+                    /*g_u16DBL2NewData &= (u16)(~0x0008u); */                   
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2[3][i] = EscDataFromDBL2Buffer[3][i];
+                    }  
+                }
+                if( g_u16DBL2NewData & 0x0080u )
+                {
+                    /*g_u16DBL2NewData &= (u16)(~0x0080u); */
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2[7][i] = EscDataFromDBL2Buffer[7][i];
+                    }  
+                }
+                if( g_u16DBL2NewData & 0x0800u )
+                {
+                    /*g_u16DBL2NewData &= (u16)(~0x0800u);*/
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2[11][i] = EscDataFromDBL2Buffer[11][i];
+                    }  
+                }
+                if( g_u16DBL2NewData & 0x8000u )
+                {
+                    /*g_u16DBL2NewData &= (u16)(~0x8000u);*/
+                    for( i = 0u; i < 8u; i++ )
+                    {
+                        EscDataFromDBL2[15][i] = EscDataFromDBL2Buffer[15][i];
+                    }  
+                }
             }            
             break;
         } 

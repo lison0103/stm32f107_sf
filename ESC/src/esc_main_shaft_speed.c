@@ -25,7 +25,7 @@
 
 
 /*******************************************************************************
-* Function Name  : Main_Shaft_Speed
+* Function Name  : MainShaftSpeedEN115
 * Description    : 
 * Input          : None          
 * Output         : None
@@ -35,6 +35,13 @@
 
 
 
+/*******************************************************************************
+* Function Name  : MainShaftWrongDirection
+* Description    : enable only parameter SPEED_SENSOR_INSTALLATION = 1,2,3
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
 
 
 

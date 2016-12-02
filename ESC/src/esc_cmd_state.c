@@ -227,11 +227,7 @@ void CheckReset(void)
 static void Safety_String_Begin(void)
 {
     /* Begin safety string is open */
-    if( INPUT_PORT9_16 & INPUT_PORT10_MASK ) /* LOW active*/
-    {
-        EN_ERROR50 &= ~0x40u;
-    }
-    else
+    if( !( INPUT_PORT9_16 & INPUT_PORT10_MASK ) ) /* LOW active*/
     {
         EN_ERROR50 |= 0x40u;      
     }  
@@ -254,19 +250,19 @@ static void Safety_String_End(void)
   }
   
   /* End safety string is open */
-  if( INPUT_FEEDBACK & INPUT_PORT_SF_PWR_FB_CPU_MASK )
+  if( INPUT_PORT_SF_PWR_FB_CPU_MASK & INPUT_FEEDBACK )
   {        
     CMD_FLAG5 &= ~ESC_SAFETY_END_CLOSE;
         
-    if(safety_end_on_flag)
+    if(safety_end_on_flag) 
     {
-        safety_end_off_tcnt = 0u;
+      safety_end_off_tcnt = 0u;    
     }
-    safety_end_on_flag = 0u;
+    safety_end_on_flag = 0u;  
     
     CMD_FLAG5 &= ~ESC_SAFETY_END_ENABLE;
   }
-  else
+  else 
   {
     CMD_FLAG5 |= ESC_SAFETY_END_CLOSE;
        
@@ -278,9 +274,9 @@ static void Safety_String_End(void)
     } 
   }  
          
-    /* The system supervises also the voltage of the end safety string. */
-    /* This voltage is sent to Control Board */
-    /* Only in High configure safety board CPU1*/
+  /* The system supervises also the voltage of the end safety string. */
+  /* This voltage is sent to Control Board */
+  /* Only in High configure safety board CPU1*/
 #ifdef GEC_SF_MASTER    
      Get_Adc_Average();
 #endif    

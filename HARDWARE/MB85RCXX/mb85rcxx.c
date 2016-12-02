@@ -14,6 +14,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#define EEP_FAST_MODE
+
 /* Private macro -------------------------------------------------------------*/
 #define	EEP_SDA_PORT	        GPIOE
 #define	EEP_SDA_PIN			GPIO_Pin_5
@@ -21,12 +23,25 @@
 #define	EEP_SCL_PORT		GPIOE
 #define	EEP_SCL_PIN			GPIO_Pin_4
 
+#ifdef EEP_FAST_MODE
+
+#define EEP_SDA_SET()  		EEP_SDA_PORT->BSRR = EEP_SDA_PIN
+#define EEP_SDA_CLR()  		EEP_SDA_PORT->BRR  = EEP_SDA_PIN 
+#define EEP_SDA_READ() 		EEP_SDA_PORT->IDR  & EEP_SDA_PIN
+
+#define EEP_SCL_SET()  		EEP_SCL_PORT->BSRR = EEP_SCL_PIN
+#define EEP_SCL_CLR()  		EEP_SCL_PORT->BRR  = EEP_SCL_PIN
+
+#else
+
 #define EEP_SDA_SET()  		GPIO_WriteBit(EEP_SDA_PORT, EEP_SDA_PIN,Bit_SET)
 #define EEP_SDA_CLR()  		GPIO_WriteBit(EEP_SDA_PORT, EEP_SDA_PIN,Bit_RESET)
 #define EEP_SDA_READ() 		GPIO_ReadInputDataBit(EEP_SDA_PORT, EEP_SDA_PIN)
 
 #define EEP_SCL_SET()  		GPIO_WriteBit(EEP_SCL_PORT, EEP_SCL_PIN, Bit_SET)
 #define EEP_SCL_CLR()  		GPIO_WriteBit(EEP_SCL_PORT, EEP_SCL_PIN, Bit_RESET)
+
+#endif
 
 #define EEP_ACK       0u
 #define EEP_NACK      1u
@@ -47,11 +62,21 @@ static u8 eep_write(u8 d);
 static u8 eep_read(u8 ack);
 static uint8_t eeprom_data_write1(u16 addr,u16 len,u8 dat[]);
 static uint8_t eeprom_data_read1(u16 addr, u16 len, u8 dat[]);
-
+#ifdef EEP_FAST_MODE
+static void I2C_delay(void);
+static void I2C_NoAck(void);
+static void I2C_Ack(void);
+static u8 I2C_WaitAck(void);
+#endif
 
 /* static u16 EEPROM_WR_TIME = 0u; */
 
-
+#ifdef EEP_FAST_MODE
+static void I2C_delay(void)
+{        
+    delay_us(1u); 
+}
+#endif
 
 /*******************************************************************************
 * Function Name  : EEP_SDA_OUT
@@ -93,6 +118,112 @@ static void EEP_SCL_OUT(void)
       
       GPIO_Init(GPIOE , &GPIO_InitStruct);
 }
+
+#ifdef EEP_FAST_MODE
+
+static void eep_start(void)
+{
+    EEP_SDA_SET();
+    EEP_SCL_SET();
+    I2C_delay();
+    
+    EEP_SDA_CLR();
+    I2C_delay();
+    
+    EEP_SCL_CLR();
+    I2C_delay();
+}
+
+static void eep_stop(void)
+{
+    EEP_SCL_CLR();
+    I2C_delay();
+    EEP_SDA_CLR();
+    I2C_delay();
+    
+    EEP_SCL_SET();
+    I2C_delay();
+    EEP_SDA_SET();
+    I2C_delay();
+}
+
+static void I2C_Ack(void)
+{        
+    EEP_SCL_CLR();
+    I2C_delay();
+    EEP_SDA_CLR();
+    I2C_delay();
+    EEP_SCL_SET();
+    I2C_delay();
+    EEP_SCL_CLR();
+    I2C_delay();
+}
+
+static void I2C_NoAck(void)
+{        
+    EEP_SCL_CLR();
+    I2C_delay();
+    EEP_SDA_SET();
+    I2C_delay();
+    EEP_SCL_SET();
+    I2C_delay();
+    EEP_SCL_CLR();
+    I2C_delay();
+}
+
+static u8 I2C_WaitAck(void)          
+{
+    u8 i;
+    
+    EEP_SCL_CLR();
+    I2C_delay();
+    EEP_SDA_SET();                        
+    I2C_delay();
+    EEP_SCL_SET();
+    I2C_delay();
+    if(EEP_SDA_READ())
+    {
+        i = EEP_NACK;
+    }
+    else
+    {
+        i = EEP_ACK;
+    }
+    EEP_SCL_CLR(); 
+    
+    return(i);
+}
+
+static u8 eep_write(u8 d) 
+{
+    u8 i = 8u;
+    
+    while(i--)
+    {
+        EEP_SCL_CLR();
+        I2C_delay();
+        
+        if(d&0x80u)
+        {
+            EEP_SDA_SET();  
+        }
+        else 
+        {
+            EEP_SDA_CLR();   
+        }
+        
+        d <<= 1u;
+        I2C_delay();
+        EEP_SCL_SET();
+        I2C_delay();
+    }
+    
+    EEP_SCL_CLR();
+    
+    return I2C_WaitAck();
+}
+
+#else
 
 /*******************************************************************************
 * Function Name  : eep_start
@@ -204,6 +335,8 @@ static u8 eep_write(u8 d)
   
   return(i);
 }
+
+#endif
 
 /*******************************************************************************
 * Function Name  : eep_read

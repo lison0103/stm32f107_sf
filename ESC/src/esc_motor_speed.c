@@ -304,7 +304,7 @@ void Motor_Speed_1_2_Shortcircuit_Run(void)
             /* Reset the timer */
             TIM_SetCounter(TIM5,0u);
             
-            if( stat_u32TimerMotorSpeedShortCircuit < MOTOR_SSM_SHORTCIRCUIT_TIME )
+            if( stat_u32TimerMotorSpeedShortCircuit < PULSE_SIGNALS_MINIMUM_LAG )
             {
                 stat_u32TimerMotorSpeedShortCircuit = 0u;                                 
                 stat_u32MotorSpeedShortCircuitNotOkCounter++;
