@@ -25,7 +25,6 @@ static void SafetyCTR_Check(void);
 void SafetyOutputDisable(void);
 void SafetyOutputEnable(void);
 void SafetySwitchStatus(void);
-void Safety_Relay_Shortcircuit_Check(void);
 
 #endif  /* __ESC_SAFETY_CHECK_H */
 

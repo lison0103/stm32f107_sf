@@ -19,5 +19,9 @@ void Aux_Brake_CS(void);
 void Floorplate_Check(void);
 void Inspection_Normal_Key_Check(void);
 
+void Fault_Check(void) ;
+void Safety_String_Check(void);
+
+void OperationModesProcess(void);
 
 #endif  /* __ESC_CONTROL_H */

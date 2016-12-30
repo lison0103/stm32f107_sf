@@ -18,7 +18,7 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void Esc_State_Machine( void );
-
+void Esc_State_Check(void);
 
 #endif /* __ESC_STATE_H */
 

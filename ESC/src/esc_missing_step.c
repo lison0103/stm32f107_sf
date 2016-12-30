@@ -3,7 +3,7 @@
 * Author             : lison
 * Version            : V1.0
 * Date               : 05/10/2016
-* Last modify date   : 11/21/2016
+* Last modify date   : 12/09/2016
 * Description        : This file contains esc missing step check.
 *                      
 *******************************************************************************/
@@ -16,19 +16,15 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define    F2      (( (u16)NOMINAL_SPEED * 10u ) / ( STEP_WIDTH ))
-#define    R       (( F1 ) / ( F2 ))
+#define    F2           (( (u16)NOMINAL_SPEED * 10u ) / ( STEP_WIDTH ))
+#define    R_MS         (( F1 ) / ( F2 ))
 
 #define MISSINGSTEP_LOWER_INPUT   (INPUT_PORT1_8 & INPUT_PORT5_MASK)
 #define MISSINGSTEP_UPPER_INPUT   (INPUT_PORT1_8 & INPUT_PORT6_MASK)
 
 /* Private macro -------------------------------------------------------------*/
-#define MISSINGSTEP_SSM_SHORTCIRCUIT_TIME     7u
-
 /* Private variables ---------------------------------------------------------*/
 static u8 g_u8FirstMissingStepSyncEntry = 0u;
-static u8 g_u8FirstMissingStepEdgeDetected = 0u;
-
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -39,14 +35,15 @@ static void Missing_Step_UpperLower_SyncRun(void);
 static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS);
 static void MissingStep_RisingEdge_check(void);
 
+u8 g_u8FirstMissingStepEdgeDetected = 0u;
+
 STEPMISSINGITEM STPMS_UPPER=
 {
     1u,
     0u,
     {0u,0u},
-    (u16*)&MISSINGSTEP_MTR_PULSE1,
+    &MISSINGSTEP_MTR_PULSE1,
     200u,
-    0u,
     0u,
     0u
 };
@@ -56,9 +53,8 @@ STEPMISSINGITEM STPMS_LOWER=
     2u,
     0u,          
     {0u,0u},
-    (u16*)&MISSINGSTEP_MTR_PULSE2,
+    &MISSINGSTEP_MTR_PULSE2,
     200u,
-    0u,
     0u,
     0u
 };
@@ -73,9 +69,12 @@ STEPMISSINGITEM STPMS_LOWER=
 *******************************************************************************/
 static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
 {      
-            
-    psSTPMS->ms_ready_delay++;
-    
+    /* prevent overflow */
+    if( psSTPMS->ms_ready_delay < 10000u )
+    {
+        psSTPMS->ms_ready_delay++;
+    }
+
     if( psSTPMS->rising_edge_detected[0] == 1u )
     {
         psSTPMS->rising_edge_detected[0] = 0u;
@@ -83,23 +82,22 @@ static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
         /* Missing Step pulse detected with freq > 1 Hz? */
         if( psSTPMS->ms_ready_delay * SYSTEMTICK < 1000u )
         {
-            if( CMD_ESC_RUN_MODE & ESC_INSPECT )
+            if(!( CMD_ESC_RUN_MODE & ESC_NORMAL ))
             {     
                 /* Missing Step Warning (W60) */
                 EN_WARN8 |= 0x10u;
             }
             else
             {
-                /* Missing Step Fault (F352, F353) */
                 if( psSTPMS->SensorX == 1u )
                 {
-                    /* Missing step top pulse detected while stop F352 */
-                    EN_ERROR45 |= 0x01u;  
+                    /* Missing step supervision top F50 */
+                    EN_ERROR7 |= 0x04u;  
                 }
                 else if( psSTPMS->SensorX == 2u )
                 {
-                    /* Missing step bottom pulse detected while stop F353 */
-                    EN_ERROR45 |= 0x02u; 
+                    /* Missing step supervision bottom F51 */
+                    EN_ERROR7 |= 0x08u;
                 }
                 else
                 {}
@@ -109,7 +107,10 @@ static void Missing_Step_Ready(STEPMISSINGITEM* psSTPMS)
         {
             psSTPMS->ms_ready_delay = 0u;
         }
-    }         
+    }  
+    
+    /* missing step (pulse of motor) */
+    *psSTPMS->ptStepMtrBuff = 0u;     
 }
 
 /*****************************************************************************
@@ -127,16 +128,14 @@ static void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
     {
         psSTPMS->First_entry_missing_step_detection = 1u;
         psSTPMS->MtrPulse = 0u;
-        /*psSTPMS->Motor_speed_pulse_counter_init = Pulse_counter_sensor_speed(psSTPMS);*/
     }
     
-    /*psSTPMS->Motor_speed_pulse_counter =  Pulse_counter_sensor_speed(psSTPMS) - psSTPMS->Motor_speed_pulse_counter_init;*/
     psSTPMS->Motor_speed_pulse_counter =  Pulse_counter_sensor_speed(psSTPMS);
     
     /* Motor_speed_pulse_ counter > R*1.1? */
-    if( psSTPMS->Motor_speed_pulse_counter > (( R * 11u ) / 10u ) )
+    if( psSTPMS->Motor_speed_pulse_counter > (( R_MS * 11u ) / 10u ) )
     {
-        if( CMD_ESC_RUN_MODE & ESC_INSPECT )
+        if(!( CMD_ESC_RUN_MODE & ESC_NORMAL ))
         {     
             /* Missing Step Warning (W60) */
             EN_WARN8 |= 0x10u;
@@ -166,7 +165,9 @@ static void Missing_StepRun(STEPMISSINGITEM* psSTPMS)
             psSTPMS->rising_edge_detected[0] = 0u;            
             
             psSTPMS->MtrPulse = 0u;
-            /*psSTPMS->Motor_speed_pulse_counter_init = Pulse_counter_sensor_speed(psSTPMS);*/                                                       
+            
+            /* missing step (pulse of motor) */
+            *psSTPMS->ptStepMtrBuff = psSTPMS->Motor_speed_pulse_counter;            
         }
     }       
 }
@@ -216,7 +217,7 @@ static void Missing_Step_UpperLower_SyncRun(void)
         
         if( stat_u8UpperMissingStepCounter >= 2u )
         {            
-            if( CMD_ESC_RUN_MODE & ESC_INSPECT )
+            if(!( CMD_ESC_RUN_MODE & ESC_NORMAL ))
             {     
                 /* Missingstep Sync Warning top W58 */
                 EN_WARN8 |= 0x04u;
@@ -239,7 +240,7 @@ static void Missing_Step_UpperLower_SyncRun(void)
         
         if( stat_u8LowerMissingStepCounter >= 2u )
         {
-            if( CMD_ESC_RUN_MODE & ESC_INSPECT )
+            if(!( CMD_ESC_RUN_MODE & ESC_NORMAL ))
             {     
                 /* Missingstep sync warning bottom W59 */
                 EN_WARN8 |= 0x08u;
@@ -278,41 +279,47 @@ void Missing_Step_UpperLower_Shortcircuit_Run(void)
             stat_u32MissingStepSCNotOkCounter = 0u;  
             
             /* Timer init, counter is 100us */
-            TIM_Cmd(TIM6, DISABLE); 
+            TIM_Cmd(SENSOR_SHORTCIRCUIT_CHECK_TIMER, DISABLE); 
             TIM6_Int_Init(65535u,7199u);           
         }    
         else
         {
             /* Get the time between the two signals */
-            stat_u32TimerMissingStepShortcircuit = TIM_GetCounter(TIM6);
+            stat_u32TimerMissingStepShortcircuit = TIM_GetCounter(SENSOR_SHORTCIRCUIT_CHECK_TIMER);
             /* Reset the timer */
-            TIM_SetCounter(TIM6,0u);            
+            TIM_SetCounter(SENSOR_SHORTCIRCUIT_CHECK_TIMER,0u);            
             
             if(( stat_u32TimerMissingStepShortcircuit * 100u ) < PULSE_SIGNALS_MINIMUM_LAG )
             {
-                stat_u32TimerMissingStepShortcircuit = 0u;               
-                stat_u32MissingStepSCNotOkCounter++;
+                stat_u32TimerMissingStepShortcircuit = 0u;  
+                if( stat_u32MissingStepSCNotOkCounter < 0xffffu )
+                {
+                    stat_u32MissingStepSCNotOkCounter++;
+                }
                 stat_u32MissingStepSCOkCounter = 0u;
                 
                 /* 100 consecutive pulses with less than SSM_SHORTCIRCUIT_TIME, go to fault */
                 if( stat_u32MissingStepSCNotOkCounter >= 100u )
                 {                
-                    if( CMD_ESC_RUN_MODE & ESC_INSPECT )
+                    if(!( CMD_ESC_RUN_MODE & ESC_NORMAL ))
                     {     
+                        /* Missing step warning while inspection */
                         EN_WARN8 |= 0x10u;
                     }
                     else
                     {
-                        /* Fault ¨C MS Sensor shortcircuited (F260) */
-                        EN_ERROR33 |= 0x10u;  
+                        /* Fault ¨C MS Sensor shortcircuited (F263) */
+                        EN_ERROR33 |= 0x80u;  
                     }
                 }
             }
             else
             {
-                stat_u32TimerMissingStepShortcircuit = 0u;             
-                stat_u32MissingStepSCOkCounter++;
-                
+                stat_u32TimerMissingStepShortcircuit = 0u;   
+                if( stat_u32MissingStepSCOkCounter < 0xffffu )
+                {
+                    stat_u32MissingStepSCOkCounter++;
+                }
                 /* counter should be resetted after 10 consecutive different pulses with more than SSM_SHORTCIRCUIT_TIME */
                 if( stat_u32MissingStepSCOkCounter >= 10u )
                 {

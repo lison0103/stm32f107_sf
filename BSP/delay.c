@@ -128,9 +128,10 @@ void delay_ms(u16 nms)
 * Return         : None
 *******************************************************************************/
 void Delay_Init(void)	 
-{
-    RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM3 , ENABLE);
-    TIM3_Int_Init(65535u, 71u);
+{  
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM4 , ENABLE);
+
+    TIM4_Int_Init(65535u, 71u);
 }	
 
 /*******************************************************************************
@@ -144,16 +145,16 @@ void Delay_Init(void)
 *******************************************************************************/		    								   
 void delay_us(u16 nus)
 {		
-    TIM_Cmd(TIM3, ENABLE);
-    TIM3->CNT = nus;
-    while((TIM3->CNT > 0u))
+    TIM_Cmd(TIM4, ENABLE);
+    TIM4->CNT = nus;
+    while((TIM4->CNT > 0u))
     {
-        if(TIM3->CNT > nus) 
+        if(TIM4->CNT > nus) 
         {
             break;
         }
     } 
-    TIM_Cmd(TIM3, DISABLE);
+    TIM_Cmd(TIM4, DISABLE);
 }
 
 /*******************************************************************************
@@ -201,13 +202,14 @@ void Delay_Init(void)
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void delay_us(u32 nus)
+void delay_us(u16 nus)
 {    
-   u16 i=0;  
+   u16 i = 0u;  
    while(nus--)
    {
-      i=6;  
-      while(i--) ;    
+      i=6u;  
+      while(i--) 
+      {}
    }
 }
 
@@ -222,11 +224,12 @@ void delay_us(u32 nus)
 *******************************************************************************/
 void delay_ms(u16 nms)
 {    
-   u16 i=0;  
+   u16 i=0u;  
    while(nms--)
    {
-      i=8000;  
-      while(i--) ;    
+      i=8000u;  
+      while(i--) 
+      {}
    }
 }
 #endif

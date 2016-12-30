@@ -16,7 +16,7 @@
 #include "usb_func.h"
 #include "led.h"
 #include "esc_parameter_process.h"
-
+#include "esc.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -40,7 +40,34 @@ USB_OTG_CORE_HANDLE  USB_OTG_Core;
 *******************************************************************************/ 
 void USB_LoadParameterProcess(void)
 { 
-      
+#if 0    
+      /* For test */
+    EscParameterInit();
+    if(isFileExist("0:S0001.bin"))
+    {
+        /* File not exists */
+        WriteNewFile("0:S0001.bin", (u8*)&SFParameterData,478u);
+    }
+    else
+    {
+        /* File exists */
+        DeleteFile("0:S0001.bin");
+        WriteNewFile("0:S0001.bin", (u8*)&SFParameterData,478u);
+        
+    }
+    if(isFileExist("0:C0001.bin"))
+    {
+        /* File not exists */
+        WriteNewFile("0:C0001.bin", (u8*)&CBParameterData,1434u);
+    }
+    else
+    {
+        /* File exists */
+        DeleteFile("0:C0001.bin");
+        WriteNewFile("0:C0001.bin", (u8*)&CBParameterData,1434u);
+        
+    }
+#endif    
       USB_LoadParameter();
       
       
@@ -91,35 +118,22 @@ void USB_LoadParameterProcess(void)
 * Return         : None
 *******************************************************************************/ 
 void USBH_Mass_Storage_Init(void)
-{
-      u8 wait_for_restart = 0u;  
+{ 
       u16 t = 0u;
       u32 timecounter = 0u;
       
       
       /** fatfs apply memory **/ 
-      if(fatfs_init())			
-      {
-            /* fatfs memory apply fail */
-      }
+      fatfs_init();			
       
       /** USB HOST init **/
       USBH_Init(&USB_OTG_Core,USB_OTG_FS_CORE_ID,&USB_Host,&USBH_MSC_cb,&USR_cb);       
            
       while(1)
-      {
-          
-          if( ParaLoad & USB_DETECTED )
+      {         
+          if(( ParaLoad & USB_DETECTED ) || ( timecounter == 1000u ))
           {
-              if( wait_for_restart == 0u )
-              {
-                  USBH_DeInit(&USB_OTG_Core, &USB_Host);  
-                  wait_for_restart = 1u;
-              }
-          }
-          else if( timecounter == 1000u )
-          {                             
-              USBH_DeInit(&USB_OTG_Core, &USB_Host);
+              USBH_DeInit(&USB_OTG_Core, &USB_Host);  
               break;
           }
           else
@@ -139,8 +153,7 @@ void USBH_Mass_Storage_Init(void)
               EWDT_TOOGLE();
               IWDG_ReloadCounter();                  
           }
-      } 
-         
+      }         
 }
 
 

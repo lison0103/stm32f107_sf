@@ -34,7 +34,7 @@ static void Inspection_Normal_Key(void)
 {
   static u8 isp_nrm_key_on_tms=0u,isp_nrm_key_off_tms=0u;
 
-  if((!(ISP_NORMAL_INPUT)) && ( CMD_FLAG3 & 0x10u )) /* Normal/isp key input low level, current mode is normal mode */
+  if((!(ISP_NORMAL_INPUT)) && ( CMD_FLAG3 & 0x10u )) /* Normal/isp key input low level, but current mode is normal mode */
   {
     isp_nrm_key_on_tms =0u; /* Reset */
     
@@ -93,7 +93,6 @@ static void Inspection_Normal_Key(void)
 *******************************************************************************/
 void Inspection_Normal_Key_Check(void)
 {
-  static u16 INE_tms=0u;
   
   Inspection_Normal_Key();
   

@@ -55,6 +55,7 @@ u8 can2_receive = 0u;
 
 #ifdef GEC_SF_MASTER
 volatile u16 g_u16DBL1NewData = 0u;
+u16 g_u16ContorlNewData = 0u;
 #ifdef DIAGNOSTIC_LEVEL2
 u16 g_u16DBL2NewData = 0u;
 #endif
@@ -62,10 +63,10 @@ u8 g_u8CAN2SendFail = 0u;
 
 
 /* Esc receive data buffer */
-static u8 EscDataFromControlBuffer[3][8];
-static u8 EscDataFromDBL1Buffer[4][8];
+static u8 EscDataFromControlBuffer[DATA_FROM_CONTROL_LEN][8];
+static u8 EscDataFromDBL1Buffer[DATA_FROM_DBL1_LEN][8];
 #ifdef DIAGNOSTIC_LEVEL2
-static u8 EscDataFromDBL2Buffer[16][8];
+static u8 EscDataFromDBL2Buffer[DATA_FROM_DBL2_LEN][8];
 #endif
 #endif
 
@@ -144,7 +145,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             /* automatic offline management software */
             CAN_InitStructure.CAN_ABOM=ENABLE;
             /* wake-sleep mode via software (Clear CAN-> MCR's SLEEP bit) */
-            CAN_InitStructure.CAN_AWUM=DISABLE;			
+            CAN_InitStructure.CAN_AWUM=ENABLE;			
             /* message is automatically transferred, in accordance with the CAN standard, */
             /* CAN hardware failure when sending packets would have been automatic retransmission until sent successfully */
             CAN_InitStructure.CAN_NART=DISABLE;	
@@ -255,7 +256,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
             
             CAN_InitStructure.CAN_TTCM=DISABLE;		  
             CAN_InitStructure.CAN_ABOM=ENABLE;				 
-            CAN_InitStructure.CAN_AWUM=DISABLE;			
+            CAN_InitStructure.CAN_AWUM=ENABLE;			
             CAN_InitStructure.CAN_NART=DISABLE;			 
             CAN_InitStructure.CAN_RFLM=DISABLE;		 	  
             CAN_InitStructure.CAN_TXFP=ENABLE;			 
@@ -353,6 +354,7 @@ u8 CAN_Int_Init(CAN_TypeDef* CANx)
 void CAN1_RX0_IRQHandler(void)
 {
     CanRxMsg RxMessage;
+    u8 i;
     
     if( CAN_GetITStatus(CAN1,CAN_IT_FF0) != RESET)
     {
@@ -375,7 +377,18 @@ void CAN1_RX0_IRQHandler(void)
                 can1_receive = 1u;            
                 Can_Receive_Buffer(RxMessage.Data, (u16)RxMessage.ExtId, DATA_FROM_CONTROL);
             }
-        }                
+        }   
+        if(( RxMessage.ExtId >= CAN1RX_PARA_STATUS_ID ) && ( RxMessage.ExtId <= CAN1RX_PARA_CB_IN_SAFETY_ID2 ))
+        {
+            if( ( RxMessage.DLC == CAN_FRAME_LEN ) && ( RxMessage.IDE == CAN_ID_EXT ))
+            {
+                can1_receive = 1u;            
+                for( i = 0u; i < 8u; i++ )
+                {
+                    ControlNeedInSafetyFile[RxMessage.ExtId - CAN1RX_PARA_STATUS_ID][i] = RxMessage.Data[i];
+                } 
+            }
+        }          
         /* Test Mode */        
         else if( ( RxMessage.ExtId == CAN1_TEST_ID ) && ( RxMessage.IDE == CAN_ID_EXT ) )
         {
@@ -486,8 +499,8 @@ void CAN1_TX_IRQHandler(void)
     
 #ifdef GEC_SF_MASTER    
     
-    result = Can_Send_Msg(CAN1, CAN1TX_SAFETY_DATA_ID1 + g_u8CanCommunicationToCotrolID, 
-                          &EscDataToControl[g_u8CanCommunicationToCotrolID][0], CAN_FRAME_LEN ); 
+    result = Can_Send_Msg(CAN1, SafetyCommToControlID[g_u8CanCommunicationToCotrolID], 
+                          &EscDataToControlBuffer[SafetyCommToControlID[g_u8CanCommunicationToCotrolID] - CAN1TX_SAFETY_DATA_ID1][0], CAN_FRAME_LEN ); 
     if( result )
     {
         /* No mail box, send fail */
@@ -837,11 +850,27 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
     {
        case DATA_FROM_CONTROL:
         {
+            if( canid == CAN1RX_CONTROL_DATA1_ID )
+            {
+                g_u16ContorlNewData |= 0x0001u;
+            }
+            else if( canid == CAN1RX_CONTROL_DATA2_ID )
+            {
+                g_u16ContorlNewData |= 0x0002u;
+            }
+            else
+            {}
+            
             for( i = 0u; i < 8u; i++ )
             {
                 EscDataFromControlBuffer[canid - CAN1RX_CONTROL_DATA1_ID][i] = rxmsg[i];
             }
             break;
+        }
+       case DATA_FROM_CONTROL_PARA:
+        {
+
+            break;        
         }
        case DATA_FROM_DBL1:
         {
@@ -884,10 +913,6 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                     {
                         EscDataFromDBL2Buffer[0][i] = rxmsg[i];
                     } 
-                    if(( g_u16DBL2NewData & 0x0001u ) != 0x0001u )
-                    {
-                        i = 0u;
-                    }
                 }
                 else if( canid == CAN2RX_DBL2_UPPER_ID2 )
                 {
@@ -895,11 +920,7 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2Buffer[1][i] = rxmsg[i];
-                    }
-                    if(( g_u16DBL2NewData & 0x0002u ) != 0x0002u)
-                    {
-                        i = 0u;
-                    }                    
+                    }                   
                 }
                 else if( canid == CAN2RX_DBL2_UPPER_ID3 )
                 {
@@ -907,11 +928,7 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2Buffer[2][i] = rxmsg[i];
-                    }
-                    if(( g_u16DBL2NewData & 0x0004u ) != 0x0004u)
-                    {
-                        i = 0u;
-                    }                     
+                    }                   
                 }
                 else if( canid == CAN2RX_DBL2_UPPER_NONSAFETY_ID )
                 {
@@ -919,11 +936,7 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2Buffer[3][i] = rxmsg[i];
-                    }
-                    if(( g_u16DBL2NewData & 0x0008u ) != 0x0008u)
-                    {
-                        i = 0u;
-                    }                     
+                    }                    
                 }                
                 else
                 {
@@ -938,11 +951,7 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2Buffer[4][i] = rxmsg[i];
-                    }
-                    if(( g_u16DBL2NewData & 0x0010u ) != 0x0010u)
-                    {
-                        i = 0u;
-                    }                      
+                    }                     
                 }
                 else if( canid == CAN2RX_DBL2_LOWER_ID2 )
                 {
@@ -950,11 +959,7 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2Buffer[5][i] = rxmsg[i];
-                    }  
-                    if(( g_u16DBL2NewData & 0x0020u ) != 0x0020u)
-                    {
-                        i = 0u;
-                    }                      
+                    }                       
                 }
                 else if( canid == CAN2RX_DBL2_LOWER_ID3 )
                 {
@@ -962,11 +967,7 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2Buffer[6][i] = rxmsg[i];
-                    }
-                    if(( g_u16DBL2NewData & 0x0040u ) != 0x0040u)
-                    {
-                        i = 0u;
-                    }                      
+                    }                    
                 }
                 else if( canid == CAN2RX_DBL2_LOWER_NONSAFETY_ID )
                 {
@@ -974,11 +975,7 @@ static void Can_Receive_Buffer(u8 rxmsg[], u16 canid, u8 datatype)
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2Buffer[7][i] = rxmsg[i];
-                    }
-                    if(( g_u16DBL2NewData & 0x0080u ) != 0x0080u )
-                    {
-                        i = 0u;
-                    }                     
+                    }                   
                 }                
                 else
                 {
@@ -1085,14 +1082,28 @@ void Can_Receive_Data(u8 datatype)
     {
        case DATA_FROM_CONTROL:
         {
-            for( j = 0u; j < 3u; j++ )
+            if( g_u16ContorlNewData & 0x0001u )
             {
+                g_u16ContorlNewData &= ~0x0001u;
+
                 for( i = 0u; i < 8u; i++ )
                 {
-                    EscDataFromControl[j][i] = EscDataFromControlBuffer[j][i];
-                    EscDataFromControlBuffer[j][i] = 0u;
+                    EscRtData.DataFromControl[0][i] = EscDataFromControlBuffer[0][i];
+                    EscDataFromControlBuffer[0][i] = 0u;
                 }  
             }
+
+            if( g_u16ContorlNewData & 0x0002u )
+            {
+                g_u16ContorlNewData &= ~0x0002u;
+
+                for( i = 0u; i < 8u; i++ )
+                {
+                    EscRtData.DataFromControl[1][i] = EscDataFromControlBuffer[1][i];
+                    EscDataFromControlBuffer[1][i] = 0u;
+                }  
+            }
+            
             break;
         }
        case DATA_FROM_DBL1:
@@ -1148,7 +1159,7 @@ void Can_Receive_Data(u8 datatype)
         {  
             if( ( g_u16DBL2NewData & 0x0007u ) == 0x0007u )
             {
-                g_u16DBL2NewData &= (u16)(~0x0007u);
+                /*g_u16DBL2NewData &= (u16)(~0x0007u);*/
                 for( j = 0u; j < 3u; j++ )
                 {
                     for( i = 0u; i < 8u; i++ )
@@ -1160,7 +1171,7 @@ void Can_Receive_Data(u8 datatype)
             }
             if( ( g_u16DBL2NewData & 0x0070u ) == 0x0070u )
             {
-                g_u16DBL2NewData &= (u16)(~0x0070u);
+                /*g_u16DBL2NewData &= (u16)(~0x0070u);*/
                 for( j = 4u; j < 7u; j++ )
                 {
                     for( i = 0u; i < 8u; i++ )
@@ -1172,25 +1183,25 @@ void Can_Receive_Data(u8 datatype)
             }
             if( ( g_u16DBL2NewData & 0x0700u ) == 0x0700u )
             {
-                g_u16DBL2NewData &= (u16)(~0x0700u);
+                /*g_u16DBL2NewData &= (u16)(~0x0700u);*/
                 for( j = 8u; j < 11u; j++ )
                 {
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
-                        EscDataFromDBL2Buffer[j][i] = 0u;
+                        /*EscDataFromDBL2Buffer[j][i] = 0u;*/
                     }  
                 } 
             }
             if( ( g_u16DBL2NewData & 0x7000u ) == 0x7000u )
             {
-                g_u16DBL2NewData &= (u16)(~0x7000u);
+                /*g_u16DBL2NewData &= (u16)(~0x7000u);*/
                 for( j = 12u; j < 15u; j++ )
                 {
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2[j][i] = EscDataFromDBL2Buffer[j][i];
-                        EscDataFromDBL2Buffer[j][i] = 0u;
+                        /*EscDataFromDBL2Buffer[j][i] = 0u;*/
                     }  
                 } 
             }            
@@ -1198,7 +1209,7 @@ void Can_Receive_Data(u8 datatype)
             {
                 if( g_u16DBL2NewData & 0x0008u )
                 {
-                    /*g_u16DBL2NewData &= (u16)(~0x0008u); */                   
+                    /*g_u16DBL2NewData &= (u16)(~0x0008u);*/
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2[3][i] = EscDataFromDBL2Buffer[3][i];
@@ -1206,7 +1217,7 @@ void Can_Receive_Data(u8 datatype)
                 }
                 if( g_u16DBL2NewData & 0x0080u )
                 {
-                    /*g_u16DBL2NewData &= (u16)(~0x0080u); */
+                    /*g_u16DBL2NewData &= (u16)(~0x0080u);*/
                     for( i = 0u; i < 8u; i++ )
                     {
                         EscDataFromDBL2[7][i] = EscDataFromDBL2Buffer[7][i];

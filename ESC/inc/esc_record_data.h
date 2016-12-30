@@ -20,7 +20,7 @@
 #define ESC_ERROR_ADR 0u
 #define ESC_ERROR_NUM 80u
 #define ESC_PARA_ADR 200u
-#define ESC_PARA_NUM (ESC_SF_PARAMETER_DATA_LEN + 4u)
+#define ESC_PARA_NUM (ESC_SF_PARAMETER_DATA_LEN)
 #define ESC_BACKUP_ADR 1024u
 
 /* Exported functions ------------------------------------------------------- */
@@ -34,7 +34,7 @@ void fram_store_data(void);
 
 extern u16 g_u16FramWriteAdr;
 extern u16 g_u16FramWriteLen;
-extern u8 *FramWriteData;
+extern u8 FramWriteData;
 extern u8 FramNeedStore;
 
 #endif  /* __ESC_RECORD_DATA_H */

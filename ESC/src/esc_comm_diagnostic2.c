@@ -17,8 +17,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define CAN_COMM_HAND_TIME      8000u
-#define SMVT_TIMEOUT            50u
-#define SMCT_TIME               50u
+#define SMVT_TIMEOUT            80u
+#define SMCT_TIME               80u
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -136,16 +136,29 @@ static void Safety_Request_Data(DBL2Comm *DBL2, DBL2Esc *Esc)
     if( (DBL2->TimerSMCT == 0u) && (!(EN_ERROR54 & 0xc0u)) && (!(EN_ERROR55 & 0x03u)))
     {
         DBL2->TimerSMVT = 0u;
-        DBL2->TimerSMCT++;
-        DBL2->TimerSMVT++;
+        if( DBL2->TimerSMCT < 0xffffu )
+        {
+            DBL2->TimerSMCT++;
+        }
+        if( DBL2->TimerSMVT < 0xffffu )
+        {
+            DBL2->TimerSMVT++;
+        }        
+
         EscRtData.DBL2ValidateResult &= (u8)(~Esc->BoardType);
 
         Safety_Send_Data_Process(Esc, 1u);
     }
     else
     {     
-        DBL2->TimerSMCT++;
-        DBL2->TimerSMVT++;
+        if( DBL2->TimerSMCT < 0xffffu )
+        {
+            DBL2->TimerSMCT++;
+        }
+        if( DBL2->TimerSMVT < 0xffffu )
+        {
+            DBL2->TimerSMVT++;
+        } 
         if( ( DBL2->TimerSMCT * SYSTEMTICK ) > SMCT_TIME )
         {
             DBL2->TimerSMCT = 0u; 
@@ -173,7 +186,10 @@ static void Safety_Request_Data(DBL2Comm *DBL2, DBL2Esc *Esc)
 
     if( DBL2->HandshakeSuccess == 0u )
     {
-        DBL2->TimerCommWait++;
+        if( DBL2->TimerCommWait < 0xffffu )
+        {
+            DBL2->TimerCommWait++;
+        }
         if(( DBL2->TimerCommWait * SYSTEMTICK ) > CAN_COMM_HAND_TIME )
         {
             /*  can communication handshake timeout when power on */ 
@@ -358,12 +374,12 @@ void Safety_Receive_Data_Process(void)
         {    
             Safety_ReceiveA_Diagnostic( &EscRtData.DBL2Interm1 );
         }
-        else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
+        
+        if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
         {    
             Safety_ReceiveA_Diagnostic( &EscRtData.DBL2Interm2 );
         }
-        else
-        {}
+
 #else
         Safety_Receive_Diagnostic_Validate(&EscRtData.DBL2Upper, OmcEscRtData.DBL2Upper.ReceiveDataB );
         Safety_Receive_Diagnostic_Validate(&EscRtData.DBL2Lower, OmcEscRtData.DBL2Lower.ReceiveDataB );
@@ -372,12 +388,11 @@ void Safety_Receive_Data_Process(void)
         {       
             Safety_Receive_Diagnostic_Validate(&EscRtData.DBL2Interm1, OmcEscRtData.DBL2Interm1.ReceiveDataB );
         }
-        else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
+        
+        if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
         {
             Safety_Receive_Diagnostic_Validate(&EscRtData.DBL2Interm2, OmcEscRtData.DBL2Interm2.ReceiveDataB );
         }
-        else
-        {}
 #endif
     }
 }
@@ -671,13 +686,12 @@ void Receive_Data_From_DBL2(void)
         /*************************** DBL2 INTERM1 ************************ **/
         Receive_Data_From_DBL2_Process( &EscRtData.DBL2Interm1, &EscDataFromDBL2[8][0], CAN2RX_DBL2_INTERM1_ID1);  
     }
-    else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
+    
+    if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
     {
         /*************************** DBL2 INTERM2 ***************************/
         Receive_Data_From_DBL2_Process( &EscRtData.DBL2Interm2, &EscDataFromDBL2[12][0], CAN2RX_DBL2_INTERM2_ID1);
     }
-    else
-    {}
 }
 
 /*******************************************************************************
@@ -833,15 +847,14 @@ void Send_Data_To_DBL2(void)
         Send_Data_To_DBL2_Process(&EscRtData.DBL2Interm1 , OmcEscRtData.DBL2Interm1.SendData, 
                                   &EscDataToDBL2[4][0], CAN2TX_DBL2_INTERM1_ID1 );   
     }
-    else if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
+    
+    if( DIAGNOSTIC_BOARD_L2_QUANTITY == 4u )
     {
 
         /*************************** DBL2 INTERM2 ***************************/
         Send_Data_To_DBL2_Process(&EscRtData.DBL2Interm2 , OmcEscRtData.DBL2Interm2.SendData, 
                                   &EscDataToDBL2[6][0], CAN2TX_DBL2_INTERM2_ID1 );
     }
-    else
-    {}
 }
 #endif
 #endif

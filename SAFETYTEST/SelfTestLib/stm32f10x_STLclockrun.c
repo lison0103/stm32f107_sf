@@ -80,8 +80,8 @@ void STL_SysTickRTCSync(void)
   /* Wait for RTC registers synchronization */
   RTC_WaitForSynchro();
   
-  /** TIM4 init 10khz, counting to 20 is 2ms **/
-  TIM4_Int_Init(19u,7199u);
+  /** TIM7 init 10khz, counting to 20 is 2ms **/
+  TIM7_Int_Init(19u,7199u);
   
   RTC->WPR=0xCAu;
   RTC->WPR=0x53u; 
@@ -117,8 +117,8 @@ void STL_SysTickRTCSync(void)
   RTC_SetPrescaler(0u);    /* Do not prescale to have the highest precision */
 
 
-  /** TIM4 init 10khz, counting to 20 is 2ms **/
-  TIM4_Int_Init(19u,7199u);
+  /** TIM7 init 10khz, counting to 20 is 2ms **/
+  TIM7_Int_Init(19u,7199u);
 
   /* Reset RTC */
   RTC_SetCounter(0u);

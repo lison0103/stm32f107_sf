@@ -1,9 +1,9 @@
 /*******************************************************************************
 * File Name          : esc_pga_input.c
-* Author             : Tu
+* Author             : Tu/Lison
 * Version            : V1.0
 * Date               : 11/04/2016
-* Last modify date   : 11/07/2016
+* Last modify date   : 12/17/2016
 * Description        : 
 *                      
 *******************************************************************************/
@@ -18,10 +18,8 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-static void pga_input_decode_item(u8 ucPgaNum, u8 ucLevel);  /* pga iput decode sub */
+static void pga_input_decode_item(u16 ucPgaNum, u8 ucLevel);  /* pga iput decode sub */
 
-
-static u8 Cfg_ParaBuff[200];
 
 
 /*******************************************************************************
@@ -31,9 +29,9 @@ static u8 Cfg_ParaBuff[200];
 * Output         : None
 * Return         : None
 *******************************************************************************/
-static void pga_input_decode_item(u8 ucPgaNum, u8 ucLevel)
+static void pga_input_decode_item(u16 ucPgaNum, u8 ucLevel)
 {
-  u8 temp1,ucByte,ucBit;
+  u16 temp1,ucByte,ucBit;
   
   temp1 = ucPgaNum-1u;
   
@@ -52,26 +50,33 @@ static void pga_input_decode_item(u8 ucPgaNum, u8 ucLevel)
 *******************************************************************************/
 void pga_input_decode(void)
 {
-  u8 i;
-
-  for(i=0u;i<25u;i++)
-  {
-    EscRtData. Cfg_Input_Mask[i] = 0u; 
-    EscRtData. Cfg_Input_Level[i] = 0u;
-  }  
-  
-  Cfg_ParaBuff[0u] = 1u;    
-  /* SF key input */
-  Cfg_ParaBuff[10u] = 17u;    
-  Cfg_ParaBuff[11u] = 18u;    
-  
-  
-  if(Cfg_ParaBuff[0u]) { pga_input_decode_item(Cfg_ParaBuff[0u], EscRtData. SafetyInputData[3u]&0x04u);} else{} 
-  
-  /*SF X21~X22*/
-  if(Cfg_ParaBuff[10u]) { pga_input_decode_item(Cfg_ParaBuff[10u], EscRtData. SafetyInputData[2u]&0x10u);} else{} 
-  if(Cfg_ParaBuff[11u]) { pga_input_decode_item(Cfg_ParaBuff[11u], EscRtData. SafetyInputData[2u]&0x20u);} else{} 
-  
+    u8 i;
+    u32 *pConfigInput;
+    
+    /* The maximal ID <160, so 20 byte is enough */
+    for(i=0u;i<50u;i++)
+    {
+        EscRtData. Cfg_Input_Mask[i] = 0u; 
+        EscRtData. Cfg_Input_Level[i] = 0u;
+    }  
+    
+    /* Safety board input */
+    pConfigInput = (u32*)&EscRtData.SafetyInputData[0];
+    for( i = 0u; i < 29u; i++ )
+    {
+        if( IO_PARAMETER_SAFETY_INPUT[i] )
+        {
+            pga_input_decode_item(IO_PARAMETER_SAFETY_INPUT[i], ((u8)(*pConfigInput >> i) & 0x01u));
+        }
+    }
+    pConfigInput = (u32*)&EscRtData.SafetyInputData[4];
+    for( i = 29u; i < 46u; i++ )
+    {
+        if( IO_PARAMETER_SAFETY_INPUT[i] )
+        {
+            pga_input_decode_item(IO_PARAMETER_SAFETY_INPUT[i], ((u8)(*pConfigInput >> (i-29u) ) & 0x01u));
+        }
+    }  
 }
 
 /******************************  END OF FILE  *********************************/

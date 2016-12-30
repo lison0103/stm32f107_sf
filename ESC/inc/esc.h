@@ -23,12 +23,12 @@
 enum EscState
 {
     ESC_INIT_STATE = 0u,
-    ESC_FAULT_STATE = 1u,
-    ESC_READY_STATE = 2u,
-    ESC_STARTING_PROCESS_STATE = 3u,
-    ESC_RUN_STATE = 4u,
+    ESC_RUN_STATE = 1u,    
+    ESC_STARTING_PROCESS_STATE = 2u,    
+    ESC_READY_STATE = 4u,
     ESC_STOPPING_PROCESS_STATE = 5u,
-    ESC_INTERM_STATE = 6u
+    ESC_INTERM_STATE = 6u,
+    ESC_FAULT_STATE = 7u
 };
 
 typedef struct dbl1esc
@@ -42,7 +42,7 @@ typedef struct dbl1esc
 }DBL1Esc;
 
 /* Enable Diagnostic level 2 board */
-#define DIAGNOSTIC_LEVEL2
+/*#define DIAGNOSTIC_LEVEL2*/
 #ifdef DIAGNOSTIC_LEVEL2
 typedef struct dbl2esc
 {
@@ -84,7 +84,7 @@ typedef struct sfescdata
     u8 ControlInputData[2];
     
     /* Command data*/
-    u8 CommandData[8];
+    u8 CommandData[10];
     
     /* Warning data */
     u8 Warn[8];
@@ -93,23 +93,30 @@ typedef struct sfescdata
     u8 ErrorBuff[64];
 
     /* Sensor Data */
-    u8 SensorData[20];
+    u8 SensorData[24];
 
     /* Error code */
     u16 ErrorCode[5];
-    
-    /* Esc parameter crc value */
-    u8 ParaCRC[4];
-    
+       
     /* Configurable input buff */
-    u8 Cfg_Input_Mask[25]; 
-    u8 Cfg_Input_Level[25]; 
+    u8 Cfg_Input_Mask[50]; 
+    u8 Cfg_Input_Level[50]; 
 
     /* DBL1 */
     DBL1Esc DBL1Upper;
     DBL1Esc DBL1Lower;
     DBL1Esc DBL1Interm1;
     DBL1Esc DBL1Interm2;
+    
+    /* Parameter */
+    u8 ParaStatus;
+    u8 ParameterData[10];
+    /* Esc parameter crc value */
+    u32 ParaCRC[2];    
+    
+    /* Safety switch state */
+    u8 SafetySwitchState;
+    u8 SafetySwitchEnter;
 
 #ifdef DIAGNOSTIC_LEVEL2    
     /* DBL2 */
@@ -122,11 +129,15 @@ typedef struct sfescdata
     u8 DBL2ValidateResult;
 #endif
     
+    u8 DataFromControl[3][8];
+    
 }SafetyEscData;    
 
 
 typedef struct motorspeeditem 
 {    
+    /* Sensor Type */
+    u8 SensorType;
     
     /* Sensor NO. */
     u8 SensorX;
@@ -155,6 +166,9 @@ typedef struct motorspeeditem
     /* motor between pulse time */
     u32 TimerMotorSpeedBetweenPulse[10];
     
+    /* motor between pulse last time */
+    u32 LastMotorSpeedPulseTime;    
+    
     /* motor between pulse counter */
     u8 between_pulse_counter;
 
@@ -165,10 +179,10 @@ typedef struct motorspeeditem
     u16 TimeoutTimerMotorSpeed;
     
     /* Sensor use timer init */
-    void (*Timer_Init)(u16 p1,u16 p2);
+    void (*Timer_Init_Sensor)(u16 p1,u16 p2);
     
     /* Sensor use timer number */
-    TIM_TypeDef* TimerNum;
+    TIM_TypeDef* TimerSensorNum;      
   
     /* Brake distance */
     u16 *const ptBrakeDistanceBuff;
@@ -207,7 +221,13 @@ typedef struct handrailspeeditem
     u8 hdl_pulse_counter;
     
     /* Handrail speed */
-    u16 *const ptHDLDataBuff; 
+    u16 *const ptHDLSpeed; 
+
+    /* Handrail speed pulse of motor */
+    u16 *const ptHDLMotorOfPulse;
+    
+    /* handrail counter pulse */
+    u16 HDL_Pulse_Value;
    	
 }HandrailSpeedItem;
 
@@ -228,8 +248,8 @@ typedef struct stepmissingitem
     /* Missing step in ready state time counter */
     u32 ms_ready_delay;
     
-    u32 Motor_speed_pulse_counter_init;
-    u32 Motor_speed_pulse_counter;
+    u16 Motor_speed_pulse_counter;
+    
     u8 First_entry_missing_step_detection;
         
 }STEPMISSINGITEM;
@@ -253,8 +273,7 @@ typedef struct updownkey
 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
-#define ESC_NORMAL      0x00u
-#define ESC_INSPECT     0x10u
+#define ESC_NORMAL      0x10u
 #define ESC_UP          0x01u
 #define ESC_DOWN        0x02u
 
@@ -268,19 +287,114 @@ typedef struct updownkey
 #define ESC_RUN_UP                 0x40u
 #define ESC_RUN_DOWN               0x80u
 
-#define ESC_STATE_FAST             0x01u
-#define ESC_STATE_SLOW             0x02u
-#define ESC_STATE_INTERM           0x04u
-#define ESC_RUN_STAR               0x08u
-#define ESC_RUN_DETLA              0x10u
-#define ESC_SAFETY_RELAY_CLOSE     0x20u
-#define ESC_AUX_RELAY_OPEN         0x40u
-#define ESC_AUX_RELAY_CLOSE        0x80u
-
 #define ESC_SAFETY_END_CLOSE            0x01u
 #define ESC_SAFETY_END_ENABLE           0x02u
 #define ESC_FAULT           0x80u
-#define ESC_STOPPING_PROCESS_FINISH     0x80u
+
+
+/* esc communicaiton, safety to control interface data */
+/* Message ID: 100h */
+/* byte 1 */
+/* order */
+#define ORDER_RUN                       0x01u
+#define ORDER_STOP                      0x02u
+#define ORDER_FAULT                     0x04u
+#define ORDER_RESET                     0x08u
+#define ORDER_ACTIVATE_UP_CONTACTOR     0x10u
+#define ORDER_SLOW_FAST                 0x20u
+#define ORDER_UP_DOWN                   0x40u
+#define ORDER_CAPACITOR                 0x80u
+
+/* byte 2 */
+/* state */
+#define ESC_STATE_MASK                  0x07u
+#define ESC_STATE_INIT                  0x00u
+#define ESC_STATE_READY                 0x04u
+#define ESC_STATE_STARTING_PROCESS      0x02u
+#define ESC_STATE_RUN                   0x01u
+#define ESC_STATE_INTERM                0x06u
+#define ESC_STATE_STOPPING_PROCESS      0x05u
+#define ESC_STATE_FAULT                 0x07u
+
+/* mode1 */
+#define ESC_MODE1_MASK                  0x18u
+#define ESC_MODE1_NORMAL                0x10u
+#define ESC_MODE1_INSPECTION            0x08u
+
+/* mode2 */
+#define ESC_MODE2_MASK                   0xE0u
+#define ESC_MODE2_CONTINOUS              0x00u
+#define ESC_MODE2_INTERMITTEND           0x20u
+#define ESC_MODE2_STBY                   0x40u
+#define ESC_MODE2_INTERMITEND_STBY       0x60u
+#define ESC_MODE2_2DIRECTION             0x80u
+#define ESC_MODE2_Y_D_SWITCHBACK         0xA0u
+
+/* byte 3 */
+#define ESC_INTERM_STOP                 0x01u
+#define ESC_INSP_BUTTONS_RELEASED       0x02u
+#define ESC_REMOTE_STOP                 0x04u
+#define ESC_SAFETY_CURTAIN_STOP         0x08u
+#define ESC_STOPPING_PROCESS_FINISH     0x10u
+#define ESC_SWITCH_ON_ELEM_UPPER        0x20u
+#define ESC_SWITCH_ON_ELEM_LOWER        0x40u
+#define ESC_HANDRAIL_ASME               0x80u
+
+
+/* esc communicaiton, control data to safety */
+/* Message ID: 200h */
+/* byte 1 */
+/* order */
+#define ORDER_REMOTE_KEY_SWITCH_MASK              0x03u
+#define ORDER_REMOTE_KEY_SWITCH_ON                0x02u
+#define ORDER_REMOTE_KEY_SWITCH_OFF               0x01u
+#define ORDER_FROM_CB_REMOTE_RUN_MASK                     0x0Cu
+#define ORDER_FROM_CB_REMOTE_RUN_ON                       0x08u
+#define ORDER_FROM_CB_REMOTE_RUN_OFF                      0x04u
+#define ORDER_FROM_CB_STOP                                0x10u
+#define ORDER_FROM_CB_FAULT                               0x20u
+#define ORDER_FROM_CB_RESET                               0x40u
+
+/* byte 2 */
+/* state */
+#define ESC_FROM_CB_STATE_MASK                          0x07u
+#define ESC_FROM_CB_STATE_INIT                          0x00u
+#define ESC_FROM_CB_STATE_READY                         0x04u
+#define ESC_FROM_CB_SF_STATE_RUNNING                    0x01u
+#define ESC_FROM_CB_SF_STATE_STOPPING_PROCESS           0x05u
+#define ESC_FROM_CB_SF_STATE_FAULT                      0x07u
+
+/* mode */
+#define ESC_FROM_CB_MODE_LOCAL                  0x10u
+#define ESC_FROM_CB_MODE_REMOTE                 0x08u
+#define ESC_FROM_CB_MODE_SLOW                   0x20u
+#define ESC_FROM_CB_MODE_INTERMITTEND           0x40u
+#define ESC_FROM_CB_MODE_2DIRECTION             0x80u
+
+
+/* byte 3 */
+#define ESC_FROM_CB_DIRECTION_MASK               0x03u
+#define ESC_FROM_CB_DIRECTION_UP                 0x02u
+#define ESC_FROM_CB_DIRECTION_DOWN               0x01u
+#define ESC_FROM_CB_MOTOR_MASK                  0x0cu
+#define ESC_FROM_CB_MOTOR_DELTA                 0x08u
+#define ESC_FROM_CB_MOTOR_STAR                  0x04u
+#define ESC_FROM_CB_TEST_AUX_BRAKE              0x10u
+#define ESC_FROM_CB_TYPE_OF_CONTROL_FAULT       0x60u
+#define ESC_FROM_CB_FAULT_FAILURE_LOCK          0x60u
+#define ESC_FROM_CB_FAULT_STANDARD_FAULT        0x20u
+#define ESC_FROM_CB_FAULT_RECOVERY_STOP         0x40u
+
+
+/* byte 4 */
+#define ESC_CONTACTORS_OUTPUTS_K1_1             0x01u
+#define ESC_CONTACTORS_OUTPUTS_K1_2             0x02u
+#define ESC_CONTACTORS_OUTPUTS_K2_1_1           0x04u
+#define ESC_CONTACTORS_OUTPUTS_K2_2_1           0x08u
+#define ESC_CONTACTORS_OUTPUTS_K10_1            0x10u
+#define ESC_CONTACTORS_OUTPUTS_K10_5            0x20u
+#define ESC_CONTACTORS_OUTPUTS_K2_1_2           0x40u
+#define ESC_CONTACTORS_OUTPUTS_K2_2_2           0x80u
 
 /* led flash freq */
 #define FREQ_0_5HZ      200u
@@ -381,6 +495,7 @@ typedef struct updownkey
 #define CMD_FLAG5 	        EscRtData.CommandData[4]
 #define CMD_FLAG6 	        EscRtData.CommandData[5]
 
+#define CMD_FLAG10 	        EscRtData.CommandData[9]
 
 
 #define OmcSfBase_EscState 	OmcEscRtData.CommandData[0]
@@ -470,20 +585,25 @@ typedef struct updownkey
 
 
 /* Sensor Data */
-#define         MOTOR_SPEED1                    EscRtData.SensorData[0]
-#define         MOTOR_SPEED2                    EscRtData.SensorData[2]
+#define         MOTOR_SPEED1                    *(u16*)&EscRtData.SensorData[0]
+#define         MOTOR_SPEED2                    *(u16*)&EscRtData.SensorData[2]
 
-#define         MAIN_SHAFT_SPEED1               EscRtData.SensorData[4]
-#define         MAIN_SHAFT_SPEED2               EscRtData.SensorData[6]
+#define         MAIN_SHAFT_SPEED1               *(u16*)&EscRtData.SensorData[4]
+#define         MAIN_SHAFT_SPEED2               *(u16*)&EscRtData.SensorData[6]
 
-#define         HANDRAIL_SPEED_LEFT             EscRtData.SensorData[8]
-#define         HANDRAIL_SPEED_RIGHT            EscRtData.SensorData[10]
+#define         HANDRAIL_SPEED_LEFT             *(u16*)&EscRtData.SensorData[8]
+#define         HANDRAIL_SPEED_RIGHT            *(u16*)&EscRtData.SensorData[10]
 
-#define         STOPPING_DISTANCE1              EscRtData.SensorData[12]
-#define         STOPPING_DISTANCE2              EscRtData.SensorData[14]
+#define         HANDRAIL_SPEED_LEFT_MOTOR_PULSE           *(u16*)&EscRtData.SensorData[12]
+#define         HANDRAIL_SPEED_RIGHT_MOTOR_PULSE          *(u16*)&EscRtData.SensorData[14]
 
-#define         MISSINGSTEP_MTR_PULSE1          EscRtData.SensorData[16]
-#define         MISSINGSTEP_MTR_PULSE2          EscRtData.SensorData[18]
+#define         MISSINGSTEP_MTR_PULSE1          *(u16*)&EscRtData.SensorData[16]
+#define         MISSINGSTEP_MTR_PULSE2          *(u16*)&EscRtData.SensorData[18]
+
+#define         STOPPING_DISTANCE1              *(u16*)&EscRtData.SensorData[20]
+#define         STOPPING_DISTANCE2              *(u16*)&EscRtData.SensorData[22]
+
+#define         MAIN_SHAFT_SPEED3               *(u16*)&EscRtData.SensorData[2]
 
 
 #define         OMC_MOTOR_SPEED1                    *(u16*)&OmcEscRtData.SensorData[0]
@@ -495,16 +615,67 @@ typedef struct updownkey
 #define         OMC_HANDRAIL_SPEED_LEFT             *(u16*)&OmcEscRtData.SensorData[8]
 #define         OMC_HANDRAIL_SPEED_RIGHT            *(u16*)&OmcEscRtData.SensorData[10]
 
-#define         OMC_STOPPING_DISTANCE1              *(u16*)&OmcEscRtData.SensorData[12]
-#define         OMC_STOPPING_DISTANCE2              *(u16*)&OmcEscRtData.SensorData[14]
+#define         OMC_HANDRAIL_SPEED_LEFT_MOTOR_PULSE       *(u16*)&OmcEscRtData.SensorData[12]
+#define         OMC_HANDRAIL_SPEED_RIGHT_MOTOR_PULSE      *(u16*)&OmcEscRtData.SensorData[14]
 
 #define         OMC_MISSINGSTEP_MTR_PULSE1          *(u16*)&OmcEscRtData.SensorData[16]
 #define         OMC_MISSINGSTEP_MTR_PULSE2          *(u16*)&OmcEscRtData.SensorData[18]
 
+#define         OMC_STOPPING_DISTANCE1              *(u16*)&OmcEscRtData.SensorData[20]
+#define         OMC_STOPPING_DISTANCE2              *(u16*)&OmcEscRtData.SensorData[22]
 
+#define         OMC_MAIN_SHAFT_SPEED3               *(u16*)&OmcEscRtData.SensorData[2]
+
+
+/*** Timer usage ***
+Timer1: motor speed 1 & motor speed 2
+Timer2: motor direction / main shaft 3
+Timer3: main shaft 1 & main shaft 2
+Timer4: main shaft direction
+Timer5: sensor shortcircuit(motor1/motor2,handrail1/handrail2,missingstep1/missingstep2,mainshaft1/mainshaft2/mainshaft3)
+Timer6: system time delay 
+Timer7: self check
+*/
+
+#define MOTOR_SPEED1_CHECK_TIMER                TIM1
+#define MOTOR_SPEED1_CHECK_TIMER_INIT           TIM1_Int_Init
+#define MOTOR_SPEED2_CHECK_TIMER                TIM1
+#define MOTOR_SPEED2_CHECK_TIMER_INIT           TIM1_Int_Init
+
+#define MOTOR_DIRECTION_CHECK_TIMER             TIM2
+#define MOTOR_DIRECTION_CHECK_TIMER_INIT        TIM2_Int_Init
+#define MAIN_SHAFT_SPEED3_CHECK_TIMER           TIM2
+#define MAIN_SHAFT_SPEED3_CHECK_TIMER_INIT      TIM2_Int_Init
+
+#define MAIN_SHAFT_SPEED1_CHECK_TIMER           TIM3
+#define MAIN_SHAFT_SPEED1_CHECK_TIMER_INIT      TIM3_Int_Init
+#define MAIN_SHAFT_SPEED2_CHECK_TIMER           TIM3
+#define MAIN_SHAFT_SPEED2_CHECK_TIMER_INIT      TIM3_Int_Init
+
+#define MAIN_SHAFT_DIRECTION_TIMER              TIM5
+#define MAIN_SHAFT_DIRECTION_TIMER_INIT         TIM5_Int_Init
+
+#define SYSTEM_DELAY_TIMER                      TIM4
+
+/* Motor/handrail/missing step/main shaft shortcircuit use the same timer, check one by one. */
+#define SENSOR_SHORTCIRCUIT_CHECK_TIMER         TIM6
+
+#define CPU_SELF_CHECK_TIMER                    TIM7
 
 /* for debug */
-#define ESC_TEST
+/*#define ESC_TEST*/
+
+/* SF <----> CB */
+#define SF_TO_CONTROL_DATA_LEN   21u
+#define DATA_FROM_CONTROL_LEN    3u
+
+/* SF <----> DBL1 */
+#define SF_TO_DBL1_DATA_LEN   3u
+#define DATA_FROM_DBL1_LEN    4u
+
+/* SF <----> DBL2 */
+#define SF_TO_DBL2_DATA_LEN   8u
+#define DATA_FROM_DBL2_LEN    16u
 
 /* Exported functions ------------------------------------------------------- */
 void Esc_Control(void);
@@ -512,7 +683,10 @@ void Esc_Control(void);
 extern u8 g_u8FaultCodeStore;
 extern u32 g_u32InitTestError;
 extern u16 g_u16ParameterLoadingError;
+extern u8 g_u8ParameterLoadingFinish;
+extern u8 g_u8ParameterLoading;
 extern MotorSpeedItem MTRITEM[2];
+extern MotorSpeedItem MAINSHAFTITEM[3];
 extern HandrailSpeedItem HDL_Right;
 extern HandrailSpeedItem HDL_Left;
 extern STEPMISSINGITEM STPMS_UPPER;
@@ -521,8 +695,9 @@ extern UpDownKeyItem UpKey;
 extern UpDownKeyItem DownKey;
 extern u8 SAFETY_SWITCH_STATUS[4];
 extern u8 g_u8ResetType;
-extern u8 g_u8SafetyRelayStartCheck;
+/*extern u8 g_u8SafetyRelayStartCheck; */
 extern volatile u16 g_u16DBL1NewData;
+extern u16 g_u16ContorlNewData;
 #ifdef DIAGNOSTIC_LEVEL2
 extern u16 g_u16DBL2NewData;
 #endif
@@ -534,17 +709,22 @@ extern u8 g_u8CanCommunicationToCotrolID;
 extern u8 g_u8CanCommunicationToCotrolLen;
 extern u8 g_u8CanCommunicationToCotrolOk;
 
+extern u8 g_u8SensorShortCircuitCheck;
+extern u8 g_u8EscStoppingFinish;
+
 /* ESC */
 extern SFPara SFParameterData;
 extern CBParaInSF CBParameterInSafety;
+extern CBPara CBParameterData;
 
-/* 5 fault code, 1 alarm code */
-extern u16 EscErrorCodeBuff[6];
+/* 5 fault code */
+extern u16 EscErrorCodeBuff[5];
 extern u8 EscErrorBuff[64];
 
 #ifdef GEC_SF_MASTER
-/* state for display */
-extern u8 StateDisplay[8];
+/* 4 warn code */
+extern u16 EscWarnCodeBuff[5];
+extern u16 g_u16EndOfSafetyStringVoltage;
 #endif
 
 /* ESC rt data */
@@ -552,18 +732,23 @@ extern SafetyEscData EscRtData;
 extern SafetyEscData OmcEscRtData;
 
 /* Control board data */
-extern u8 EscDataToControl[20][8];;
-extern u8 EscDataFromControl[3][8];
+extern u8 EscDataToControl[SF_TO_CONTROL_DATA_LEN][8];
+extern u8 EscDataToControlBuffer[SF_TO_CONTROL_DATA_LEN][8];
+extern u32 SafetyCommToControlID[SF_TO_CONTROL_DATA_LEN];
 
 /* DBL1 data */
-extern u8 EscDataToDBL1[3][8];
-extern u8 EscDataFromDBL1[4][8];
+extern u8 EscDataToDBL1[SF_TO_DBL1_DATA_LEN][8];
+extern u8 EscDataFromDBL1[DATA_FROM_DBL1_LEN][8];
 
 #ifdef DIAGNOSTIC_LEVEL2
 /* DBL2 data */
-extern u8 EscDataToDBL2[8][8];
-extern u8 EscDataFromDBL2[16][8];
+extern u8 EscDataToDBL2[SF_TO_DBL2_DATA_LEN][8];
+extern u8 EscDataFromDBL2[DATA_FROM_DBL2_LEN][8];
 #endif
+
+/* Parameter data */
+extern u8 ParaDataToControl[2][8];
+extern u8 ParaDataFromControl[5][8];
 
 #define ESC_RT_DATA_LEN    sizeof(SafetyEscData)
 

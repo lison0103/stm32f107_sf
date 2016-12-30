@@ -55,7 +55,7 @@ void EXTIX_Init(void)
         /** IN1 **/
   	GPIO_EXTILineConfig(GPIO_PortSourceGPIOB,GPIO_PinSource7);
 
-   	EXTI_InitStructure.EXTI_Line=EXTI_Line7;
+   	EXTI_InitStructure.EXTI_Line = EXTI_Line7;
   	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;	
   	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
   	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
@@ -180,85 +180,53 @@ void EXTIX_Init(void)
 #else
         
         /** IN1 **/
-#ifdef GEC_SF_S_NEW
         SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource7);
-#else        
-  	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD,GPIO_PinSource4);
-#endif   
 
-   	EXTI_InitStructure.EXTI_Line=EXTI_Line7;
+   	EXTI_InitStructure.EXTI_Line = EXTI_Line7;
   	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;	
   	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
   	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
   	EXTI_Init(&EXTI_InitStructure);		
 
         /** IN2 **/
-#ifdef GEC_SF_S_NEW
         SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource6);
-#else        
-  	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD,GPIO_PinSource3);
-#endif
 
    	EXTI_InitStructure.EXTI_Line=EXTI_Line6;
   	EXTI_Init(&EXTI_InitStructure);	
 
         /** IN3 **/
-#ifdef GEC_SF_S_NEW
         SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource5);
-#else        
-  	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD,GPIO_PinSource2);
-#endif
 
    	EXTI_InitStructure.EXTI_Line=EXTI_Line5;
   	EXTI_Init(&EXTI_InitStructure);	
         
         /** IN4 **/
-#ifdef GEC_SF_S_NEW
         SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource4);
-#else        
-  	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD,GPIO_PinSource1);
-#endif
 
    	EXTI_InitStructure.EXTI_Line=EXTI_Line4;
   	EXTI_Init(&EXTI_InitStructure);		
 
         /** IN5 **/
-#ifdef GEC_SF_S_NEW
         SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource3);
-#else        
-  	GPIO_EXTILineConfig(GPIO_PortSourceGPIOD,GPIO_PinSource0);
-#endif
 
    	EXTI_InitStructure.EXTI_Line=EXTI_Line3;
   	EXTI_Init(&EXTI_InitStructure);	      
 
         /** IN6 **/
-#ifdef GEC_SF_S_NEW
         SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource2);
-#else        
-  	GPIO_EXTILineConfig(GPIO_PortSourceGPIOC,GPIO_PinSource12);
-#endif
 
    	EXTI_InitStructure.EXTI_Line=EXTI_Line2;
   	EXTI_Init(&EXTI_InitStructure);	        
         
         
         /** IN7 **/
-#ifdef GEC_SF_S_NEW
         SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource1);
-#else        
-  	GPIO_EXTILineConfig(GPIO_PortSourceGPIOC,GPIO_PinSource11);
-#endif   
 
    	EXTI_InitStructure.EXTI_Line=EXTI_Line1;
   	EXTI_Init(&EXTI_InitStructure);		
 
         /** IN8 **/
-#ifdef GEC_SF_S_NEW
         SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource0);
-#else        
-  	GPIO_EXTILineConfig(GPIO_PortSourceGPIOC,GPIO_PinSource10);
-#endif
 
    	EXTI_InitStructure.EXTI_Line=EXTI_Line0;
   	EXTI_Init(&EXTI_InitStructure);	        
@@ -346,9 +314,11 @@ void EXTI0_IRQHandler(void)
     {
         EXTI_ClearFlag(EXTI_Line0);
         EXTI_ClearITPendingBit(EXTI_Line0);
-
+        
 #ifdef GEC_SF_MASTER          
         handrail_X1_int();
+#else
+        mainshaft_X2_int();
 #endif
     }
 }
@@ -363,17 +333,18 @@ void EXTI0_IRQHandler(void)
 * Return         : None
 *******************************************************************************/
 void EXTI1_IRQHandler(void)
-{
-
-  if(EXTI_GetITStatus(EXTI_Line1) != RESET)
-  {
-      EXTI_ClearFlag(EXTI_Line1);
-      EXTI_ClearITPendingBit(EXTI_Line1);
-
+{    
+    if(EXTI_GetITStatus(EXTI_Line1) != RESET)
+    {
+        EXTI_ClearFlag(EXTI_Line1);
+        EXTI_ClearITPendingBit(EXTI_Line1);
+        
 #ifdef GEC_SF_MASTER        
-      handrail_X2_int();
+        handrail_X2_int();
+#else
+        mainshaft_X1_int();
 #endif
-  }
+    }
 }
 
 /*******************************************************************************
@@ -391,15 +362,17 @@ void EXTI2_TS_IRQHandler(void)
 void EXTI2_IRQHandler(void)
 #endif
 {
-
-  if(EXTI_GetITStatus(EXTI_Line2) != RESET)
-  {
-      EXTI_ClearFlag(EXTI_Line2);
-      EXTI_ClearITPendingBit(EXTI_Line2);
-      
-      missingstep_X2_int();
-	   
-  }
+    if(EXTI_GetITStatus(EXTI_Line2) != RESET)
+    {
+        EXTI_ClearFlag(EXTI_Line2);
+        EXTI_ClearITPendingBit(EXTI_Line2);
+        
+#ifdef GEC_SF_MASTER      
+        mainshaft_X2_int();
+#else       
+        missingstep_X2_int();
+#endif   
+    }
 }
 
 /*******************************************************************************
@@ -417,9 +390,10 @@ void EXTI3_IRQHandler(void)
     {
         EXTI_ClearFlag(EXTI_Line3);
         EXTI_ClearITPendingBit(EXTI_Line3);
-         
-        
-#ifndef GEC_SF_MASTER      
+                
+#ifdef GEC_SF_MASTER      
+        mainshaft_X1_int();
+#else        
         missingstep_X1_int();
 #endif
     }
@@ -436,19 +410,18 @@ void EXTI3_IRQHandler(void)
 *******************************************************************************/
 void EXTI4_IRQHandler(void)
 {
-
-  if(EXTI_GetITStatus(EXTI_Line4) != RESET)
-  {
-      EXTI_ClearFlag(EXTI_Line4);
-      EXTI_ClearITPendingBit(EXTI_Line4);
-
+    if(EXTI_GetITStatus(EXTI_Line4) != RESET)
+    {
+        EXTI_ClearFlag(EXTI_Line4);
+        EXTI_ClearITPendingBit(EXTI_Line4);
+        
 #ifdef GEC_SF_MASTER        
-      missingstep_X2_int(); 
+        missingstep_X2_int(); 
 #else
-      handrail_X2_int();
+        handrail_X2_int();
 #endif
-      
-  }
+        
+    }
 }
 
 /*******************************************************************************
@@ -462,37 +435,36 @@ void EXTI4_IRQHandler(void)
 *******************************************************************************/
 void EXTI9_5_IRQHandler(void)
 {
-
-  if(EXTI_GetITStatus(EXTI_Line5) != RESET)
-  {
-      EXTI_ClearFlag(EXTI_Line5);
-      EXTI_ClearITPendingBit(EXTI_Line5);
-
+    if(EXTI_GetITStatus(EXTI_Line5) != RESET)
+    {
+        EXTI_ClearFlag(EXTI_Line5);
+        EXTI_ClearITPendingBit(EXTI_Line5);
+        
 #ifdef GEC_SF_MASTER       
-      missingstep_X1_int();
+        missingstep_X1_int();
 #else
-      handrail_X1_int();
+        handrail_X1_int();
 #endif
-      
-  }
+        
+    }
   
-  if(EXTI_GetITStatus(EXTI_Line6) != RESET)
-  {
-      EXTI_ClearFlag(EXTI_Line6);
-      EXTI_ClearITPendingBit(EXTI_Line6);
-  
-      mtr_X2_int();
-  }
+    if(EXTI_GetITStatus(EXTI_Line6) != RESET)
+    {
+        EXTI_ClearFlag(EXTI_Line6);
+        EXTI_ClearITPendingBit(EXTI_Line6);
+        
+        mtr_X2_int();
+        mainshaft_X3_int();
+        
+    }
     
-  if(EXTI_GetITStatus(EXTI_Line7) != RESET)
-  {
-      EXTI_ClearFlag(EXTI_Line7);
-      EXTI_ClearITPendingBit(EXTI_Line7);
-      
-      mtr_X1_int();
-  }
-
-  
+    if(EXTI_GetITStatus(EXTI_Line7) != RESET)
+    {
+        EXTI_ClearFlag(EXTI_Line7);
+        EXTI_ClearITPendingBit(EXTI_Line7);
+        
+        mtr_X1_int();
+    }  
 }
 
 /*******************************************************************************
@@ -545,16 +517,15 @@ void EXTI15_10_IRQHandler(void)
 */
     
 
-  if(EXTI_GetITStatus(EXTI_Line15) != RESET)
-  {
-      EXTI_ClearFlag(EXTI_Line15);
-      EXTI_ClearITPendingBit(EXTI_Line15);
-
+    if(EXTI_GetITStatus(EXTI_Line15) != RESET)
+    {
+        EXTI_ClearFlag(EXTI_Line15);
+        EXTI_ClearITPendingBit(EXTI_Line15);
+        
 #ifdef GEC_SF_MASTER
-      g_u8SPISlaveDataPrepare = 1u;
+        g_u8SPISlaveDataPrepare = 1u;
 #endif
-  }  
-  
+    }   
 }
 
 

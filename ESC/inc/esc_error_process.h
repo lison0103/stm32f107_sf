@@ -17,18 +17,22 @@
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
+/* failure lock */
+#define EF       2u
+/* standard fault */
+#define ES       1u
+/* recovery fault */
+#define ER       3u
+/* Undefined */
+#define EU       0x0u
+
 /* Exported functions ------------------------------------------------------- */
-void ESC_EWDT_Error_Process(void);
-void ESC_Flash_Error_Process(void);
-void ESC_Fram_Error_Process(void);
-void ESC_SPI_Error_Process(void);
-void ESC_SafeRelay_Error_Process(void);
-void ESC_Init_Fault(void);
-void fault_code_decode(u16 code_buff[]);
+void fault_code_decode(u16 code_buff[],u8 fault);
 void fault_code_manual_reset(u8 ResetType);
 void fault_code_auto_reset(void);
 void error_change_check(void);
 
+extern u8 EscFaultType[512];
 
 #endif /* __ESC_ERROR_PROCESS_H */
 

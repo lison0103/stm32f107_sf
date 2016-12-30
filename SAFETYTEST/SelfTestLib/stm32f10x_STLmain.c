@@ -102,7 +102,7 @@ void Safety_InitRunTimeChecks(void)
   WWDG_SetWindowValue(125u);
   /* Enable WWDG and set counter value to 127, WWDG timeout = 910.22 us * 64 = 58.25 ms 
   In this case the refresh window is: 910.22 us * (127-122) = 4.55 ms < refresh window < 910.22 us * 64 = 58.25ms */
-  WWDG_Enable(0x7Fu);
+  /*WWDG_Enable(0x7Fu);*/
 #endif
   
   /* Initialize variables for main routine control flow monitoring */
@@ -254,7 +254,7 @@ static void DataIntegrityInFlash_RunCheck(u32* RomTest)
 static void ProgramCounterCheck(void)
 {
     /* Update WWDG counter */
-    WWDG_SetCounter(127u); 
+    /*WWDG_SetCounter(127u); */
     /* Reload IWDG counter */
     IWDG_ReloadCounter();
 }

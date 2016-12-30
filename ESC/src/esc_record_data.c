@@ -20,6 +20,7 @@
 /* Private define ------------------------------------------------------------*/
 #define ESC_RECORD_NUM 1024u
 #define ERROR_BACKUP_STORE_TIME 1000u
+#define FRAM_WRITE_LENGTH       10u
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -29,7 +30,7 @@
 u8 g_u8FaultCodeStore = 0u;
 u16 g_u16FramWriteAdr = 0u;
 u16 g_u16FramWriteLen = 0u;
-u8 *FramWriteData;
+u8 FramWriteData;
 u8 FramWriteBuffer[ESC_ERROR_NUM];
 u8 FramNeedStore = 0u;
 
@@ -103,79 +104,86 @@ void StoreFaultInMemory(void)
     static u16 stat_u16TimerStoreFault = 0u;
     u8 u8DataStore = 0u;
     u16 i;
-
-    if( g_u8FaultCodeStore == 1u )
-    {
-        u8DataStore = 1u;
-        g_u8FaultCodeStore = 2u;
-        stat_u16TimerStoreFault = 0u;
-    }
-    else
-    {
-        if( g_u8FaultCodeStore == 2u )
-        {
-            stat_u16TimerStoreFault++;
-            if( stat_u16TimerStoreFault * 5u > ERROR_BACKUP_STORE_TIME )
-            {
-                u8DataStore = 1u;
-                g_u8FaultCodeStore = 0u;
-            }
-        } 
-    }
     
-    if( u8DataStore == 1u )
+    if(( SfBase_EscState == ESC_FAULT_STATE ) || ( SfBase_EscState == ESC_READY_STATE ))
     {
-        /* first, clear buffer */
-        for( i = 0u; i < ESC_ERROR_NUM; i++ )
+        /* check error code change */
+        error_change_check();
+        
+        if( g_u8FaultCodeStore == 1u )
         {
-            FramWriteBuffer[i] = 0u;
-        }
-        
-        /* Header */
-        FramWriteBuffer[0] = 0xfau;
-        FramWriteBuffer[1] = 0xedu;
-        
-        /* 5 Error Code */
-        for( i = 0u; i < 5u; i++ )
-        {
-            FramWriteBuffer[i*2u + 2u] = (u8)(EscRtData.ErrorCode[i] & 0xffu);
-            FramWriteBuffer[i*2u + 3u] = (u8)((EscRtData.ErrorCode[i] >> 8u) & 0xffu);
-        }
-        
-        /* Error FramWriteBuffer */
-        for( i = 0u; i < 64u; i++ )
-        {
-            FramWriteBuffer[i + 12u] = EscRtData.ErrorBuff[i] | OmcEscRtData.ErrorBuff[i];
-            /* for test, only cpu1 */
-            /*FramWriteBuffer[i + 12u] = EscRtData.ErrorBuff[i];*/
-        }
-        
-        /* CRC16 */
-        i = MB_CRC16( FramWriteBuffer, ESC_ERROR_NUM - 2u );
-        FramWriteBuffer[ESC_ERROR_NUM - 2u] = (u8)i;
-        FramWriteBuffer[ESC_ERROR_NUM - 1u] = (u8)(i >> 8u);
-        
-        /* record in fram */
-        if( g_u8FaultCodeStore )
-        {
-            /*fram_data_write(ESC_ERROR_ADR, ESC_ERROR_NUM, FramWriteBuffer, 0u);  */
-            g_u16FramWriteAdr = ESC_ERROR_ADR;
-            g_u16FramWriteLen = ESC_ERROR_NUM;
-            FramWriteData = FramWriteBuffer;       
-            FramNeedStore = 1u;
+            u8DataStore = 1u;
+            g_u8FaultCodeStore = 2u;
+            stat_u16TimerStoreFault = 0u;
         }
         else
         {
-            /* backup */
-            /*fram_data_write(ESC_BACKUP_ADR + ESC_ERROR_ADR, ESC_ERROR_NUM, FramWriteBuffer, 0u);  */
-            g_u16FramWriteAdr = ESC_BACKUP_ADR + ESC_ERROR_ADR;
-            g_u16FramWriteLen = ESC_ERROR_NUM;
-            FramWriteData = FramWriteBuffer;        
-            FramNeedStore = 1u;
+            if( g_u8FaultCodeStore == 2u )
+            {
+                stat_u16TimerStoreFault++;
+                if( stat_u16TimerStoreFault * 5u > ERROR_BACKUP_STORE_TIME )
+                {
+                    u8DataStore = 1u;
+                    g_u8FaultCodeStore = 0u;
+                }
+            } 
         }
         
-        u8DataStore = 0u;
-    } 
+        if( u8DataStore == 1u )
+        {
+            /* first, clear buffer */
+            for( i = 0u; i < ESC_ERROR_NUM; i++ )
+            {
+                FramWriteBuffer[i] = 0u;
+            }
+            
+            /* Header */
+            FramWriteBuffer[0] = 0xfau;
+            FramWriteBuffer[1] = 0xedu;
+            
+            /* 5 Error Code */
+            for( i = 0u; i < 5u; i++ )
+            {
+                FramWriteBuffer[i*2u + 2u] = (u8)(EscRtData.ErrorCode[i] & 0xffu);
+                FramWriteBuffer[i*2u + 3u] = (u8)((EscRtData.ErrorCode[i] >> 8u) & 0xffu);
+            }
+            
+            /* Error FramWriteBuffer */
+            for( i = 0u; i < 64u; i++ )
+            {
+                FramWriteBuffer[i + 12u] = EscRtData.ErrorBuff[i] | OmcEscRtData.ErrorBuff[i];
+            }
+            
+            /* CRC16 */
+            i = MB_CRC16( FramWriteBuffer, ESC_ERROR_NUM - 2u );
+            FramWriteBuffer[ESC_ERROR_NUM - 2u] = (u8)i;
+            FramWriteBuffer[ESC_ERROR_NUM - 1u] = (u8)(i >> 8u);
+            
+            /* record in fram */
+            if( g_u8FaultCodeStore )
+            {
+                /*fram_data_write(ESC_ERROR_ADR, ESC_ERROR_NUM, FramWriteBuffer, 0u);  */
+                g_u16FramWriteAdr = ESC_ERROR_ADR;
+                g_u16FramWriteLen = ESC_ERROR_NUM;
+                FramWriteData = 0u;       
+                FramNeedStore = 1u;
+            }
+            else
+            {
+                /* backup */
+                /*fram_data_write(ESC_BACKUP_ADR + ESC_ERROR_ADR, ESC_ERROR_NUM, FramWriteBuffer, 0u);  */
+                g_u16FramWriteAdr = ESC_BACKUP_ADR + ESC_ERROR_ADR;
+                g_u16FramWriteLen = ESC_ERROR_NUM;
+                FramWriteData = 0u;        
+                FramNeedStore = 1u;
+            }
+            
+            u8DataStore = 0u;
+        } 
+        
+        /* store to Fram 10byte/5ms to reduce times */ 
+        fram_store_data();
+    }
 }
 
 /*******************************************************************************
@@ -187,14 +195,41 @@ void StoreFaultInMemory(void)
 *******************************************************************************/
 void fram_store_data(void)
 {
+    static u16 stat_u16WriteLength = 0u;
+    
     if( FramNeedStore == 1u )
     {
-        FramNeedStore = 0u;
-        if( eeprom_write(g_u16FramWriteAdr, g_u16FramWriteLen, FramWriteData))
+        FramNeedStore = 2u;
+        stat_u16WriteLength = FRAM_WRITE_LENGTH;
+    }
+    
+    if( FramNeedStore )
+    {
+        if( eeprom_write(g_u16FramWriteAdr, stat_u16WriteLength, &FramWriteBuffer[FramWriteData]))
         {
             /* FAULT: eeprom write error */
             
         }  
+        else
+        {
+            g_u16FramWriteLen -= stat_u16WriteLength;
+            if( g_u16FramWriteLen > FRAM_WRITE_LENGTH )
+            {
+                stat_u16WriteLength = FRAM_WRITE_LENGTH;
+                g_u16FramWriteAdr += FRAM_WRITE_LENGTH;
+                FramWriteData += FRAM_WRITE_LENGTH;
+            }            
+            else if( g_u16FramWriteLen == 0u )
+            {
+                FramNeedStore = 0u;
+            }
+            else
+            {                
+                stat_u16WriteLength = g_u16FramWriteLen;
+                g_u16FramWriteAdr += FRAM_WRITE_LENGTH;   
+                FramWriteData += FRAM_WRITE_LENGTH;
+            }
+        }
     }
 }
 
@@ -295,8 +330,18 @@ u8 fram_data_read(u16 Adr, u16 len, u8 ReadData[])
         {
             Fram_Data[i] = 0u;
         } 
-        fram_data_write(Adr, len, Fram_Data, PARAMETER_POLYNOMIALS);
-        fram_data_write(ESC_BACKUP_ADR + Adr, len, Fram_Data, PARAMETER_POLYNOMIALS);
+        if( Adr == ESC_ERROR_ADR )
+        {
+            fram_data_write(Adr, len, Fram_Data, 0u);
+            fram_data_write(ESC_BACKUP_ADR + Adr, len, Fram_Data, 0u);        
+        }
+        else if( Adr == ESC_PARA_ADR )
+        {
+            fram_data_write(Adr, len, Fram_Data, PARAMETER_POLYNOMIALS);
+            fram_data_write(ESC_BACKUP_ADR + Adr, len, Fram_Data, PARAMETER_POLYNOMIALS);
+        }
+        else
+        {}
     }
     
     return errorflag;
@@ -353,7 +398,6 @@ void DataIntegrityInFRAMCheck(void)
     result = fram_data_read(ESC_PARA_ADR, ESC_PARA_NUM, Fram_Data);
     if(result)
     {
-        ESC_Fram_Error_Process();
         g_u32InitTestError = 1u;
     }
 }

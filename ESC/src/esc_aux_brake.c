@@ -3,8 +3,8 @@
 * Author             : Tu
 * Version            : V1.0
 * Date               : 11/04/2016
-* Last modify date   : 11/07/2016
-* Description        : 
+* Last modify date   : 12/20/2016
+* Description        : 12/20/2016 adding UNINTENTIONAL CHANGE DIRECTION to aux lock
 *                      
 *******************************************************************************/
 
@@ -13,17 +13,8 @@
 #include "bsp_iocfg.h"
 
 /* Private typedef -----------------------------------------------------------*/
+
 /* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
-static void MainShaftBrakePawlSupervision(void);
-
-/*
-#define AUX_BRAKE_FEEDBACK_INPUT   (EscRtData. SafetyInputData[3] & 0x04)
-*/
-
 #define AUX_DELYA_FB_MASK               (EscRtData. Cfg_Input_Mask[14] &(0x40u))
 #define AUX_DELAY_FB_INPUT              (EscRtData. Cfg_Input_Level[14] &(0x40u))
 
@@ -33,17 +24,20 @@ static void MainShaftBrakePawlSupervision(void);
 #define AUX_BRAKE_TEST_MASK             (EscRtData. Cfg_Input_Mask[14] &(0x40u))
 #define AUX_BRAKE_TEST_INPUT            (EscRtData. Cfg_Input_Level[14] &(0x40u))
 
-#define AUX_BRAKE_FEEDBACK_MASK1        (EscRtData. Cfg_Input_Mask[0] &(0x01u))
-#define AUX_BRAKE_FEEDBACK_MASK2        (EscRtData. Cfg_Input_Mask[0] &(0x02u))
+#define AUX_BRAKE_FEEDBACK_MASK1        (EscRtData. Cfg_Input_Mask[4] &(0x02u))
+#define AUX_BRAKE_FEEDBACK_INPUT1       (EscRtData. Cfg_Input_Level[4] &(0x02u))
 
-#define AUX_BRAKE_FEEDBACK_INPUT1       (EscRtData. Cfg_Input_Level[0] &(0x01u))
-#define AUX_BRAKE_FEEDBACK_INPUT2       (EscRtData. Cfg_Input_Level[0] &(0x02u))
+#define AUX_BRAKE_FEEDBACK_MASK2        (EscRtData. Cfg_Input_Mask[4] &(0x04u))
+#define AUX_BRAKE_FEEDBACK_INPUT2       (EscRtData. Cfg_Input_Level[4] &(0x04u))
 
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+static u8 aux_sensor_fb_mask,aux_sensor_fb_input;
+
+/* Private function prototypes -----------------------------------------------*/
 static void AuxBrakeSupervision(void);
 static void AuxBrakeLock(void);
 static void AuxBrakeUnlock(void);
-
-static u8 aux_sensor_fb_mask,aux_sensor_fb_input;
 
 /*******************************************************************************
 * Function Name  : AuxBrakeSupervision
@@ -54,8 +48,13 @@ static u8 aux_sensor_fb_mask,aux_sensor_fb_input;
 *******************************************************************************/
 static void AuxBrakeSupervision(void)
 {
+  u16 aux_brake_error_tms=0u; 
   static u16 PawlSupervsionTime=0u,RunStatePawlTime=0u;
   static u16 aux_delay_fb_error_tms=0u,aux_relay_fb_error_tms=0u;
+  
+  
+  aux_brake_error_tms = AUX_BRAKE_SUPERVISION_TIME; 
+  aux_brake_error_tms = aux_brake_error_tms*1000u;
   
   /*
   ** Aux relay k4.0 and K4.3 drive feedback 
@@ -67,7 +66,7 @@ static void AuxBrakeSupervision(void)
     {
        if(aux_relay_fb_error_tms > CONTACTOR_FEEDBACK_FILTER ) 
        {
-          EN_ERROR37 |= 0x20u;          /* F288                  */                 
+          EN_ERROR37 |= 0x01u;          /* F288  Supervision aux brake contactor  */                 
        } 
        else
        {
@@ -90,7 +89,7 @@ static void AuxBrakeSupervision(void)
     {
        if(aux_delay_fb_error_tms > CONTACTOR_FEEDBACK_FILTER) 
        {
-         EN_ERROR3 |= 0x04u;       /* F289   */  
+         EN_ERROR37 |= 0x02u;       /* F289 Supervision aux brake delay contactor  */  
        } 
        else
        {
@@ -102,7 +101,7 @@ static void AuxBrakeSupervision(void)
       aux_delay_fb_error_tms = 0u;  
     }  
   }
-
+    
   /*check  AUX feedback in run state,  
   ** Run state 
   ** normal or running down
@@ -119,12 +118,12 @@ static void AuxBrakeSupervision(void)
       { 
         if(!(aux_sensor_fb_input&0x01u)) 
         {
-          EN_ERROR37 |= 0x20u;          /* F293        ?            */                 
+          EN_ERROR36 |= 0x40u;          /* F286  Aux bake status 1  */                 
         }   
           
         if((aux_sensor_fb_mask&0x02u) != (aux_sensor_fb_input&0x02u)) 
         {  
-          EN_ERROR37 |= 0x40u;          /* F294         ?           */       
+          EN_ERROR36 |= 0x80u;          /* F287  Aux bake status 2 */       
         }   
       }
       else
@@ -150,17 +149,33 @@ static void AuxBrakeSupervision(void)
     if(((CMD_FLAG7&0X01u) &&  (aux_sensor_fb_input != aux_sensor_fb_mask))  || \
       ((!(CMD_FLAG7&0X01u)) && (aux_sensor_fb_input)))         
     {
-      if(PawlSupervsionTime > AUX_BRAKE_SUPERVISION_TIME)
+      if(PawlSupervsionTime > aux_brake_error_tms)
       {
-        if(aux_sensor_fb_input & 0x01u) 
+        /* Aux unlock */
+        if( CMD_FLAG7&0X01u ) 
         {
-          EN_ERROR37 |= 0x20u;          /* F293        ?            */                 
-        }   
+          if(!(aux_sensor_fb_input & 0x01u)) 
+          {
+            EN_ERROR36 |= 0x40u;          /* F286  Aux bake status 1  */             
+          }  
           
-        if(aux_sensor_fb_input & 0x02u) 
-        {  
-          EN_ERROR37 |= 0x40u;          /* F294         ?           */       
-        }   
+          if((aux_sensor_fb_mask & 0x02u) && (!(aux_sensor_fb_input & 0x02u)))
+          {
+            EN_ERROR36 |= 0x80u;          /* F287  Aux bake status 2 */       
+          }  
+        }
+        else /* Aux lock */
+        {
+          if(aux_sensor_fb_input & 0x01u) 
+          {
+            EN_ERROR36 |= 0x40u;          /* F286  Aux bake status 1  */                 
+          }   
+            
+          if(aux_sensor_fb_input & 0x02u) 
+          {  
+            EN_ERROR36 |= 0x80u;          /* F287  Aux bake status 2 */       
+          }   
+        }        
       }
       else
       {
@@ -241,19 +256,19 @@ static void AuxBrakeLock(void)
   
   CMD_FLAG7 &= ~0x20u;
 
-  /*
+  /* 
   ** Total fault number: 
-  **Overspeed Testmotor Sensor 1, 2
-  **Overspeed Mainshaft Sensor 1, 2, 3
-  **Lowspeed Testmotor Sensor 1, 2
-  **Lowspeed Mainshaft Sensor 1, 2, 3
-  **Timeout stopping Process Testmotor Sensor 1, 2
-  **Timeout stopping Process Mainshaft Sensor 1, 2, 3
-  **
-  **
-  ** 
-  */
-  if( (EN_ERROR33 & 0xf0u) || (EN_ERROR52 & 0x06u) || (EN_ERROR53 & 0x70u))    
+  ** Overspeed Testmotor Sensor 1, 2
+  ** Overspeed Mainshaft Sensor 1, 2, 3
+  ** Lowspeed Testmotor Sensor 1, 2
+  ** Lowspeed Mainshaft Sensor 1, 2, 3
+  ** Timeout stopping Process Testmotor Sensor 1, 2
+  ** Timeout stopping Process Mainshaft Sensor 1, 2, 3
+  ** UNINTENTIONAL CHANGE DIRECTION F343/F344
+  **   
+  **  
+  */ 
+  if( (EN_ERROR33 & 0x0fu) || (EN_ERROR34 & 0x01u) || (EN_ERROR43 & 0x80u) ||  (EN_ERROR44 & 0x01u) || (EN_ERROR52 & 0x06u) || (EN_ERROR53 & 0x7eu))    
   {
     CMD_FLAG7 &= ~0x01u;        /* K4.0 and K4.3 = off */   	
     CMD_FLAG7 |= 0x10u;         /* K4.2 = true */  
@@ -288,7 +303,7 @@ static void AuxBrakeLock(void)
           
           if( (CapacitatorDurationTimer<300u) && (aux_sensor_fb_input != aux_sensor_fb_mask) )
           {  
-            EN_ERROR3 |= 0x04u;      
+            EN_ERROR37 |= 0x02u;       /* F289   */  
           }  
         }
       } 
@@ -319,32 +334,31 @@ void Aux_Brake_CS(void)
   aux_sensor_fb_mask=0u;
   aux_sensor_fb_input=0u;
   
-  if(AUX_BRAKE_FEEDBACK_MASK2) 
-  {
-    aux_sensor_fb_mask = 0x03u;
-    if(AUX_BRAKE_FEEDBACK_INPUT1) 
-    {
-      aux_sensor_fb_input |= 0x01u;
-    }  
-    
-    if(AUX_BRAKE_FEEDBACK_INPUT2) 
-    {
-      aux_sensor_fb_input |= 0x02u;
-    }  
-  }
-  else
-  {
-    aux_sensor_fb_mask = 0x01u;
-    
-    if(AUX_BRAKE_FEEDBACK_INPUT1) 
-    {
-      aux_sensor_fb_input |= 0x01u;
-    }  
-  }  
   
   if( (AUX_BRAKE_ENABLE) ) 
   {
-   
+    if(AUX_BRAKE_FEEDBACK_MASK2) 
+    {
+      aux_sensor_fb_mask = 0x03u;
+      if(AUX_BRAKE_FEEDBACK_INPUT1) 
+      {
+        aux_sensor_fb_input |= 0x01u;
+      }  
+      
+      if(AUX_BRAKE_FEEDBACK_INPUT2) 
+      {
+        aux_sensor_fb_input |= 0x02u;
+      }  
+    }
+    else
+    {
+      aux_sensor_fb_mask = 0x01u;
+      
+      if(AUX_BRAKE_FEEDBACK_INPUT1) 
+      {
+        aux_sensor_fb_input |= 0x01u;
+      }  
+    }  
     
     AuxBrakeLock();
   

@@ -200,6 +200,42 @@ u8 CopyFile(char *readfilename, char *newfilename)
   
 }
 
+/*******************************************************************************
+* Function Name  : WriteNewFile
+* Description    : Create a new file.
+*                  
+* Input          : buffer: copy the contents of file to buffer.
+                   newfilename: New file name string.
+*                  
+* Output         : None
+* Return         : 0 success
+*******************************************************************************/
+u8 WriteNewFile(char *newfilename, u8 buffer[], u32 len)
+{
+    FIL* fp1,file1;
+    FRESULT res = FR_NO_FILE;
+    u32 bread;
+    u32 offx = 0u;
+    u8 result = 0u;
+    
+    fp1 = &file1;		
+        
+    if( fp1 != NULL )
+    {    
+        res = f_open(fp1,newfilename,FA_CREATE_NEW | FA_WRITE);  
+        
+        if(res == FR_OK)
+        {
+            res = f_write(fp1,buffer,len,&offx);	 
+	}    
+               
+        f_close(fp1);         
+    }  
+    
+    return res;
+  
+}
+
 
 
 /*******************************************************************************

@@ -98,8 +98,8 @@ static void CheckTandemRun(void)
         {
             if( TandemMessageRunAllowed == 0u )
             {
-                /* Stop escalator Tandem Fault (F343) */
-                EN_ERROR43 |= 0x80u;
+                /* Tandem supervision (F342) */
+                EN_ERROR43 |= 0x40u;
             }
         }           
     }
@@ -109,8 +109,8 @@ static void CheckTandemRun(void)
         {
             if( TandemMessageRunAllowed == 0u )
             {
-                /* Stop escalator Tandem Fault (F344) */
-                EN_ERROR44 |= 0x01u;
+                /* Tandem supervision (F342) */
+                EN_ERROR43 |= 0x40u;
             }
         }      
     }
@@ -129,11 +129,8 @@ static void CheckTandemRun(void)
 *******************************************************************************/
 static void TandemOutput(void)
 {
-    if( CMD_ESC_RUN_MODE & ESC_INSPECT )
-    {
-        Tandemoutput = 0u;
-    }
-    else if( ( CMD_ESC_RUN_MODE & ESC_INSPECT ) == ESC_NORMAL )
+
+    if( ( CMD_ESC_RUN_MODE & ESC_NORMAL ) == ESC_NORMAL )
     {
         if( TANDEM == 1u )
         {
@@ -159,7 +156,7 @@ static void TandemOutput(void)
         }
         else
         {
-          
+    
         }        
     }
     else
@@ -182,24 +179,19 @@ static void TandemOutput(void)
 *******************************************************************************/
 void ESC_Tandem_Check(void)
 {
-
     if( SfBase_EscState == ESC_READY_STATE )
     {
         CheckTandemReady();
     }
-    else if(SfBase_EscState == ESC_RUN_STATE)
+    else if( SfBase_EscState == ESC_RUN_STATE )
     {
         CheckTandemRun();
-        TandemOutput();
     }    
-    else if(( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ) || ( SfBase_EscState == ESC_FAULT_STATE ))
+    else 
     {
-        TandemOutput();
     }
-    else
-    {
-      
-    }    
+    
+    TandemOutput();
 }
 
 

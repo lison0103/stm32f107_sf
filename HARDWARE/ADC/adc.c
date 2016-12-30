@@ -160,7 +160,7 @@ u16 Get_Adc(void)
 * Output         : None
 * Return         : -1 : conversion calculation is not complete, other: the average adc conversion. 
 *******************************************************************************/
-u8 Get_Adc_Average(void)
+u16 Get_Adc_Average(void)
 {
 #ifdef   USE_DMA_Transfer
   
@@ -172,7 +172,7 @@ u8 Get_Adc_Average(void)
           sum += ADC1ConvertedValue[i];
         }
         
-        return (u8)(sum*60u/4096u/Sample_Num);  
+        return (u16)(sum*60u/4096u/Sample_Num);  
 
 #else
 	static u32 temp_val[5] = { 0 };

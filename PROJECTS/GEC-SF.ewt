@@ -2164,6 +2164,12 @@
       <file>
         <name>$PROJ_DIR$\..\ESC\src\esc_isp_normal_mode.c</name>
       </file>
+      <file>
+        <name>$PROJ_DIR$\..\ESC\src\esc_operation_modes.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\ESC\src\esc_people_detection.c</name>
+      </file>
     </group>
     <group>
       <name>EN</name>
@@ -2240,9 +2246,6 @@
         <name>Starup</name>
         <file>
           <name>$PROJ_DIR$\..\Libraries\CMSIS\startup\startup_stm32f10x_cl.s</name>
-        </file>
-        <file>
-          <name>$PROJ_DIR$\..\Libraries\CMSIS\startup\startup_stm32f10x_md.s</name>
         </file>
         <file>
           <name>$PROJ_DIR$\..\Libraries\CMSIS\startup\startup_stm32f30x.s</name>

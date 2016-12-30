@@ -26,9 +26,13 @@
 #include "comm_display_board.h"
 #include "esc_state.h"
 #include "esc_comm_diagnostic2.h"
+#include "esc_main_shaft_speed.h"
 #ifdef GEC_SF_S_NEW
 #include "usb_virtual_com_port.h"
 #endif
+
+#include "esc_control.h"
+
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -48,13 +52,13 @@ u8 g_u8CanCommunicationToCotrolID = 0u,g_u8CanCommunicationToCotrolLen = 0u,g_u8
 u8 g_u8LedFreq = FREQ_1HZ;
 
 /* ESC -----------------------*/
-/* 5 fault code, 1 alarm code */
-u16 EscErrorCodeBuff[6];
+/* 5 fault code */
+u16 EscErrorCodeBuff[5];
 u8 EscErrorBuff[64];
 
 #ifdef GEC_SF_MASTER
-/* state for display */
-u8 StateDisplay[8];
+/* 4 warn code */
+u16 EscWarnCodeBuff[5];
 #endif
 
 /* ESC rt data */
@@ -62,16 +66,21 @@ SafetyEscData EscRtData;
 SafetyEscData OmcEscRtData;
 
 /* Control board data */
-u8 EscDataToControl[20][8];
-u8 EscDataFromControl[3][8];
+u8 EscDataToControl[SF_TO_CONTROL_DATA_LEN][8];
 
 /* DBL1 data */
-u8 EscDataToDBL1[3][8];
-u8 EscDataFromDBL1[4][8];
+u8 EscDataToDBL1[SF_TO_DBL1_DATA_LEN][8];
+u8 EscDataFromDBL1[DATA_FROM_DBL1_LEN][8];
 
+#ifdef DIAGNOSTIC_LEVEL2
 /* DBL2 data */
-u8 EscDataToDBL2[8][8];
-u8 EscDataFromDBL2[16][8];
+u8 EscDataToDBL2[SF_TO_DBL2_DATA_LEN][8];
+u8 EscDataFromDBL2[DATA_FROM_DBL2_LEN][8];
+#endif
+
+/* Parameter data */
+u8 ParaDataToControl[2][8];
+u8 ParaDataFromControl[5][8];
 
 /*******************************************************************************
 * Function Name  : LED_indicator
@@ -122,6 +131,7 @@ static void Task_Loop(void)
       
       pga_input_decode();
       
+      Inspection_Normal_Key_Check();
       
       /*  ESC  */
       if( testmode == 0u )
@@ -132,15 +142,17 @@ static void Task_Loop(void)
           
           ESC_Motor_Check();
           
+          ESC_Mainshaft_Check();
+                 
           ESC_Handrail_Check();
           
           ESC_Missingstep_Check();
-          
+       
           Esc_Safety_Input_Check();
           
-          Esc_Control();
+          Esc_Control(); 
           
-/*          SafetySwitchStatus();*/
+          SafetySwitchStatus();
       }
       
       
@@ -159,8 +171,9 @@ static void Task_Loop(void)
             
       if( Tms10Counter == 0u )
       {
-          fault_code_decode(EscRtData.ErrorCode);    
-#ifdef GEC_SF_MASTER           
+          fault_code_decode(EscRtData.ErrorCode,1u);    
+#ifdef GEC_SF_MASTER       
+          fault_code_decode(EscWarnCodeBuff,0u);
           Communication_To_Control();  
 #endif          
       }   
@@ -198,10 +211,14 @@ static void Task_Loop(void)
 
       }    
       
-#ifdef GEC_SF_MASTER  
-      error_change_check();
-      StoreFaultInMemory();      
-      fram_store_data();
+      OperationModesProcess();
+      
+      
+      /* Parameters Loading */
+      ParametersLoading();
+      
+#ifdef GEC_SF_MASTER     
+      StoreFaultInMemory();          
 #endif
       
 }
@@ -221,7 +238,7 @@ int main(void)
     /* Power up delay */
     for( i = 0u; i < 10000u; i++ )
     {
-               
+                         
     }
     
     /** hardware init **/
@@ -239,8 +256,7 @@ int main(void)
         Task_Loop();
         LED_indicator(g_u8LedFreq);
    
-    }          
-          
+    }                  
 }
 
 #ifdef  USE_FULL_ASSERT

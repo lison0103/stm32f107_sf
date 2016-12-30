@@ -261,9 +261,7 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
     }
     
     DMA_Cmd(DMA1_Channel2, ENABLE);    
-    DMA_Cmd(DMA1_Channel3, ENABLE);
-      
-    
+    DMA_Cmd(DMA1_Channel3, ENABLE);         
 }
 
 /*******************************************************************************
@@ -277,95 +275,71 @@ void SPI1_DMA_ReceiveSendByte( u16 num )
 *******************************************************************************/
 void DMA_Check_Flag(u32 times)
 {         
-          static u8 stat_u8CheckError = 0u;
-          u16 i;
-          
-          waitus = 0u;
-          /* 10us */
-          while( ( !DMA_GetFlagStatus(DMA1_IT_TC2) ) && ( waitus < times ) )
-          {
-              waitus++;
-              delay_us(1u);
-              EWDT_TOOGLE();
-              IWDG_ReloadCounter();  
-          }
-          
-          if( waitus >= times )
-          {
-              /* DMA1_IT_TC2 wait timeout!!! */
-              waitus = 0u;
-          }
-          waitus = 0u;
-          while( ( !DMA_GetFlagStatus(DMA1_IT_TC3) ) && ( waitus < times ) )
-          {
-              waitus++;
-              delay_us(1u);
-          }
-          
-          if( waitus >= times )
-          {
-              /* DMA1_IT_TC3 wait timeout!!! */
-              waitus = 0u;
-          }
-          waitus = 0u;
-          while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < times ) )
-          {
-              waitus++;
-              delay_us(1u);
-          }
-          
-          if( waitus >= times )
-          {              
-              /* SPI_I2S_FLAG_TXE wait timeout!!! */
-              waitus = 0u;
-          }
-          waitus = 0u;
-          while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) != RESET ) && ( waitus < times ) )
-          {
-              waitus++;
-              delay_us(1u);
-          }
-          
-          if( waitus >= times )
-          {             
-              /* SPI_I2S_FLAG_BSY wait timeout!!! */
-              waitus = 0u;
-          } 
- 
-        DMA_ClearFlag(DMA1_FLAG_GL3|DMA1_FLAG_TC3|DMA1_FLAG_HT3|DMA1_FLAG_TE3);
-        DMA_Cmd(DMA1_Channel3, DISABLE); 
-        DMA_ClearFlag(DMA1_FLAG_GL2|DMA1_FLAG_TC2|DMA1_FLAG_HT2|DMA1_FLAG_TE2);        
-        DMA_Cmd(DMA1_Channel2, DISABLE);                 
-              
-          if( SPI_I2S_GetFlagStatus(SPI1, SPI_FLAG_CRCERR) != RESET)
-          {
-              SPI_I2S_ClearFlag(SPI1, SPI_FLAG_CRCERR);
-              
-              /* SPI CRC ERROR */
-              stat_u8CheckError++;
-#ifdef GEC_SF_MASTER          
-/*
-              SPI1_Configuration();
-              delay_ms(200);
-*/              
-#else
-              SPI1_Configuration();
-#endif              
-              if(stat_u8CheckError > 2u)
-              {
-                ESC_SPI_Error_Process();
-              }
-          }
-          else
-          {
-              stat_u8CheckError = 0u;
-          }        
-        
-        /* copy buff to data */
-        for( i = 0u; i < buffersize; i++)
-        {
-            SPI1_RX_Data[i] = SPI1_RX_Buff[i];
-        }         
+    u16 i;
+    
+    waitus = 0u;
+    /* 10us */
+    while( ( !DMA_GetFlagStatus(DMA1_IT_TC2) ) && ( waitus < times ) )
+    {
+        waitus++;
+        delay_us(1u);
+        EWDT_TOOGLE();
+        IWDG_ReloadCounter();  
+    }
+    
+    if( waitus >= times )
+    {
+        /* DMA1_IT_TC2 wait timeout!!! */
+        waitus = 0u;
+    }
+    waitus = 0u;
+    while( ( !DMA_GetFlagStatus(DMA1_IT_TC3) ) && ( waitus < times ) )
+    {
+        waitus++;
+        delay_us(1u);
+    }
+    
+    if( waitus >= times )
+    {
+        /* DMA1_IT_TC3 wait timeout!!! */
+        waitus = 0u;
+    }
+    waitus = 0u;
+    while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET ) && ( waitus < times ) )
+    {
+        waitus++;
+        delay_us(1u);
+    }
+    
+    if( waitus >= times )
+    {              
+        /* SPI_I2S_FLAG_TXE wait timeout!!! */
+        waitus = 0u;
+    }
+    waitus = 0u;
+    while( ( SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_BSY) != RESET ) && ( waitus < times ) )
+    {
+        waitus++;
+        delay_us(1u);
+    }
+    
+    if( waitus >= times )
+    {             
+        /* SPI_I2S_FLAG_BSY wait timeout!!! */
+        waitus = 0u;
+    } 
+    
+    DMA_ClearFlag(DMA1_FLAG_GL3|DMA1_FLAG_TC3|DMA1_FLAG_HT3|DMA1_FLAG_TE3);
+    DMA_Cmd(DMA1_Channel3, DISABLE); 
+    DMA_ClearFlag(DMA1_FLAG_GL2|DMA1_FLAG_TC2|DMA1_FLAG_HT2|DMA1_FLAG_TE2);        
+    DMA_Cmd(DMA1_Channel2, DISABLE);                 
+    
+    
+    /* copy buff to data */
+    for( i = 0u; i < buffersize; i++)
+    {
+        SPI1_RX_Data[i] = SPI1_RX_Buff[i];
+    }         
 }
 
 

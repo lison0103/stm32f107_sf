@@ -21,6 +21,7 @@
 void Handrail_Speed_Right_Left_Shortcircuit_Run(void);
 void ESC_Handrail_Check(void);
 
+extern u8 g_u8FirstHandrailSpeedEdgeDetected;
 
 #endif  /* __ESC_HANDRAIL_SPEED_H */
 

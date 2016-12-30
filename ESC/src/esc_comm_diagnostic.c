@@ -98,18 +98,35 @@ static void Esc_Comm_Diagnostic_Error_Process(void)
 static void Receive_Data_From_DBL1_Process(void)
 {	
     u8 i;
-  
+    static u8 stat_u8SEQN1 = 0u,stat_u8SEQN2 = 0u,stat_u8SEQN3 = 0u,stat_u8SEQN4 = 0u;
+    
     
     /*********************** DBL1 UPPER *********************************/  
     if(( DIAGNOSTIC_BOARD_L1_QUANTITY == 2u ) || ( DIAGNOSTIC_BOARD_L1_QUANTITY == 3u ) || ( DIAGNOSTIC_BOARD_L1_QUANTITY == 4u ))
     {     
         if( !MB_CRC16(&EscDataFromDBL1[0][0], 7u) )
         {
+            /* LIFE SIGNAL check */
+            if( stat_u8SEQN1 != EscDataFromDBL1[0][0] )
+            {
+                stat_u8SEQN1 = EscDataFromDBL1[0][0];
+            }
+            else
+            {
+                /* error */
+            }
+        
             for( i = 0u; i < 4u; i++ )
             {
                 EscRtData.DBL1Upper.InputData[i] = EscDataFromDBL1[0][i+1u];
             }
             g_u8DBL1CommDataValidate |= DBL1_TYPE_UPPER;
+            
+            /* receive finish, clear the data */
+            for( i = 0u; i < 8u; i++ )
+            {
+                EscDataFromDBL1[0][i] = 0u;
+            }
         }
         else
         {
@@ -128,12 +145,28 @@ static void Receive_Data_From_DBL1_Process(void)
         
         /*********************** DBL1 LOWER **********************************/
         if( !MB_CRC16(&EscDataFromDBL1[1][0], 7u) )
-        {
+        {            
+            /* LIFE SIGNAL check */
+            if( stat_u8SEQN2 != EscDataFromDBL1[1][0] )
+            {
+                stat_u8SEQN2 = EscDataFromDBL1[1][0];
+            }
+            else
+            {
+                /* error */
+            }
+            
             for( i = 0u; i < 4u; i++ )
             {
                 EscRtData.DBL1Lower.InputData[i] = EscDataFromDBL1[1][i+1u];
             }
             g_u8DBL1CommDataValidate |= DBL1_TYPE_LOWER;
+            
+            /* receive finish, clear the data */
+            for( i = 0u; i < 8u; i++ )
+            {
+                EscDataFromDBL1[1][i] = 0u;
+            }            
         }
         else
         {
@@ -156,11 +189,27 @@ static void Receive_Data_From_DBL1_Process(void)
     {
         if( !MB_CRC16(&EscDataFromDBL1[2][0], 7u) )
         {
+            /* LIFE SIGNAL check */
+            if( stat_u8SEQN3 != EscDataFromDBL1[2][0] )
+            {
+                stat_u8SEQN3 = EscDataFromDBL1[2][0];
+            }
+            else
+            {
+                /* error */
+            }
+            
             for( i = 0u; i < 4u; i++ )
             {
                 EscRtData.DBL1Interm1.InputData[i] = EscDataFromDBL1[2][i+1u];
             }
             g_u8DBL1CommDataValidate |= DBL1_TYPE_INTERM1;
+            
+            /* receive finish, clear the data */
+            for( i = 0u; i < 8u; i++ )
+            {
+                EscDataFromDBL1[2][i] = 0u;
+            }            
         }
         else
         {
@@ -183,11 +232,27 @@ static void Receive_Data_From_DBL1_Process(void)
     {
         if( !MB_CRC16(&EscDataFromDBL1[3][0], 7u) )
         {
+            /* LIFE SIGNAL check */
+            if( stat_u8SEQN4 != EscDataFromDBL1[3][0] )
+            {
+                stat_u8SEQN4 = EscDataFromDBL1[3][0];
+            }
+            else
+            {
+                /* error */
+            }   
+            
             for( i = 0u; i < 4u; i++ )
             {
                 EscRtData.DBL1Interm2.InputData[i] = EscDataFromDBL1[3][i+1u];
             }
             g_u8DBL1CommDataValidate |= DBL1_TYPE_INTERM2;
+            
+            /* receive finish, clear the data */
+            for( i = 0u; i < 8u; i++ )
+            {
+                EscDataFromDBL1[3][i] = 0u;
+            }            
         }
         else
         {
@@ -227,17 +292,16 @@ static void Send_Data_To_DBL1_Process(void)
     u16 crc,len;
     u16 *const pEscErrorCode = (u16*)&EscDataToDBL1[0][0];
     u8 result;
-    
-    
-    /* for test */
-    if( EscErrorCodeBuff[0] )
+    static u8 stat_u8SEQN = 1u;
+        
+    stat_u8SEQN++;
+    if( stat_u8SEQN > 250u )
     {
-        *pEscErrorCode = EscRtData.ErrorCode[0];
-    }
-    else
-    {
-        *pEscErrorCode = OmcEscRtData.ErrorCode[0];
-    }
+        stat_u8SEQN = 1u;
+    }    
+    
+    /* Life signal */
+     EscDataToDBL1[0][0] = stat_u8SEQN;
     
     /* DBL1 UPPER */
     EscDataToDBL1[0][1] = EscRtData.DBL1Upper.OutputData;
@@ -247,6 +311,16 @@ static void Send_Data_To_DBL1_Process(void)
     EscDataToDBL1[0][3] = EscRtData.DBL1Interm1.OutputData;
     /* DBL1 INTERM2 */
     EscDataToDBL1[0][4] = EscRtData.DBL1Interm2.OutputData;    
+        
+    /* for test */
+    if( EscErrorCodeBuff[0] )
+    {
+        *pEscErrorCode = EscRtData.ErrorCode[0];
+    }
+    else
+    {
+        *pEscErrorCode = OmcEscRtData.ErrorCode[0];
+    }    
 
     /* CRC */
     len = 7u;
@@ -290,14 +364,16 @@ static void Safety_Comm_Timeout_Check(DBL1Comm *DBL1)
         }
         else
         {  
-            DBL1->CommTimeout++;
+            if( DBL1->CommTimeout < 255u )
+            {
+                DBL1->CommTimeout++;
+            }
         }
      
         if( DBL1->HandshakeSuccess == 1u )
         {
             if( DBL1->CommTimeout > 10u )
             {
-                DBL1->CommTimeout = 11u;
                 /*  Communication error diag DBL1 */
                 u8CommError = 1u;
                 Esc_Comm_Diagnostic_Error_Process();
@@ -305,7 +381,10 @@ static void Safety_Comm_Timeout_Check(DBL1Comm *DBL1)
         }
         else
         {
-            DBL1->TimerCommWait++;
+            if( DBL1->TimerCommWait < 0xffffu )
+            {
+                DBL1->TimerCommWait++;
+            }
             if( ( DBL1->TimerCommWait * SYSTEMTICK ) > CAN_COMM_HAND_TIME )
             {
                 /*  can communication handshake timeout when power on */ 
@@ -351,7 +430,11 @@ static void Safety_Comm_Timeout_Check(DBL1Comm *DBL1)
         }
         else if( stat_u16DBLHandshakeSuccess )
         {
-            if( ++stat_u8DBLCommTimeout >= 20u )
+            if( stat_u8DBLCommTimeout < 0xffu )
+            {
+                stat_u8DBLCommTimeout++;
+            }
+            if( stat_u8DBLCommTimeout >= 20u )
             {
                 /* Communication error diag DBL2 F377 */
                 EN_ERROR48 |= 0x02u;
@@ -360,7 +443,10 @@ static void Safety_Comm_Timeout_Check(DBL1Comm *DBL1)
         }
         else
         {
-            stat_u16TimerDBLCommWait++;
+            if( stat_u16TimerDBLCommWait < 0xffffu )
+            {
+                stat_u16TimerDBLCommWait++;
+            }
             if( ( stat_u16TimerDBLCommWait * SYSTEMTICK ) > CAN_COMM_HAND_TIME )
             {
                 /*  can communication handshake timeout when power on */ 
@@ -385,7 +471,32 @@ void Safety_Comm_Diag(void)
 {
 #ifdef GEC_SF_MASTER      
     static u8 stat_u8DBL1Comm = 0u;
+    static u16 stat_u16TimeCan2Error = 0u;
 
+    /* CAN error check */            
+    if( can2_receive == 0u )
+    {
+        if( stat_u16TimeCan2Error < 0xffffu )
+        {
+            stat_u16TimeCan2Error++;
+        }
+        
+        /* 1000ms */
+        if( stat_u16TimeCan2Error > 200u )
+        {
+            stat_u16TimeCan2Error = 0u;
+            if( CAN2->ESR & CAN_ESR_BOFF )
+            {
+                CAN_Int_Init(CAN2);
+            }                    
+            
+        }
+    }
+    else
+    {
+        stat_u16TimeCan2Error = 0u;
+        can2_receive = 0u;
+    }
 
     if( DIAGNOSTIC == DIAGNOSTIC_BOARD_1 )
     {

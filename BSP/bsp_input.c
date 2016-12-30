@@ -35,15 +35,8 @@ void Get_GpioInput(u8 inBuff[])
     static u16 PinValue[3u][5u],ByteAnd[5u],ByteOr[5u],read_pin_cnt = 0u;
     u16 i; 
     
-    /* first, clear the data */
-    for(i = 0u; i < 8u; i++)
-    {
-        inBuff[i] = 0u;
-    }
 
-#if 1
-    /* read the pin value three times */
-    
+    /* read the pin value three times */   
     read_pin_cnt++;  
     if( read_pin_cnt > 2u ) 
     {
@@ -68,25 +61,6 @@ void Get_GpioInput(u8 inBuff[])
           ByteOr[i] = PinValue[0u][i] | PinValue[1u][i];
           ByteOr[i] |= PinValue[2u][i];
     }
-#else
-    /* read the pin value only one times */
-    
-    read_pin_cnt = 0u;
-    
-    /* Read I/O port */                      
-    PinValue[read_pin_cnt][0u] = GPIO_ReadInputData(GPIOA);
-    PinValue[read_pin_cnt][1u] = GPIO_ReadInputData(GPIOB);
-    PinValue[read_pin_cnt][2u] = GPIO_ReadInputData(GPIOC);
-    PinValue[read_pin_cnt][3u] = GPIO_ReadInputData(GPIOD);
-    PinValue[read_pin_cnt][4u] = GPIO_ReadInputData(GPIOE);
-    
-    for( i = 0u; i < 5u; i++ )
-    {   
-        ByteAnd[i] = PinValue[0u][i]; 
-        ByteOr[i] = PinValue[0u][i];
-    }    
-    
-#endif
     
     
 #ifdef GEC_SF_MASTER

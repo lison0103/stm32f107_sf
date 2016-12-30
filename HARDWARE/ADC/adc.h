@@ -20,7 +20,7 @@
 /* Exported functions ------------------------------------------------------- */
 void Adc_Init(void);
 u16  Get_Adc(void); 
-u8 Get_Adc_Average(void);
+u16 Get_Adc_Average(void);
 	
 
 #endif  /* __ADC_H */

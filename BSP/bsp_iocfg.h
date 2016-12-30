@@ -37,8 +37,8 @@ void Input_Output_PinInit(void);
 #define SF_RL_WDT_SET()   		GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_SET)
 #define SF_RL_WDT_CLR()    	GPIO_WriteBit(GPIOB, GPIO_Pin_9, Bit_RESET)
 
-#define PULSE_OUTPUT_SET()                 GPIO_WriteBit(GPIOA, GPIO_Pin_10, Bit_SET)
-#define PULSE_OUTPUT_CLR()       GPIO_WriteBit(GPIOA, GPIO_Pin_10, Bit_RESET)
+#define CPU1_PULSE_OUTPUT_ON()                 GPIO_WriteBit(GPIOA, GPIO_Pin_10, Bit_SET)
+#define CPU1_PULSE_OUTPUT_OFF()       GPIO_WriteBit(GPIOA, GPIO_Pin_10, Bit_RESET)
 
 #define SINA_BUSY_OUT_SET()       GPIO_WriteBit(GPIOB, GPIO_Pin_10, Bit_SET)
 #define SINA_BUSY_OUT_CLR()       GPIO_WriteBit(GPIOB, GPIO_Pin_10, Bit_RESET)
@@ -89,8 +89,8 @@ void Input_Output_PinInit(void);
 #define SF_RL_WDT_SET()   		GPIO_WriteBit(GPIOE, GPIO_Pin_1, Bit_SET)
 #define SF_RL_WDT_CLR()    	GPIO_WriteBit(GPIOE, GPIO_Pin_1, Bit_RESET)
 
-#define PULSE_OUTPUT_SET()                 GPIO_WriteBit(GPIOC, GPIO_Pin_0, Bit_SET)
-#define PULSE_OUTPUT_CLR()       GPIO_WriteBit(GPIOC, GPIO_Pin_0, Bit_RESET)
+#define CPU2_PULSE_OUTPUT_ON()                 GPIO_WriteBit(GPIOC, GPIO_Pin_0, Bit_SET)
+#define CPU2_PULSE_OUTPUT_OFF()       GPIO_WriteBit(GPIOC, GPIO_Pin_0, Bit_RESET)
 
 #define SINA_BUSY_OUT_SET()       GPIO_WriteBit(GPIOD, GPIO_Pin_6, Bit_SET)
 #define SINA_BUSY_OUT_CLR()       GPIO_WriteBit(GPIOD, GPIO_Pin_6, Bit_RESET)

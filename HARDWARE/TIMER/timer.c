@@ -21,10 +21,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void TIM2_IRQHandler(void);
-void TIM3_IRQHandler(void);
-void TIM4_IRQHandler(void);
-
+void TIM7_IRQHandler(void);
 
 
 /*******************************************************************************
@@ -39,6 +36,7 @@ void TIM4_IRQHandler(void);
 void TIM7_Int_Init(u16 arr,u16 psc)
 {
         TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+        NVIC_InitTypeDef NVIC_InitStructure;
                 
         /** TIM7 **/
 
@@ -48,8 +46,18 @@ void TIM7_Int_Init(u16 arr,u16 psc)
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
 	TIM_TimeBaseInit(TIM7, &TIM_TimeBaseStructure);  
 
-	TIM_Cmd(TIM7, ENABLE);  
+        TIM_ITConfig(  
+                     TIM7, 
+                     TIM_IT_Update ,
+                     ENABLE  
+                         );
+	NVIC_InitStructure.NVIC_IRQChannel = (u8)TIM7_IRQn; 
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3u; 
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0u;  
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
+	NVIC_Init(&NVIC_InitStructure);
         
+	TIM_Cmd(TIM7, ENABLE);          
 }
 
 
@@ -69,13 +77,12 @@ void TIM6_Int_Init(u16 arr,u16 psc)
         /** TIM6 **/
 
 	TIM_TimeBaseStructure.TIM_Period = arr; 
-	TIM_TimeBaseStructure.TIM_Prescaler =psc; 
+	TIM_TimeBaseStructure.TIM_Prescaler = psc; 
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; 
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
-	TIM_TimeBaseInit(TIM6, &TIM_TimeBaseStructure);  
-
-	TIM_Cmd(TIM6, ENABLE);  
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;            
+	TIM_TimeBaseInit(TIM6, &TIM_TimeBaseStructure);      
         
+	TIM_Cmd(TIM6, ENABLE);       
 }
 
 
@@ -90,7 +97,7 @@ void TIM6_Int_Init(u16 arr,u16 psc)
 *******************************************************************************/
 void TIM5_Int_Init(u16 arr,u16 psc)
 {
-        TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+        TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;        
                 
         /** TIM5 **/
 
@@ -98,11 +105,10 @@ void TIM5_Int_Init(u16 arr,u16 psc)
 	TIM_TimeBaseStructure.TIM_Prescaler =psc; 
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; 
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;            
-	TIM_TimeBaseInit(TIM5, &TIM_TimeBaseStructure);      
+	TIM_TimeBaseInit(TIM5, &TIM_TimeBaseStructure);    
         
-	TIM_Cmd(TIM5, ENABLE);
-
         
+	TIM_Cmd(TIM5, ENABLE);      
 }
 
 /*******************************************************************************
@@ -117,30 +123,17 @@ void TIM5_Int_Init(u16 arr,u16 psc)
 void TIM4_Int_Init(u16 arr,u16 psc)
 {
         TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
-        
         
         /** TIM4 **/
 
 	TIM_TimeBaseStructure.TIM_Period = arr; 
 	TIM_TimeBaseStructure.TIM_Prescaler =psc; 
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; 
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;  
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Down;  
 	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure); 
- 
-	TIM_ITConfig(  
-		TIM4, 
-		TIM_IT_Update ,
-		ENABLE  
-		);
-	NVIC_InitStructure.NVIC_IRQChannel = (u8)TIM4_IRQn; 
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3u; 
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0u;  
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
-	NVIC_Init(&NVIC_InitStructure);  
+   
 
-	TIM_Cmd(TIM4, ENABLE);  
-        
+	TIM_Cmd(TIM4, DISABLE);         
 }
 
 
@@ -163,10 +156,10 @@ void TIM3_Int_Init(u16 arr,u16 psc)
 	TIM_TimeBaseStructure.TIM_Period = arr; 
 	TIM_TimeBaseStructure.TIM_Prescaler = psc; 
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1; 
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Down;            
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;            
 	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);      
         
-	TIM_Cmd(TIM3, DISABLE);							 
+	TIM_Cmd(TIM3, ENABLE);							 
 }
 
 /*******************************************************************************
@@ -219,18 +212,18 @@ void TIM1_Int_Init(u16 arr,u16 psc)
 
 
 /*******************************************************************************
-* Function Name  : TIM4_IRQHandler
-* Description    : This function handles TIM4 global interrupt request.                  
+* Function Name  : TIM7_IRQHandler
+* Description    : This function handles TIM7 global interrupt request.                  
 * Input          : None  
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void TIM4_IRQHandler(void)   
+void TIM7_IRQHandler(void)   
 {
-      if (TIM_GetITStatus(TIM4, TIM_IT_Update) != RESET) 
+      if (TIM_GetITStatus(TIM7, TIM_IT_Update) != RESET) 
       {
         
-          TIM_ClearITPendingBit(TIM4, TIM_IT_Update  );  
+          TIM_ClearITPendingBit(TIM7, TIM_IT_Update  );  
           
           Safety_TimingCheck();
         

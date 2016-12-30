@@ -22,6 +22,9 @@ void handrail_X1_int(void);
 void handrail_X2_int(void);
 void missingstep_X1_int(void);
 void missingstep_X2_int(void);
+void mainshaft_X1_int(void);
+void mainshaft_X2_int(void);
+void mainshaft_X3_int(void);
 
 #endif  /* __ESC_INTERRUPT_H */
 

@@ -18,15 +18,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-/* failure lock */
-#define EF       2u
-/* standard fault */
-#define ES       1u
-/* recovery fault */
-#define ER       3u
-/* Undefined */
-#define EU       0x0u
-
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
@@ -34,42 +25,42 @@
 
 
 /* fault type: Failure lock / standard fault / recovery fault */
-static u8 EscFaultType[512] = 
+u8 EscFaultType[512] = 
 {
     /* 1~30,F00~F29 */                      
-    EF,EU,EU,EU,EU,EU,EU,EF,EF,ES,  EU,EF,EF,ES,ES,ES,EU,EU,ES,EU,  EU,ES,ES,ES,ES,EU,ER,ER,ER,ER,
+    EF,EU,EU,EU,EU,EU,EU,EF,EF,ES,  EU,EF,EF,EU,ES,ES,EU,EU,EU,EU,  EU,ES,ES,ES,ES,EU,ER,ER,ER,ER,
     /* 31~60,F30~F59 */                      
-    EU,EU,ES,ES,EU,ES,ES,EU,ES,ES,  ES,ES,ER,ER,EF,EF,EF,EF,ES,EU,  EF,EF,EU,EU,EU,EU,EU,EU,ES,EU,  
+    EU,EU,ES,ES,EU,ES,ES,EU,ES,ES,  ES,ES,ES,ES,EF,EF,EF,EF,ES,EU,  EF,EF,EU,EU,EU,EU,EU,EU,EU,EU,  
     /* 61~90 */                      
-    EU,EU,ES,EU,EU,EU,EU,ES,EU,EU,  EU,EU,EU,ES,ES,EU,EU,EU,ES,EU,  EU,EU,EU,EU,EU,ES,EU,EU,ES,EU, 
+    EU,EU,ES,EU,EU,EU,EU,ES,EU,EU,  EU,EU,EU,ES,ES,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, 
     /* 91~120 */                      
-    EU,EU,ES,EU,EU,ES,ES,ES,ES,EU,  EU,EU,EU,EU,EU,EU,EU,EU,ES,EU,  EU,EU,EU,EU,EU,EU,EU,EU,ES,ES, 
+    EU,EU,EU,EU,EU,ES,ES,ES,ES,EU,  EU,EU,EU,EU,EU,EU,EU,EU,ES,EU,  EU,EU,EU,EU,EU,EU,EU,EU,ES,ES, 
     /* 121~150 */                      
-    ES,ES,ES,ES,EF,ES,ES,ES,ES,EF,  EF,ES,ES,ES,ES,EU,EU,ES,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, 
+    ES,ES,ES,ES,EF,ES,ES,ES,ES,EF,  EF,ES,ES,EU,EU,EU,EU,ES,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, 
     /* 151~180 */                      
     EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EF, 
     /* 181~210 */                      
-    EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,ES,  ES,ES,ES,EU,EU,EU,EU,EU,ES,ES, 
+    EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  ES,ES,ES,EU,EU,EU,EU,EU,EF,EF, 
     /* 211~240 */                      
     EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, 
     /* 241~270 */                      
-    EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EF,EF,EF,EF,EF,EF,ES,EF,EF,ES, 
+    EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EF,EF,EF,EF,  ES,ES,ES,EF,EF,EF,EF,EF,EF,EF, 
     /* 271~300 */                      
-    ES,ES,ES,ES,ES,EF,ES,ES,ES,ES,  ES,ES,EF,EF,ES,ES,ES,ES,ES,ES,  ES,ES,EU,EU,EU,EU,EU,ES,ES,EU,  
+    ES,ES,ES,ES,ES,ES,ES,ES,EF,EF,  EF,EF,EF,EF,EF,EF,EF,EF,EF,EF,  ES,EF,EF,ER,ER,ES,ES,ES,ES,EF,  
     /* 301~330 */                      
-    ES,ES,ES,EF,EF,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,EU, 
+    EF,ES,ES,ES,ES,EF,EF,EF,EF,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,EF,EF,ES,ES, 
     /* 331~360 */                      
-    EU,ES,ES,ES,ES,ES,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EF,ES,EU,EU,EU,EU,EU,EU, 
+    ES,ES,ES,ES,ES,EF,EF,EF,ES,ES,  ES,ES,ES,EF,EF,EF,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, 
     /* 361~390 */                      
-    EU,EU,EU,EU,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES, 
+    EU,EU,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES, 
     /* 391~420 */                      
-    ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,EF,EF,EF, 
+    ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,EF,EF,EF,  EF,EF,EF,EF,EF,EF,EF,EF,EF,EF, 
     /* 421~450 */                      
-    ES,ES,ES,ES,ES,ES,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, 
+    EF,EF,EF,EF,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES, 
     /* 451~480 */                      
-    EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, 
+    ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,ES,ES,ES, 
     /* 481~512 */                      
-    EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, EU,EU   
+    ES,ES,ES,ES,ES,ES,ES,ES,ES,ES,  ES,ES,ES,ES,ES,ES,ES,EU,EU,EU,  EU,EU,EU,EU,EU,EU,EU,EU,EU,EU, EU,EU   
 };
 
 
@@ -95,7 +86,7 @@ void fault_code_auto_reset(void)
         if( EscErrorCodeBuff[k] )
         {
             /* recovery fault type */
-            /*if( EscFaultType[EscErrorCodeBuff[k]] == ER )*/
+            /*if( EscFaultType[EscErrorCodeBuff[k] - 1u] == ER )*/
             
                 i = (EscErrorCodeBuff[k]-1u)/8u;
                 j = (EscErrorCodeBuff[k]-1u)%8u;
@@ -131,7 +122,17 @@ void fault_code_manual_reset(u8 ResetType)
 {  
     u16 i,j;
     
-    if(( EscErrorCodeBuff[0] ) && ( EscFaultType[EscErrorCodeBuff[0]] <= ResetType ))
+    /* The warning can be reset when the escalator changes from fault state to ready state, when a reset is executed */
+    if( SfBase_EscState == ESC_READY_STATE )
+    {
+        for( i = 0u; i < 8u; i++ )
+        {
+            EscRtData.Warn[i] = 0u;
+        }
+    } 
+    
+    /* reset safety board */
+    if(( EscErrorCodeBuff[0] ) && ( EscFaultType[EscErrorCodeBuff[0] - 1u] <= ResetType ))
     {
         i = (EscErrorCodeBuff[0]-1u)/8u;
         j = (EscErrorCodeBuff[0]-1u)%8u;
@@ -146,6 +147,25 @@ void fault_code_manual_reset(u8 ResetType)
             EscRtData.ErrorCode[i] = EscRtData.ErrorCode[i + 1u];
         }
     }
+    
+    /* reset control board */
+    if( ResetType == 2u )
+    {
+        if((( EscRtData.DataFromControl[0][3] & ESC_FROM_CB_TYPE_OF_CONTROL_FAULT ) == ESC_FROM_CB_FAULT_FAILURE_LOCK )
+            || (( EscRtData.DataFromControl[0][3] & ESC_FROM_CB_TYPE_OF_CONTROL_FAULT ) == ESC_FROM_CB_FAULT_STANDARD_FAULT ))
+        {
+            EscDataToControl[0][1] |= ORDER_RESET;
+        }
+    }
+    else if( ResetType == 1u )
+    {
+        if(( EscRtData.DataFromControl[0][3] & ESC_FROM_CB_TYPE_OF_CONTROL_FAULT ) == ESC_FROM_CB_FAULT_STANDARD_FAULT )
+        {
+             EscDataToControl[0][1] |= ORDER_RESET;
+        }
+    }
+    else
+    {}
 }
 
 /*******************************************************************************
@@ -165,8 +185,6 @@ void error_change_check(void)
     for( i = 0u; i < 64u; i++ ) 
     {
         errorbuff[i] = EscRtData.ErrorBuff[i] | OmcEscRtData.ErrorBuff[i];
-        /* for test, only cpu1 */
-        /*errorbuff[i] = EscRtData.ErrorBuff[i];*/
     }     
         
     i = MB_CRC16( errorbuff, 64u );
@@ -182,26 +200,43 @@ void error_change_check(void)
 /*******************************************************************************
 * Function Name  : fault_code_decode
 * Description    : The maxium number of decode is 5.
-* Input          : code_buff : recode fault parameter.            
+* Input          : code_buff : recode fault parameter.    
+*                  fault :  1: fault 0: warn
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void fault_code_decode(u16 code_buff[])
+void fault_code_decode(u16 code_buff[],u8 fault)
 {  
     
     u16 i = 0u,j = 0u,error_counter = 0u,error_code_temp = 0u;
     u16 error_temp[5]={0,0,0,0,0};
+    u8 error_num = 0u;
+    static u16 stat_u16TimeOrderReset = 0u;
+ 
     
-       
-    for( i = 0u; i < 64u; i++ ) 
+    if( fault ) 
     {
-        EscErrorBuff[i] = EscRtData.ErrorBuff[i];				
-    }  
+        /* fault code */
+        error_num = 64u;
+        for( i = 0u; i < error_num; i++ ) 
+        {
+            EscErrorBuff[i] = EscRtData.ErrorBuff[i];				
+        }  
+    }
+    else
+    {
+        /* warn code */
+        error_num = 8u;
+        for( i = 0u; i < error_num; i++ ) 
+        {
+            EscErrorBuff[i] = EscRtData.Warn[i] | OmcEscRtData.Warn[i];				
+        }         
+    }
     
     error_counter = 0u;
     error_code_temp = 0u;
     
-    for( i = 0u; i < 64u; i++ )
+    for( i = 0u; i < error_num; i++ )
     {
         error_code_temp = i*8u;
         
@@ -222,8 +257,11 @@ void fault_code_decode(u16 code_buff[])
                 }  
             } 
             
-            CMD_FLAG5 |= ESC_FAULT;
-            g_u8LedFreq = FREQ_3HZ;
+            if( fault ) 
+            {
+                CMD_FLAG5 |= ESC_FAULT;
+                g_u8LedFreq = FREQ_3HZ;
+            }
         } 
         
         if(error_counter >= 5u) 
@@ -260,150 +298,39 @@ void fault_code_decode(u16 code_buff[])
         code_buff[3] = 0u;	
         code_buff[4] = 0u;
 
-        CMD_FLAG5 &= ~ESC_FAULT;
-        g_u8LedFreq = FREQ_1HZ;
+        if( fault ) 
+        {
+            CMD_FLAG5 &= ~ESC_FAULT;
+            g_u8LedFreq = FREQ_1HZ;
+        }
     }  
     
+    if( fault ) 
+    {
+        for( i = 0u; i < 5u; i++ )
+        {
+            EscErrorCodeBuff[i] = code_buff[i];
+        }
+    }
     
-    for( i = 0u; i < 5u; i++ )
+    /* ORDER_RESET keep 100 ms */ 
+    if( EscDataToControl[0][1] & ORDER_RESET )
     {
-        EscErrorCodeBuff[i] = code_buff[i];
+        if( stat_u16TimeOrderReset < 0xffffu )
+        {
+            stat_u16TimeOrderReset++;
+        }
+        
+        if( stat_u16TimeOrderReset > 10u )
+        {
+            stat_u16TimeOrderReset = 0u;
+            EscDataToControl[0][1] &= ~ORDER_RESET;
+        }
+    }
+    else
+    {
+        stat_u16TimeOrderReset = 0u;
     }
 }
 
-/*******************************************************************************
-* Function Name  : ESC_Init_Fault
-* Description    : Esc init fault.
-* Input          : None            
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void ESC_Init_Fault(void)
-{
- 
-    /** Disconnect the safety relay **/
-    SF_RL_CTR_CLR();
-    SF_RL_WDT_CLR();
-   
-    while(1)
-    {
-        EWDT_TOOGLE();
-        IWDG_ReloadCounter();
-    }
-
-}
-
-/*******************************************************************************
-* Function Name  : ESC_EWDT_Error_Process
-* Description    : External watchdog checked fail
-*                  In the error handling routine in an infinite loop, disconnect the safety relay
-*                  Escalator stops running, enter the fault state, waiting for manual reset fault.
-* Input          : None            
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void ESC_EWDT_Error_Process(void)
-{
- 
-    /** Disconnect the safety relay **/
-    SF_RL_CTR_CLR();
-    SF_RL_WDT_CLR();
-/*   
-    while(1)
-    {
-*/    
-        /** In the error handling routine in an infinite loop **/
-          /**  Wait manual reset fault **/
-/*        
-          if( IN10 )
-          {
-                __set_FAULTMASK(1);   
-                NVIC_SystemReset();
-          
-          }
-      
-    }
-*/  
-}
-
-
-/*******************************************************************************
-* Function Name  : ESC_Flash_Error_Process
-* Description    : Fram checked fail
-*                  Error handling routine, safety disconnect relay,
-*                  Escalator stops running, enter the fault state, 
-*                  waiting for manual correction parameters
-* Input          : None            
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void ESC_Flash_Error_Process(void)
-{
- 
-    /** Disconnect the safety relay **/
-    SF_RL_CTR_CLR();
-    SF_RL_WDT_CLR();  
-
-}
-
-
-
-/*******************************************************************************
-* Function Name  : ESC_Flash_Error_Process
-* Description    : Flash checked fail
-*                  In the error handling routine in an infinite loop, waiting watchdog reset
-*                  Disconnect the safety relay, the escalator stops running, enter the fault state, 
-*                  waiting for the fault reset.
-* Input          : None            
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void ESC_Fram_Error_Process(void)
-{
-#ifdef GEC_SF_MASTER  
-    /** Disconnect the safety relay **/
-    SF_RL_CTR_CLR();
-    SF_RL_WDT_CLR();    
-#endif    
-
-}
-
-
-/*******************************************************************************
-* Function Name  : ESC_SPI_Error_Process
-* Description    : SPI checked fail
-*                  Entering the error handling routine, safety disconnect relay,
-*                  Escalator stops running into the fault state
-* Input          : None            
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void ESC_SPI_Error_Process(void)
-{
-  
-    /** Disconnect the safety relay **/
-/*    
-    SF_RL_CTR_CLR();
-    SF_RL_WDT_CLR();
-*/    
-    /* ESC_SPI_Error_Process */
-}
-
-
-/*******************************************************************************
-* Function Name  : ESC_SafeRelay_Error_Process
-* Description    : ESC SafeRelay checked fail
-*                  Entering the error handling routine, safety disconnect relay,
-*                  Escalator stops running into the fault state
-* Input          : None            
-* Output         : None
-* Return         : None
-*******************************************************************************/
-void ESC_SafeRelay_Error_Process(void)
-{
- 
-    /** Disconnect the safety relay **/
-    SF_RL_CTR_CLR();
-    SF_RL_WDT_CLR();
-    /* ESC_SafeRelay_Error_Process */
-}
+/******************************  END OF FILE  *********************************/

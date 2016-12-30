@@ -19,10 +19,10 @@
 #define FLOOR_PLATE_L_INPUT1   (EscRtData. Cfg_Input_Level[1] &(0x02u))
 #define FLOOR_PLATE_L_INPUT2   (EscRtData. Cfg_Input_Level[1] &(0x04u))
 
-#define CP_INPUT_OPEN           0x00u
-#define CP_INPUT_CLOSE          0x03u
-#define CP_INPUT_FAULT1         0x01u
-#define CP_INPUT_FAULT2         0x02u
+#define CP_INPUT_OPEN           0x02u
+#define CP_INPUT_CLOSE          0x01u
+#define CP_INPUT_FAULT1         0x00u
+#define CP_INPUT_FAULT2         0x03u
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -49,6 +49,7 @@ void Floorplate_Check(void)
   *  cp_input[1].0 Lower coverplate input1
   *  cp_input[1].1 Lower coverplate input2
   */
+    
   if(FLOOR_PLATE_U_INPUT1) { cp_input[0] |= 0x01u; }
   if(FLOOR_PLATE_U_INPUT2) { cp_input[0] |= 0x02u; }
   

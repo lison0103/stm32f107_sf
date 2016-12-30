@@ -74,7 +74,7 @@ void Initial_Device(void)
         EXTIX_Init();
        
 
-        /** CAN1 init,baud rate 500Kbps **/
+        /** CAN1 init,baud rate 250Kbps **/
 	CAN_Int_Init(CAN1);      
         
         /** Data array is initialized to 0 **/
@@ -83,7 +83,7 @@ void Initial_Device(void)
         
 #ifdef GEC_SF_MASTER           
         
-        /** CAN2 init,baud rate 500Kbps **/
+        /** CAN2 init,baud rate 250Kbps **/
         /** note : use CAN2 , must CAN1 init **/
         CAN_Int_Init(CAN2);                
         
@@ -131,20 +131,18 @@ void Initial_Device(void)
 /*        HardwareTEST();        */
         
         /* Parameters Loading */
-        ParametersLoading();
-        
+#ifdef GEC_SF_MASTER        
+        USBH_Mass_Storage_Init();
+#endif        
+        /* Parameter initial, for test */
+        /*EscParameterInit();*/
         
         /* safety output disable */
         SafetyOutputDisable();
         
         /* check IO input befor enter main */
         Check_IO_Input();
-        
-        
-#if SELF_TEST
-        /* Self test routines initialization ---------------------------------------*/
-        Safety_InitRunTimeChecks();
-#endif
+                
         /* systick timer , 5ms interrupt */
         SysTickTimerInit();
 }
@@ -249,7 +247,7 @@ static void RCC_Configuration(void)
     
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_CAN1 , ENABLE);    
 
-    RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM2
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM2 | RCC_APB1Periph_TIM3
                            |RCC_APB1Periph_TIM4 ,
                             ENABLE); 
     
@@ -268,7 +266,7 @@ static void RCC_Configuration(void)
     
     RCC_APB1PeriphClockCmd( RCC_APB1Periph_CAN1 , ENABLE);    
     
-    RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM2
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_TIM2 | RCC_APB1Periph_TIM3
                            |RCC_APB1Periph_TIM4 ,
                             ENABLE);  
                                         
@@ -389,6 +387,18 @@ static void Data_init(void)
 static void Check_IO_Input(void)
 {
     u8 i;
+    
+#ifdef GEC_SF_MASTER
+    CPU1_PULSE_OUTPUT_ON(); 
+#else
+    CPU2_PULSE_OUTPUT_ON();    
+#endif
+    
+    /* first, clear the data */
+    for(i = 0u; i < 8u; i++)
+    {
+        EscRtData.SafetyInputData[i] = 0u;
+    }
     
     for( i = 0u; i < 5u; i++ )
     {

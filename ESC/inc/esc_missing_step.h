@@ -21,6 +21,8 @@
 void Missing_Step_UpperLower_Shortcircuit_Run(void);
 void ESC_Missingstep_Check(void);
 
+extern u8 g_u8FirstMissingStepEdgeDetected;
+
 #endif  /* __ESC_MISSING_STEP_H */
 
 

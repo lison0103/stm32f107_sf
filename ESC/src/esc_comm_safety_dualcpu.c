@@ -86,7 +86,42 @@ void Communication_CPU(void)
 *******************************************************************************/
 static void Send_state_to_CPU(void)
 {
+    u8 i,j;
     cpu_senddata_buffer = (u8*)&EscRtData;
+    
+#ifndef GEC_SF_MASTER    
+    for( j = 0u; j < 3u; j++ )
+    {
+        for( i = 0u; i < 8u; i++ )
+        {
+            EscRtData.DataFromControl[j][i] = OmcEscRtData.DataFromControl[j][i];
+        }
+    }
+
+    /* DBL1 INPUT */
+    for( i = 0u; i < 4u; i++ )
+    {
+        EscRtData.DBL1Upper.InputData[i] = OmcEscRtData.DBL1Upper.InputData[i];
+        EscRtData.DBL1Lower.InputData[i] = OmcEscRtData.DBL1Lower.InputData[i];
+        EscRtData.DBL1Interm1.InputData[i] = OmcEscRtData.DBL1Interm1.InputData[i];
+        EscRtData.DBL1Interm2.InputData[i] = OmcEscRtData.DBL1Interm2.InputData[i];
+    }
+    
+    /* OUTPUTS (DBL UPPER) */
+    EscRtData.DBL1Upper.OutputData = EscRtData.DataFromControl[1][0];
+    /* OUTPUTS (DBL LOWER) */
+    EscRtData.DBL1Lower.OutputData = EscRtData.DataFromControl[1][1];
+    /* OUTPUTS (DBL INTERM. 1) */
+    EscRtData.DBL1Interm1.OutputData = EscRtData.DataFromControl[1][2];
+    /* OUTPUTS (DBL INTERM. 2) */
+    EscRtData.DBL1Interm2.OutputData = EscRtData.DataFromControl[1][3];
+    
+    /* CONTROL STANDARD INPUT (1-8) */
+    EscRtData.ControlInputData[0] = EscRtData.DataFromControl[1][4];        
+    /* CONTROL STANDARD INPUT (9-16) */ 
+    EscRtData.ControlInputData[1] = EscRtData.DataFromControl[1][5];  
+    
+#endif
 }
 
 /*******************************************************************************
@@ -158,6 +193,7 @@ static void CPU_Comm(void)
     {
         g_u8SPISlaveDataPrepare = 0u;
         stat_u8TimerSend = 0u;
+        g_u8ParameterSendToCPU2 = 0u;
         
         Send_state_to_CPU();        
         CPU_Exchange_Data(cpu_senddata_buffer, ESC_RT_DATA_LEN);
@@ -185,7 +221,6 @@ static void CPU_Comm(void)
             /* CPU_Comm---comm_timeout */
             /* Timeout CPU1 F371 */
             EN_ERROR47 |= 0x08u;
-            ESC_SPI_Error_Process();
             comm_timeout = CPU_COMM_TIMEOUT;
             
         }
@@ -288,7 +323,6 @@ void CPU_Data_Check( u8 buffer[], u16 *len, u32 times )
     if(stat_u8CheckError > 3u) /* 2 ? */
     {
         stat_u8CheckError = 0u;
-        ESC_SafeRelay_Error_Process();
         /* CPU_Exchange_Data_Check error */
         /* Timeout CPU2 F372 */
         EN_ERROR47 |= 0x10u;

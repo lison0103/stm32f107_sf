@@ -85,10 +85,14 @@ typedef struct sfparameter
     u8 p_SAFETY_INPUT_CONFIGURABLE_9_TYPE;
     u8 p_SAFETY_INPUT_CONFIGURABLE_10_TYPE;
     
-    u16 IO_PARAMETER[200];
-    
-    
-    u16 CRC32;
+    /* 186 INPUT */
+    u16 p_IO_PARAMETER_SAFETY_INPUT[46];
+    u16 p_IO_PARAMETER_DBL2_UPPER_INPUT[35];
+    u16 p_IO_PARAMETER_DBL2_LOWER_INPUT[35];
+    u16 p_IO_PARAMETER_DBL2_INTERM1_INPUT[35];
+    u16 p_IO_PARAMETER_DBL2_INTERM2_INPUT[35];
+      
+    u32 CRC32;
     
 }SFPara;
 #pragma pack() 
@@ -105,15 +109,111 @@ typedef struct cb_para_in_sf
     u8 p_UPPER_DIAG_SS_LENGTH;
     u8 p_LOWER_DIAG_SS_LENGTH;
     u8 p_INTERM1_DIAG_SS_LENGTH;
-    u8 p_INTERM2_DIAG_SS_LENGTH;
-    u8 p_DIAG3_ENABLE;   
+    u8 p_INTERM2_DIAG_SS_LENGTH;  
     u8 p_SPARE_PARAMETER_11;
     u8 p_SPARE_PARAMETER_12;
     u16 p_SPARE_PARAMETER_16;
     u16 p_SPARE_PARAMETER_17;
     
+    u16 p_IO_PARAMETER_CONTROL_INPUT[16];
+    u16 p_IO_PARAMETER_DBL1_UPPER_INPUT[32];
+    u16 p_IO_PARAMETER_DBL1_LOWER_INPUT[32];
+    u16 p_IO_PARAMETER_DBL1_INTERM1_INPUT[32];
+    u16 p_IO_PARAMETER_DBL1_INTERM2_INPUT[32];
+
+    u32 CRC32;
+    
 }CBParaInSF;
 #pragma pack() 
+
+#pragma pack(1)
+typedef struct cb_para
+{  
+    u8 p_MOTOR_CONNECTION;
+    u16 p_TIME_LOW_SPEED;
+    u16 DIRECTION_INDICATION_TIME;
+    u16 TRANSPORTATION_TIME;
+    u16 REVERSING_TIME;  
+    u8 p_OIL_PUMP_CONTROL;
+    u16 p_OIL_PUMP_TIMER_ON;
+    u16 p_OIL_PUMP_TIMER_OFF;
+    u8 p_STAR_DELTA_DELAY;
+    u8 p_TIMETABLE_ENABLE;
+    u8 p_TIME_CHANGE_TO_MODE1_HOUR;
+    u8 p_TIME_CHANGE_TO_MODE1_MIN;
+    u8 p_TIME_CHANGE_TO_MODE2_HOUR;
+    u8 p_TIME_CHANGE_TO_MODE2_MIN;
+    u8 p_LANGUAGE;
+    u8 p_CHANGE_SUMERWINTER_TIME;
+    u8 p_SPEED_MEASUREMENT_UNIT;
+    u8 p_TIMETABLE_MODE1;
+    u8 p_TIMETABLE_MODE2;
+    u8 p_HEATER_LOW_LEVEL;
+    u8 p_HEATER_HIGH_LEVEL;
+    u8 p_IP_ADDRESS_BYTE1;
+    u8 p_IP_ADDRESS_BYTE2;
+    u8 p_IP_ADDRESS_BYTE3;
+    u8 p_IP_ADDRESS_BYTE4;
+    u8 p_SUBNET_MASK_BYTE1;
+    u8 p_SUBNET_MASK_BYTE2;
+    u8 p_SUBNET_MASK_BYTE3;
+    u8 p_SUBNET_MASK_BYTE4;
+    u8 p_GATEWAY_BYTE1;
+    u8 p_GATEWAY_BYTE2;
+    u8 p_GATEWAY_BYTE3;
+    u8 p_GATEWAY_BYTE4;
+    u8 p_NODE_NUMBER;
+    u8 p_RGB;
+    u8 p_RGB_movinlight;
+    u8 p_DIAGNOSTIC_BOARD_L1_QUANTITY;
+    u8 p_UPPER_DIAG_SS_LENGTH;
+    u8 p_LOWER_DIAG_SS_LENGTH;
+    u8 p_INTERM1_DIAG_SS_LENGTH;
+    u8 p_INTERM2_DIAG_SS_LENGTH;
+    u8 p_DIAG3_ENABLE;
+    u8 p_LABEL_FAULT1[40];
+    u8 p_LABEL_FAULT2[40];
+    u8 p_LABEL_FAULT3[40];
+    u8 p_LABEL_FAULT4[40];
+    u8 p_LABEL_FAULT5[40];
+    u8 p_LABEL_FAULT6[40];
+    u8 p_LABEL_FAULT7[40];
+    u8 p_LABEL_FAULT8[40];
+    u8 p_LABEL_FAULT9[40];
+    u8 p_LABEL_FAULT10[40];
+    u8 p_SPARE_PARAMETER_11;
+    u8 p_SPARE_PARAMETER_12;
+    u8 p_SPARE_PARAMETER_13;
+    u8 p_SPARE_PARAMETER_14;
+    u8 p_SPARE_PARAMETER_15;
+    u16 p_SPARE_PARAMETER_16;
+    u16 p_SPARE_PARAMETER_17;
+    u16 p_SPARE_PARAMETER_18;
+    u16 p_SPARE_PARAMETER_19;
+    u16 p_SPARE_PARAMETER_20;
+    
+    u8 p_ModBus[120];    
+    u8 p_FT12DISPLAY[401];    
+    
+    u16 PARAMETER_CONTROL_OUTPUT[15];
+    u16 PARAMETER_CONTROL_INPUT[16];
+    u16 PARAMETER_DBL1_UPPER_OUTPUT[8];
+    u16 PARAMETER_DBL1_UPPER_INPUT[32];
+    u16 PARAMETER_DBL1_LOWER_OUTPUT[8];
+    u16 PARAMETER_DBL1_LOWER_INPUT[32];
+    u16 PARAMETER_DBL1_INTERM1_OUTPUT[8];
+    u16 PARAMETER_DBL1_INTERM1_INPUT[32];
+    u16 PARAMETER_DBL1_INTERM2_OUTPUT[8];
+    u16 PARAMETER_DBL1_INTERM2_INPUT[32];
+    u16 PARAMETER_DBL2_UPPER_OUTPUT[8];
+    u16 PARAMETER_DBL2_LOWER_OUTPUT[8];
+    u16 PARAMETER_DBL2_INTERM1_OUTPUT[8];
+    u16 PARAMETER_DBL2_INTERM2_OUTPUT[8];
+    
+    u32 CRC32;
+    
+}CBPara;
+#pragma pack()
 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
@@ -129,10 +229,10 @@ typedef struct cb_para_in_sf
 #define CONTROL_PARAMETER_NOT_EXIST        0x06u
 #define SAFETY_PARAMETER_EXIST        0x07u
 #define CONTROL_PARAMETER_EXIST        0x08u
-#define SEND_PARAMETER        0x09u
-#define RECEIVE_PARAMETER        0x0Au
-#define PARAMETER_LOADED_FINSH        0x0Bu
-
+#define SEND_S0001_PARAMETER        0x04u
+#define SEND_S0001_PARAMETER_FINISH        0x08u
+#define SEND_CS001_PARAMETER        0x40u
+#define SEND_CS001_PARAMETER_FINISH        0x80u
 
 
 /* parameters safety*/
@@ -200,7 +300,12 @@ typedef struct cb_para_in_sf
 #define SAFETY_INPUT_CONFIGURABLE_8_TYPE       SFParameterData.p_SAFETY_INPUT_CONFIGURABLE_8_TYPE
 #define SAFETY_INPUT_CONFIGURABLE_9_TYPE       SFParameterData.p_SAFETY_INPUT_CONFIGURABLE_9_TYPE
 #define SAFETY_INPUT_CONFIGURABLE_10_TYPE      SFParameterData.p_SAFETY_INPUT_CONFIGURABLE_10_TYPE
-
+/* safety IO parameter */
+#define IO_PARAMETER_SAFETY_INPUT               SFParameterData.p_IO_PARAMETER_SAFETY_INPUT
+#define IO_PARAMETER_DBL2_UPPER_INPUT           SFParameterData.p_IO_PARAMETER_DBL2_UPPER_INPUT
+#define IO_PARAMETER_DBL2_LOWER_INPUT           SFParameterData.p_IO_PARAMETER_DBL2_LOWER_INPUT
+#define IO_PARAMETER_DBL2_INTERM1_INPUT         SFParameterData.p_IO_PARAMETER_DBL2_INTERM1_INPUT
+#define IO_PARAMETER_DBL2_INTERM2_INPUT         SFParameterData.p_IO_PARAMETER_DBL2_INTERM2_INPUT
 
 
 /* control parameters in safety*/
@@ -213,11 +318,32 @@ typedef struct cb_para_in_sf
 #define LOWER_DIAG_SS_LENGTH                     CBParameterInSafety.p_LOWER_DIAG_SS_LENGTH
 #define INTERM1_DIAG_SS_LENGTH                   CBParameterInSafety.p_INTERM1_DIAG_SS_LENGTH
 #define INTERM2_DIAG_SS_LENGTH                   CBParameterInSafety.p_INTERM2_DIAG_SS_LENGTH
-#define DIAG3_ENABLE                             CBParameterInSafety.p_DIAG3_ENABLE
 #define SPARE_PARAMETER_11                       CBParameterInSafety.p_SPARE_PARAMETER_11
 #define SPARE_PARAMETER_12                       CBParameterInSafety.p_SPARE_PARAMETER_12
 #define SPARE_PARAMETER_16                       CBParameterInSafety.p_SPARE_PARAMETER_16
 #define SPARE_PARAMETER_17                       CBParameterInSafety.p_SPARE_PARAMETER_17
+/* non safety IO parameter */
+#define IO_PARAMETER_CONTROL_INPUT               CBParameterInSafety.p_IO_PARAMETER_CONTROL_INPUT
+#define IO_PARAMETER_DBL1_UPPER_INPUT            CBParameterInSafety.p_IO_PARAMETER_DBL1_UPPER_INPUT
+#define IO_PARAMETER_DBL1_LOWER_INPUT            CBParameterInSafety.p_IO_PARAMETER_DBL1_LOWER_INPUT
+#define IO_PARAMETER_DBL1_INTERM1_INPUT          CBParameterInSafety.p_IO_PARAMETER_DBL1_INTERM1_INPUT
+#define IO_PARAMETER_DBL1_INTERM2_INPUT          CBParameterInSafety.p_IO_PARAMETER_DBL1_INTERM2_INPUT
+
+
+#define STAR_DELTA_DELAY                                CBParameterData.p_STAR_DELTA_DELAY
+
+#define IP_ADDRESS_BYTE1                                   CBParameterData.p_IP_ADDRESS_BYTE1
+#define IP_ADDRESS_BYTE2                                   CBParameterData.p_IP_ADDRESS_BYTE2
+#define IP_ADDRESS_BYTE3                                   CBParameterData.p_IP_ADDRESS_BYTE3
+#define IP_ADDRESS_BYTE4                                   CBParameterData.p_IP_ADDRESS_BYTE4
+#define SUBNET_MASK_BYTE1                                  CBParameterData.p_SUBNET_MASK_BYTE1
+#define SUBNET_MASK_BYTE2                                  CBParameterData.p_SUBNET_MASK_BYTE2
+#define SUBNET_MASK_BYTE3                                  CBParameterData.p_SUBNET_MASK_BYTE3
+#define SUBNET_MASK_BYTE4                                  CBParameterData.p_SUBNET_MASK_BYTE4
+#define GATEWAY_BYTE1                                      CBParameterData.p_GATEWAY_BYTE1
+#define GATEWAY_BYTE2                                      CBParameterData.p_GATEWAY_BYTE2
+#define GATEWAY_BYTE3                                      CBParameterData.p_GATEWAY_BYTE3
+#define GATEWAY_BYTE4                                      CBParameterData.p_GATEWAY_BYTE4
 
 
 
@@ -268,6 +394,7 @@ typedef struct cb_para_in_sf
 
 #define ESC_SF_PARAMETER_DATA_LEN               sizeof(SFPara)
 #define ESC_CB_PARAMETER_IN_SF_DATA_LEN         sizeof(CBParaInSF)
+#define ESC_CB_PARAMETER_DATA_LEN               sizeof(CBPara)
 
 /* Exported functions ------------------------------------------------------- */
 #ifdef GEC_SF_MASTER
@@ -275,8 +402,16 @@ int USB_LoadParameter(void);
 #endif
 void ParametersLoading(void);
 static u16 Send_State_Message(u8 board, u8 state, u8 buff[], u16 len);
+void EscParameterInit(void);
 
 extern u8 ParaLoad;
+#ifdef GEC_SF_MASTER
+extern u8 ParameterFile[2000];
+extern u8 ControlNeedInSafetyFile[45][8];
+extern u16 ControlFileLen;
+extern u8 g_u8ParameterLoadingOK;
+extern u8 g_u8ParameterSendToCPU2;
+#endif
 
 #endif  /* __ESC_PARAMETER_PROCESS_H */
 

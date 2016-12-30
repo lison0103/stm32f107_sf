@@ -29,8 +29,6 @@
 /* Private functions ---------------------------------------------------------*/
 void en_key_check(void);
 static void check_key_input(void);
-static void Safety_String_End(void);
-static void Safety_String_Begin(void);
 static void Drive_Chain(void);
 
 
@@ -73,9 +71,9 @@ void CheckUpDown_Key(UpDownKeyItem *ptKEY)
                 }
                 else
                 {
-                    /* FAULT: UP DOWN KEYS ACTIVATE (F377) */
+                    /* FAULT: UP DOWN KEYS ACTIVATE (F330) */
                     ptKEY->InputPreviousState = 0u;
-                    EN_ERROR48 |= 0x02u;
+                    EN_ERROR42 |= 0x04u;
                 }
             }
             else
@@ -92,16 +90,26 @@ void CheckUpDown_Key(UpDownKeyItem *ptKEY)
                 {
                     if( (ptKEY->TimerKeyOn * SYSTEMTICK) > 5000u )
                     {
-                        /* FAULT: UP KEY ACTIVATE (F378) */
                         ptKEY->InputPreviousState = 0u;
-                        EN_ERROR48 |= 0x04u;
+                        if( ptKEY->key == ESC_UP_KEY )
+                        {
+                            /* FAULT: UP KEY ACTIVATE (F331) */
+                            EN_ERROR42 |= 0x08u;
+                        }
+                        else if( ptKEY->key == ESC_DOWN_KEY )
+                        {
+                            /* FAULT: DOWN KEY ACTIVATE (F332) */
+                            EN_ERROR42 |= 0x10u;
+                        }
+                        else
+                        {}
                     }
                 }
                 else
                 {
-                    /* Key Up-Down FAULT (F377) */
+                    /* FAULT: UP DOWN KEYS ACTIVATE (F330) */
                     ptKEY->InputPreviousState = 0u;
-                    EN_ERROR48 |= 0x02u;
+                    EN_ERROR42 |= 0x04u;
                 }
             }
             else
@@ -127,10 +135,7 @@ void CheckUpDown_Key(UpDownKeyItem *ptKEY)
                         }
                         else if( ptKEY->key == ESC_DOWN_KEY )
                         {
-
-                          
-                          
-                          CMD_ESC_RUN |= ESC_DOWN;
+                            CMD_ESC_RUN |= ESC_DOWN;
                         }
                         else
                         {}
@@ -157,20 +162,19 @@ void CheckUpDown_Key(UpDownKeyItem *ptKEY)
 *******************************************************************************/
 void Inspection_UpDown_Button(void)
 {
-    if( CMD_ESC_KEY & ESC_INSPECT_UP_BUTTON )
+    if( (CMD_ESC_KEY & ESC_INSPECT_UP_BUTTON) && (!(CMD_ESC_KEY & ESC_INSPECT_DOWN_BUTTON)) )
     {
         /* Order to inspect Run Up */
         CMD_ESC_RUN |= ESC_UP;
     }
-    else if( CMD_ESC_KEY & ESC_INSPECT_DOWN_BUTTON )
+    else if( (!(CMD_ESC_KEY & ESC_INSPECT_UP_BUTTON)) && (CMD_ESC_KEY & ESC_INSPECT_DOWN_BUTTON) )
     {
         /* Order to inspect Run Down */
         CMD_ESC_RUN |= ESC_DOWN;
     }
     else
     {
-        /* In RUN state, when the actual direction input (up or down) is not 
-        activated, the sytem exectues the stopping process */
+        /* In RUN state, when the actual direction input (up or down) is not activated, the sytem exectues the stopping process */
         /* order to stop */
         CMD_ESC_RUN &= ~ESC_UP;
         CMD_ESC_RUN &= ~ESC_DOWN;
@@ -181,6 +185,47 @@ void Inspection_UpDown_Button(void)
     {
       CMD_ESC_RUN &= ~(ESC_UP|ESC_DOWN);
     }  
+}
+
+
+/*******************************************************************************
+* Function Name  : Inspection_UpDown_Button_Reset
+* Description    : Check Inspection up down.
+* Input          : None          
+* Output         : None
+* Return         : None
+*******************************************************************************/
+void Inspection_UpDown_Button_Reset(void)
+{
+    static u16 stat_u16TimeUpButton = 0u,stat_u16TimeDownButton = 0u;
+    
+    if( RESET_FROM_INSPECTION_CONTROL )
+    {
+        if( (CMD_ESC_KEY & ESC_INSPECT_UP_BUTTON) && (!(CMD_ESC_KEY & ESC_INSPECT_DOWN_BUTTON)) )
+        {
+            stat_u16TimeUpButton++;
+            stat_u16TimeDownButton = 0u;
+            
+            
+        }
+        else if( (!(CMD_ESC_KEY & ESC_INSPECT_UP_BUTTON)) && (CMD_ESC_KEY & ESC_INSPECT_DOWN_BUTTON) )
+        {
+            stat_u16TimeDownButton++;
+            stat_u16TimeUpButton = 0u;
+        }
+        else
+        {
+            if(((( stat_u16TimeUpButton * SYSTEMTICK ) < 5000u ) && (( stat_u16TimeUpButton * SYSTEMTICK ) > KEY_MINIMUM_TIME ))
+               || ((( stat_u16TimeDownButton * SYSTEMTICK ) < 5000u ) && (( stat_u16TimeDownButton * SYSTEMTICK ) > KEY_MINIMUM_TIME )))
+            {
+                g_u8ResetType = 1u;
+                
+                fault_code_manual_reset(g_u8ResetType);
+            }
+            stat_u16TimeUpButton = 0u;
+            stat_u16TimeDownButton = 0u;
+        } 
+    }
 }
 
 
@@ -218,72 +263,6 @@ void CheckReset(void)
 }
 
 /*******************************************************************************
-* Function Name  : Safety_String_Begin
-* Description    : Go to fault if begin safety string is open.      
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-static void Safety_String_Begin(void)
-{
-    /* Begin safety string is open */
-    if( !( INPUT_PORT9_16 & INPUT_PORT10_MASK ) ) /* LOW active*/
-    {
-        EN_ERROR50 |= 0x40u;      
-    }  
-}
-
-/*******************************************************************************
-* Function Name  : Safety_String_End
-* Description    : Go to fault if end safety string is open.      
-* Input          : None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-static void Safety_String_End(void)
-{
-  static u8 safety_end_off_tcnt=0u,safety_end_on_flag=0u;
-    
-  if( safety_end_off_tcnt < 255u ) 
-  {
-      safety_end_off_tcnt++;
-  }
-  
-  /* End safety string is open */
-  if( INPUT_PORT_SF_PWR_FB_CPU_MASK & INPUT_FEEDBACK )
-  {        
-    CMD_FLAG5 &= ~ESC_SAFETY_END_CLOSE;
-        
-    if(safety_end_on_flag) 
-    {
-      safety_end_off_tcnt = 0u;    
-    }
-    safety_end_on_flag = 0u;  
-    
-    CMD_FLAG5 &= ~ESC_SAFETY_END_ENABLE;
-  }
-  else 
-  {
-    CMD_FLAG5 |= ESC_SAFETY_END_CLOSE;
-       
-    safety_end_on_flag = 1u;
- 
-    if(safety_end_off_tcnt > 100u)
-    {  
-      CMD_FLAG5 |= ESC_SAFETY_END_ENABLE;
-    } 
-  }  
-         
-  /* The system supervises also the voltage of the end safety string. */
-  /* This voltage is sent to Control Board */
-  /* Only in High configure safety board CPU1*/
-#ifdef GEC_SF_MASTER    
-     Get_Adc_Average();
-#endif    
-}
-
-
-/*******************************************************************************
 * Function Name  : Drive_Chain
 * Description    : 
 * Input          : None          
@@ -305,7 +284,7 @@ static void Drive_Chain(void)
             if(( stat_u16TimerDriverChain1 * SYSTEMTICK ) > DRIVE_CHAIN_DELAY )
             {
                 /* Drive chain (Du-, Triplex) F09 */
-                EN_ERROR2 |= 0x04u; 
+                EN_ERROR2 |= 0x02u; 
             }
         }    
         else
@@ -345,8 +324,7 @@ static void Drive_Chain(void)
 static void check_key_input(void) 
 {
     /* up key */  
-#if 1
-    if((EscRtData. Cfg_Input_Level[2] &(0x01u))  ) 
+    if( (EscRtData. Cfg_Input_Level[3] &(0x02u)) ) 
     {
         CMD_ESC_KEY |= ESC_UP_KEY;
     }
@@ -356,7 +334,7 @@ static void check_key_input(void)
     }
     
     /* down key */
-    if((EscRtData. Cfg_Input_Level[2] &(0x02u))  ) 
+    if( (EscRtData. Cfg_Input_Level[3] &(0x04u)) ) 
     {
         CMD_ESC_KEY |= ESC_DOWN_KEY;
     }
@@ -364,35 +342,9 @@ static void check_key_input(void)
     {
         CMD_ESC_KEY &= ~ESC_DOWN_KEY;
     }
-
-#else  
-    if((INPUT_PORT17_24 & INPUT_PORT21_MASK)) 
-    {
-        CMD_ESC_KEY |= ESC_UP_KEY;
-    }
-    else
-    {
-        CMD_ESC_KEY &= ~ESC_UP_KEY;
-    }
-    
-    /* down key */
-    if((INPUT_PORT17_24 & INPUT_PORT22_MASK)) 
-    {
-        CMD_ESC_KEY |= ESC_DOWN_KEY;
-    }
-    else
-    {
-        CMD_ESC_KEY &= ~ESC_DOWN_KEY;
-    }
-#endif
-    
-    
-    
-    
-    
-    
+      
     /* inspect up key */
-    if((INPUT_PORT17_24 & INPUT_PORT19_MASK)) 
+    if( (EscRtData. Cfg_Input_Level[0] &(0x20u)) ) 
     {
         CMD_ESC_KEY |= ESC_INSPECT_UP_BUTTON; 
     }
@@ -402,7 +354,7 @@ static void check_key_input(void)
     }
     
     /* inspect down key */
-    if((INPUT_PORT17_24 & INPUT_PORT20_MASK)) 
+    if( (EscRtData. Cfg_Input_Level[0] &(0x40u))  ) 
     {
         CMD_ESC_KEY |= ESC_INSPECT_DOWN_BUTTON;
     }
@@ -410,17 +362,7 @@ static void check_key_input(void)
     {
         CMD_ESC_KEY &= ~ESC_INSPECT_DOWN_BUTTON;
     }   
-    /* inspect normal key */
-/*    
-    if((INPUT_PORT9_16 & INPUT_PORT11_MASK)) 
-    {
-        CMD_ESC_KEY |= ESC_INSPECT_NORMAL_KEY;
-    }
-    else
-    {
-        CMD_ESC_KEY &= ~ESC_INSPECT_NORMAL_KEY;
-    }  
-*/
+
     /* reset button */
     if((INPUT_PORT9_16 & INPUT_PORT9_MASK)) 
     {
@@ -442,8 +384,6 @@ static void check_key_input(void)
 *******************************************************************************/
 void Esc_Safety_Input_Check(void)
 {
-    Safety_String_Begin();
-    Safety_String_End();
     Drive_Chain();
     check_key_input();
 }

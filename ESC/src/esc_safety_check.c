@@ -19,42 +19,22 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#ifdef GEC_SF_MASTER
-#define TEST_PATTERN    0x09u
-#else
-#define TEST_PATTERN    0x06u
-#endif
-
-#define UNDEFINED       0u
-#define OPEN       1u
-#define CLOSED       2u
-#define ERROR       3u 
-#define SYNCLINE        4u
-#define FEEDBACK_PULSE_OUTPUT   5u
+#define SAFETY_SWITCH_TIME              20u
+#define STATE_ERROR_TIME                200u
+#define SAFETY_SWITCH_CHECK_DELAY       1000u
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 static u8 sf_wdt_check_tms = 0u;
 static u8 sf_wdt_check_en = 0u;
-static u8 sf_relay_check_cnt = 0u;
-static u8 g_u8CloseSafetyOutput = 0u;
 /* static u8 test_num = 0;*/
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
-void SafetySwitchCheck( u8 pulse_on, u8 test_num );
-static void SafetyOutputDisable_b(void);
-static void SafetyOutputEnable_b(void);
+void SafetySwitchCheck(u8 check);
 
-#ifdef GEC_SF_MASTER
-u8 R_SF_RL2_FB_CPU1;
-#else
-u8 R_SF_RL_FB_CPU2;
-#endif
-u8 SAFETY_SWITCH[4][4];
-u8 SAFETY_SWITCH_STATUS[4];
-u8 FAULT = 0u;
-
+static u8 SW_T_State = 0u;
+static u16 SW_T_Delay_Tms = 0u;
 
 
 /*******************************************************************************
@@ -66,102 +46,136 @@ u8 FAULT = 0u;
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void SafetySwitchCheck( u8 pulse_on, u8 test_num )
+void SafetySwitchCheck(u8 check)
 {
-
-    if( pulse_on != 0u )
-    {
-        if( PULSE_OUTPUT_FB == 0u )
-        {
-            if( SAFETY_SWITCH_INPUT_1 )
+    u8 state = 0u;
+    
+    if( check == 1u )
+    {     
+        /*
+        if( OmcEscRtData.SafetySwitchState == EscRtData.SafetySwitchState )
+        { */           
+            if(( EscRtData.SafetySwitchState == 2u ) || ( EscRtData.SafetySwitchState == 6u ))
             {
-                SAFETY_SWITCH[0][test_num] = CLOSED;
+#ifdef GEC_SF_MASTER                 
+                CPU1_PULSE_OUTPUT_OFF();
+#else
+                CPU2_PULSE_OUTPUT_OFF();
+#endif                
+                delay_us(SAFETY_SWITCH_CHECK_DELAY);
+                
+                if( PULSE_OUTPUT_FB  == 1u )
+                {
+                    if( SAFETY_SWITCH_INPUT_1 == 1u )
+                    {
+                        /* Safety switch 1 fault F362 */
+                        EN_ERROR46 |= 0x04u;
+                    }
+                    if( SAFETY_SWITCH_INPUT_2 == 1u )
+                    {
+                        /* Safety switch 2 fault F363 */
+                        EN_ERROR46 |= 0x08u;
+                    }
+                    if( SAFETY_SWITCH_INPUT_3 == 1u )
+                    {
+                        /* Safety switch 3 fault F364 */
+                        EN_ERROR46 |= 0x10u;
+                    }
+                    if( SAFETY_SWITCH_INPUT_4 == 1u )
+                    {
+                        /* Safety switch 4 fault F365 */
+                        EN_ERROR46 |= 0x20u;
+                    }                  
+                }
+                else
+                {
+                    /* Feedback fault pulse output safety switch (F368) */
+                    EN_ERROR47 |= 0x01u;            
+                }
+#ifdef GEC_SF_MASTER                 
+                CPU1_PULSE_OUTPUT_ON();
+#else
+                CPU2_PULSE_OUTPUT_ON();
+#endif                
+                SW_T_State += 1u;
+                SW_T_Delay_Tms = 0u;            
             }
             else
             {
-                SAFETY_SWITCH[0][test_num] = OPEN;
+                if( SW_T_Delay_Tms++ > SAFETY_SWITCH_TIME )
+                {
+                    SW_T_State += 1u;
+                    if( SW_T_State > 8u )
+                    {
+                        SW_T_State = 1u;
+                    }
+                    SW_T_Delay_Tms = 0u;
+                    if(( EscRtData.SafetySwitchState == 1u ) || ( EscRtData.SafetySwitchState == 5u ))
+                    {
+                        if( PULSE_OUTPUT_FB  == 1u )
+                        {
+                            /* Feedback fault pulse output safety switch (F368) */
+                            EN_ERROR47 |= 0x01u;
+                        }
+                    }
+                }
             }
-            
-            if( SAFETY_SWITCH_INPUT_2 )
-            {
-                SAFETY_SWITCH[1][test_num] = CLOSED;
-            }
-            else
-            {
-                SAFETY_SWITCH[1][test_num] = OPEN;
-            }  
-            
-            if( SAFETY_SWITCH_INPUT_3 )
-            {
-                SAFETY_SWITCH[2][test_num] = CLOSED;
-            }
-            else
-            {
-                SAFETY_SWITCH[2][test_num] = OPEN;
-            }
-            
-            if( SAFETY_SWITCH_INPUT_4 )
-            {
-                SAFETY_SWITCH[3][test_num] = CLOSED;
-            }
-            else
-            {
-                SAFETY_SWITCH[3][test_num] = OPEN;
-            }                 
+#if 0
         }
         else
         {
-            FAULT = FEEDBACK_PULSE_OUTPUT;
-            /* Feedback fault pulse output safety switch F364 */
-            EN_ERROR46 |= 0x10u;
-        }    
+            if( SW_T_Delay_Tms++ > STATE_ERROR_TIME )
+            {
+                /* SAFETY SWITCH ERROR F361*/
+                EN_ERROR46 |= 0x02u;
+                SW_T_Delay_Tms = 0u;
+                SW_T_State = 0u;                    
+            }
+        }     
+#endif    
     }
     else
-    {
-        if( PULSE_OUTPUT_FB == 1u )
+    {     
+        if( EscRtData.SafetySwitchState == 8u )
         {
-            if( SAFETY_SWITCH_INPUT_1 )
+            state = 0u;
+        }
+#ifdef GEC_SF_MASTER         
+        else if( EscRtData.SafetySwitchState == 5u )
+        {
+            state = 6u;
+        }
+#else
+        else if( EscRtData.SafetySwitchState == 1u )
+        {
+            state = 2u;
+        }
+#endif        
+        else
+        {
+            state = EscRtData.SafetySwitchState;
+        }
+        
+        if( OmcEscRtData.SafetySwitchState == ( state + 1u ))
+        {
+            SW_T_State += 1u;
+            if( SW_T_State > 8u )
             {
-                SAFETY_SWITCH[0][test_num] = ERROR;
-            }
-            else
-            {
-                SAFETY_SWITCH[0][test_num] = UNDEFINED;
-            }
-            if( SAFETY_SWITCH_INPUT_2 )
-            {
-                SAFETY_SWITCH[1][test_num] = ERROR;
-            }
-            else
-            {
-                SAFETY_SWITCH[1][test_num] = UNDEFINED;
-            }  
-            
-            if( SAFETY_SWITCH_INPUT_3 )
-            {
-                SAFETY_SWITCH[2][test_num] = ERROR;
-            }
-            else
-            {
-                SAFETY_SWITCH[2][test_num] = UNDEFINED;
-            }
-            
-            if( SAFETY_SWITCH_INPUT_4 )
-            {
-                SAFETY_SWITCH[3][test_num] = ERROR;
-            }
-            else
-            {
-                SAFETY_SWITCH[3][test_num] = UNDEFINED;
-            }                 
+                SW_T_State = 1u;
+            }            
+            SW_T_Delay_Tms = 0u;                
         }
         else
         {
-            FAULT = FEEDBACK_PULSE_OUTPUT;
-            /* Feedback fault pulse output safety switch F364 */
-            EN_ERROR46 |= 0x10u;
-        }   
-    }
+            if( SW_T_Delay_Tms++ > STATE_ERROR_TIME )
+            {
+                /* SAFETY SWITCH ERROR F361*/
+                EN_ERROR46 |= 0x02u;
+                SW_T_Delay_Tms = 0u;
+                SW_T_State = 0u;                    
+            }
+        }
+    } 
 }
 
 /*******************************************************************************
@@ -173,227 +187,147 @@ void SafetySwitchCheck( u8 pulse_on, u8 test_num )
 *******************************************************************************/
 void SafetySwitchStatus(void)
 {
-    static u8 Pulse_Generation = 0u;
-    static u8 SwitchState = 0u;
-    static u8 Timeout_SYNC_Line = 0u;
-    static u8 SafetySwitchInit = 0u;
-    static u8 test_pattern = 0u;
-    u8 switch_num;
+#if 1    
+    EscRtData.SafetySwitchState = SW_T_State;
+    EscRtData.SafetySwitchEnter = 1u;
     
-    if( SafetySwitchInit == 0u )
+    /* Switch n close or open check in Get_GpioInput() */
+  
+    if( OmcEscRtData.SafetySwitchEnter )
     {
-#ifdef GEC_SF_MASTER
-        SYNC_SYS_OUT_SET();
+        /* Safety switch hardware be checked every 800ms */
+        switch( SW_T_State )
+        {
+           case 0:
+            {
+#ifdef GEC_SF_MASTER            
+                CPU1_PULSE_OUTPUT_ON();
+                SafetySwitchCheck(1u);           
 #else
-        SYNC_SYS_OUT_CLR();
-#endif    
-        
-        PULSE_OUTPUT_CLR();
-        Pulse_Generation = 0u;
-        for( switch_num = 0u; switch_num < 4u; switch_num++ )
-        {
-            SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
-        }
-        
-        test_pattern = TEST_PATTERN;
-        
-        SafetySwitchInit = 1u;
-    }   
-
-#if 1   
-    switch( SwitchState )
-    {
-       case 0:
-        {
-            if( (SYNC_SYS_IN == 0u) || (Pulse_Generation == 1u) )
-            {
-                Timeout_SYNC_Line = 0u;
-                
-                if( Pulse_Generation != 1u )
-                {
-                    Pulse_Generation = 1u;
-                    SwitchState = 1u;
-                }
-                
-                SYNC_SYS_OUT_SET();
-                if( SYNC_SYS_IN != 0u )
-                {
-                    FAULT = SYNCLINE;
-                    SwitchState = 6u;
-                }
+                CPU2_PULSE_OUTPUT_ON();
+                SafetySwitchCheck(0u);
+#endif            
+                break;
             }
-            else
+           case 1:
             {
-                if( Timeout_SYNC_Line > 10u )
-                {
-                    FAULT = SYNCLINE;
-                    SwitchState = 6u;            
-                }
-                else
-                {
-                    Timeout_SYNC_Line++;
-                }
-            } 
-            break;
-        }
-       case 1:
-        {
-            if( test_pattern & 0x01u )
-            {
-                PULSE_OUTPUT_SET(); 
+#ifdef GEC_SF_MASTER      
+                CPU1_PULSE_OUTPUT_ON();
+                SafetySwitchCheck(1u);
+#else
+                CPU2_PULSE_OUTPUT_OFF();
+                SafetySwitchCheck(0u);            
+#endif            
+                break;
             }
-            else
+           case 2:
             {
-                PULSE_OUTPUT_CLR(); 
-            }
-            SwitchState = 2u;
-            break;
-        }
-       case 2:
-        {
-            SafetySwitchCheck( (test_pattern & 0x01u), 0u );
-            
-            if( test_pattern & 0x02u )
-            {
-                PULSE_OUTPUT_SET(); 
-            }
-            else
-            {
-                PULSE_OUTPUT_CLR(); 
-            }
-            SwitchState = 3u;
-            break;
-        }
-       case 3:
-        {
-
-            SafetySwitchCheck( (test_pattern & 0x02u), 1u );
-            
-            if( test_pattern & 0x04u )
-            {
-                PULSE_OUTPUT_SET(); 
-            }
-            else
-            {
-                PULSE_OUTPUT_CLR(); 
-            }
-            SwitchState = 4u;
-            break;
-        }   
-       case 4:
-        {
-
-            SafetySwitchCheck( (test_pattern & 0x04u), 2u );
-            
-            if( test_pattern & 0x08u )
-            {
-                PULSE_OUTPUT_SET(); 
-            }
-            else
-            {
-                PULSE_OUTPUT_CLR(); 
-            }
-            SwitchState = 5u;
-            break;
-        }          
-       case 5:
-        {
-
-            SafetySwitchCheck( (test_pattern & 0x08u), 3u );
-            
-            for( switch_num = 0u; switch_num < 4u; switch_num++ )
-            {
-                if( FAULT == FEEDBACK_PULSE_OUTPUT )
-                {
-                    SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
-                }
-                else if ( (SAFETY_SWITCH[switch_num][0] == ERROR) || (SAFETY_SWITCH[switch_num][1] == ERROR) || (SAFETY_SWITCH[switch_num][2] == ERROR) || (SAFETY_SWITCH[switch_num][3] == ERROR) )
-                {
-                    SAFETY_SWITCH_STATUS[switch_num] = ERROR;
-                }
-                else if ( (SAFETY_SWITCH[switch_num][0] == OPEN) || (SAFETY_SWITCH[switch_num][1] == OPEN) || (SAFETY_SWITCH[switch_num][2] == OPEN) || (SAFETY_SWITCH[switch_num][3] == OPEN) )
-                {
-                    SAFETY_SWITCH_STATUS[switch_num]  = OPEN;
-                }
-                else if ( (SAFETY_SWITCH[switch_num][0] == CLOSED) || (SAFETY_SWITCH[switch_num][1] == CLOSED) || (SAFETY_SWITCH[switch_num][2] == CLOSED) || (SAFETY_SWITCH[switch_num][3] == CLOSED) )
-                {
-                    SAFETY_SWITCH_STATUS[switch_num]  = CLOSED;
-                }
-                else
-                {
-                    SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
-                }
-            }           
-            
-            Pulse_Generation = 0u;
-            PULSE_OUTPUT_CLR();
-            SYNC_SYS_OUT_CLR();
-            SwitchState = 7u;
-            break;
-        }
-       case 6:
-        {
-            for( switch_num = 0u; switch_num < 4u; switch_num++ )
-            {
-                SAFETY_SWITCH_STATUS[switch_num] = UNDEFINED;
-            }
-            
-            Pulse_Generation = 0u;
-            PULSE_OUTPUT_CLR();
-            SYNC_SYS_OUT_CLR();
-            SwitchState = 7u;
-            break;            
-        }
-       case 7:
-        {
-            SwitchState = 0u;
-            break;            
-        }       
-       default:
-        break;
-        
-    }
+#ifdef GEC_SF_MASTER    
+                SafetySwitchCheck(1u);
+#else
+                CPU2_PULSE_OUTPUT_OFF();
+                SafetySwitchCheck(0u);          
 #endif 
-    
-}
-
-/*******************************************************************************
-* Function Name  : SafetyOutputDisable
-* Description    : Safety Relay disable.
-*                  
-* Input          : None
-*                  None
-* Output         : None
-* Return         : None
-*******************************************************************************/
-static void SafetyOutputDisable_b(void)
-{
-    static u8 sf_output_dis_tms = 0u; 
-    
-    if( sf_wdt_check_en == 0u ) 
-    { 
-        if(( SfBase_EscState == ESC_INIT_STATE ) || ( SfBase_EscState == ESC_FAULT_STATE ) 
-           || ( SfBase_EscState == ESC_READY_STATE ) || ( SfBase_EscState == ESC_STOPPING_PROCESS_STATE ))
-        {
-            SF_RELAY_OFF();
-            
-            if( sf_relay_check_cnt == 1u )
+                break;
+            }
+           case 3:
             {
-                sf_output_dis_tms++;
-                if( sf_output_dis_tms * SYSTEMTICK > 50u )
-                {
-                    SafetyRelayAuxRelayTest();
-                    sf_relay_check_cnt = 0u;
-                    sf_output_dis_tms = 0u;
-                }
-            }  
-        }       
+#ifdef GEC_SF_MASTER       
+                CPU1_PULSE_OUTPUT_ON();
+                SafetySwitchCheck(1u);           
+#else
+                CPU2_PULSE_OUTPUT_OFF();
+                SafetySwitchCheck(0u);          
+#endif           
+                break;
+            }   
+           case 4:
+            {
+#ifdef GEC_SF_MASTER            
+                CPU1_PULSE_OUTPUT_ON();
+                SafetySwitchCheck(1u);          
+#else
+                CPU2_PULSE_OUTPUT_ON();
+                SafetySwitchCheck(0u);              
+#endif
+                break;
+            }          
+           case 5:
+            {
+#ifdef GEC_SF_MASTER            
+                CPU1_PULSE_OUTPUT_OFF();
+                SafetySwitchCheck(0u);           
+#else            
+                CPU2_PULSE_OUTPUT_ON();
+                SafetySwitchCheck(1u);            
+#endif 
+                break;
+            }
+           case 6:
+            {
+#ifdef GEC_SF_MASTER                       
+                CPU1_PULSE_OUTPUT_OFF();
+                SafetySwitchCheck(0u);           
+#else
+                SafetySwitchCheck(1u);            
+#endif
+                break;            
+            }
+           case 7:
+            {
+#ifdef GEC_SF_MASTER            
+                CPU1_PULSE_OUTPUT_OFF();
+                SafetySwitchCheck(0u);           
+#else
+                CPU2_PULSE_OUTPUT_ON();
+                SafetySwitchCheck(1u);            
+#endif
+                break;            
+            }   
+           case 8:
+            {
+#ifdef GEC_SF_MASTER            
+                CPU1_PULSE_OUTPUT_ON();
+                SafetySwitchCheck(0u);            
+#else
+                CPU2_PULSE_OUTPUT_ON();
+                SafetySwitchCheck(1u);            
+#endif
+                break;            
+            }         
+           default:
+            break;
+        }
     }
-}
-
-void SafetyOutputDisable(void)
-{
-  SF_RELAY_OFF();
+    
+    
+#else
+ 
+/* for test */    
+#ifdef GEC_SF_MASTER 
+    CPU1_PULSE_OUTPUT_OFF();
+    delay_us(650u);
+    
+    if( PULSE_OUTPUT_FB  == 1u )
+    {
+        if( SAFETY_SWITCH_INPUT_1 == 1u )
+        {
+            /* Safety switch 1 fault F362 */
+            EN_ERROR46 |= 0x04u;
+        }                  
+    }
+    else
+    {
+        /* Feedback fault pulse output safety switch (F368) */
+        EN_ERROR47 |= 0x01u;            
+    }
+    
+    CPU1_PULSE_OUTPUT_ON();    
+#else
+    CPU2_PULSE_OUTPUT_OFF();
+#endif    
+    
+#endif    
 }
 
 /*******************************************************************************
@@ -634,7 +568,6 @@ static void SafetyCTR_Check(void)
                 if(stat_u8CheckError > 2u)
                 {
                     /* SafetyCTR_Check error */
-                    /*ESC_SafeRelay_Error_Process();*/
                     /* Safety relay outp_Ext. watchd error F386 */
                     EN_ERROR49 |= 0x04u;
                 }
@@ -648,119 +581,31 @@ static void SafetyCTR_Check(void)
     }
 }
 
-
 /*******************************************************************************
-* Function Name  : Safety_Relay_Shortcircuit_Check
-* Description    : 
-*                  
+* Function Name  : SafetyOutputDisable
+* Description    : Safety Relay disable.                 
 * Input          : None
-*                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-void Safety_Relay_Shortcircuit_Check(void)
+void SafetyOutputDisable(void)
 {
-    static u8 stat_u8CheckStage = 0u;
-    static u16 stat_u8TimerCheck = 0u;
-    
-    switch(stat_u8CheckStage)
-    {
-       case 0u:
-        {
-            /* ACIVATE UP CONTACTOR */
-            CMD_ESC_ORDER |= 0x01u;
-            stat_u8TimerCheck = 0u;
-            stat_u8CheckStage = 1u;
-            break;
-        }
-       case 1u:
-        {
-            /* After 500 ms: Check contactors are deactivated */
-            stat_u8TimerCheck++;
-            if( stat_u8TimerCheck * SYSTEMTICK > 500u )
-            {
-                stat_u8TimerCheck = 0u;
-                stat_u8CheckStage = 2u;
-            }
-            break;
-        }
-       case 2u:
-        {
-            /* DEACTIVATE UP CONTACTOR */
-            CMD_ESC_ORDER &= ~0x01u;
-            stat_u8CheckStage = 3u;
-            break;
-        }
-       case 3u:
-        {
-            /* Close safety output */
-            g_u8CloseSafetyOutput = 1u;
-            stat_u8CheckStage = 4u;
-            break;
-        }        
-       case 4u:
-        {
-            /* After 500 ms: Check contactors are deactivated */ 
-            stat_u8TimerCheck++;
-            if( stat_u8TimerCheck * SYSTEMTICK > 500u )
-            {
-                stat_u8TimerCheck = 0u;
-                g_u8CloseSafetyOutput = 0u;
-                g_u8SafetyRelayStartCheck = 1u;
-                stat_u8CheckStage = 0u;
-            }
-            break;
-        }
-       default:
-        break;
-        
-    }
+    SF_RELAY_OFF();
 }
 
 /*******************************************************************************
 * Function Name  : SafetyOutputEnable
 * Description    : Safety Relay enable.
-*                  
 * Input          : None
-*                  None
 * Output         : None
 * Return         : None
 *******************************************************************************/
-static void SafetyOutputEnable_b(void)
-{
-    static u8 sf_output_en_tms = 0u; 
-        
-    if( SfBase_EscState == ESC_RUN_STATE ) 
-    { 
-        SF_RELAY_ON();    
-        SF_EWDT_TOOGLE();
-        
-        if( sf_relay_check_cnt == 0u )
-        {
-            sf_output_en_tms++;
-            if( sf_output_en_tms * SYSTEMTICK > 50u )
-            {
-                SafetyRelayAuxRelayTest();
-                sf_relay_check_cnt = 1u;
-                sf_output_en_tms = 0u;
-            }
-        }   
-        
-        SafetyCTR_Check();
-    }
-    else if( (SfBase_EscState == ESC_STARTING_PROCESS_STATE) && ( g_u8CloseSafetyOutput == 1u ) )
-    {
-      SF_RELAY_ON();    
-      SF_EWDT_TOOGLE();
-    }
-    else
-    {}
-}
-
 void SafetyOutputEnable(void)
 {
-  SF_RELAY_ON();    
-  SF_EWDT_TOOGLE();     
+    SF_RELAY_ON();    
+    SF_EWDT_TOOGLE();     
 }
 
 /******************************  END OF FILE  *********************************/
+
+

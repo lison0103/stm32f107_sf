@@ -47,8 +47,33 @@
 #define CAN1TX_SAFETY_DATA_ID17  0x0110u
 #define CAN1TX_SAFETY_DATA_ID18  0x0111u
 #define CAN1TX_SAFETY_DATA_ID19  0x0112u
+#define CAN1TX_SAFETY_DATA_ID20  0x0113u
+#define CAN1TX_SAFETY_DATA_ID21  0x0114u
 #define CAN1RX_CONTROL_DATA1_ID  0x0200u
-#define CAN1RX_CONTROL_DATA2_ID  0x0202u
+#define CAN1RX_CONTROL_DATA2_ID  0x0201u
+
+
+/* Parameter */
+/* Parameter status Safety -----> Control */
+#define CAN1TX_PARA_STATUS_ID  0x0300u
+#define CAN1RX_PARA_STATUS_ID  0x0500u
+
+/* C0001.bin Safety -----> Control */
+#define CAN1TX_PARA_CONTROL_ID1  0x0301u
+#define CAN1TX_PARA_CONTROL_ID2  0x03FAu
+
+/* S0001.bin Safety -----> Control */
+#define CAN1TX_PARA_SAFETY_ID1  0x0400u
+#define CAN1TX_PARA_SAFETY_ID2  0x0440u
+
+/* CS001.bin Safety <----- Control */
+#define CAN1RX_PARA_CB_IN_SAFETY_ID1  0x0501u
+#define CAN1RX_PARA_CB_IN_SAFETY_ID2  0x052Du
+
+/* DS001.bin Safety <----- Control */
+#define CAN1RX_PARA_DDU_IN_SAFETY_ID1  0x0530u
+#define CAN1RX_PARA_DDU_IN_SAFETY_ID2  0x0531u
+
 
 /* SF <---> DBL1 */
 #define CAN2TX_DBL1_ID  0xD0u
@@ -56,6 +81,7 @@
 #define CAN2RX_DBL1_LOWER_ID  0xD2u
 #define CAN2RX_DBL1_INTERM1_ID  0xD3u
 #define CAN2RX_DBL1_INTERM2_ID  0xD4u
+
 
 #ifdef DIAGNOSTIC_LEVEL2
 /* SF <---> DBL2 */
@@ -92,6 +118,8 @@
 #ifdef DIAGNOSTIC_LEVEL2
 #define DATA_FROM_DBL2          3u
 #endif
+#define DATA_FROM_CONTROL_PARA  4u
+
 
 /* Exported functions ------------------------------------------------------- */
 u8 CAN_Int_Init(CAN_TypeDef* CANx); 
